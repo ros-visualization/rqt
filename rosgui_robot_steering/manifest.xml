@@ -1,0 +1,23 @@
+<package>
+  <description brief="rosgui_robot_steering">
+
+     rosgui_robot_steering
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_robot_steering</url>
+
+  <depend package="rosgui"/>
+  <depend package="rosgui_rospy"/>
+  <depend package="rostopic"/>
+  <depend package="geometry_msgs"/>
+
+  <export>
+    <rosgui plugin="${prefix}/robot_steering_plugin.xml"/>
+  </export>
+
+</package>
+
+

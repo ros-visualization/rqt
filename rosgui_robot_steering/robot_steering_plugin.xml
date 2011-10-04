@@ -1,0 +1,12 @@
+<library path="lib/RobotSteering">
+  <class name="RobotSteering" type="RobotSteering" base_class_type="rosgui_rospy::Plugin">
+    <description>
+      A Python GUI plugin to steer a robot with a geometry_msgs/Twist message.
+    </description>
+    <rosguiplugin>
+      <label>Robot Steering</label>
+      <icon type="theme">input-gaming</icon>
+      <statustip>A Python GUI plugin to steer a robot with a geometry_msgs/Twist message.</statustip>
+    </rosguiplugin>
+  </class>
+</library>
