@@ -1,0 +1,16 @@
+<package>
+  <description brief="rosgui">
+
+     rosgui
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui</url>
+
+  <rosdep name="python-qt4"/>
+
+</package>
+
+
