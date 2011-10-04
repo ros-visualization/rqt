@@ -1,0 +1,12 @@
+<library path="lib/Publisher">
+  <class name="Publisher" type="Publisher" base_class_type="rosgui_rospy::Plugin">
+    <description>
+      A Python GUI plugin publishing ROS messages.
+    </description>
+    <rosguiplugin>
+      <label>Publisher</label>
+      <icon type="theme">media-playback-start</icon>
+      <statustip>A Python GUI plugin publishing ROS messages.</statustip>
+    </rosguiplugin>
+  </class>
+</library>
