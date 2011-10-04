@@ -1,0 +1,22 @@
+<package>
+  <description brief="rosgui_topic">
+
+     rosgui_topic
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_topic</url>
+
+  <depend package="rosgui"/>
+  <depend package="rosgui_rospy"/>
+  <depend package="std_msgs"/>
+  <depend package="rostopic"/>
+
+  <export>
+    <rosgui plugin="${prefix}/topic_plugin.xml"/>
+  </export>
+
+</package>
+

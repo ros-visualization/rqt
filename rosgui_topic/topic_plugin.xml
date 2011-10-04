@@ -1,0 +1,12 @@
+<library path="lib/Topic">
+  <class name="Topic" type="Topic" base_class_type="rosgui_rospy::Plugin">
+    <description>
+      A Python GUI plugin to introspect ROS topics.
+    </description>
+    <rosguiplugin>
+      <label>Topic Introspection</label>
+      <icon type="theme">system-search</icon>
+      <statustip>A Python GUI plugin to introspect ROS topics.</statustip>
+    </rosguiplugin>
+  </class>
+</library>
