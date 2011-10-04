@@ -1,0 +1,21 @@
+<package>
+  <description brief="rosgui_rospy">
+
+     rosgui_rospy
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_rospy</url>
+
+  <depend package="rosgui"/>
+  <depend package="rospy"/>
+
+  <export>
+    <rosgui plugin="${prefix}/rospy_plugin.xml"/>
+  </export>
+
+</package>
+
+

@@ -1,0 +1,7 @@
+<library path="lib/RosGuiRosPyPluginProvider">
+  <class name="RosGuiRosPyPluginProvider" type="RosGuiRosPyPluginProvider" base_class_type="rosgui_py::PluginProvider">
+    <description>
+      A Python plugin provider for ROS GUI integrating plugins using rospy client library.
+    </description>
+  </class>
+</library>
