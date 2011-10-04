@@ -1,0 +1,23 @@
+<package>
+  <description brief="rosgui_pose_view">
+
+     rosgui_pose_view
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_pose_view</url>
+
+  <depend package="rosgui"/>
+  <depend package="rosgui_rospy"/>
+  <depend package="rostopic"/>
+  <depend package="geometry_msgs"/>
+
+  <export>
+    <rosgui plugin="${prefix}/pose_view_plugin.xml"/>
+  </export>
+
+</package>
+
+
