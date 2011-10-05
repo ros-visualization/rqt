@@ -1,0 +1,22 @@
+<package>
+  <description brief="rosgui_cpp">
+
+     rosgui_cpp
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_cpp</url>
+
+  <depend package="rosgui"/>
+  <depend package="pluginlib"/>
+
+  <rosdep name="qt4"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrosgui_cpp"/>
+    <rosgui plugin="${prefix}/cpp_plugin.xml"/>
+  </export>
+
+</package>
