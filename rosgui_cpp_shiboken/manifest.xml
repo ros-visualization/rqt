@@ -1,0 +1,21 @@
+<package>
+  <description brief="rosgui_cpp_shiboken">
+
+     rosgui_cpp_shiboken
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_cpp_shiboken</url>
+
+  <depend package="rosgui_cpp"/>
+
+  <rosdep name="libqt4-dev"/>
+  <rosdep name="python-pyside"/>
+  <rosdep name="libpyside-dev"/>
+  <rosdep name="shiboken"/>
+  <rosdep name="libshiboken-dev"/>
+  <rosdep name="libgenrunner-dev"/>
+
+</package>

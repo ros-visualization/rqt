@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<typesystem package="librosgui_cpp_shiboken">
+  <load-typesystem name="typesystem_core.xml" generate="no"/>
+  <load-typesystem name="typesystem_gui.xml" generate="no"/>
+  <namespace-type name="rosgui_cpp"/>
+  <object-type name="rosgui_cpp::CompositePluginProvider"/>
+  <object-type name="rosgui_cpp::GenericProxy"/>
+  <object-type name="rosgui_cpp::Plugin"/>
+  <object-type name="rosgui_cpp::PluginBridge"/>
+  <object-type name="rosgui_cpp::PluginContext"/>
+  <object-type name="rosgui_cpp::PluginDescriptor"/>
+  <object-type name="rosgui_cpp::PluginProvider"/>
+  <object-type name="rosgui_cpp::RecursivePluginProvider"/>
+  <object-type name="rosgui_cpp::RosPluginlibPluginProvider" generate="no"/>
+  <object-type name="rosgui_cpp::RosPluginlibPluginProvider_ForPluginProviders"/>
+  <object-type name="rosgui_cpp::RosPluginlibPluginProvider_ForPlugins"/>
+  <object-type name="rosgui_cpp::Settings"/>
+</typesystem>
