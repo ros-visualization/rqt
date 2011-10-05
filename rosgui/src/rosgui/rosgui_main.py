@@ -11,6 +11,7 @@ from MainWindow import MainWindow
 from PerspectiveManager import PerspectiveManager
 from PluginManager import PluginManager
 from RecursivePluginProvider import RecursivePluginProvider
+from HelpProvider import HelpProvider
 
 try:
     from RospkgPluginProvider import RospkgPluginProvider
@@ -42,6 +43,8 @@ def rosgui_main():
     action.triggered.connect(main_window.close)
     file_menu.addAction(action)
 
+    help_provider = HelpProvider()
+
     plugin_menu = menu_bar.addMenu(menu_bar.tr('Plugins'))
     running_menu = menu_bar.addMenu(menu_bar.tr('Running'))
     plugin_providers = [
@@ -50,6 +53,7 @@ def rosgui_main():
     ]
     plugin_provider = CompositePluginProvider(plugin_providers)
     plugin_manager = PluginManager(main_window, plugin_menu, running_menu, plugin_provider)
+    plugin_manager.plugin_help_signal.connect(help_provider.plugin_help_request)
 
     perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives'))
     perspective_manager = PerspectiveManager(settings, perspective_menu)

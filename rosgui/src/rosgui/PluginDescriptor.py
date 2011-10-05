@@ -1,6 +1,6 @@
-class PluginDescriptor():
+class PluginDescriptor(object):
 
-    def __init__(self, plugin_id, attributes = None):
+    def __init__(self, plugin_id, attributes=None):
         self.dict_ = {}
         self.dict_['plugin_id'] = plugin_id
         self.dict_['attributes'] = attributes if attributes is not None else {}
@@ -16,7 +16,7 @@ class PluginDescriptor():
             return self.dict_['action']
         return {}
 
-    def set_action_attributes(self, label, statustip = None, icon = None, icontype = None):
+    def set_action_attributes(self, label, statustip=None, icon=None, icontype=None):
         self.dict_['action'] = {
             'label': label,
             'statustip': statustip,
@@ -29,7 +29,7 @@ class PluginDescriptor():
             return self.dict_['groups']
         return []
 
-    def add_group_attributes(self, label, statustip = None, icon = None, icontype = None):
+    def add_group_attributes(self, label, statustip=None, icon=None, icontype=None):
         if not self.dict_.has_key('groups'):
             self.dict_['groups'] = []
         self.dict_['groups'].append({

@@ -48,7 +48,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="labelTitle">
+    <widget class="QLabel" name="title_label">
      <property name="lineWidth">
       <number>0</number>
      </property>
@@ -71,7 +71,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonDockable">
+    <widget class="QPushButton" name="dockable_button">
      <property name="minimumSize">
       <size>
        <width>16</width>
@@ -102,7 +102,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonSettings">
+    <widget class="QPushButton" name="settings_button">
      <property name="minimumSize">
       <size>
        <width>16</width>
@@ -127,7 +127,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonReload">
+    <widget class="QPushButton" name="reload_button">
      <property name="minimumSize">
       <size>
        <width>16</width>
@@ -152,7 +152,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonHelp">
+    <widget class="QPushButton" name="help_button">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -205,7 +205,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonFloat">
+    <widget class="QPushButton" name="float_button">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -242,7 +242,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="buttonClose">
+    <widget class="QPushButton" name="close_button">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>

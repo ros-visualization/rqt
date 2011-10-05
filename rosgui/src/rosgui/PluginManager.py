@@ -1,7 +1,7 @@
 import os, traceback
 
 from QtBindingHelper import import_from_qt
-qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot = import_from_qt(['qCritical', 'qDebug', 'QEvent', 'QObject', 'QSignalMapper', 'Signal', 'Slot'], 'QtCore')
+qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot, Qt = import_from_qt(['qCritical', 'qDebug', 'QEvent', 'QObject', 'QSignalMapper', 'Signal', 'Slot', 'Qt'], 'QtCore')
 QAction, QMenu, QIcon = import_from_qt(['QAction', 'QMenu', 'QIcon'], 'QtGui')
 
 from MenuManager import MenuManager
@@ -12,6 +12,8 @@ class PluginManager(QObject):
 
     plugins_about_to_change_signal = Signal()
     plugins_changed_signal = Signal()
+    plugin_help_signal = Signal(object)
+    _deferred_load_plugin_signal = Signal(str, int)
 
     def __init__(self, main_window, plugin_menu, running_menu, plugin_provider):
         QObject.__init__(self)
@@ -35,11 +37,31 @@ class PluginManager(QObject):
 
         plugin_descriptors = self.plugin_provider_.discover()
 
+        # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
+        self._deferred_load_plugin_signal.connect(self.load_plugin, type=Qt.QueuedConnection)
+
         self.__register_plugins(plugin_descriptors)
+
+
+    @Slot(str)
+    def reload_plugin(self, instance_id):
+        # unload plugin now
+        self.unload_plugin(instance_id)
+
+        plugin_id, serial_number = self.__split_instance_id(instance_id)
+        serial_number = int(serial_number)
+        # deferred call to load_plugin 
+        self._deferred_load_plugin_signal.emit(plugin_id, serial_number)
+
+    @Slot(str)
+    def relay_plugin_help_signal(self, instance_id):
+        plugin_id, _ = self.__split_instance_id(instance_id)
+        plugin_descriptor = self.plugin_descriptors_[plugin_id]
+        self.plugin_help_signal.emit(plugin_descriptor)
 
     @Slot(str)
     @Slot(str, int)
-    def load_plugin(self, plugin_id, serial_number = None):
+    def load_plugin(self, plugin_id, serial_number=None):
         # convert from unicode
         plugin_id = str(plugin_id)
 
@@ -48,16 +70,22 @@ class PluginManager(QObject):
 
         try:
             instance_id = self.__build_instance_id(plugin_id, serial_number)
+
+            main_window_interface = MainWindowInterface(self.main_window_, instance_id)
+            main_window_interface.reload_plugin_instance_signal.connect(self.reload_plugin)
+            main_window_interface.plugin_help_signal.connect(self.relay_plugin_help_signal)
+
             plugin_context = PluginContext()
-            main_window_interface = MainWindowInterface(self, self.main_window_, plugin_context, self.plugin_descriptors_[plugin_id], instance_id)
             plugin_context.set_main_window(main_window_interface)
             plugin_context.set_serial_number(serial_number)
-            plugin_context.set_attribute('foo', 'bar')
+
             instance = self.plugin_provider_.load(plugin_id, plugin_context)
             if instance is None:
                 raise Exception('load returned None')
+
         except Exception:
             qCritical('PluginManager.load_plugin(%s) failed:\n%s' % (plugin_id, traceback.format_exc()))
+
         else:
             qDebug('PluginManager.load_plugin(%s) successful' % plugin_id)
             # set plugin instance for custom titlebar callbacks
@@ -66,7 +94,7 @@ class PluginManager(QObject):
             # restore settings after load
             self.__call_method_on_plugin(instance_id, 'restore_settings')
             self.plugins_changed_signal.emit()
-            main_window_interface.show_dockwidgets()
+            main_window_interface.show_dock_widgets()
 
     @Slot(str)
     def unload_plugin(self, instance_id):
@@ -186,12 +214,15 @@ class PluginManager(QObject):
     def __build_instance_id(self, plugin_id, serial_number):
         return os.path.join(plugin_id, str(serial_number))
 
-    def __enrich_action(self, action, action_attributes, base_path = None):
+    def __split_instance_id(self, instance_id):
+        return os.path.split(instance_id)
+
+    def __enrich_action(self, action, action_attributes, base_path=None):
         self.__set_icon(action, action_attributes, base_path)
         if action_attributes.has_key('statustip'):
             action.setStatusTip(action_attributes['statustip'])
 
-    def __set_icon(self, action, action_attributes, base_path = None):
+    def __set_icon(self, action, action_attributes, base_path=None):
         icontype = action_attributes.get('icontype', 'file')
         if action_attributes.has_key('icon') and action_attributes['icon'] is not None:
             if icontype == 'file':
