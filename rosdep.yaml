@@ -1,0 +1,32 @@
+libgenrunner-dev:
+  ubuntu: libgenrunner-dev
+
+libpyside-dev:
+  ubuntu: libpyside-dev
+
+libqt4-dev:
+  ubuntu: libqt4-dev
+
+libshiboken-dev:
+  ubuntu: libshiboken-dev
+
+python-pyside:
+  ubuntu: python-pyside
+
+python-qt4:
+  ubuntu: python-qt4
+
+python-qt4-gl:
+  ubuntu: python-qt4-gl
+
+python-qt4-dev:
+  ubuntu: python-qt4-dev
+
+python-qwt5-qt4:
+  ubuntu: python-qwt5-qt4
+
+python-sip-dev:
+  ubuntu: python-sip-dev
+
+shiboken:
+  ubuntu: shiboken
