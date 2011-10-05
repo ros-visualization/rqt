@@ -6,6 +6,7 @@ QAction, QMenu, QIcon = import_from_qt(['QAction', 'QMenu', 'QIcon'], 'QtGui')
 
 from MenuManager import MenuManager
 from PluginContext import PluginContext
+from MainWindowInterface import MainWindowInterface
 
 class PluginManager(QObject):
 
@@ -46,8 +47,10 @@ class PluginManager(QObject):
             serial_number = self.__next_serial_number(plugin_id)
 
         try:
+            instance_id = self.__build_instance_id(plugin_id, serial_number)
             plugin_context = PluginContext()
-            plugin_context.set_main_window(self.main_window_)
+            main_window_interface = MainWindowInterface(self, self.main_window_, plugin_context, self.plugin_descriptors_[plugin_id], instance_id)
+            plugin_context.set_main_window(main_window_interface)
             plugin_context.set_serial_number(serial_number)
             plugin_context.set_attribute('foo', 'bar')
             instance = self.plugin_provider_.load(plugin_id, plugin_context)
@@ -57,10 +60,13 @@ class PluginManager(QObject):
             qCritical('PluginManager.load_plugin(%s) failed:\n%s' % (plugin_id, traceback.format_exc()))
         else:
             qDebug('PluginManager.load_plugin(%s) successful' % plugin_id)
+            # set plugin instance for custom titlebar callbacks
+            main_window_interface.set_plugin_instance(instance)
             self.__add_running_plugin(plugin_id, serial_number, instance)
             # restore settings after load
-            instance_id = self.__build_instance_id(plugin_id, serial_number)
             self.__call_method_on_plugin(instance_id, 'restore_settings')
+            self.plugins_changed_signal.emit()
+            main_window_interface.show_dockwidgets()
 
     @Slot(str)
     def unload_plugin(self, instance_id):
