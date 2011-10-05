@@ -1,0 +1,7 @@
+<library path="lib/librosgui_roscpp">
+  <class name="rosgui_roscpp/RosCppPluginProvider" type="rosgui_roscpp::RosCppPluginProvider" base_class_type="rosgui_cpp::PluginProvider">
+    <description>
+      A C++ plugin provider for ROS GUI integrating plugins using roscpp client library.
+    </description>
+  </class>
+</library>
