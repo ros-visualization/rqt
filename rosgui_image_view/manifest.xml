@@ -1,0 +1,24 @@
+<package>
+  <description brief="rosgui_image_view">
+
+     rosgui_image_view
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_image_view</url>
+
+  <depend package="rosgui"/>
+  <depend package="rosgui_roscpp"/>
+  <depend package="image_transport"/>
+  <depend package="sensor_msgs"/>
+  <depend package="cv_bridge"/>
+
+  <export>
+    <rosgui plugin="${prefix}/image_view_plugin.xml"/>
+  </export>
+
+</package>
+
+
