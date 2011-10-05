@@ -1,0 +1,18 @@
+<package>
+  <description brief="rosgui_cpp_sip">
+
+     rosgui_cpp_sip
+
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_cpp_sip</url>
+
+  <depend package="rosgui_cpp"/>
+
+  <rosdep name="libqt4-dev"/>
+  <rosdep name="python-qt4-dev"/>
+  <rosdep name="python-sip-dev"/>
+
+</package>
