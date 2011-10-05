@@ -40,9 +40,6 @@ set(rosgui_cpp_shiboken_LINK_LIBRARIES
   ${PYSIDE_LIBRARY}
 )
 
-message("ts: ${QT_USE_FILE}")
-message("TS: ${QT_INCLUDE_DIR}")
-
 add_custom_command(
   OUTPUT ${rosgui_cpp_shiboken_SRCS}
   COMMAND ${GENERATORRUNNER_BINARY}

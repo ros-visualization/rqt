@@ -9,6 +9,7 @@ add_custom_target(librosgui_cpp_sip.so ALL
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   COMMAND python ${SIP_SRC_DIR}/configure.py ${rosgui_cpp_SOURCE_DIR} ${SIP_BUILD_DIR} ${SIP_SRC_DIR}/rosgui_cpp.sip
   COMMAND make --directory=${SIP_BUILD_DIR}
-  COMMAND ${CMAKE_COMMAND} -E copy ${SIP_BUILD_DIR}/librosgui_cpp_sip.so ${PROJECT_SOURCE_DIR}/lib
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/lib
+  COMMAND ${CMAKE_COMMAND} -E copy ${SIP_BUILD_DIR}/librosgui_cpp_sip.so ${PROJECT_SOURCE_DIR}/lib/
   COMMENT "Running SIP generator for librosgui_cpp Python bindings..."
 )
