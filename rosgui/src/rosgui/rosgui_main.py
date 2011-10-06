@@ -57,8 +57,10 @@ def rosgui_main():
     # signal changed perspective to update window title
     perspective_manager.perspective_changed_signal.connect(main_window.perspective_changed)
     # signal new settings due to changed perspective
-    perspective_manager.settings_changed_signal.connect(main_window.settings_changed)
-    perspective_manager.settings_changed_signal.connect(plugin_manager.settings_changed)
+    perspective_manager.save_settings_signal.connect(main_window.save_settings)
+    perspective_manager.restore_settings_signal.connect(main_window.restore_settings)
+    perspective_manager.save_settings_signal.connect(plugin_manager.save_settings)
+    perspective_manager.restore_settings_signal.connect(plugin_manager.restore_settings)
     # signal before changing plugins to save window state
     plugin_manager.plugins_about_to_change_signal.connect(main_window.save_setup)
     # signal changed plugins to restore window state

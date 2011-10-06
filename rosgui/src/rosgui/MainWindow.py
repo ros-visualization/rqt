@@ -33,10 +33,15 @@ class MainWindow(QMainWindow):
             self.__restore_geometry_from_perspective()
             self.__restore_state_from_perspective()
 
-    def settings_changed(self, global_settings, perspective_settings):
-        qDebug('MainWindow.settings_changed()')
+    def save_settings(self, global_settings, perspective_settings):
+        qDebug('MainWindow.save_settings()')
+        self.global_settings_ = global_settings
+        self.perspective_settings_ = perspective_settings
+        self.settings_ = self.perspective_settings_.get_settings('mainwindow')
         self.save_setup()
 
+    def restore_settings(self, global_settings, perspective_settings):
+        qDebug('MainWindow.restore_settings()')
         # remember new settings - delay restore after PluginManager has been updated
         self.global_settings_ = global_settings
         self.perspective_settings_ = perspective_settings
