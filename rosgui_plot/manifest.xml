@@ -13,6 +13,7 @@
   <depend package="rosgui_rospy"/>
   <depend package="std_msgs"/>
   <depend package="rxtools"/>
+  <depend package="rostopic"/>
 
   <rosdep name="python-qwt5-qt4"/>
 

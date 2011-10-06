@@ -37,24 +37,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="topic_combo_box">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QLineEdit" name="topic_edit">
+        <property name="text">
+         <string>/</string>
         </property>
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-        <property name="minimumContentsLength">
-         <number>0</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>/example/data</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item>
