@@ -86,6 +86,10 @@ class RosPluginProvider(PluginProvider):
                     plugin_id = os.path.join(plugin_id, attributes['class_name'])
                 attributes['plugin_id'] = plugin_id
 
+                # check if plugin is available
+                plugin_file = os.path.join(attributes['plugin_path'], attributes['library_path'], attributes['class_name']) + '.py'
+                attributes['not_available'] = plugin_name if not os.path.exists(plugin_file) else ''
+
                 plugin_descriptor = PluginDescriptor(plugin_id, attributes)
 
                 # set action attributes (plugin providers might have none)

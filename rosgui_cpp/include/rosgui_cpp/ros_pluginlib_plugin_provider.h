@@ -74,6 +74,10 @@ public:
       attributes["class_type"] = type.c_str();
       attributes["class_base_class_type"] = base_class_type.c_str();
 
+      // check if plugin is available
+      // TODO: check if library exists
+      attributes["not_available"] = ""; // lookup_name.c_str()
+
       PluginDescriptor* plugin_descriptor = new PluginDescriptor(lookup_name.c_str(), attributes);
 
       std::string description = class_loader_->getClassDescription(lookup_name);
