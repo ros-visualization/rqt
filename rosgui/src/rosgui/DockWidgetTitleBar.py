@@ -1,7 +1,7 @@
 import os
 from rosgui.QtBindingHelper import import_from_qt, loadUi
-Slot, Qt, QEvent, QObject, qDebug = import_from_qt(['Slot', 'Qt', 'QEvent', 'QObject', 'qDebug'], 'QtCore')
-QWidget, QDockWidget = import_from_qt(['QWidget', 'QDockWidget'], 'QtGui')
+qDebug, QEvent, QObject, Qt, Slot = import_from_qt(['qDebug', 'QEvent', 'QObject', 'Qt', 'Slot'], 'QtCore')
+QDockWidget, QIcon, QWidget = import_from_qt(['QDockWidget', 'QIcon', 'QWidget'], 'QtGui')
 
 
 class DockWidgetTitleBar(QWidget):
@@ -11,10 +11,20 @@ class DockWidgetTitleBar(QWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DockWidgetTitleBar.ui')
         loadUi(ui_file, self)
         self.extra_buttons = {
-            'help': self.help_button,
-            'reload': self.reload_button,
             'settings': self.settings_button,
+            'reload': self.reload_button,
+            'help': self.help_button,
         }
+
+        self.settings_button.setIcon(QIcon.fromTheme('emblem-system'))
+        self.settings_button.setText("")
+        self.reload_button.setIcon(QIcon.fromTheme('view-refresh'))
+        self.reload_button.setText("")
+        self.help_button.setIcon(QIcon.fromTheme('help-browser'))
+        self.help_button.setText("")
+
+        self.close_button.setIcon(QIcon.fromTheme('window-close'))
+        self.close_button.setText("")
 
         self.float_button.clicked.connect(self.toggle_floating)
         self.dockable_button.clicked.connect(self.toggle_dockable)

@@ -1,11 +1,12 @@
 import os
 from QtBindingHelper import import_from_qt
-Signal, Qt, qWarning = import_from_qt(['Signal', 'Qt', 'qWarning'], 'QtCore')
-QWidget, QDockWidget = import_from_qt(['QWidget', 'QDockWidget'], 'QtGui')
+Qt, qWarning, Signal = import_from_qt(['Qt', 'qWarning', 'Signal'], 'QtCore')
+QDockWidget, QWidget = import_from_qt(['QDockWidget', 'QWidget'], 'QtGui')
 
 from DockWidgetTitleBar import DockWidgetTitleBar
 
 class MainWindowInterface(QWidget):
+
     plugin_help_signal = Signal(str)
     reload_plugin_instance_signal = Signal(str)
 
@@ -31,11 +32,6 @@ class MainWindowInterface(QWidget):
         self.main_window_.addDockWidget(area, dock_widget)
         self.dock_widgets_.append(dock_widget)
         self._update_title_bar(dock_widget)
-
-
-    def show_dock_widgets(self):
-        for dock_widget in self.dock_widgets_:
-            dock_widget.show()
 
 
     def set_plugin_instance(self, plugin_instance):

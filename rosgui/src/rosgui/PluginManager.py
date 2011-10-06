@@ -4,9 +4,9 @@ from QtBindingHelper import import_from_qt
 qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot, Qt = import_from_qt(['qCritical', 'qDebug', 'QEvent', 'QObject', 'QSignalMapper', 'Signal', 'Slot', 'Qt'], 'QtCore')
 QAction, QMenu, QIcon = import_from_qt(['QAction', 'QMenu', 'QIcon'], 'QtGui')
 
+from MainWindowInterface import MainWindowInterface
 from MenuManager import MenuManager
 from PluginContext import PluginContext
-from MainWindowInterface import MainWindowInterface
 
 class PluginManager(QObject):
 
@@ -67,10 +67,9 @@ class PluginManager(QObject):
 
         if serial_number is None:
             serial_number = self.__next_serial_number(plugin_id)
+        instance_id = self.__build_instance_id(plugin_id, serial_number)
 
         try:
-            instance_id = self.__build_instance_id(plugin_id, serial_number)
-
             main_window_interface = MainWindowInterface(self.main_window_, instance_id)
             main_window_interface.reload_plugin_instance_signal.connect(self.reload_plugin)
             main_window_interface.plugin_help_signal.connect(self.relay_plugin_help_signal)
@@ -94,7 +93,6 @@ class PluginManager(QObject):
             # restore settings after load
             self.__call_method_on_plugin(instance_id, 'restore_settings')
             self.plugins_changed_signal.emit()
-            main_window_interface.show_dock_widgets()
 
     @Slot(str)
     def unload_plugin(self, instance_id):
