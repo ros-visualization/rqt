@@ -1,7 +1,7 @@
 import os
 
 from rosgui.QtBindingHelper import import_from_qt, loadUi
-QEvent, QObject, QTimer, Qt, qCritical, Slot = import_from_qt(['QEvent', 'QObject', 'QTimer', 'Qt','qCritical', 'Slot'], 'QtCore')
+QEvent, QObject, QTimer, Qt, qCritical, Slot = import_from_qt(['QEvent', 'QObject', 'QTimer', 'Qt', 'qCritical', 'Slot'], 'QtCore')
 QColor, QDockWidget, QFrame, QImage, QPainter, QShortcut = import_from_qt(['QColor', 'QDockWidget', 'QFrame', 'QImage', 'QPainter', 'QShortcut'], 'QtGui')
 
 import roslib
@@ -79,6 +79,7 @@ class RobotSteering(QObject):
 
     @Slot(str)
     def __on_topic_changed(self, topic):
+        topic = str(topic)
         self.__unregisterPublisher()
         self.publisher_ = rospy.Publisher(topic, Twist)
 
@@ -86,6 +87,8 @@ class RobotSteering(QObject):
         self.__send_twist(self.widget_.x_linear_slider.value() / 1000.0, self.widget_.z_angular_slider.value() / 1000.0)
 
     def __send_twist(self, x_linear, z_angular):
+        if self.publisher_ is None:
+            return
         twist = Twist()
         twist.linear.x = x_linear
         twist.linear.y = 0
