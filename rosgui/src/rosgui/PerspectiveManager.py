@@ -49,7 +49,7 @@ class PerspectiveManager(QObject):
     @Slot(str, bool)
     @Slot(str, bool, bool)
     def switch_perspective(self, name, settings_changed = True, save_before = True):
-        if save_before:
+        if save_before and self.global_settings_ is not None and self.perspective_settings_ is not None:
             self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
 
         # convert from unicode
