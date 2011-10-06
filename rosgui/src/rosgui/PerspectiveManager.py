@@ -9,7 +9,8 @@ from SettingsProxy import SettingsProxy
 class PerspectiveManager(QObject):
 
     perspective_changed_signal = Signal(basestring)
-    settings_changed_signal = Signal(Settings, Settings)
+    save_settings_signal = Signal(Settings, Settings)
+    restore_settings_signal = Signal(Settings, Settings)
 
     def __init__(self, settings, menu):
         QObject.__init__(self)
@@ -46,7 +47,11 @@ class PerspectiveManager(QObject):
 
     @Slot(str)
     @Slot(str, bool)
-    def switch_perspective(self, name, settings_changed = True):
+    @Slot(str, bool, bool)
+    def switch_perspective(self, name, settings_changed = True, save_before = True):
+        if save_before:
+            self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+
         # convert from unicode
         name = str(name)
 
@@ -65,7 +70,7 @@ class PerspectiveManager(QObject):
         self.perspective_settings_ = Settings(self.settings_proxy_, 'perspective/%s' % str(self.current_perspective_))
         self.perspective_changed_signal.emit(self.current_perspective_)
         if settings_changed:
-            self.settings_changed_signal.emit(self.global_settings_, self.perspective_settings_)
+            self.restore_settings_signal.emit(self.global_settings_, self.perspective_settings_)
 
 
     def __generate_menu(self):
@@ -105,6 +110,8 @@ class PerspectiveManager(QObject):
         self.perspectives_.append(name)
         self.global_settings_.set_value('perspectives/list', self.perspectives_)
 
+        # save current settings
+        self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
         # clone settings
         new_settings = Settings(self.settings_proxy_, 'perspective/%s' % str(name))
         keys = self.perspective_settings_.all_keys()
@@ -114,7 +121,7 @@ class PerspectiveManager(QObject):
 
         # add and switch to perspective
         self.__add_perspective(name)
-        self.switch_perspective(name, False)
+        self.switch_perspective(name, False, False)
 
 
     def __on_remove_perspective(self):

@@ -207,21 +207,19 @@ class PluginManager(QObject):
             action.setIcon(icon)
             action.setIconVisibleInMenu(True)
 
-    def settings_changed(self, global_settings, perspective_settings):
-        qDebug('PluginManager.settings_changed()')
-        self.__store_running_plugins()
-        self.__save_plugin_settings()
-        self.global_settings_ = global_settings.get_settings('pluginmanager')
-        self.perspective_settings_ = perspective_settings.get_settings('pluginmanager')
-        self.__restore_running_plugins()
-        self.plugins_changed_signal.emit()
-
     def save_settings(self, global_settings, perspective_settings):
         qDebug('PluginManager.save_settings()')
         self.global_settings_ = global_settings.get_settings('pluginmanager')
         self.perspective_settings_ = perspective_settings.get_settings('pluginmanager')
         self.__store_running_plugins()
         self.__save_plugin_settings()
+
+    def restore_settings(self, global_settings, perspective_settings):
+        qDebug('PluginManager.restore_settings()')
+        self.global_settings_ = global_settings.get_settings('pluginmanager')
+        self.perspective_settings_ = perspective_settings.get_settings('pluginmanager')
+        self.__restore_running_plugins()
+        self.plugins_changed_signal.emit()
 
     def __store_running_plugins(self):
         if self.perspective_settings_ is not None:
