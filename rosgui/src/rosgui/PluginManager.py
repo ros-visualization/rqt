@@ -117,6 +117,11 @@ class PluginManager(QObject):
             self.plugin_mapper_.setMapping(action, plugin_descriptor.plugin_id())
             action.triggered.connect(self.plugin_mapper_.map)
 
+            not_available = plugin_descriptor.attributes().get('not_available', '')
+            if not_available:
+                action.setEnabled(False)
+                action.setStatusTip(self.tr('Plugin is not available (%s) - may be it must be build?') % not_available)
+
             # add action to menu
             menu_manager.add_item(action)
 
