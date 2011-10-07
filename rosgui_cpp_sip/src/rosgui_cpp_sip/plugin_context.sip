@@ -9,9 +9,9 @@ class PluginContext
 
 public:
 
-  PluginContext(QMainWindow* main_window, const QString& serial_number);
+  PluginContext(rosgui_cpp::MainWindowInterface* main_window, const QString& serial_number);
 
-  QMainWindow* main_window();
+  rosgui_cpp::MainWindowInterface* main_window();
 
   QString serial_number();
 

@@ -9,6 +9,7 @@ SET(rosgui_cpp_shiboken_SRCS
   librosgui_cpp_shiboken/librosgui_cpp_shiboken_module_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_compositepluginprovider_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_genericproxy_wrapper.cpp
+  librosgui_cpp_shiboken/rosgui_cpp_mainwindowinterface_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_plugin_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_pluginbridge_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_plugincontext_wrapper.cpp

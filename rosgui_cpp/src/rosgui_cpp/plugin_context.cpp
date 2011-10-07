@@ -2,12 +2,12 @@
 
 namespace rosgui_cpp {
 
-PluginContext::PluginContext(QMainWindow* main_window, const QString& serial_number)
+PluginContext::PluginContext(MainWindowInterface* main_window, const QString& serial_number)
   : main_window_(main_window)
   , serial_number_(serial_number)
 {}
 
-QMainWindow* PluginContext::main_window()
+MainWindowInterface* PluginContext::main_window()
 {
   return main_window_;
 }

@@ -8,6 +8,7 @@ QAction, QApplication, QIcon, QMenuBar = import_from_qt(['QAction', 'QApplicatio
 
 from AboutHandler import AboutHandler
 from CompositePluginProvider import CompositePluginProvider
+from HelpProvider import HelpProvider
 from MainWindow import MainWindow
 from PerspectiveManager import PerspectiveManager
 from PluginManager import PluginManager
@@ -51,6 +52,9 @@ def rosgui_main():
     ]
     plugin_provider = CompositePluginProvider(plugin_providers)
     plugin_manager = PluginManager(main_window, plugin_menu, running_menu, plugin_provider)
+
+    help_provider = HelpProvider()
+    plugin_manager.plugin_help_signal.connect(help_provider.plugin_help_request)
 
     perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives'))
     perspective_manager = PerspectiveManager(settings, perspective_menu)
