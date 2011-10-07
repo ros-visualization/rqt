@@ -61,9 +61,9 @@ class TopicWidget(QDockWidget):
                     new_topic_infos[topic_name] = self.topic_infos_[topic_name]
                     del self.topic_infos_[topic_name]
 
-                # if TopicInfo exsist for topic, add it to tree view
-                if new_topic_infos.has_key(topic_name):
-                    self._recursive_create_widget_items(self.topics_tree_widget, topic_name, message_type, topic_info.message_class_)
+                # if TopicInfo exist for topic, add it to tree view
+                if topic_name in new_topic_infos:
+                    self._recursive_create_widget_items(self.topics_tree_widget, topic_name, message_type, new_topic_infos[topic_name].message_class_)
 
             # stop monitoring and delete non existing topics
             for topic_info in self.topic_infos_.values():
