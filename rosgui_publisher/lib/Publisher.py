@@ -15,7 +15,7 @@ import rospy, rosmsg
 
 # main class inherits from the ui window class
 class Publisher(QDockWidget):
-    column_names_ = ['topic', 'type', 'rate', 'enabled', 'expression']
+    column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
 
 
     def __init__(self, parent, plugin_context):
@@ -26,7 +26,7 @@ class Publisher(QDockWidget):
         loadUi(ui_file, self)
 
         self.column_index = {}
-        for column_name in self.column_names_:
+        for column_name in self.column_names:
             self.column_index[column_name] = len(self.column_index)
         self.counter_ = 0
         self.publishers_ = {}
@@ -155,7 +155,7 @@ class Publisher(QDockWidget):
 
     @Slot('QTreeWidgetItem*', int)
     def publishers_tree_widget_itemChanged(self, item, column):
-        column_name = self.column_names_[column]
+        column_name = self.column_names[column]
         new_value = str(item.text(column))
         qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
         if not hasattr(item, 'publisher_id'):
@@ -172,7 +172,11 @@ class Publisher(QDockWidget):
                     publisher_info['timer'].stop()
 
             elif column_name == 'rate':
-                publisher_info['rate'] = float(new_value)
+                try:
+                    publisher_info['rate'] = float(new_value)
+                except:
+                    qDebug('Publisher.on_treePublishers_itemChanged(): could not parse rate value: %s' % (new_value))
+                    return
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
                 if publisher_info['enabled']:
                     publisher_info['timer'].stop()
