@@ -5,6 +5,7 @@
   <namespace-type name="rosgui_cpp"/>
   <object-type name="rosgui_cpp::CompositePluginProvider"/>
   <object-type name="rosgui_cpp::GenericProxy"/>
+  <object-type name="rosgui_cpp::MainWindowInterface"/>
   <object-type name="rosgui_cpp::Plugin"/>
   <object-type name="rosgui_cpp::PluginBridge"/>
   <object-type name="rosgui_cpp::PluginContext"/>
