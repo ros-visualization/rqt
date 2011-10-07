@@ -2,15 +2,12 @@ import roslib
 roslib.load_manifest('rosgui_py_common')
 import rospy
 
-from TreeModel import TreeModel
+import TreeModel
+reload(TreeModel) # force reload to update on changes during runtime
 
-class TopicTreeModel(TreeModel):
+class TopicTreeModel(TreeModel.TreeModel):
     def __init__(self, parent=None):
         super(TopicTreeModel, self).__init__(parent)
-        self.update_topics()
-
-
-    def update_topics(self):
         self._clear()
         topic_list = rospy.get_published_topics()
         for topic_name, topic_type in topic_list:

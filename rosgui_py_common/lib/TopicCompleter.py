@@ -4,18 +4,20 @@ from rosgui.QtBindingHelper import import_from_qt
 Slot = import_from_qt(['Slot'], 'QtCore')
 QCompleter = import_from_qt(['QCompleter'], 'QtGui')
 
-from TopicTreeModel import TopicTreeModel
-from TreeModelCompleter import TreeModelCompleter
+import TopicTreeModel
+reload(TopicTreeModel) # force reload to update on changes during runtime
+import TreeModelCompleter
+reload(TreeModelCompleter) # force reload to update on changes during runtime
 
-class TopicCompleter(TreeModelCompleter):
+class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
     def __init__(self, parent=None):
         super(TopicCompleter, self).__init__(parent)
-        self.setModel(TopicTreeModel(parent))
+        self.update_topics()
 
 
     def update_topics(self):
-        self.model().update_topics()
+        self.setModel(TopicTreeModel.TopicTreeModel())
 
 
 if __name__ == '__main__':

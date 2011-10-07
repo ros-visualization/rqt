@@ -3,7 +3,7 @@
 from __future__ import division
 import os, sys, inspect
 from math import * #@UnusedWildImport so math functions can be used in the custom expressions
-from random import random, randint, gauss
+from random import random, randint, gauss #@UnusedImport
 
 from rosgui.QtBindingHelper import import_from_qt, loadUi
 Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning = import_from_qt(['Qt', 'QTimer', 'QSignalMapper', 'Slot', 'qDebug', 'qWarning'], 'QtCore')
@@ -11,12 +11,11 @@ QDockWidget, QTreeWidgetItem, QMenu = import_from_qt(['QDockWidget', 'QTreeWidge
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
-import rospy
+import rospy, rosmsg
 
 # main class inherits from the ui window class
 class Publisher(QDockWidget):
     column_names_ = ['topic', 'type', 'rate', 'enabled', 'expression']
-    message_package_names_ = ['actionlib_msgs', 'diagnostic_msgs', 'geometry_msgs', 'nav_msgs', 'sensor_msgs', 'stereo_msgs', 'test_common_msgs', 'trajectory_msgs', 'visualization_msgs', 'std_msgs']
 
 
     def __init__(self, parent, plugin_context):
@@ -33,12 +32,12 @@ class Publisher(QDockWidget):
         self.publishers_ = {}
         self.id_counter_ = 0
         self.message_classes_ = {}
-        for message_package_name in self.message_package_names_:
+        for message_package_name in rosmsg.iterate_packages('.msg'):
             self.add_message_package(message_package_name)
-        
+
         self.signal_mapper_ = QSignalMapper(self)
         self.signal_mapper_.mapped[int].connect(self.timeout)
-        
+
         self.publishers_tree_widget.itemChanged.connect(self.publishers_tree_widget_itemChanged)
         self.update_comboType()
 
@@ -65,8 +64,8 @@ class Publisher(QDockWidget):
             qDebug('Publisher.add_message_package(%s): no message classes found in %s' % (package_name, package_module))
         for type_name, message_type in message_types:
             self.message_classes_['%s/%s' % (package_name, type_name)] = message_type
-    
-    
+
+
     def update_comboType(self):
         self.type_combo_box.clear()
         self.type_combo_box.addItems(sorted(self.message_classes_.keys()))
@@ -84,7 +83,7 @@ class Publisher(QDockWidget):
 
 
     @Slot()
-    def on_add_publisher_button_clicked(self, publisher_info = {}):
+    def on_add_publisher_button_clicked(self, publisher_info={}):
         # create publisher info
         publisher_info['topic_name'] = str(self.topic_combo_box.currentText())
         publisher_info['type_name'] = str(self.type_combo_box.currentText())
@@ -99,7 +98,7 @@ class Publisher(QDockWidget):
         publisher_info['counter'] = 0
         publisher_info['enabled'] = publisher_info.get('enabled', False)
         publisher_info['expressions'] = publisher_info.get('expressions', {})
-        
+
         if not self.check_valid_message_type(publisher_info['type_name']):
             return
         publisher_info['type'] = self.message_classes_[publisher_info['type_name']]
@@ -107,25 +106,25 @@ class Publisher(QDockWidget):
         # create publisher and timer
         publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], publisher_info['type'])
         publisher_info['timer'] = QTimer(self)
-        
+
         # add publisher info to publishers_ dict and create signal mapping  
         self.publishers_[publisher_info['publisher_id']] = publisher_info
         self.signal_mapper_.setMapping(publisher_info['timer'], publisher_info['publisher_id'])
         publisher_info['timer'].timeout.connect(self.signal_mapper_.map)
         if publisher_info['enabled']:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
-        
+
         # recursively create widget items for the message's slots 
         top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['type']._type, publisher_info['type'](), publisher_info['publisher_id'], publisher_info['expressions'])
-        
+
         # fill tree widget columns of top level item
         top_level_item.setText(self.column_index['enabled'], str(publisher_info['enabled']))
         top_level_item.setText(self.column_index['rate'], str(publisher_info['rate']))
         publisher_info['widgetItem'] = top_level_item
-        
+
         # add top level item to tree widget
         self.publishers_tree_widget.addTopLevelItem(top_level_item)
-        
+
         # resize columns
         self.publishers_tree_widget.expandAll()
         for i in range(self.publishers_tree_widget.columnCount()):
@@ -163,7 +162,7 @@ class Publisher(QDockWidget):
             qDebug('Publisher.on_treePublishers_itemChanged(): no publisher_id found in: %s' % (item))
         else:
             publisher_info = self.publishers_[item.publisher_id]
-            
+
             if column_name == 'enabled':
                 publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
@@ -171,26 +170,26 @@ class Publisher(QDockWidget):
                     publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
                 else:
                     publisher_info['timer'].stop()
-                
+
             elif column_name == 'rate':
                 publisher_info['rate'] = float(new_value)
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
                 if publisher_info['enabled']:
                     publisher_info['timer'].stop()
                     publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
-                    
+
             elif column_name == 'expression':
                 topic_name = str(item.data(0, Qt.UserRole))
                 publisher_info['expressions'][topic_name] = new_value
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s expression: %s' % (topic_name, new_value))
-    
-    
+
+
     def fill_message_slots(self, message, topic_name, expressions, i):
         if not hasattr(message, '__slots__'):
             return
         for slot_name in message.__slots__:
             slot_key = topic_name + '/' + slot_name
-            
+
             # if no expression exists for this slot_key, continue with it's child slots
             if not expressions.has_key(slot_key):
                 self.fill_message_slots(getattr(message, slot_name), slot_key, expressions, i)
@@ -199,26 +198,26 @@ class Publisher(QDockWidget):
             expression = expressions[slot_key]
             if len(expression) == 0:
                 continue
-            
+
             # get slot type
             slot = getattr(message, slot_name)
             if hasattr(slot, '_type'):
                 slot_type = slot._type
             else:
                 slot_type = type(slot)
-            
+
             # if slot type is a string and expression has no string markers, add them
             if (slot_type in (str, 'string')) and not ('"' in expression or "'" in expression):
                 expression = "'%s'" % expression
-            
+
             try:
                 value = eval(expression)
             except Exception:
                 qWarning('Publisher.fill_message_slots(): failed to evaluate expression: %s' % (expression))
             else:
                 setattr(message, slot_name, value)
-        
-        
+
+
     @Slot(int)
     def timeout(self, publisher_id):
         publisher_info = self.publishers_[publisher_id]
@@ -235,8 +234,8 @@ class Publisher(QDockWidget):
         uniqueItems = list(set(items))
         for item in uniqueItems:
             self.remove_publisher_item_(item)
-    
-            
+
+
     def remove_publisher_item_(self, item):
         self.remove_publisher(item.publisher_id)
         index = self.publishers_tree_widget.indexOfTopLevelItem(item)
@@ -261,7 +260,7 @@ class Publisher(QDockWidget):
         if action == action_remove_publisher:
             self.remove_publisher_item_(item)
 
-    
+
     @Slot()
     def on_clear_button_clicked(self):
         self.clean_up_publishers()
@@ -279,14 +278,14 @@ class Publisher(QDockWidget):
             del publisher_copy['widgetItem']
             publisher_copies.append(publisher_copy)
         perspective_settings.set_value('publishers', repr(publisher_copies))
-        
-        
+
+
     def restore_settings(self, global_settings, perspective_settings):
         publishers = eval(perspective_settings.value('publishers', '[]'))
         for publisher in publishers:
             self._add_publisher(publisher)
-        
-        
+
+
     def remove_publisher(self, publisher_id):
         publisher_info = self.publishers_[publisher_id]
         publisher_info['timer'].stop()
@@ -303,7 +302,7 @@ class Publisher(QDockWidget):
 
 
     def set_name(self, name):
-        self.setWindowTitle(name) 
+        self.setWindowTitle(name)
 
 
     # override Qt's closeEvent() method to trigger plugin unloading

@@ -11,6 +11,7 @@
 
   <depend package="rosgui"/>
   <depend package="rosgui_rospy"/>
+  <depend package="rosmsg"/>
 
   <export>
     <rosgui plugin="${prefix}/publisher_plugin.xml"/>
