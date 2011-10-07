@@ -13,6 +13,7 @@
   <depend package="pluginlib"/>
 
   <rosdep name="qt4"/>
+  <rosdep name="tinyxml"/>
 
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrosgui_cpp"/>
