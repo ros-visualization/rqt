@@ -1,17 +1,7 @@
 import os, sys
 
-try:
-    import rospkg
-    def get_package_path(name):
-        r = rospkg.RosPack()
-        return r.get_path(name)
-except ImportError:
-    import roslib
-    def get_package_path(name):
-        return roslib.packages.get_pkg_dir(name)
-
-
 from rosgui.QtBindingHelper import QT_BINDING
+from rosgui.RosPackageHelper import get_package_path
 
 try:
     if QT_BINDING == 'pyside':

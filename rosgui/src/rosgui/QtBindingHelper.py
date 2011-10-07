@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 def pyside(data):
-    import PySide.QtCore as _QtCore
+    import PySide as _PySide
     data['qt_package'] = 'PySide'
-    data['QtCore'] = _QtCore
+    data['QtCore'] = _PySide.QtCore
+    data['version'] = _PySide.__version__
     try:
         import PySideQwt as _Qwt
         data['Qwt'] = _Qwt
@@ -15,6 +16,7 @@ def pyqt(data):
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     import PyQt4.QtCore as _QtCore
+    data['version'] = _QtCore.PYQT_VERSION_STR
     data['qt_package'] = 'PyQt4'
     data['QtCore'] = _QtCore
     try:
@@ -29,6 +31,7 @@ _ORDER_OF_BINDINGS = [pyqt, pyside]
 _selected_qt_binding = {
     'id': None,
     'qt_package': None,
+    'version': None,
     'QtCore': None,
     'Qwt': None,
 }

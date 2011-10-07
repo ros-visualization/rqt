@@ -6,6 +6,7 @@ from QtBindingHelper import import_from_qt
 QSettings, qDebug = import_from_qt(['QSettings', 'qDebug'], 'QtCore')
 QAction, QApplication, QIcon, QMenuBar = import_from_qt(['QAction', 'QApplication', 'QIcon', 'QMenuBar'], 'QtGui')
 
+from AboutHandler import AboutHandler
 from CompositePluginProvider import CompositePluginProvider
 from MainWindow import MainWindow
 from PerspectiveManager import PerspectiveManager
@@ -67,6 +68,14 @@ def rosgui_main():
     plugin_manager.plugins_changed_signal.connect(main_window.restore_setup)
     # signal save settings to store plugin setup on close
     main_window.save_settings_signal.connect(plugin_manager.save_settings)
+
+    about_handler = AboutHandler(main_window)
+    help_menu = menu_bar.addMenu(menu_bar.tr('Help'))
+    action = QAction(file_menu.tr('About'), help_menu)
+    action.setIcon(QIcon.fromTheme('help-about'))
+    action.setIconVisibleInMenu(True)
+    action.triggered.connect(about_handler.show)
+    help_menu.addAction(action)
 
     perspective = None
     for arg in sys.argv:
