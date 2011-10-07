@@ -1,0 +1,16 @@
+<package>
+  <description brief="rosgui_py_common">
+
+     rosgui_py_common
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui</url>
+
+  <rosdep name="rosgui"/>
+  <rosdep name="python-qt4"/>
+  <depend package="rostopic"/>
+
+</package>

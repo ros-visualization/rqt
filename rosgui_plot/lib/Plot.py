@@ -12,6 +12,7 @@ import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 from DataPlot import DataPlot
+from TopicCompleter import TopicCompleter
 
 # main class inherits from the ui window class
 class Plot(QDockWidget):
@@ -22,9 +23,14 @@ class Plot(QDockWidget):
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
         loadUi(ui_file, self, {'DataPlot': DataPlot})
+
+        self.subscribe_topic_button.setEnabled(False)
+
+        self.topic_completer = TopicCompleter(self.topic_edit)
+        self.topic_edit.setCompleter(self.topic_completer)
+
         self.start_time = rospy.get_time()
         self.rosdata_ = {}
-        self.update_topic_list()
 
         # setup drag 'n drop
         self.data_plot.dropEvent = self.dropEvent
@@ -55,12 +61,20 @@ class Plot(QDockWidget):
     def _get_field_type(self, topic_name):
         # get message
         topic_type, _, message_evaluator = get_topic_type(topic_name)
+        if topic_type is None:
+            return None
         message = roslib.message.get_message_class(topic_type)()
 
         # return field type
         if message_evaluator:
-            return type(message_evaluator(message))
-        return type(message)
+            try:
+                field_type = type(message_evaluator(message))
+            except:
+                field_type = None
+        else:
+            field_type = type(message)
+
+        return field_type
 
 
     @Slot('QDragEnterEvent*')
@@ -100,36 +114,20 @@ class Plot(QDockWidget):
         self.add_topic(topic_name)
 
 
-
-    def _recursive_create_field_list(self, topic_name, message, type_filter=None):
-        field_list = []
-        if type_filter is None or type(message) in type_filter:
-            field_list.append(topic_name)
-
-        if hasattr(message, '__slots__') and hasattr(message, '_slot_types'):
-            for slot_name in message.__slots__:
-                field_list += self._recursive_create_field_list(topic_name + '/' + slot_name, getattr(message, slot_name), type_filter)
-
-        return field_list
-
-
-    @Slot()
-    def update_topic_list(self):
-        topic_list = rospy.get_published_topics()
-        field_list = []
-        for topic_name, topic_type in topic_list:
-            message = roslib.message.get_message_class(topic_type)()
-            field_list += self._recursive_create_field_list(topic_name, message, [int, float])
-
-        self.topic_completer = QCompleter(field_list)
-        #self.topic_completer.setWidget(self.topic_edit)
-        self.topic_edit.setCompleter(self.topic_completer)
-
-
     @Slot(str)
-    def on_topic_edit_textEdited(self, text):
-        if text in ['', '/']:
-            self.update_topic_list()
+    def on_topic_edit_textChanged(self, topic_name):
+        # on empty topic name, update topics 
+        if topic_name in ('', '/'):
+            self.topic_completer.update_topics()
+
+        # check for numeric field type
+        field_type = self._get_field_type(topic_name)
+        if field_type in (int, float):
+            self.subscribe_topic_button.setEnabled(True)
+            self.subscribe_topic_button.setToolTip('topic "%s" is numeric: %s' % (topic_name, field_type))
+        else:
+            self.subscribe_topic_button.setEnabled(False)
+            self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
 
 
     @Slot()
