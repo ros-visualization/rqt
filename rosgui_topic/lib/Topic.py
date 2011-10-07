@@ -17,16 +17,16 @@ class Topic(QObject):
         QObject.__init__(self, parent)
         self.setObjectName('Topic')
 
-        self.widget_ = TopicWidget.TopicWidget(self, plugin_context)
+        self.widget = TopicWidget.TopicWidget(self, plugin_context)
 
         # add widget to the main window
-        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self.widget_)
+        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self.widget)
 
 
     def set_name(self, name):
-        self.widget_.setWindowTitle(name) 
+        self.widget.setWindowTitle(name) 
 
 
     def close_plugin(self):
-        QDockWidget.close(self.widget_)
-        self.widget_.deleteLater()
+        QDockWidget.close(self.widget)
+        self.widget.deleteLater()
