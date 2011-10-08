@@ -1,7 +1,7 @@
 import os
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-qDebug, QEvent, QObject, Qt, Slot = import_from_qt(['qDebug', 'QEvent', 'QObject', 'Qt', 'Slot'], 'QtCore')
-QDockWidget, QIcon, QWidget = import_from_qt(['QDockWidget', 'QIcon', 'QWidget'], 'QtGui')
+from QtBindingHelper import loadUi
+from QtCore import qDebug, QEvent, QObject, Qt, Slot
+from QtGui import QDockWidget, QIcon, QWidget
 
 
 class DockWidgetTitleBar(QWidget):
@@ -104,8 +104,8 @@ class DockWidgetTitleBar(QWidget):
 
 if __name__ == '__main__':
     import sys
-    Qt = import_from_qt(['Qt'], 'QtCore')
-    QApplication, QMainWindow, QDockWidget = import_from_qt(['QApplication', 'QMainWindow', 'QDockWidget'], 'QtGui')
+    from QtCore import Qt
+    from QtGui import QApplication, QMainWindow, QDockWidget
 
     app = QApplication(sys.argv)
 

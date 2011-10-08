@@ -1,9 +1,9 @@
 import os
 
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-QTimer, Qt, Slot = import_from_qt(['QTimer', 'Qt', 'Slot'], 'QtCore')
-QDockWidget, QHBoxLayout = import_from_qt(['QDockWidget', 'QHBoxLayout'], 'QtGui')
-QGLWidget, QGLFormat, QGL = import_from_qt(['QGLWidget', 'QGLFormat', 'QGL'], 'QtOpenGL')
+from rosgui.QtBindingHelper import loadUi
+from QtCore import QTimer, Qt, Slot
+from QtGui import QDockWidget, QHBoxLayout
+from QtOpenGL import QGLWidget, QGLFormat, QGL
 
 import roslib
 roslib.load_manifest('rosgui_pose_view')

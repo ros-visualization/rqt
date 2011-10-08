@@ -1,8 +1,8 @@
 import os
 
-from QtBindingHelper import import_from_qt, loadUi
-qDebug, QObject, QSignalMapper, Signal, Slot = import_from_qt(['qDebug', 'QObject', 'QSignalMapper', 'Signal', 'Slot'], 'QtCore')
-QAction, QIcon, QInputDialog, QMessageBox = import_from_qt(['QAction', 'QIcon', 'QInputDialog', 'QMessageBox'], 'QtGui')
+from QtBindingHelper import loadUi
+from QtCore import qDebug, QObject, QSignalMapper, Signal, Slot
+from QtGui import QAction, QIcon, QInputDialog, QMessageBox
 
 from MenuManager import MenuManager
 from Settings import Settings

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from rosgui.QtBindingHelper import import_from_qt
-QCompleter = import_from_qt(['QCompleter'], 'QtGui')
+import rosgui.QtBindingHelper
+from QtGui import QCompleter
 
 class TreeModelCompleter(QCompleter):
     separator = '/'

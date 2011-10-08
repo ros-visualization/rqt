@@ -3,9 +3,9 @@
 import sys
 from optparse import OptionParser
 
-from QtBindingHelper import import_from_qt
-QSettings, qDebug, qWarning = import_from_qt(['QSettings', 'qDebug', 'qWarning'], 'QtCore')
-QAction, QApplication, QIcon, QMenuBar = import_from_qt(['QAction', 'QApplication', 'QIcon', 'QMenuBar'], 'QtGui')
+import QtBindingHelper
+from QtCore import QSettings, qDebug, qWarning
+from QtGui import QAction, QApplication, QIcon, QMenuBar
 
 from AboutHandler import AboutHandler
 from CompositePluginProvider import CompositePluginProvider

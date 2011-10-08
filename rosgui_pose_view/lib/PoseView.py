@@ -1,6 +1,6 @@
-from rosgui.QtBindingHelper import import_from_qt
-QObject, Qt = import_from_qt(['QObject', 'Qt'], 'QtCore')
-QDockWidget = import_from_qt('QDockWidget', 'QtGui')
+import rosgui.QtBindingHelper
+from QtCore import QObject, Qt
+from QtGui import QDockWidget
 
 import roslib
 roslib.load_manifest('rosgui_pose_view')

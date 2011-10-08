@@ -1,5 +1,5 @@
-from QtBindingHelper import import_from_qt
-QMutex, QMutexLocker, QObject = import_from_qt(['QMutex', 'QMutexLocker', 'QObject'], 'QtCore')
+import QtBindingHelper
+from QtCore import QMutex, QMutexLocker, QObject
 
 from Settings import Settings
 

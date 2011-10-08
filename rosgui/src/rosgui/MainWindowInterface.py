@@ -1,7 +1,7 @@
 import os
-from QtBindingHelper import import_from_qt
-Qt, qWarning, Signal, Slot = import_from_qt(['Qt', 'qWarning', 'Signal', 'Slot'], 'QtCore')
-QDockWidget, QWidget = import_from_qt(['QDockWidget', 'QWidget'], 'QtGui')
+import QtBindingHelper
+from QtCore import Qt, qWarning, Signal, Slot
+from QtGui import QDockWidget, QWidget
 
 from DockWidgetTitleBar import DockWidgetTitleBar
 

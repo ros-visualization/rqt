@@ -1,7 +1,7 @@
 import traceback
 
-from QtBindingHelper import import_from_qt
-qCritical = import_from_qt('qCritical', 'QtCore')
+import QtBindingHelper
+from QtCore import qCritical
 
 from CompositePluginProvider import CompositePluginProvider
 

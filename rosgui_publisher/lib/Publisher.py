@@ -5,9 +5,9 @@ import os, sys, inspect
 from math import * #@UnusedWildImport so math functions can be used in the custom expressions
 from random import random, randint, gauss #@UnusedImport
 
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning = import_from_qt(['Qt', 'QTimer', 'QSignalMapper', 'Slot', 'qDebug', 'qWarning'], 'QtCore')
-QDockWidget, QTreeWidgetItem, QMenu = import_from_qt(['QDockWidget', 'QTreeWidgetItem', 'QMenu'], 'QtGui')
+from rosgui.QtBindingHelper import loadUi
+from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
+from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_publisher')

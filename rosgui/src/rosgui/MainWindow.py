@@ -1,6 +1,6 @@
-from QtBindingHelper import import_from_qt
-qDebug, Signal = import_from_qt(['qDebug', 'Signal'], 'QtCore')
-QMainWindow = import_from_qt('QMainWindow', 'QtGui')
+import QtBindingHelper
+from QtCore import qDebug, Signal
+from QtGui import QMainWindow
 
 from Settings import Settings
 

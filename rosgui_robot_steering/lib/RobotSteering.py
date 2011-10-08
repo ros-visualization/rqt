@@ -1,8 +1,8 @@
 import os
 
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-QEvent, QObject, QTimer, Qt, qCritical, Slot = import_from_qt(['QEvent', 'QObject', 'QTimer', 'Qt', 'qCritical', 'Slot'], 'QtCore')
-QColor, QDockWidget, QFrame, QImage, QPainter, QShortcut = import_from_qt(['QColor', 'QDockWidget', 'QFrame', 'QImage', 'QPainter', 'QShortcut'], 'QtGui')
+from rosgui.QtBindingHelper import loadUi
+from QtCore import QEvent, QObject, QTimer, Qt, qCritical, Slot
+from QtGui import QColor, QDockWidget, QFrame, QImage, QPainter, QShortcut
 
 import roslib
 roslib.load_manifest('rosgui_robot_steering')

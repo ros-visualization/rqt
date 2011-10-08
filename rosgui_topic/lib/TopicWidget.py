@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-Qt, QTimer, Slot = import_from_qt(['Qt', 'QTimer', 'Slot'], 'QtCore')
-QDockWidget, QTreeWidgetItem, QMenu = import_from_qt(['QDockWidget', 'QTreeWidgetItem', 'QMenu'], 'QtGui')
+from rosgui.QtBindingHelper import loadUi
+from QtCore import Qt, QTimer, Slot
+from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_topic')

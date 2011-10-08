@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from rosgui.QtBindingHelper import import_from_qt
-QtCore = import_from_qt('QtCore')
+import rosgui.QtBindingHelper
+import QtCore
 
 class TreeModel(QtCore.QAbstractItemModel):
 

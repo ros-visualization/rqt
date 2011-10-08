@@ -1,6 +1,6 @@
-from QtBindingHelper import import_from_qt
-QObject = import_from_qt('QObject', 'QtCore')
-QAction, QMenu = import_from_qt(['QAction', 'QMenu'], 'QtGui')
+import QtBindingHelper
+from QtCore import QObject
+from QtGui import QAction, QMenu
 
 class MenuManager(QObject):
 

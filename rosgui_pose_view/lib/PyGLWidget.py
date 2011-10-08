@@ -29,8 +29,8 @@
 #
 #===============================================================================
 
-from rosgui.QtBindingHelper import import_from_qt
-QtCore, QtGui, QtOpenGL = import_from_qt(['QtCore', 'QtGui', 'QtOpenGL'])
+import rosgui.QtBindingHelper
+import QtCore, QtGui, QtOpenGL
 
 import math
 import numpy

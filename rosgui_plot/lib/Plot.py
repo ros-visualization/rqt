@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import os
 
-from rosgui.QtBindingHelper import import_from_qt, loadUi
-Qt, QTimer, Signal, Slot, qDebug = import_from_qt(['Qt', 'QTimer', 'Signal', 'Slot', 'qDebug'], 'QtCore')
-QCompleter, QDockWidget, QStringListModel = import_from_qt(['QCompleter', 'QDockWidget', 'QStringListModel'], 'QtGui')
+from rosgui.QtBindingHelper import loadUi
+from QtCore import Qt, QTimer, Signal, Slot, qDebug
+from QtGui import QCompleter, QDockWidget, QStringListModel
 
 import roslib
 roslib.load_manifest('rosgui_plot')

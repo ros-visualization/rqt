@@ -13,12 +13,10 @@
   <depend package="rosgui_rospy"/>
   <depend package="rostopic"/>
   <depend package="geometry_msgs"/>
-  <depend package="python-qt4-gl"/>
 
   <export>
     <rosgui plugin="${prefix}/pose_view_plugin.xml"/>
   </export>
 
 </package>
-
 

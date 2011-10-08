@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import sys, math
 
-from rosgui.QtBindingHelper import import_from_qt, Qwt
-Qt, QTimer, SIGNAL, Slot = import_from_qt(['Qt', 'QTimer', 'SIGNAL', 'Slot'], 'QtCore')
-QPen = import_from_qt('QPen', 'QtGui')
+import rosgui.QtBindingHelper, Qwt
+from QtCore import Qt, QTimer, SIGNAL, Slot
+from QtGui import QPen
 
 from numpy import arange, zeros, concatenate
 

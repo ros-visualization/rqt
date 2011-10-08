@@ -1,8 +1,8 @@
 import os, traceback
 
-from QtBindingHelper import import_from_qt
-qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot, Qt = import_from_qt(['qCritical', 'qDebug', 'QEvent', 'QObject', 'QSignalMapper', 'Signal', 'Slot', 'Qt'], 'QtCore')
-QAction, QMenu, QIcon = import_from_qt(['QAction', 'QMenu', 'QIcon'], 'QtGui')
+import QtBindingHelper
+from QtCore import qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot, Qt
+from QtGui import QAction, QMenu, QIcon
 
 from MainWindowInterface import MainWindowInterface
 from MenuManager import MenuManager

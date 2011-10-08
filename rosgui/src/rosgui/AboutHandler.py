@@ -1,14 +1,14 @@
 import os, platform, sys
 
-from QtBindingHelper import import_from_qt, QT_BINDING, _selected_qt_binding
-QObject = import_from_qt('QObject', 'QtCore')
-QMessageBox = import_from_qt('QMessageBox', 'QtGui')
+from QtBindingHelper import QT_BINDING, _selected_qt_binding
+from QtCore import QObject
+from QtGui import QMessageBox
 
 from RosPackageHelper import get_package_path
 
 class AboutHandler(QObject):
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.parent_ = parent
 

@@ -1,5 +1,5 @@
-from QtBindingHelper import import_from_qt
-QObject, Slot = import_from_qt(['QObject', 'Slot'], 'QtCore')
+import QtBindingHelper
+from QtCore import QObject, Slot
 
 class PluginContext(QObject):
 

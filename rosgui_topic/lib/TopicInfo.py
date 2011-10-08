@@ -4,8 +4,8 @@ from __future__ import division, with_statement
 import time
 from StringIO import StringIO
 
-from rosgui.QtBindingHelper import import_from_qt
-qDebug = import_from_qt(['qDebug'], 'QtCore')
+import rosgui.QtBindingHelper
+from QtCore import qDebug
 
 import roslib
 roslib.load_manifest('rosgui_topic')

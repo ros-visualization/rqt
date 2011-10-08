@@ -1,6 +1,6 @@
 import webbrowser
-from QtBindingHelper import import_from_qt
-Slot, QObject = import_from_qt(['Slot', 'QObject'], 'QtCore')
+import QtBindingHelper
+from QtCore import Slot, QObject
 
 class HelpProvider(QObject):
 

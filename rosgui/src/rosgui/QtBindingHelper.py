@@ -1,29 +1,56 @@
 #!/usr/bin/env python
+import sys
 
 def pyside(data):
-    import PySide as _PySide
+    # register PySide modules
+    import PySide.QtCore, PySide.QtGui, PySide.QtOpenGL
+    sys.modules['QtCore'] = PySide.QtCore
+    sys.modules['QtGui'] = PySide.QtGui
+    sys.modules['QtOpenGL'] = PySide.QtOpenGL
+
+    # set some names for compatibility with PyQt4
+    sys.modules['QtCore'].pyqtSignal = sys.modules['QtCore'].Signal
+    sys.modules['QtCore'].pyqtSlot = sys.modules['QtCore'].Slot
+    sys.modules['QtCore'].pyqtProperty = sys.modules['QtCore'].Property
+
     data['qt_package'] = 'PySide'
-    data['QtCore'] = _PySide.QtCore
-    data['version'] = _PySide.__version__
+    data['version'] = PySide.__version__
+
+    # try to register PySideQwt module
     try:
-        import PySideQwt as _Qwt
-        data['Qwt'] = _Qwt
+        import PySideQwt
+        sys.modules['Qwt'] = PySideQwt
     except ImportError:
         pass
 
+
 def pyqt(data):
+    # select PyQt4 API
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
-    import PyQt4.QtCore as _QtCore
-    data['version'] = _QtCore.PYQT_VERSION_STR
+
+    # register PyQt4 modules
+    import PyQt4.QtCore, PyQt4.QtGui, PyQt4.QtOpenGL
+    sys.modules['QtCore'] = PyQt4.QtCore
+    sys.modules['QtGui'] = PyQt4.QtGui
+    sys.modules['QtOpenGL'] = PyQt4.QtOpenGL
+
+    # set some names for compatibility with PySide
+    sys.modules['QtCore'].Signal = sys.modules['QtCore'].pyqtSignal
+    sys.modules['QtCore'].Slot = sys.modules['QtCore'].pyqtSlot
+    sys.modules['QtCore'].Property = sys.modules['QtCore'].pyqtProperty
+
+    data['version'] = PyQt4.QtCore.PYQT_VERSION_STR
     data['qt_package'] = 'PyQt4'
-    data['QtCore'] = _QtCore
+
+    # try to register PyQt4.Qwt5 module
     try:
-        import PyQt4.Qwt5 as _Qwt
-        data['Qwt'] = _Qwt
+        import PyQt4.Qwt5
+        sys.modules['Qwt'] = PyQt4.Qwt5
     except ImportError:
         pass
+
 
 # order of bindings can be changed here
 _ORDER_OF_BINDINGS = [pyqt, pyside]
@@ -32,8 +59,6 @@ _selected_qt_binding = {
     'id': None,
     'qt_package': None,
     'version': None,
-    'QtCore': None,
-    'Qwt': None,
 }
 
 # try to load any Qt binding
@@ -46,40 +71,16 @@ for binding in _ORDER_OF_BINDINGS:
         pass
 
 if _selected_qt_binding['id'] is None:
-    bindings = []
-    for binding in _ORDER_OF_BINDINGS:
-        bindings.append(binding.__name__)
+    bindings = [binding.__name__ for binding in _ORDER_OF_BINDINGS]
     raise ImportError('Could not find any Qt binding (looked for %s)' % bindings)
 
-print 'QtBindingHelper: using %s' % _selected_qt_binding['id']
-
-
 QT_BINDING = _selected_qt_binding['id']
-QtCore = _selected_qt_binding['QtCore']
-if _selected_qt_binding['Qwt'] is not None:
-    Qwt = _selected_qt_binding['Qwt']
-
-
-def import_from_qt(attributes, module_name = None):
-    package_hirachy = [_selected_qt_binding['qt_package']]
-    if module_name:
-        package_hirachy.append(module_name)
-    package_name = '.'.join(package_hirachy)
-
-    if isinstance(attributes, (list, tuple)) and len(attributes) == 1:
-        attributes = attributes[0]
-
-    #print 'QtBindingHelper: from %s import %s' % (package_name, attributes)
-    if isinstance(attributes, (list, tuple)):
-        module = __import__(package_name, globals(), locals(), attributes, -1)
-        return [getattr(module, attribute) for attribute in attributes]
-    else:
-        module = __import__(package_name, globals(), locals(), [attributes], -1)
-        return getattr(module, attributes)
+print 'QtBindingHelper: using %s' % QT_BINDING
 
 
 if _selected_qt_binding['id'] == 'pyside':
-    def loadUi(uifile, baseinstance = None, user_classes = {}):
+
+    def loadUi(uifile, baseinstance=None, user_classes={}):
         from PySide.QtUiTools import QUiLoader
         from PySide.QtCore import QMetaObject
 
@@ -88,13 +89,13 @@ if _selected_qt_binding['id'] == 'pyside':
                 super(CustomUiLoader, self).__init__()
                 self.baseinstance = baseinstance
 
-            def createWidget(self, className, parent = None, name = ""):
+            def createWidget(self, className, parent=None, name=""):
                 if user_classes.has_key(className):
                     widget = user_classes[className](parent)
                 else:
                     widget = QUiLoader.createWidget(self, className, parent, name)
                 if str(type(widget)).find(className) < 0:
-                    QtCore.qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (className, type(widget))))
+                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (className, type(widget))))
                 if parent is None:
                     return self.baseinstance
                 else:
@@ -108,13 +109,10 @@ if _selected_qt_binding['id'] == 'pyside':
 
 
 elif _selected_qt_binding['id'] == 'pyqt':
-    QtCore.Signal = QtCore.pyqtSignal
-    QtCore.Slot = QtCore.pyqtSlot
-    QtCore.Property = QtCore.pyqtProperty
 
-    def loadUi(uifile, baseinstance = None, user_classes = {}):
+    def loadUi(uifile, baseinstance=None, user_classes={}):
         from PyQt4 import uic
-        return uic.loadUi(uifile, baseinstance = baseinstance)
+        return uic.loadUi(uifile, baseinstance=baseinstance)
 
 
 if __name__ == "__main__":

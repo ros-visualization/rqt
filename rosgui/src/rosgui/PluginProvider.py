@@ -1,5 +1,5 @@
-from QtBindingHelper import import_from_qt
-QObject = import_from_qt('QObject', 'QtCore')
+import QtBindingHelper
+from QtCore import QObject
 
 class PluginProvider(QObject):
 
