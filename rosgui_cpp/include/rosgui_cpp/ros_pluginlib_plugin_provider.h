@@ -9,22 +9,26 @@
 #include <pluginlib/class_loader.h>
 #include <pluginlib/boost_fs_wrapper.h>
 
+#include <QCoreApplication>
+#include <QEvent>
 #include <QList>
 #include <QMap>
+#include <QObject>
 #include <QString>
 
 #include <fstream>
 #include <string>
 #include <vector>
 
-//#define USE_PATCHED_PLUGINLIB
+#define USE_PATCHED_PLUGINLIB
 
 namespace rosgui_cpp
 {
 
 template<typename T>
 class RosPluginlibPluginProvider
-  : public PluginProvider
+  : public QObject
+  , public PluginProvider
 {
 
 public:
@@ -35,11 +39,24 @@ public:
   }
 
   RosPluginlibPluginProvider(const QString& export_tag, const QString& base_class_type)
-    : PluginProvider()
+    : QObject()
+    , PluginProvider()
     , export_tag_(export_tag)
     , base_class_type_(base_class_type)
     , class_loader_(0)
-  {}
+  {
+    unload_libraries_event_ = QEvent::registerEventType();
+  }
+
+  RosPluginlibPluginProvider(const RosPluginlibPluginProvider& other)
+    : QObject()
+    , PluginProvider()
+    , export_tag_(other.export_tag)
+    , base_class_type_(other.base_class_type)
+    , class_loader_(0)
+  {
+    unload_libraries_event_ = QEvent::registerEventType();
+  }
 
   virtual ~RosPluginlibPluginProvider()
   {
@@ -181,15 +198,25 @@ public:
     }
 
     //qDebug("RosPluginlibPluginProvider::load_explicit_type(%s) succeeded", lookup_name.c_str());
+    instances_[instance] = plugin_id;
 
     return instance;
   }
 
-  virtual void unload(void* /*instance*/)
+  virtual void unload(void* instance)
   {
 #ifdef USE_PATCHED_PLUGINLIB
-    // TODO: implement unload
-    //class_loader_->unloadLibraryForClass(lookup_name.toStdString());
+    if (!instances_.contains(instance))
+    {
+      qCritical("RosPluginlibPluginProvider::unload() instance not found");
+      return;
+    }
+
+    QString lookup_name = instances_.take(instance);
+    //qDebug("RosPluginlibPluginProvider::unload() instance '%s'", lookup_name.toStdString().c_str());
+    libraries_to_unload_.append(lookup_name);
+
+    QCoreApplication::postEvent(this, new QEvent(static_cast<QEvent::Type>(unload_libraries_event_)));
 #else
     qWarning("RosPluginlibPluginProvider::unload() not supported in the used ROS version");
 #endif
@@ -200,6 +227,18 @@ protected:
   virtual void init_plugin(const QString& /*plugin_id*/, PluginContext* plugin_context, Plugin* plugin)
   {
     plugin->initPlugin(*plugin_context);
+  }
+
+private slots:
+
+  bool event(QEvent* e)
+  {
+    if (e->type() == unload_libraries_event_)
+    {
+      unload_pending_libraries();
+      return true;
+    }
+    return QObject::event(e);
   }
 
 private:
@@ -301,11 +340,27 @@ private:
   }
 #endif
 
+  void unload_pending_libraries()
+  {
+    while (!libraries_to_unload_.empty())
+    {
+      QString lookup_name = libraries_to_unload_.takeFirst();
+      //qDebug("RosPluginlibPluginProvider::unload_pending_libraries() unloadLibraryForClass(%s)", lookup_name.toStdString().c_str());
+      class_loader_->unloadLibraryForClass(lookup_name.toStdString());
+    }
+  }
+
   QString export_tag_;
 
   QString base_class_type_;
 
+  int unload_libraries_event_;
+
   pluginlib::ClassLoader<T>* class_loader_;
+
+  QMap<void*, QString> instances_;
+
+  QList<QString> libraries_to_unload_;
 
 };
 

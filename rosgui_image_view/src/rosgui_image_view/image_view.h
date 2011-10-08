@@ -27,7 +27,7 @@ public:
 
   ImageView();
 
-  virtual void initPlugin(rosgui_cpp::PluginContext& /*context*/);
+  virtual void initPlugin(rosgui_cpp::PluginContext& context);
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 

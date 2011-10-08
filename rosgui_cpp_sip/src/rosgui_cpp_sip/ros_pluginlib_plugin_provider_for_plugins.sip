@@ -2,7 +2,8 @@ namespace rosgui_cpp
 {
 
 class RosPluginlibPluginProvider_ForPlugins
-  : rosgui_cpp::PluginProvider
+  : QObject
+  , rosgui_cpp::PluginProvider
 {
 %TypeHeaderCode
 #include <rosgui_cpp/ros_pluginlib_plugin_provider_for_plugins.h>

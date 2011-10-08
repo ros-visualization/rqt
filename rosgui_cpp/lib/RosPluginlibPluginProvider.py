@@ -45,7 +45,7 @@ class RosPluginlibPluginProvider(PluginProvider):
         return bridge
 
     def unload(self, plugin_instance):
-        instance = self.instances_[plugin_instance]
+        instance = self.instances_.pop(plugin_instance)
         return self.plugin_provider_.unload_plugin(instance)
 
     def __unfold(self, flat_dict):

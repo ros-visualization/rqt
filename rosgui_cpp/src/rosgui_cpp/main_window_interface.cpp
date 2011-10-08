@@ -21,15 +21,13 @@ MainWindowInterface::MainWindowInterface(const MainWindowInterface& other)
 
 void MainWindowInterface::addDockWidget(Qt::DockWidgetArea area, QDockWidget* dock_widget)
 {
-  QGenericArgument arg("QDockWidget", dock_widget);
-  bool rc = proxy_.invokeMethod("addDockWidget", Q_ARG(int, area), arg);
+  bool rc = proxy_.invokeMethod("addDockWidget", Q_ARG(int, area), Q_ARG(QDockWidget, *dock_widget));
   if (!rc) throw std::runtime_error("MainWindowInterface::addDockWidget() invoke method failed");
 }
 
 void MainWindowInterface::set_plugin_instance(PluginBridge* plugin_instance)
 {
-  QGenericArgument arg("QObject", plugin_instance);
-  bool rc = proxy_.invokeMethod("set_plugin_instance",arg);
+  bool rc = proxy_.invokeMethod("set_plugin_instance",Q_ARG(QObject, *plugin_instance));
   if (!rc) throw std::runtime_error("MainWindowInterface::set_plugin_instance() invoke method failed");
 }
 

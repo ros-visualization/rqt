@@ -1,5 +1,4 @@
-string(REGEX MATCH "^.*/rosgui_cpp/include" rosgui_cpp_INCLUDE_PATH "${rosgui_cpp_sip_INCLUDE_DIRS}")
-string(REGEX REPLACE "/include$" "" rosgui_cpp_SOURCE_DIR "${rosgui_cpp_INCLUDE_PATH}")
+string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp)/include(;[^;]*)*$" "\\2" rosgui_cpp_SOURCE_DIR "${rosgui_cpp_sip_INCLUDE_DIRS}")
 
 set(SIP_BUILD_DIR build/sip/rosgui_cpp_sip)
 set(SIP_SRC_DIR ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_sip)

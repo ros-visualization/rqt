@@ -22,7 +22,7 @@ SET(rosgui_cpp_shiboken_SRCS
   librosgui_cpp_shiboken/rosgui_cpp_wrapper.cpp
 )
 
-string(REGEX MATCH "^.*/rosgui_cpp/include" rosgui_cpp_INCLUDE_PATH "${rosgui_cpp_shiboken_INCLUDE_DIRS}")
+string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp/include)(;[^;]*)*$" "\\2" rosgui_cpp_INCLUDE_PATH "${rosgui_cpp_shiboken_INCLUDE_DIRS}")
 
 set(rosgui_cpp_shiboken_INCLUDE_DIRECTORIES
   ${PYTHON_INCLUDE_DIR}

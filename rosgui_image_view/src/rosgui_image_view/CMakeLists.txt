@@ -22,6 +22,10 @@ set(rosgui_image_view_INCLUDE_DIRECTORIES
 qt4_wrap_cpp(rosgui_image_view_MOCS ${rosgui_image_view_HDRS})
 qt4_wrap_ui(rosgui_image_view_UIS_H ${rosgui_image_view_UIS})
 
+string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp)/include(;[^;]*)*$" "\\2" rosgui_cpp_SOURCE_DIR "${rosgui_image_view_INCLUDE_DIRS}")
+include(${rosgui_cpp_SOURCE_DIR}/hide_plugin_symbols.cmake)
+rosgui_cpp__hide_plugin_symbols(rosgui_image_view ImageView)
+
 include_directories(${PROJECT_NAME} ${rosgui_image_view_INCLUDE_DIRECTORIES})
 rosbuild_add_library(${PROJECT_NAME} ${rosgui_image_view_SRCS} ${rosgui_image_view_MOCS} ${rosgui_image_view_UIS_H})
 
