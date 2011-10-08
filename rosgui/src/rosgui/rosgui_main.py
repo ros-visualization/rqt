@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import sys
+from optparse import OptionParser
 
 from QtBindingHelper import import_from_qt
-QSettings, qDebug = import_from_qt(['QSettings', 'qDebug'], 'QtCore')
+QSettings, qDebug, qWarning = import_from_qt(['QSettings', 'qDebug', 'qWarning'], 'QtCore')
 QAction, QApplication, QIcon, QMenuBar = import_from_qt(['QAction', 'QApplication', 'QIcon', 'QMenuBar'], 'QtGui')
 
 from AboutHandler import AboutHandler
@@ -24,6 +25,24 @@ except ImportError:
 
 def rosgui_main():
     qDebug('rosgui_main()')
+
+    # parse command line
+    usage = 'usage: %prog [options]'
+    parser = OptionParser(usage)
+
+    parser.add_option('-p', '--perspective', dest='perspective', default=None, type='str',
+                    help='startup with this perspective')
+
+    parser.add_option('-s', '--stand-alone', dest='standalone_plugin', default=None, type='str',
+                    help='start only this plugin (implies -l)')
+
+    parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action="store_true",
+                    help='locks the GUI to the used perspective (hides menu bar and dock widget close buttons)')
+
+    options, _ = parser.parse_args()
+    if options.standalone_plugin is not None:
+        options.lock_perspective = True
+
     app = QApplication(sys.argv)
     app.lastWindowClosed.connect(app.quit)
 
@@ -35,7 +54,8 @@ def rosgui_main():
 
     # create own menu bar to share one menu bar on Mac
     menu_bar = QMenuBar()
-    main_window.setMenuBar(menu_bar)
+    if not options.lock_perspective:
+        main_window.setMenuBar(menu_bar)
 
     file_menu = menu_bar.addMenu(menu_bar.tr('File'))
     action = QAction(file_menu.tr('Quit'), file_menu)
@@ -51,7 +71,7 @@ def rosgui_main():
         RecursivePluginProvider(ActualRosPluginProvider('rosgui', 'rosgui_py::PluginProvider')),
     ]
     plugin_provider = CompositePluginProvider(plugin_providers)
-    plugin_manager = PluginManager(main_window, plugin_menu, running_menu, plugin_provider)
+    plugin_manager = PluginManager(main_window, plugin_menu, running_menu, plugin_provider, options.lock_perspective)
 
     help_provider = HelpProvider()
     plugin_manager.plugin_help_signal.connect(help_provider.plugin_help_request)
@@ -81,12 +101,21 @@ def rosgui_main():
     action.triggered.connect(about_handler.show)
     help_menu.addAction(action)
 
-    perspective = None
-    for arg in sys.argv:
-        if arg.startswith('--perspective='):
-            perspective = arg.split('=', 1)[1]
+    if options.standalone_plugin is not None:
+        found_plugins = plugin_manager.find_plugin_by_name(options.standalone_plugin)
+        if len(found_plugins) == 0:
+            qWarning('rosgui_main(): found no plugin matching "%s"' % options.standalone_plugin)
+            return 1
 
-    perspective_manager.set_perspective(perspective)
+        elif len(found_plugins) > 1:
+            qWarning('rosgui_main(): found multiple plugins matching "%s"\n%s' % (options.standalone_plugin, '\n'.join(found_plugins.values())))
+            return 1
+
+        perspective_manager.set_perspective(found_plugins.values()[0], True)
+        plugin_manager.load_plugin(found_plugins.keys()[0], 0)
+
+    else:
+        perspective_manager.set_perspective(options.perspective)
 
     main_window.show()
 

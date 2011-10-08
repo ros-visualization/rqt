@@ -10,10 +10,11 @@ class MainWindowInterface(QWidget):
     plugin_help_signal = Signal(str)
     reload_plugin_instance_signal = Signal(str)
 
-    def __init__(self, main_window, plugin_instance_id):
+    def __init__(self, main_window, plugin_instance_id, hide_close_button=False):
         QWidget.__init__(self, main_window)
         self.main_window_ = main_window
         self.plugin_instance_id_ = plugin_instance_id
+        self.hide_close_button = hide_close_button
         self.plugin_instance_ = None
         self.dock_widgets_ = []
 
@@ -45,7 +46,7 @@ class MainWindowInterface(QWidget):
     def _update_title_bar(self, dock_widget):
         title_bar = dock_widget.titleBarWidget()
         if title_bar is None:
-            title_bar = DockWidgetTitleBar(dock_widget)
+            title_bar = DockWidgetTitleBar(dock_widget, self.hide_close_button)
             dock_widget.setTitleBarWidget(title_bar)
 
             # connect extra buttons

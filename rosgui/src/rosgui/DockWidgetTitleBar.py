@@ -6,8 +6,10 @@ QDockWidget, QIcon, QWidget = import_from_qt(['QDockWidget', 'QIcon', 'QWidget']
 
 class DockWidgetTitleBar(QWidget):
 
-    def __init__(self, dock_widget):
+    def __init__(self, dock_widget, hide_close_button=False):
         super(DockWidgetTitleBar, self).__init__(dock_widget)
+        self.hide_close_button = hide_close_button
+
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DockWidgetTitleBar.ui')
         loadUi(ui_file, self)
         self.extra_buttons = {
@@ -96,7 +98,7 @@ class DockWidgetTitleBar(QWidget):
 
     def features_changed(self, _features):
         features = self.parentWidget().features()
-        self.close_button.setVisible(bool(features & QDockWidget.DockWidgetClosable))
+        self.close_button.setVisible((not self.hide_close_button) and bool(features & QDockWidget.DockWidgetClosable))
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
 
 

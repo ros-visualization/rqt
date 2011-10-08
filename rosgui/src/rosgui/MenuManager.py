@@ -60,9 +60,8 @@ class MenuManager(QObject):
 
     def get_item(self, name):
         if isinstance(name, QAction) or isinstance(name, QMenu):
-            for item in self.ordered_items_:
-                if item == name:
-                    return item
+            if name in self.ordered_items_:
+                return name
             return None
         for item in self.ordered_items_:
             if self.__get_item_label(item) == name:

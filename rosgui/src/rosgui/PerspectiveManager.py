@@ -1,4 +1,6 @@
-from QtBindingHelper import import_from_qt
+import os
+
+from QtBindingHelper import import_from_qt, loadUi
 qDebug, QObject, QSignalMapper, Signal, Slot = import_from_qt(['qDebug', 'QObject', 'QSignalMapper', 'Signal', 'Slot'], 'QtCore')
 QAction, QIcon, QInputDialog, QMessageBox = import_from_qt(['QAction', 'QIcon', 'QInputDialog', 'QMessageBox'], 'QtGui')
 
@@ -12,6 +14,8 @@ class PerspectiveManager(QObject):
     save_settings_signal = Signal(Settings, Settings)
     restore_settings_signal = Signal(Settings, Settings)
 
+    HIDDEN_PREFIX = '@'
+
     def __init__(self, settings, menu):
         QObject.__init__(self)
         self.setObjectName('PerspectiveManager')
@@ -19,18 +23,16 @@ class PerspectiveManager(QObject):
         self.settings_proxy_ = SettingsProxy(settings)
         self.global_settings_ = Settings(self.settings_proxy_, 'global')
         self.perspective_settings_ = None
+        self.create_perspective_dialog = None
 
         self.menu_manager_ = MenuManager(menu)
         self.perspective_mapper_ = QSignalMapper(menu)
         self.perspective_mapper_.mapped[str].connect(self.switch_perspective)
 
-        # ensure at least one default perspective
+        # get perspective list from settings
         self.perspectives_ = self.global_settings_.value('perspectives/list', [])
         if isinstance(self.perspectives_, basestring):
             self.perspectives_ = [ self.perspectives_ ]
-        if not self.perspectives_:
-            self.perspectives_.append('Default')
-            self.global_settings_.set_value('perspectives/list', self.perspectives_)
 
         self.current_perspective_ = None
         self.remove_action_ = None
@@ -38,17 +40,19 @@ class PerspectiveManager(QObject):
         self.__generate_menu()
 
 
-    def set_perspective(self, name):
+    def set_perspective(self, name, hide_perspective=False):
         if name is None:
             current = self.global_settings_.value('perspectives/current')
             name = current if current is not None else 'Default'
+        elif hide_perspective:
+            name = self.HIDDEN_PREFIX + name
         self.switch_perspective(name)
 
 
     @Slot(str)
     @Slot(str, bool)
     @Slot(str, bool, bool)
-    def switch_perspective(self, name, settings_changed = True, save_before = True):
+    def switch_perspective(self, name, settings_changed=True, save_before=True):
         if save_before and self.global_settings_ is not None and self.perspective_settings_ is not None:
             self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
 
@@ -59,16 +63,22 @@ class PerspectiveManager(QObject):
         if self.current_perspective_ is not None:
             self.menu_manager_.set_item_checked(self.current_perspective_, False)
             self.menu_manager_.set_item_disabled(self.current_perspective_, False)
-        if not self.menu_manager_.contains_item(name):
-            raise UserWarning('unknown perspective name')
 
-        # update current perspective and emit signal
+        # update current perspective
         self.current_perspective_ = name
         self.menu_manager_.set_item_checked(self.current_perspective_, True)
         self.menu_manager_.set_item_disabled(self.current_perspective_, True)
-        self.global_settings_.set_value('perspectives/current', self.current_perspective_)
-        self.perspective_settings_ = Settings(self.settings_proxy_, 'perspective/%s' % str(self.current_perspective_))
-        self.perspective_changed_signal.emit(self.current_perspective_)
+        if not self.current_perspective_.startswith(self.HIDDEN_PREFIX):
+            self.global_settings_.set_value('perspectives/current', self.current_perspective_)
+        self.perspective_settings_ = Settings(self.settings_proxy_, 'perspective/%s' % self.current_perspective_)
+
+        # create perspective if necessary 
+        if name not in self.perspectives_:
+            qDebug('PerspectiveManager.switch_perspective(): unknown perspective %s' % name)
+            self.__create_perspective(name, clone_perspective=False)
+
+        # emit signals
+        self.perspective_changed_signal.emit(self.current_perspective_.lstrip(self.HIDDEN_PREFIX))
         if settings_changed:
             self.restore_settings_signal.emit(self.global_settings_, self.perspective_settings_)
 
@@ -89,51 +99,61 @@ class PerspectiveManager(QObject):
 
         # add perspectives to menu
         for name in self.perspectives_:
-            self.__add_perspective(name)
+            if not name.startswith(self.HIDDEN_PREFIX):
+                self.__add_perspective_action(name)
 
 
     def __on_create_perspective(self):
         # input dialog for new perspective name
-        (name, rc) = QInputDialog.getText(self.menu_manager_.menu(), self.menu_manager_.tr('Create new perspective'), self.menu_manager_.tr('Name of perspective'))
-        if not rc:
-            qDebug('PerspectiveManager.__on_create_perspective() canceled input dialog for new perspective name')
+        if self.create_perspective_dialog is None:
+            ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PerspectiveCreate.ui')
+            self.create_perspective_dialog = loadUi(ui_file)
+        return_value = self.create_perspective_dialog.exec_()
+        if return_value == self.create_perspective_dialog.Rejected:
             return
+        name = str(self.create_perspective_dialog.perspective_name_edit.text())
         if name == '':
-            QMessageBox.warning(self.menu_manager_.menu(), self.menu_manager_.tr('Empty perspective name'), self.menu_manager_.tr('The name of the perspective must be non-empty.'))
+            QMessageBox.warning(self.menu_manager_.menu(), self.tr('Empty perspective name'), self.tr('The name of the perspective must be non-empty.'))
             return
-        if self.menu_manager_.contains_item(name):
-            QMessageBox.warning(self.menu_manager_.menu(), self.menu_manager_.tr('Duplicate perspective name'), self.menu_manager_.tr('A perspective with the same name already exists.'))
+        if name in self.perspectives_:
+            QMessageBox.warning(self.menu_manager_.menu(), self.tr('Duplicate perspective name'), self.tr('A perspective with the same name already exists.'))
             return
-        qDebug('PerspectiveManager.__on_create_perspective(%s)' % str(name))
+        clone_perspective = self.create_perspective_dialog.clone_checkbox.isChecked()
+        self.__create_perspective(name, clone_perspective)
 
+
+    def __create_perspective(self, name, clone_perspective=True):
+        qDebug('PerspectiveManager.__create_perspective(%s, %s)' % (name, clone_perspective))
         # add to list of perspectives
         self.perspectives_.append(name)
         self.global_settings_.set_value('perspectives/list', self.perspectives_)
 
         # save current settings
-        self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+        if self.global_settings_ is not None and self.perspective_settings_ is not None:
+            self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+
         # clone settings
         new_settings = Settings(self.settings_proxy_, 'perspective/%s' % str(name))
-        keys = self.perspective_settings_.all_keys()
-        for key in keys:
-            value = self.perspective_settings_.value(key)
-            new_settings.set_value(key, value)
+        if clone_perspective:
+            keys = self.perspective_settings_.all_keys()
+            for key in keys:
+                value = self.perspective_settings_.value(key)
+                new_settings.set_value(key, value)
 
         # add and switch to perspective
-        self.__add_perspective(name)
-        self.switch_perspective(name, False, False)
+        self.__add_perspective_action(name)
+        self.switch_perspective(name, not clone_perspective, False)
 
 
     def __on_remove_perspective(self):
         # input dialog to choose perspective to be removed
-        names = self.menu_manager_.get_items()
+        names = list(self.perspectives_)
         names.remove(self.current_perspective_)
-        (name, rc) = QInputDialog.getItem(self.menu_manager_.menu(), self.menu_manager_.tr('Remove perspective'), self.menu_manager_.tr('Select the perspective'), names, 0, False)
-        if not rc:
-            qDebug('PerspectiveManager.__on_remove_perspective() canceled input dialog for perspective name')
+        name, return_value = QInputDialog.getItem(self.menu_manager_.menu(), self.menu_manager_.tr('Remove perspective'), self.menu_manager_.tr('Select the perspective'), names, 0, False)
+        if return_value == QInputDialog.Rejected:
             return
-        if not self.menu_manager_.contains_item(name):
-            raise UserWarning('unknown perspective name')
+        if name not in self.perspectives_:
+            raise UserWarning('unknown perspective: %s' % name)
         qDebug('PerspectiveManager.__on_remove_perspective(%s)' % str(name))
 
         # remove from list of perspectives
@@ -152,7 +172,7 @@ class PerspectiveManager(QObject):
             self.remove_action_.setEnabled(False)
 
 
-    def __add_perspective(self, name):
+    def __add_perspective_action(self, name):
         # create action
         action = QAction(name, self.menu_manager_.menu())
         action.setCheckable(True)

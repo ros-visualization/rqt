@@ -15,7 +15,7 @@ class PluginManager(QObject):
     plugin_help_signal = Signal(object)
     _deferred_load_plugin_signal = Signal(str, int)
 
-    def __init__(self, main_window, plugin_menu, running_menu, plugin_provider):
+    def __init__(self, main_window, plugin_menu, running_menu, plugin_provider, hide_close_button=False):
         QObject.__init__(self)
         self.setObjectName('PluginManager')
 
@@ -23,6 +23,7 @@ class PluginManager(QObject):
         self.perspective_settings_ = None
         self.plugin_descriptors_ = {}
         self.running_plugins_ = {}
+        self.hide_close_button = hide_close_button
 
         self.main_window_ = main_window
         self.plugin_menu_manager_ = MenuManager(plugin_menu)
@@ -42,7 +43,6 @@ class PluginManager(QObject):
 
         self.__register_plugins(plugin_descriptors)
 
-
     @Slot(str)
     def reload_plugin(self, instance_id):
         # unload plugin now
@@ -59,6 +59,23 @@ class PluginManager(QObject):
         plugin_descriptor = self.plugin_descriptors_[plugin_id]
         self.plugin_help_signal.emit(plugin_descriptor)
 
+    def find_plugin_by_name(self, lookup_name):
+        found_plugins = {}
+        for plugin_id, plugin_descriptor in self.plugin_descriptors_.items():
+
+            plugin_name_parts = []
+            plugin_name = plugin_descriptor.attributes().get('plugin_name', None)
+            if plugin_name is not None:
+                plugin_name_parts.append(plugin_name)
+            plugin_name_parts += plugin_descriptor.attributes().get('class_type', 'unknown').split('::')
+
+            plugin_full_name = '/'.join(plugin_name_parts)
+
+            if plugin_full_name.lower().find(lookup_name) >= 0:
+                found_plugins[plugin_id] = plugin_full_name
+
+        return found_plugins
+
     @Slot(str)
     @Slot(str, int)
     def load_plugin(self, plugin_id, serial_number=None):
@@ -69,8 +86,12 @@ class PluginManager(QObject):
             serial_number = self.__next_serial_number(plugin_id)
         instance_id = self.__build_instance_id(plugin_id, serial_number)
 
+        # if the requested instance is already running, so nothing
+        if instance_id in self.running_plugins_:
+            return
+
         try:
-            main_window_interface = MainWindowInterface(self.main_window_, instance_id)
+            main_window_interface = MainWindowInterface(self.main_window_, instance_id, self.hide_close_button)
             main_window_interface.reload_plugin_instance_signal.connect(self.reload_plugin)
             main_window_interface.plugin_help_signal.connect(self.relay_plugin_help_signal)
 
