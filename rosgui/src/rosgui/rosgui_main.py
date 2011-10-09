@@ -89,7 +89,7 @@ def rosgui_main():
     # signal before changing plugins to save window state
     plugin_manager.plugins_about_to_change_signal.connect(main_window.save_setup)
     # signal changed plugins to restore window state
-    plugin_manager.plugins_changed_signal.connect(main_window.restore_setup)
+    plugin_manager.plugins_changed_signal.connect(main_window.restore_state)
     # signal save settings to store plugin setup on close
     main_window.save_settings_signal.connect(plugin_manager.save_settings)
 
@@ -100,6 +100,9 @@ def rosgui_main():
     action.setIconVisibleInMenu(True)
     action.triggered.connect(about_handler.show)
     help_menu.addAction(action)
+
+    # set initial size - only used without configuration
+    main_window.resize(600, 450)
 
     if options.standalone_plugin is not None:
         found_plugins = plugin_manager.find_plugin_by_name(options.standalone_plugin)

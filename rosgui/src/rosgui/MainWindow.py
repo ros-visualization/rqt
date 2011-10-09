@@ -28,10 +28,6 @@ class MainWindow(QMainWindow):
         # store current setup to current settings
         self.__save_geometry_to_perspective()
         self.__save_state_to_perspective()
-        # restore setup from settings so that widgets added later can be properly restored
-        if self.settings_ is not None:
-            self.__restore_geometry_from_perspective()
-            self.__restore_state_from_perspective()
 
     def save_settings(self, global_settings, perspective_settings):
         qDebug('MainWindow.save_settings()')
@@ -46,11 +42,11 @@ class MainWindow(QMainWindow):
         self.global_settings_ = global_settings
         self.perspective_settings_ = perspective_settings
         self.settings_ = self.perspective_settings_.get_settings('mainwindow')
-
-    def restore_setup(self):
-        qDebug('MainWindow.restore_setup()')
-        # restore setup from settings
         self.__restore_geometry_from_perspective()
+
+    def restore_state(self):
+        qDebug('MainWindow.restore_state()')
+        # restore state from settings
         self.__restore_state_from_perspective()
 
     def perspective_changed(self, name):
