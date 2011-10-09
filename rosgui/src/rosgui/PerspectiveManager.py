@@ -76,6 +76,7 @@ class PerspectiveManager(QObject):
         if name not in self.perspectives_:
             qDebug('PerspectiveManager.switch_perspective(): unknown perspective %s' % name)
             self.__create_perspective(name, clone_perspective=False)
+            return
 
         # emit signals
         self.perspective_changed_signal.emit(self.current_perspective_.lstrip(self.HIDDEN_PREFIX))
@@ -108,16 +109,25 @@ class PerspectiveManager(QObject):
         if self.create_perspective_dialog is None:
             ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PerspectiveCreate.ui')
             self.create_perspective_dialog = loadUi(ui_file)
+
+        # set default values
+        self.create_perspective_dialog.perspective_name_edit.setText('')
+        self.create_perspective_dialog.clone_checkbox.setChecked(True)
+
+        # show dialog and wait for it's return value 
         return_value = self.create_perspective_dialog.exec_()
         if return_value == self.create_perspective_dialog.Rejected:
             return
-        name = str(self.create_perspective_dialog.perspective_name_edit.text())
+
+        name = str(self.create_perspective_dialog.perspective_name_edit.text()).lstrip(self.HIDDEN_PREFIX)
         if name == '':
             QMessageBox.warning(self.menu_manager_.menu(), self.tr('Empty perspective name'), self.tr('The name of the perspective must be non-empty.'))
             return
+
         if name in self.perspectives_:
             QMessageBox.warning(self.menu_manager_.menu(), self.tr('Duplicate perspective name'), self.tr('A perspective with the same name already exists.'))
             return
+
         clone_perspective = self.create_perspective_dialog.clone_checkbox.isChecked()
         self.__create_perspective(name, clone_perspective)
 
@@ -142,7 +152,7 @@ class PerspectiveManager(QObject):
 
         # add and switch to perspective
         self.__add_perspective_action(name)
-        self.switch_perspective(name, not clone_perspective, False)
+        self.switch_perspective(name, settings_changed=not clone_perspective, save_before=False)
 
 
     def __on_remove_perspective(self):
