@@ -1,7 +1,7 @@
 import os, platform, sys
 
 from QtBindingHelper import QT_BINDING, _selected_qt_binding
-from QtCore import QObject
+from QtCore import QObject, qVersion
 from QtGui import QMessageBox
 
 from RosPackageHelper import get_package_path
@@ -15,12 +15,11 @@ class AboutHandler(QObject):
     def show(self):
         # append folder of 'rosgui_cpp/lib' to module search path
         sys.path.append(os.path.realpath(os.path.join(get_package_path('rosgui_cpp'), 'lib')))
-        _rosgui_cpp_binding = None
         try:
-            from CppBindingHelper import ROSGUI_CPP_BINDING
-            _rosgui_cpp_binding = ROSGUI_CPP_BINDING
+            import CppBindingHelper
+            from ros_gui import ros_gui
         except ImportError:
-            pass
+            ros_gui = None
 
         _rospkg_version = None
         try:
@@ -51,9 +50,9 @@ class AboutHandler(QObject):
         elif QT_BINDING == 'pyqt':
             text += 'PyQt %s, ' % _selected_qt_binding['version']
 
-        text += 'Qt %s, ' % _selected_qt_binding['QtCore'].qVersion()
+        text += 'Qt %s, ' % qVersion()
 
-        if _rosgui_cpp_binding is not None:
+        if ros_gui is not None:
             if QT_BINDING == 'pyside':
                 text += '%s' % (self.tr('%s C++ bindings available') % 'Shiboken')
             elif QT_BINDING == 'pyqt':
