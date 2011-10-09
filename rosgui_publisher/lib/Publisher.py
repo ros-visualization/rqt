@@ -25,6 +25,9 @@ class Publisher(QDockWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self)
 
+        if plugin_context.serial_number() != 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+
         self.column_index = {}
         for column_name in self.column_names:
             self.column_index[column_name] = len(self.column_index)
@@ -311,9 +314,8 @@ class Publisher(QDockWidget):
 
     # override Qt's closeEvent() method to trigger plugin unloading
     def closeEvent(self, event):
-        QDockWidget.closeEvent(self, event)
-        if event.isAccepted():
-            self.deleteLater()
+        event.ignore()
+        self.deleteLater()
 
 
     def close_plugin(self):

@@ -25,7 +25,7 @@ void NodeletPluginProvider::init_plugin(const QString& plugin_id, rosgui_cpp::Pl
 
   nodelet::M_string remappings;
   nodelet::V_string my_argv;
-  std::string bond_id = plugin_id.toStdString() + "_" + plugin_context->serial_number().toStdString();
+  std::string bond_id = plugin_id.toStdString() + "_" + QString::number(plugin_context->serial_number()).toStdString();
   boost::shared_ptr<bond::Bond> bond(new bond::Bond(manager_->manager_name_ + "/bond", bond_id));
   nodelet->init(bond_id, remappings, my_argv, manager_->callback_manager_, bond);
 

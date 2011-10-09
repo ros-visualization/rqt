@@ -225,6 +225,5 @@ class PoseViewWidget(QDockWidget):
     # override Qt's closeEvent() method to trigger plugin unloading
     def closeEvent(self, event):
         self.unregister_topic()
-        QDockWidget.closeEvent(self, event)
-        if event.isAccepted():
-            self.plugin_.deleteLater()
+        event.ignore()
+        self.plugin_.deleteLater()

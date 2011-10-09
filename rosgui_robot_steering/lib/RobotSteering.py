@@ -135,13 +135,9 @@ class RobotSteering(QObject):
         if obj == self.widget_ and event.type() == QEvent.Close:
             # TODO: ignore() should not be necessary when returning True
             event.ignore()
-            self.widget_.removeEventFilter(self)
-            self.__on_widget_close()
+            self.deleteLater()
             return True
         return QObject.eventFilter(self, obj, event)
-
-    def __on_widget_close(self):
-        self.deleteLater()
 
     def close_plugin(self):
         self.__unregisterPublisher()

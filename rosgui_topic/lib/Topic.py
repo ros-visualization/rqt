@@ -19,6 +19,9 @@ class Topic(QObject):
 
         self.widget = TopicWidget.TopicWidget(self, plugin_context)
 
+        if plugin_context.serial_number() != 1:
+            self.widget.setWindowTitle(self.widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+
         # add widget to the main window
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self.widget)
 

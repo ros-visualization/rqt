@@ -15,11 +15,11 @@ class PluginContext
 
 public:
 
-  PluginContext(MainWindowInterface* main_window, const QString& serial_number);
+  PluginContext(MainWindowInterface* main_window, int serial_number);
 
   MainWindowInterface* main_window();
 
-  QString serial_number();
+  int serial_number();
 
   const QMap<QString, QVariant>& attributes() const;
 
@@ -31,7 +31,7 @@ protected:
 
   MainWindowInterface* main_window_;
 
-  QString serial_number_;
+  int serial_number_;
 
   QMap<QString, QVariant> attributes_;
 

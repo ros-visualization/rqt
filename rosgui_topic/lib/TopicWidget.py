@@ -158,6 +158,5 @@ class TopicWidget(QDockWidget):
         for topic_info in self.topic_infos.values():
             topic_info.stop_monitoring()
         self.timer_update.stop()
-        QDockWidget.closeEvent(self, event)
-        if event.isAccepted():
-            self.plugin.deleteLater()
+        event.ignore()
+        self.plugin.deleteLater()

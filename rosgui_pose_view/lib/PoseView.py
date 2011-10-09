@@ -17,6 +17,9 @@ class PoseView(QObject):
         self.widget_ = PoseViewWidget.PoseViewWidget(self, plugin_context)
         self.set_name('Pose View')
 
+        if plugin_context.serial_number() != 1:
+            self.widget_.setWindowTitle(self.widget_.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+
         # add widget to the main window
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self.widget_)
 

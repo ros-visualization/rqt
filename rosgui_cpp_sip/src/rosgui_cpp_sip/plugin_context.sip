@@ -9,11 +9,11 @@ class PluginContext
 
 public:
 
-  PluginContext(rosgui_cpp::MainWindowInterface* main_window, const QString& serial_number);
+  PluginContext(rosgui_cpp::MainWindowInterface* main_window, int serial_number);
 
   rosgui_cpp::MainWindowInterface* main_window();
 
-  QString serial_number();
+  int serial_number();
 
   const QMap<QString, QVariant>& attributes() const;
 

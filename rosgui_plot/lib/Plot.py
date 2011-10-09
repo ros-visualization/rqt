@@ -24,6 +24,9 @@ class Plot(QDockWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
         loadUi(ui_file, self, {'DataPlot': DataPlot})
 
+        if plugin_context.serial_number() != 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+
         self.subscribe_topic_button.setEnabled(False)
 
         self.topic_completer = TopicCompleter(self.topic_edit)
@@ -172,9 +175,8 @@ class Plot(QDockWidget):
 
     # override Qt's closeEvent() method to trigger plugin unloading
     def closeEvent(self, event):
-        QDockWidget.closeEvent(self, event)
-        if event.isAccepted():
-            self.deleteLater()
+        event.ignore()
+        self.deleteLater()
 
 
     def close_plugin(self):
