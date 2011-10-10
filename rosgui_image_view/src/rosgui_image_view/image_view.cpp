@@ -83,13 +83,16 @@ void ImageView::saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::
   QString topic = ui_.topics_combo_box->currentText();
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
   perspective_settings.setValue("topic", topic);
+  perspective_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
 }
 
 void ImageView::restoreSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)
 {
   QString topic = perspective_settings.value("topic", "").toString();
+  bool zoom1_checked = perspective_settings.value("zoom1", false).toBool();
   //qDebug("ImageView::restoreSettings() topic '%s'", topic.toStdString().c_str());
   selectTopic(topic);
+  ui_.zoom_1_push_button->setChecked(zoom1_checked);
 }
 
 void ImageView::updateTopicList()
@@ -205,8 +208,7 @@ void ImageView::onTopicChanged(int index)
 void ImageView::onZoom1(bool checked)
 {
   if (checked) {
-    if (qimage_.isNull())
-    {
+    if (qimage_.isNull()) {
       return;
     }
     ui_.image_frame->setInnerFrameFixedSize(qimage_.size());
@@ -220,7 +222,6 @@ void ImageView::onZoom1(bool checked)
     widget_->setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
   }
 }
-
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -238,6 +239,10 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
   QImage shared_image(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
   qimage_ = shared_image.copy();
   ui_.image_frame->setAspectRatio(cv_ptr->image.cols, cv_ptr->image.rows);
+  if (!ui_.zoom_1_push_button->isEnabled()) {
+    ui_.zoom_1_push_button->setEnabled(true);
+    onZoom1(ui_.zoom_1_push_button->isChecked());
+  }
   ui_.image_frame->update();
 }
 

@@ -32,6 +32,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="zoom_1_push_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
