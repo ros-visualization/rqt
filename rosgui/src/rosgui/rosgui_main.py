@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import sys
+import signal, sys
 from optparse import OptionParser
 
 import QtBindingHelper #@UnusedImport
-from QtCore import qDebug, QSettings, qWarning
+from QtCore import qDebug, QSettings, QTimer, qWarning
 from QtGui import QAction, QApplication, QIcon, QMenuBar
 
 from AboutHandler import AboutHandler
@@ -51,6 +51,15 @@ def rosgui_main():
     main_window = MainWindow()
     main_window.setDockNestingEnabled(True)
     main_window.statusBar()
+
+    def sigint_handler(*args):
+        qDebug('\nsigint_handler()')
+        main_window.close()
+    signal.signal(signal.SIGINT, sigint_handler)
+    # the timer enables triggering the sigint_handler
+    timer = QTimer()
+    timer.start(500)
+    timer.timeout.connect(lambda: None)
 
     # create own menu bar to share one menu bar on Mac
     menu_bar = QMenuBar()
