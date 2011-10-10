@@ -1,4 +1,4 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import QMutex, QMutexLocker, QObject
 
 from Settings import Settings
@@ -6,7 +6,7 @@ from Settings import Settings
 class SettingsProxy(QObject):
 
     def __init__(self, qsettings):
-        QObject.__init__(self)
+        super(SettingsProxy, self).__init__()
         self.setObjectName('SettingsProxy')
 
         self.qsettings_ = qsettings

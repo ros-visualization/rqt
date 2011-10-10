@@ -3,8 +3,8 @@
 import sys
 from optparse import OptionParser
 
-import QtBindingHelper
-from QtCore import QSettings, qDebug, qWarning
+import QtBindingHelper #@UnusedImport
+from QtCore import qDebug, QSettings, qWarning
 from QtGui import QAction, QApplication, QIcon, QMenuBar
 
 from AboutHandler import AboutHandler

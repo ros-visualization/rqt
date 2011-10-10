@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import rosgui.QtBindingHelper
+
+import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import QObject, Qt
 from QtGui import QDockWidget
 
@@ -14,7 +14,7 @@ reload(TopicWidget) # force reload to update on changes during runtime
 class Topic(QObject):
 
     def __init__(self, parent, plugin_context):
-        QObject.__init__(self, parent)
+        super(Topic, self).__init__(parent)
         self.setObjectName('Topic')
 
         self.widget = TopicWidget.TopicWidget(self, plugin_context)
@@ -27,7 +27,7 @@ class Topic(QObject):
 
 
     def set_name(self, name):
-        self.widget.setWindowTitle(name) 
+        self.widget.setWindowTitle(name)
 
 
     def close_plugin(self):

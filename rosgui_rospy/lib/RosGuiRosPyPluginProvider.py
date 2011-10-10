@@ -14,7 +14,7 @@ except ImportError:
 class RosGuiRosPyPluginProvider(CompositePluginProvider):
 
     def __init__(self):
-        CompositePluginProvider.__init__(self, [ActualRosPluginProvider('rosgui', 'rosgui_rospy::Plugin')])
+        super(RosGuiRosPyPluginProvider, self).__init__([ActualRosPluginProvider('rosgui', 'rosgui_rospy::Plugin')])
         self.setObjectName('RosGuiRosPyPluginProvider')
 
     def discover(self):

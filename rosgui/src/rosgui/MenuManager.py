@@ -1,11 +1,11 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import QObject
 from QtGui import QAction, QMenu
 
 class MenuManager(QObject):
 
     def __init__(self, menu):
-        QObject.__init__(self)
+        super(MenuManager, self).__init__()
         self.setObjectName('MenuManager')
 
         self.menu_ = menu

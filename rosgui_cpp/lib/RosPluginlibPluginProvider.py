@@ -1,13 +1,13 @@
 from rosgui.PluginDescriptor import PluginDescriptor
 from rosgui.PluginProvider import PluginProvider
 
-import CppBindingHelper
+import CppBindingHelper #@UnusedImport
 from rosgui_cpp import rosgui_cpp
 
 class RosPluginlibPluginProvider(PluginProvider):
 
     def __init__(self, plugin_provider):
-        PluginProvider.__init__(self)
+        super(RosPluginlibPluginProvider, self).__init__()
         self.plugin_provider_ = plugin_provider
         self.instances_ = {}
 

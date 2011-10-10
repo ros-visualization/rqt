@@ -6,6 +6,7 @@ import TreeModel
 reload(TreeModel) # force reload to update on changes during runtime
 
 class TopicTreeModel(TreeModel.TreeModel):
+
     def __init__(self, parent=None):
         super(TopicTreeModel, self).__init__(parent)
         self._clear()

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 from __future__ import division
-import os, sys, inspect
-from math import * #@UnusedWildImport so math functions can be used in the custom expressions
+import inspect, os, sys
+from math import * #@UnusedWildImport so math functions can be used in custom expressions
 from random import random, randint, gauss #@UnusedImport
 
 from rosgui.QtBindingHelper import loadUi
@@ -11,7 +11,7 @@ from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
-import rospy, rosmsg
+import rosmsg, rospy
 
 # main class inherits from the ui window class
 class Publisher(QDockWidget):
@@ -19,7 +19,7 @@ class Publisher(QDockWidget):
 
 
     def __init__(self, parent, plugin_context):
-        QDockWidget.__init__(self, plugin_context.main_window())
+        super(Publisher, self).__init__(plugin_context.main_window())
         self.setObjectName('Publisher')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
@@ -86,8 +86,10 @@ class Publisher(QDockWidget):
 
 
     @Slot()
-    def on_add_publisher_button_clicked(self, publisher_info={}):
+    def on_add_publisher_button_clicked(self, publisher_info=None):
         # create publisher info
+        if publisher_info is None:
+            publisher_info = {}
         publisher_info['topic_name'] = str(self.topic_combo_box.currentText())
         publisher_info['type_name'] = str(self.type_combo_box.currentText())
         publisher_info['rate'] = float(self.frequency_combo_box.currentText())
@@ -177,7 +179,7 @@ class Publisher(QDockWidget):
             elif column_name == 'rate':
                 try:
                     publisher_info['rate'] = float(new_value)
-                except:
+                except Exception:
                     qDebug('Publisher.on_treePublishers_itemChanged(): could not parse rate value: %s' % (new_value))
                     return
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))

@@ -1,9 +1,8 @@
 import os
+
 from QtBindingHelper import loadUi
 from QtCore import qDebug, QEvent, QObject, Qt, Slot
 from QtGui import QDockWidget, QIcon, QWidget
-
-
 class DockWidgetTitleBar(QWidget):
 
     def __init__(self, dock_widget, hide_close_button=False):

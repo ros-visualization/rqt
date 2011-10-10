@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import rosgui.QtBindingHelper
-from QtCore import Slot
-from QtGui import QCompleter
 
 import TopicTreeModel
 reload(TopicTreeModel) # force reload to update on changes during runtime
@@ -22,6 +18,7 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
+    import rosgui.QtBindingHelper #@UnusedImport
     from QtGui import QApplication, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     l = QLineEdit()

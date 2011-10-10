@@ -9,14 +9,14 @@ from RosPackageHelper import get_package_path
 class AboutHandler(QObject):
 
     def __init__(self, parent=None):
-        QObject.__init__(self, parent)
+        super(AboutHandler, self).__init__(parent)
         self.parent_ = parent
 
     def show(self):
         # append folder of 'rosgui_cpp/lib' to module search path
         sys.path.append(os.path.realpath(os.path.join(get_package_path('rosgui_cpp'), 'lib')))
         try:
-            import CppBindingHelper
+            import CppBindingHelper #@UnusedImport
             from rosgui_cpp import rosgui_cpp
         except ImportError:
             rosgui_cpp = None
@@ -64,5 +64,4 @@ class AboutHandler(QObject):
 
         text += '.</p>'
 
-        QMessageBox.about(self.parent_, self.tr('About ROS GUI'), text);
-        #QMessageBox.aboutQt(self.parent_)
+        QMessageBox.about(self.parent_, self.tr('About ROS GUI'), text)

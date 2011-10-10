@@ -1,4 +1,4 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import qDebug, Signal
 from QtGui import QMainWindow
 
@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     save_settings_signal = Signal(Settings, Settings)
 
     def __init__(self):
-        QMainWindow.__init__(self)
+        super(MainWindow, self).__init__()
         self.setObjectName('MainWindow')
 
         self.global_settings_ = None

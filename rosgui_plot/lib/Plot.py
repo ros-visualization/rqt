@@ -1,16 +1,17 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 import os
 
 from rosgui.QtBindingHelper import loadUi
-from QtCore import Qt, QTimer, Signal, Slot, qDebug
-from QtGui import QCompleter, QDockWidget, QStringListModel
+from QtCore import qDebug, Qt, QTimer, Slot
+from QtGui import QDockWidget
 
 import roslib
 roslib.load_manifest('rosgui_plot')
 import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
+
 from DataPlot import DataPlot
 from TopicCompleter import TopicCompleter
 
@@ -18,7 +19,7 @@ from TopicCompleter import TopicCompleter
 class Plot(QDockWidget):
 
     def __init__(self, parent, plugin_context):
-        QDockWidget.__init__(self, plugin_context.main_window())
+        super(Plot, self).__init__(plugin_context.main_window())
         self.setObjectName('Plot')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
@@ -55,7 +56,7 @@ class Plot(QDockWidget):
     def update_plot(self):
         for topic_name, rosdata in self.rosdata_.items():
             # TODO: use data_x as time stamp
-            data_x, data_y = rosdata.next()
+            data_x, data_y = rosdata.next() #@UnusedVariable
             for value in data_y:
                 self.data_plot.updateValue(topic_name, value)
         self.data_plot.redraw()
@@ -72,7 +73,7 @@ class Plot(QDockWidget):
         if message_evaluator:
             try:
                 field_type = type(message_evaluator(message))
-            except:
+            except Exception:
                 field_type = None
         else:
             field_type = type(message)

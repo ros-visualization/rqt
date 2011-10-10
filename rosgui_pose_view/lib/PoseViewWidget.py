@@ -1,9 +1,9 @@
+from __future__ import division
 import os
 
 from rosgui.QtBindingHelper import loadUi
-from QtCore import QTimer, Qt, Slot
-from QtGui import QDockWidget, QHBoxLayout
-from QtOpenGL import QGLWidget, QGLFormat, QGL
+from QtCore import qDebug, Qt, QTimer, Slot
+from QtGui import QDockWidget
 
 import roslib
 roslib.load_manifest('rosgui_pose_view')
@@ -11,7 +11,7 @@ import rospy
 from rostopic import get_topic_class
 
 from math3D import toMatrixQ
-from OpenGL.GL import *
+from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
 import PyGLWidget
 reload(PyGLWidget) # force reload to update on changes during runtime
 
@@ -19,11 +19,12 @@ reload(PyGLWidget) # force reload to update on changes during runtime
 class PoseViewWidget(QDockWidget):
 
     def __init__(self, plugin, plugin_context):
-        QDockWidget.__init__(self, plugin_context.main_window())
+        super(PoseViewWidget, self).__init__(plugin_context.main_window())
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PoseViewWidget.ui')
         loadUi(ui_file, self)
         self.plugin_ = plugin
 
+        self.position_ = [0.0, 0.0, 0.0]
         self.orientation_ = [1.0, 0.0, 0.0, 0.0]
         self.topic_name_ = None
         self.subscriber_ = None
@@ -51,12 +52,12 @@ class PoseViewWidget(QDockWidget):
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        view_matrix_string = perspective_settings.value('view_matrix')
+        #view_matrix_string = perspective_settings.value('view_matrix')
         try:
             # TODO: re-enable only after resetting camera is possible
+            #view_matrix = eval(view_matrix_string)
             raise Exception
-            view_matrix = eval(view_matrix_string)
-        except:
+        except Exception:
             view_matrix = None
 
         if view_matrix is None:
@@ -96,40 +97,40 @@ class PoseViewWidget(QDockWidget):
         glBegin(GL_QUADS)                 # Start Drawing The Box
 
         glColor3f(0.0, 1.0, 0.0)
-        glVertex3f( 1.0, 1.0,-1.0)        # Top Right Of The Quad (Top)
-        glVertex3f(-1.0, 1.0,-1.0)        # Top Left Of The Quad (Top)
+        glVertex3f(1.0, 1.0, -1.0)        # Top Right Of The Quad (Top)
+        glVertex3f(-1.0, 1.0, -1.0)        # Top Left Of The Quad (Top)
         glVertex3f(-1.0, 1.0, 1.0)        # Bottom Left Of The Quad (Top)
-        glVertex3f( 1.0, 1.0, 1.0)        # Bottom Right Of The Quad (Top)
+        glVertex3f(1.0, 1.0, 1.0)        # Bottom Right Of The Quad (Top)
 
         glColor3f(0.5, 1.0, 0.5)
-        glVertex3f( 1.0,-1.0, 1.0)        # Top Right Of The Quad (Bottom)
-        glVertex3f(-1.0,-1.0, 1.0)        # Top Left Of The Quad (Bottom)
-        glVertex3f(-1.0,-1.0,-1.0)        # Bottom Left Of The Quad (Bottom)
-        glVertex3f( 1.0,-1.0,-1.0)        # Bottom Right Of The Quad (Bottom)
+        glVertex3f(1.0, -1.0, 1.0)        # Top Right Of The Quad (Bottom)
+        glVertex3f(-1.0, -1.0, 1.0)        # Top Left Of The Quad (Bottom)
+        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Bottom)
+        glVertex3f(1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Bottom)
 
         glColor3f(0.0, 0.0, 1.0)
-        glVertex3f( 1.0, 1.0, 1.0)        # Top Right Of The Quad (Front)
+        glVertex3f(1.0, 1.0, 1.0)        # Top Right Of The Quad (Front)
         glVertex3f(-1.0, 1.0, 1.0)        # Top Left Of The Quad (Front)
-        glVertex3f(-1.0,-1.0, 1.0)        # Bottom Left Of The Quad (Front)
-        glVertex3f( 1.0,-1.0, 1.0)        # Bottom Right Of The Quad (Front)
+        glVertex3f(-1.0, -1.0, 1.0)        # Bottom Left Of The Quad (Front)
+        glVertex3f(1.0, -1.0, 1.0)        # Bottom Right Of The Quad (Front)
 
         glColor3f(0.5, 0.5, 1.0)
-        glVertex3f( 1.0,-1.0,-1.0)        # Bottom Left Of The Quad (Back)
-        glVertex3f(-1.0,-1.0,-1.0)        # Bottom Right Of The Quad (Back)
-        glVertex3f(-1.0, 1.0,-1.0)        # Top Right Of The Quad (Back)
-        glVertex3f( 1.0, 1.0,-1.0)        # Top Left Of The Quad (Back)
+        glVertex3f(1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Back)
+        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Back)
+        glVertex3f(-1.0, 1.0, -1.0)        # Top Right Of The Quad (Back)
+        glVertex3f(1.0, 1.0, -1.0)        # Top Left Of The Quad (Back)
 
         glColor3f(1.0, 0.5, 0.5)
         glVertex3f(-1.0, 1.0, 1.0)        # Top Right Of The Quad (Left)
-        glVertex3f(-1.0, 1.0,-1.0)        # Top Left Of The Quad (Left)
-        glVertex3f(-1.0,-1.0,-1.0)        # Bottom Left Of The Quad (Left)
-        glVertex3f(-1.0,-1.0, 1.0)        # Bottom Right Of The Quad (Left)
+        glVertex3f(-1.0, 1.0, -1.0)        # Top Left Of The Quad (Left)
+        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Left)
+        glVertex3f(-1.0, -1.0, 1.0)        # Bottom Right Of The Quad (Left)
 
         glColor3f(1.0, 0.0, 0.0)
-        glVertex3f( 1.0, 1.0,-1.0)        # Top Right Of The Quad (Right)
-        glVertex3f( 1.0, 1.0, 1.0)        # Top Left Of The Quad (Right)
-        glVertex3f( 1.0,-1.0, 1.0)        # Bottom Left Of The Quad (Right)
-        glVertex3f( 1.0,-1.0,-1.0)        # Bottom Right Of The Quad (Right)
+        glVertex3f(1.0, 1.0, -1.0)        # Top Right Of The Quad (Right)
+        glVertex3f(1.0, 1.0, 1.0)        # Top Left Of The Quad (Right)
+        glVertex3f(1.0, -1.0, 1.0)        # Bottom Left Of The Quad (Right)
+        glVertex3f(1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Right)
         glEnd()                           # Done Drawing The Quad
 
 

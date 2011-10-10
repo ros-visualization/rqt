@@ -1,10 +1,10 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import QObject, Slot
 
 class Settings(QObject):
 
     def __init__(self, settings_proxy, group):
-        QObject.__init__(self)
+        super(Settings, self).__init__()
         self.setObjectName('Settings')
 
         self.settings_proxy_ = settings_proxy
@@ -26,7 +26,7 @@ class Settings(QObject):
     def child_keys(self):
         return self.settings_proxy_.child_keys(self.group_)
 
-    @Slot(str, result = bool)
+    @Slot(str, result=bool)
     def contains(self, key):
         return self.settings_proxy_.contains(self.group_, key)
 
@@ -42,6 +42,6 @@ class Settings(QObject):
     def set_value(self, key, value):
         self.settings_proxy_.set_value(self.group_, key, value)
 
-    @Slot(str, 'QVariant', result = 'QVariant')
+    @Slot(str, 'QVariant', result='QVariant')
     def value(self, key, defaultValue=None):
         return self.settings_proxy_.value(self.group_, key, defaultValue)

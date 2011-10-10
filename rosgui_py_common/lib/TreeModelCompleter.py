@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import rosgui.QtBindingHelper
+
+import rosgui.QtBindingHelper #@UnusedImport
 from QtGui import QCompleter
 
 class TreeModelCompleter(QCompleter):

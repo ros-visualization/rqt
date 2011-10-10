@@ -5,7 +5,7 @@ from RosPluginProvider import RosPluginProvider
 class RospkgPluginProvider(RosPluginProvider):
 
     def __init__(self, export_tag, base_class_type):
-        RosPluginProvider.__init__(self, export_tag, base_class_type)
+        super(RospkgPluginProvider, self).__init__(export_tag, base_class_type)
         self.setObjectName('RospkgPluginProvider')
 
     def _find_rosgui_plugins(self):

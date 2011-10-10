@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import rosgui.QtBindingHelper
-import QtCore
 
-class TreeModel(QtCore.QAbstractItemModel):
+import rosgui.QtBindingHelper #@UnusedImport
+from QtCore import QAbstractItemModel, QModelIndex, Qt
+
+class TreeModel(QAbstractItemModel):
 
     class TreeItem(object):
         def __init__(self, data, parent=None):
@@ -63,7 +63,7 @@ class TreeModel(QtCore.QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role not in [QtCore.Qt.DisplayRole, QtCore.Qt.EditRole]:
+        if role not in [Qt.DisplayRole, Qt.EditRole]:
             return None
 
         item = index.internalPointer()
@@ -75,7 +75,7 @@ class TreeModel(QtCore.QAbstractItemModel):
             parentItem = self.nodeFromIndex(parent)
             return self.createIndex(row, column, parentItem.child(row))
 
-        return QtCore.QModelIndex()
+        return QModelIndex()
 
 
     def parent(self, index):
@@ -85,7 +85,7 @@ class TreeModel(QtCore.QAbstractItemModel):
             if parentItem is not None:
                 return self.createIndex(parentItem.row(), 0, parentItem)
 
-        return QtCore.QModelIndex()
+        return QModelIndex()
 
 
     def rowCount(self, parent=None):

@@ -1,14 +1,14 @@
 import traceback
 
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import qCritical
 
 from PluginProvider import PluginProvider
 
 class CompositePluginProvider(PluginProvider):
 
-    def __init__(self, plugin_providers = None):
-        PluginProvider.__init__(self)
+    def __init__(self, plugin_providers=None):
+        super(CompositePluginProvider, self).__init__()
         self.setObjectName('CompositePluginProvider')
 
         self.plugin_providers_ = plugin_providers or []

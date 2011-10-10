@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
+from __future__ import division
 import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, Slot
-from QtGui import QDockWidget, QTreeWidgetItem, QMenu
+from QtGui import QDockWidget, QMenu, QTreeWidgetItem
 
 import roslib
 roslib.load_manifest('rosgui_topic')
@@ -18,7 +19,7 @@ class TopicWidget(QDockWidget):
     column_names = ['topic', 'type', 'bandwidth', 'rate', 'value']
 
     def __init__(self, plugin, plugin_context):
-        QDockWidget.__init__(self, plugin_context.main_window())
+        super(TopicWidget, self).__init__(plugin_context.main_window())
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'TopicWidget.ui')
         loadUi(ui_file, self)
         self.plugin = plugin

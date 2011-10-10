@@ -29,23 +29,25 @@
 #
 #===============================================================================
 
-import rosgui.QtBindingHelper
-import QtCore, QtGui, QtOpenGL
-
+from __future__ import division
 import math
 import numpy
 import numpy.linalg as linalg
+
+import rosgui.QtBindingHelper #@UnusedImport
+import QtCore, QtOpenGL
+
 import OpenGL
 OpenGL.ERROR_CHECKING = True
-from OpenGL.GL import *
-from OpenGL.GLU import *
+from OpenGL.GL import glClear, glClearColor, glEnable, glGetDoublev, glLoadIdentity, glLoadMatrixd, glMatrixMode, glMultMatrixd, glRotated, glTranslated, glTranslatef, glViewport, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_MODELVIEW, GL_MODELVIEW_MATRIX, GL_PROJECTION
+from OpenGL.GLU import gluPerspective
 
 class PyGLWidget(QtOpenGL.QGLWidget):
 
-    def __init__(self, parent = None):
-        format = QtOpenGL.QGLFormat()
-        format.setSampleBuffers(True)
-        QtOpenGL.QGLWidget.__init__(self, format, parent)
+    def __init__(self, parent=None):
+        glformat = QtOpenGL.QGLFormat()
+        glformat.setSampleBuffers(True)
+        super(QtOpenGL.QGLWidget, self).__init__(glformat, parent)
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setMouseTracking(True)
 
@@ -69,8 +71,8 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         #self.reset_view()
 
     def resizeGL(self, width, height):
-        glViewport( 0, 0, width, height );
-        self.set_projection( self.near_, self.far_, self.fovy_ );
+        glViewport(0, 0, width, height)
+        self.set_projection(self.near_, self.far_, self.fovy_)
         self.updateGL()
 
     def paintGL(self):
@@ -90,11 +92,10 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         self.far_ = _far
         self.fovy_ = _fovy
         self.makeCurrent()
-        glMatrixMode( GL_PROJECTION )
+        glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         height = max(self.height(), 1)
-        gluPerspective( self.fovy_, float(self.width()) / float(height),
-                        self.near_, self.far_ )
+        gluPerspective(self.fovy_, float(self.width()) / float(height), self.near_, self.far_)
         self.updateGL()
 
     def set_center(self, _cog):
@@ -103,9 +104,9 @@ class PyGLWidget(QtOpenGL.QGLWidget):
 
     def reset_view(self):
         # scene pos and size
-        glMatrixMode( GL_MODELVIEW )
-        glLoadIdentity();
-        self.modelview_matrix_ = glGetDoublev( GL_MODELVIEW_MATRIX )
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        self.modelview_matrix_ = glGetDoublev(GL_MODELVIEW_MATRIX)
         self.set_center([0.0, 0.0, 0.0])
 
     def reset_rotation(self):
@@ -115,7 +116,7 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadMatrixd(self.modelview_matrix_)
         #self.updateGL()
-   
+
     def translate(self, _trans):
         # Translate the object by _trans
         # Update modelview_matrix_
@@ -149,35 +150,35 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         self.modelview_matrix_ = glGetDoublev(GL_MODELVIEW_MATRIX)
 
     def view_all(self):
-        self.translate( [ -( self.modelview_matrix_[0][0] * self.center_[0] +
-                             self.modelview_matrix_[0][1] * self.center_[1] +
-                             self.modelview_matrix_[0][2] * self.center_[2] +
-                             self.modelview_matrix_[0][3]),
-                           -( self.modelview_matrix_[1][0] * self.center_[0] +
-                              self.modelview_matrix_[1][1] * self.center_[1] +
-                              self.modelview_matrix_[1][2] * self.center_[2] +
-                              self.modelview_matrix_[1][3]),
-                           -( self.modelview_matrix_[2][0] * self.center_[0] +
-                              self.modelview_matrix_[2][1] * self.center_[1] +
-                              self.modelview_matrix_[2][2] * self.center_[2] +
-                              self.modelview_matrix_[2][3] +
-                              self.radius_ / 2.0 )])
+        self.translate([ -(self.modelview_matrix_[0][0] * self.center_[0] +
+                           self.modelview_matrix_[0][1] * self.center_[1] +
+                           self.modelview_matrix_[0][2] * self.center_[2] +
+                           self.modelview_matrix_[0][3]),
+                         - (self.modelview_matrix_[1][0] * self.center_[0] +
+                            self.modelview_matrix_[1][1] * self.center_[1] +
+                            self.modelview_matrix_[1][2] * self.center_[2] +
+                            self.modelview_matrix_[1][3]),
+                         - (self.modelview_matrix_[2][0] * self.center_[0] +
+                            self.modelview_matrix_[2][1] * self.center_[1] +
+                            self.modelview_matrix_[2][2] * self.center_[2] +
+                            self.modelview_matrix_[2][3] +
+                            self.radius_ / 2.0)])
 
     def map_to_sphere(self, _v2D):
         _v3D = [0.0, 0.0, 0.0]
         # inside Widget?
-        if (( _v2D.x() >= 0 ) and ( _v2D.x() <= self.width() ) and
-            ( _v2D.y() >= 0 ) and ( _v2D.y() <= self.height() ) ):
+        if ((_v2D.x() >= 0) and (_v2D.x() <= self.width()) and
+            (_v2D.y() >= 0) and (_v2D.y() <= self.height())):
             # map Qt Coordinates to the centered unit square [-0.5..0.5]x[-0.5..0.5]
-            x = float( _v2D.x() - 0.5 * self.width()) / self.width()
-            y = float( 0.5 * self.height() - _v2D.y()) / self.height()
+            x = float(_v2D.x() - 0.5 * self.width()) / self.width()
+            y = float(0.5 * self.height() - _v2D.y()) / self.height()
 
-            _v3D[0] = x;
-            _v3D[1] = y;
+            _v3D[0] = x
+            _v3D[1] = y
             # use Pythagoras to comp z-coord (the sphere has radius sqrt(2.0*0.5*0.5))
-            z2 = 2.0*0.5*0.5-x*x-y*y;
+            z2 = 2.0 * 0.5 * 0.5 - x * x - y * y
             # numerical robust sqrt
-            _v3D[2] = math.sqrt(max( z2, 0.0 ))
+            _v3D[2] = math.sqrt(max(z2, 0.0))
 
             # normalize direction to unit sphere
             n = linalg.norm(_v3D)
@@ -224,18 +225,18 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         # move in z direction
         if (((_event.buttons() & QtCore.Qt.LeftButton) and (_event.buttons() & QtCore.Qt.MidButton))
             or (_event.buttons() & QtCore.Qt.LeftButton and _event.modifiers() & QtCore.Qt.ControlModifier)):
-            value_y = self.radius_ * dy * 2.0 / h;
+            value_y = self.radius_ * dy * 2.0 / h
             self.translate([0.0, 0.0, value_y])
         # move in x,y direction
         elif (_event.buttons() & QtCore.Qt.MidButton
               or (_event.buttons() & QtCore.Qt.LeftButton and _event.modifiers() & QtCore.Qt.ShiftModifier)):
-            z = - (self.modelview_matrix_[0][2] * self.center_[0] +
-                   self.modelview_matrix_[1][2] * self.center_[1] +
-                   self.modelview_matrix_[2][2] * self.center_[2] +
-                   self.modelview_matrix_[3][2]) / (self.modelview_matrix_[0][3] * self.center_[0] +
-                                                    self.modelview_matrix_[1][3] * self.center_[1] +
-                                                    self.modelview_matrix_[2][3] * self.center_[2] +
-                                                    self.modelview_matrix_[3][3])
+            z = -(self.modelview_matrix_[0][2] * self.center_[0] +
+                  self.modelview_matrix_[1][2] * self.center_[1] +
+                  self.modelview_matrix_[2][2] * self.center_[2] +
+                  self.modelview_matrix_[3][2]) / (self.modelview_matrix_[0][3] * self.center_[0] +
+                                                   self.modelview_matrix_[1][3] * self.center_[1] +
+                                                   self.modelview_matrix_[2][3] * self.center_[2] +
+                                                   self.modelview_matrix_[3][3])
 
             fovy = 45.0
             aspect = w / h
@@ -243,9 +244,9 @@ class PyGLWidget(QtOpenGL.QGLWidget):
             up = math.tan(fovy / 2.0 * math.pi / 180.0) * n
             right = aspect * up
 
-            self.translate( [2.0 * dx / w * right / n * z,
-                             -2.0 * dy / h * up / n * z,
-                             0.0] )
+            self.translate([2.0 * dx / w * right / n * z,
+                            - 2.0 * dy / h * up / n * z,
+                            0.0])
 
 
         # rotate
@@ -272,7 +273,7 @@ class PyGLWidget(QtOpenGL.QGLWidget):
         # trigger redraw
         self.updateGL()
 
-        def mouseReleaseEvent(self, _event):
-            if (isInRotation_):
-                isInRotation_ = false
-            last_point_ok_ = False
+    def mouseReleaseEvent(self, _event):
+        if (self.isInRotation_):
+            self.isInRotation_ = False
+        self.last_point_ok_ = False

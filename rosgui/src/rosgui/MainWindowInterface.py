@@ -1,6 +1,7 @@
 import os
-import QtBindingHelper
-from QtCore import Qt, qWarning, Signal, Slot
+
+import QtBindingHelper #@UnusedImport
+from QtCore import qWarning, Signal, Slot
 from QtGui import QDockWidget, QWidget
 
 from DockWidgetTitleBar import DockWidgetTitleBar
@@ -11,7 +12,7 @@ class MainWindowInterface(QWidget):
     reload_plugin_instance_signal = Signal(str)
 
     def __init__(self, main_window, plugin_instance_id, hide_close_button=False):
-        QWidget.__init__(self, main_window)
+        super(MainWindowInterface, self).__init__(main_window)
         self.main_window_ = main_window
         self.plugin_instance_id_ = plugin_instance_id
         self.hide_close_button = hide_close_button

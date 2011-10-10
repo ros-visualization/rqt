@@ -1,24 +1,24 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import QObject, Slot
 
 class PluginContext(QObject):
 
-    def __init__(self, parent = None):
-        QObject.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(PluginContext, self).__init__(parent)
         self.setObjectName('PluginContext')
 
         self.main_window_ = None
         self.serial_number_ = 0
         self.dict_ = {}
 
-    @Slot(result = object)
+    @Slot(result=object)
     def main_window(self):
         return self.main_window_
 
     def set_main_window(self, main_window):
         self.main_window_ = main_window
 
-    @Slot(result = str)
+    @Slot(result=str)
     def serial_number(self):
         return self.serial_number_
 

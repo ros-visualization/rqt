@@ -1,10 +1,10 @@
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import QObject
 
 class PluginProvider(QObject):
 
     def __init__(self):
-        QObject.__init__(self)
+        super(PluginProvider, self).__init__()
         self.setObjectName('PluginProvider')
 
     def discover(self):

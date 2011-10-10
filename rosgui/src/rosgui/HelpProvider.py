@@ -1,8 +1,12 @@
 import webbrowser
-import QtBindingHelper
-from QtCore import Slot, QObject
+
+import QtBindingHelper #@UnusedImport
+from QtCore import QObject, Slot
 
 class HelpProvider(QObject):
+
+    def __init__(self):
+        super(HelpProvider, self).__init__()
 
     @Slot(object)
     def plugin_help_request(self, plugin_descriptor):

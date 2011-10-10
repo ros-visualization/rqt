@@ -1,6 +1,6 @@
 import traceback
 
-import QtBindingHelper
+import QtBindingHelper #@UnusedImport
 from QtCore import qCritical
 
 from CompositePluginProvider import CompositePluginProvider
@@ -8,7 +8,7 @@ from CompositePluginProvider import CompositePluginProvider
 class RecursivePluginProvider(CompositePluginProvider):
 
     def __init__(self, plugin_provider):
-        CompositePluginProvider.__init__(self, [])
+        super(RecursivePluginProvider, self).__init__([])
         self.setObjectName('RecursivePluginProvider')
 
         self.plugin_provider_ = plugin_provider

@@ -8,7 +8,7 @@ from PluginProvider import PluginProvider
 class RosPluginProvider(PluginProvider):
 
     def __init__(self, export_tag, base_class_type):
-        PluginProvider.__init__(self)
+        super(RosPluginProvider, self).__init__()
         self.setObjectName('RosPluginProvider')
 
         self.export_tag_ = export_tag
@@ -33,7 +33,7 @@ class RosPluginProvider(PluginProvider):
         try:
             module = imp.load_source(attributes['library_name'], module_path)
         except NotImplementedError, e:
-            print 'RosPluginProvider.load(%s):\n%s' % (plugin_id, e) 
+            print 'RosPluginProvider.load(%s):\n%s' % (plugin_id, e)
             return None
         except:
             print 'RosPluginProvider.load(%s) exception raised in imp.load_source(%s, %s):\n%s' % (plugin_id, attributes['library_name'], module_path, traceback.format_exc())

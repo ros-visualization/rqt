@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 from __future__ import division, with_statement
 import time
 from StringIO import StringIO
 
-import rosgui.QtBindingHelper
+import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import qDebug
 
 import roslib
 roslib.load_manifest('rosgui_topic')
 import rospy
-from rostopic import ROSTopicHz, get_topic_class
+from rostopic import get_topic_class, ROSTopicHz
 
 class TopicInfo(ROSTopicHz):
 
     def __init__(self, topic_name):
-        ROSTopicHz.__init__(self, 100)
+        super(TopicInfo, self).__init__(100)
         self.subscriber = None
         self.monitoring = False
         self._reset_data()
         try:
             self.message_class, self.topic_name, _ = get_topic_class(topic_name)
-        except:
+        except Exception:
             self.topic_name = None
             qDebug('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
             return
@@ -95,7 +95,7 @@ class TopicInfo(ROSTopicHz):
         with self.lock:
             n = len(self.times)
             mean = sum(self.times) / n
-            rate = 1./mean if mean > 0. else 0
+            rate = 1. / mean if mean > 0. else 0
             min_delta = min(self.times)
             max_delta = max(self.times)
         return rate, mean, min_delta, max_delta

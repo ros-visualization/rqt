@@ -1,8 +1,8 @@
 import os, traceback
 
-import QtBindingHelper
-from QtCore import qCritical, qDebug, QEvent, QObject, QSignalMapper, Signal, Slot, Qt
-from QtGui import QAction, QMenu, QIcon
+import QtBindingHelper #@UnusedImport
+from QtCore import qCritical, qDebug, QEvent, QObject, QSignalMapper, Qt, Signal, Slot
+from QtGui import QAction, QIcon, QMenu
 
 from MainWindowInterface import MainWindowInterface
 from MenuManager import MenuManager
@@ -16,7 +16,7 @@ class PluginManager(QObject):
     _deferred_load_plugin_signal = Signal(str, int)
 
     def __init__(self, main_window, plugin_menu, running_menu, plugin_provider, hide_close_button=False):
-        QObject.__init__(self)
+        super(PluginManager, self).__init__()
         self.setObjectName('PluginManager')
 
         self.global_settings_ = None
@@ -140,7 +140,6 @@ class PluginManager(QObject):
         except NotImplementedError:
             qCritical('PluginManager.__unload_plugin() plugin "%s" must implement close_plugin method' % str(info['plugin_id']))
         instance.deleteLater()
-        # TODO: defer unload so that deleteLater is performed before
         self.plugin_provider_.unload(instance)
         qDebug('PluginManager.__unload_plugin() successful')
 

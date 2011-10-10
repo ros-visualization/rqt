@@ -1,20 +1,20 @@
+from __future__ import division
 import os
 
 from rosgui.QtBindingHelper import loadUi
-from QtCore import QEvent, QObject, QTimer, Qt, qCritical, Slot
-from QtGui import QColor, QDockWidget, QFrame, QImage, QPainter, QShortcut
+from QtCore import QEvent, QObject, Qt, QTimer, Slot
+from QtGui import QDockWidget, QShortcut
 
 import roslib
 roslib.load_manifest('rosgui_robot_steering')
 import rospy
-from rostopic import get_topic_class
 
 from geometry_msgs.msg import Twist
 
 class RobotSteering(QObject):
 
     def __init__(self, parent, plugin_context):
-        QObject.__init__(self, parent)
+        super(RobotSteering, self).__init__(parent)
         self.setObjectName('RobotSteering')
 
         self.publisher_ = None

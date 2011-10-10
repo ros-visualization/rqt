@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import rosgui.QtBindingHelper
+
+import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import Qt
-from QtGui import QCompleter, QComboBox, QSortFilterProxyModel
+from QtGui import QComboBox, QCompleter, QSortFilterProxyModel
 
 class ExtendedComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -51,7 +51,7 @@ class ExtendedComboBox(QComboBox):
 
 if __name__ == "__main__":
     import sys
-    from QtGui import QStringListModel, QApplication
+    from QtGui import QApplication
 
     app = QApplication(sys.argv)
 

@@ -17,7 +17,7 @@ class PerspectiveManager(QObject):
     HIDDEN_PREFIX = '@'
 
     def __init__(self, settings, menu):
-        QObject.__init__(self)
+        super(PerspectiveManager, self).__init__()
         self.setObjectName('PerspectiveManager')
 
         self.settings_proxy_ = SettingsProxy(settings)

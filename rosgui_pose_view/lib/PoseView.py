@@ -1,4 +1,4 @@
-import rosgui.QtBindingHelper
+import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import QObject, Qt
 from QtGui import QDockWidget
 
@@ -11,7 +11,7 @@ reload(PoseViewWidget) # force reload to update on changes during runtime
 class PoseView(QObject):
 
     def __init__(self, parent, plugin_context):
-        QObject.__init__(self, parent)
+        super(PoseView, self).__init__(parent)
         self.setObjectName('PoseView')
 
         self.widget_ = PoseViewWidget.PoseViewWidget(self, plugin_context)
@@ -25,7 +25,6 @@ class PoseView(QObject):
 
 
     def set_name(self, name):
-        self.name_ = name
         self.widget_.setWindowTitle(name)
 
 
