@@ -16,6 +16,7 @@ set(rosgui_image_view_UIS
 )
 
 set(rosgui_image_view_INCLUDE_DIRECTORIES
+  ${PROJECT_SOURCE_DIR}/src
   ${PROJECT_SOURCE_DIR}/build/src
 )
 

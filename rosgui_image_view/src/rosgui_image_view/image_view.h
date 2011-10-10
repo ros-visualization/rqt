@@ -3,8 +3,6 @@
 
 #include <rosgui_roscpp/plugin.h>
 
-#include "ratio_layouted_frame.h"
-
 #include <rosgui_image_view/ui_image_view.h>
 
 #include <image_transport/image_transport.h>
@@ -14,6 +12,7 @@
 #include <QImage>
 #include <QList>
 #include <QString>
+#include <QSize>
 
 namespace rosgui_image_view {
 
@@ -51,9 +50,7 @@ protected slots:
 
   virtual void onTopicChanged(int index);
 
-  virtual void onZoom1();
-
-  virtual void onTopLevelChanged(bool topLevel);
+  virtual void onZoom1(bool checked);
 
 protected:
 
@@ -66,9 +63,6 @@ protected:
   image_transport::Subscriber subscriber_;
 
   QImage qimage_;
-
-  RatioLayoutedFrame* raw_image_frame_;
-
 };
 
 }

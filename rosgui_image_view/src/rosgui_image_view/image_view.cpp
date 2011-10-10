@@ -14,7 +14,6 @@ namespace rosgui_image_view {
 ImageView::ImageView()
   : rosgui_roscpp::Plugin()
   , widget_(0)
-  , raw_image_frame_(0)
 {
   setObjectName("ImageView");
 }
@@ -33,14 +32,7 @@ void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
   // trigger deleteLater for plugin when widget is closed
   widget_->installEventFilter(this);
 
-  raw_image_frame_ = new RatioLayoutedFrame(ui_.dockWidgetContents);
-  raw_image_frame_->setMargin(0);
-  raw_image_frame_->setSpacing(0);
-  ui_.verticalLayout->addLayout(raw_image_frame_);
-  raw_image_frame_->getFrame()->setFrameStyle(QFrame::Box | QFrame::Plain);
-  raw_image_frame_->getFrame()->setLineWidth(1);
-  raw_image_frame_->setInnerFrameMinimumSize(QSize(160, 120));
-  raw_image_frame_->getFrame()->installEventFilter(this);
+  ui_.image_frame->installEventFilter(this);
 
   updateTopicList();
   ui_.topics_combo_box->setCurrentIndex(ui_.topics_combo_box->findText(""));
@@ -50,10 +42,7 @@ void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
   connect(ui_.refresh_topics_push_button, SIGNAL(pressed()), this, SLOT(updateTopicList()));
 
   ui_.zoom_1_push_button->setIcon(QIcon::fromTheme("zoom-original"));
-  connect(ui_.zoom_1_push_button, SIGNAL(pressed()), this, SLOT(onZoom1()));
-  onTopLevelChanged(widget_->isFloating());
-
-  connect(widget_, SIGNAL(topLevelChanged(bool)), this, SLOT(onTopLevelChanged(bool)));
+  connect(ui_.zoom_1_push_button, SIGNAL(toggled(bool)), this, SLOT(onZoom1(bool)));
 }
 
 bool ImageView::eventFilter(QObject* watched, QEvent* event)
@@ -65,15 +54,16 @@ bool ImageView::eventFilter(QObject* watched, QEvent* event)
     deletePluginLater();
     return true;
   }
-  else if (watched == raw_image_frame_->getFrame() && event->type() == QEvent::Paint)
+  else if (watched == ui_.image_frame && event->type() == QEvent::Paint)
   {
     if (!qimage_.isNull())
     {
-      QPainter painter(raw_image_frame_->getFrame());
+      ui_.image_frame->resizeToFitAspectRatio();
+      QPainter painter(ui_.image_frame);
       // TODO: check if full draw is really necessary
       //QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
       //painter.drawImage(paint_event->rect(), qimage_);
-      painter.drawImage(raw_image_frame_->getFrame()->contentsRect(), qimage_);
+      painter.drawImage(ui_.image_frame->contentsRect(), qimage_);
     }
     return false;
   }
@@ -212,27 +202,25 @@ void ImageView::onTopicChanged(int index)
   }
 }
 
-void ImageView::onZoom1()
+void ImageView::onZoom1(bool checked)
 {
-  if (qimage_.isNull())
-  {
-    return;
-  }
-
-  QSize current = raw_image_frame_->getInnerFrameSize();
-  QSize unused = raw_image_frame_->getUnusedSpaceAroundFrame();
-
-  QSize offset = qimage_.size() - current - unused;
-  if (!offset.isNull())
-  {
-    widget_->resize(widget_->size() + offset);
+  if (checked) {
+    if (qimage_.isNull())
+    {
+      return;
+    }
+    ui_.image_frame->setInnerFrameFixedSize(qimage_.size());
+    widget_->resize(ui_.image_frame->size());
+    widget_->setMinimumSize(widget_->sizeHint());
+    widget_->setMaximumSize(widget_->sizeHint());
+  } else {
+    ui_.image_frame->setInnerFrameMinimumSize(QSize(80, 60));
+    ui_.image_frame->setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+    widget_->setMinimumSize(QSize(80, 60));
+    widget_->setMaximumSize(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
   }
 }
 
-void ImageView::onTopLevelChanged(bool topLevel)
-{
-  ui_.zoom_1_push_button->setDisabled(!topLevel);
-}
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -249,8 +237,8 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 
   QImage shared_image(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
   qimage_ = shared_image.copy();
-  raw_image_frame_->setAspectRatio(cv_ptr->image.cols, cv_ptr->image.rows);
-  raw_image_frame_->getFrame()->update();
+  ui_.image_frame->setAspectRatio(cv_ptr->image.cols, cv_ptr->image.rows);
+  ui_.image_frame->update();
 }
 
 }
