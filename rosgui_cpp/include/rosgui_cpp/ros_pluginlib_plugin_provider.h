@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#define USE_PATCHED_PLUGINLIB
+//#define USE_PATCHED_PLUGINLIB
 
 namespace rosgui_cpp
 {
@@ -205,7 +205,6 @@ public:
 
   virtual void unload(void* instance)
   {
-#ifdef USE_PATCHED_PLUGINLIB
     if (!instances_.contains(instance))
     {
       qCritical("RosPluginlibPluginProvider::unload() instance not found");
@@ -217,9 +216,6 @@ public:
     libraries_to_unload_.append(lookup_name);
 
     QCoreApplication::postEvent(this, new QEvent(static_cast<QEvent::Type>(unload_libraries_event_)));
-#else
-    qWarning("RosPluginlibPluginProvider::unload() not supported in the used ROS version");
-#endif
   }
 
 protected:
@@ -346,7 +342,11 @@ private:
     {
       QString lookup_name = libraries_to_unload_.takeFirst();
       //qDebug("RosPluginlibPluginProvider::unload_pending_libraries() unloadLibraryForClass(%s)", lookup_name.toStdString().c_str());
+#ifdef USE_PATCHED_PLUGINLIB
       class_loader_->unloadLibraryForClass(lookup_name.toStdString());
+#else
+      qWarning("RosPluginlibPluginProvider::unload_pending_libraries() not supported in the used ROS version");
+#endif
     }
   }
 
