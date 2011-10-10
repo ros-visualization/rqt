@@ -51,8 +51,8 @@ public:
   RosPluginlibPluginProvider(const RosPluginlibPluginProvider& other)
     : QObject()
     , PluginProvider()
-    , export_tag_(other.export_tag)
-    , base_class_type_(other.base_class_type)
+    , export_tag_(other.export_tag_)
+    , base_class_type_(other.base_class_type_)
     , class_loader_(0)
   {
     unload_libraries_event_ = QEvent::registerEventType();

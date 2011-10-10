@@ -19,6 +19,7 @@
 #include <rosgui_cpp/plugin_descriptor.h>
 #include <rosgui_cpp/plugin_provider.h>
 #include <rosgui_cpp/recursive_plugin_provider.h>
+#include <rosgui_cpp/ros_pluginlib_plugin_provider.h>
 #include <rosgui_cpp/ros_pluginlib_plugin_provider_for_plugin_providers.h>
 #include <rosgui_cpp/ros_pluginlib_plugin_provider_for_plugins.h>
 #include <rosgui_cpp/settings.h>

@@ -24,6 +24,22 @@ SET(rosgui_cpp_shiboken_SRCS
 
 string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp/include)(;[^;]*)*$" "\\2" rosgui_cpp_INCLUDE_PATH "${rosgui_cpp_shiboken_INCLUDE_DIRS}")
 
+SET(rosgui_cpp_HDRS
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/composite_plugin_provider.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/generic_proxy.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/main_window_interface.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_bridge.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_context.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_descriptor.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_provider.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/recursive_plugin_provider.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/ros_pluginlib_plugin_provider.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/ros_pluginlib_plugin_provider_for_plugin_providers.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/ros_pluginlib_plugin_provider_for_plugins.h
+  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/settings.h
+)
+
 set(rosgui_cpp_shiboken_INCLUDE_DIRECTORIES
   ${PYTHON_INCLUDE_DIR}
   ${SHIBOKEN_INCLUDE_DIR}
@@ -44,12 +60,14 @@ set(rosgui_cpp_shiboken_LINK_LIBRARIES
 add_custom_command(
   OUTPUT ${rosgui_cpp_shiboken_SRCS}
   COMMAND ${GENERATORRUNNER_BINARY}
-  --generatorSet=shiboken
-  ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken/global.h
-  --include-paths=${rosgui_cpp_INCLUDE_PATH}:${QT_INCLUDE_DIR}:/usr/include
-  --typesystem-paths=${PYSIDE_TYPESYSTEMS}
-  --output-directory=${PROJECT_SOURCE_DIR}/build/src/rosgui_cpp_shiboken
-  ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken/typesystem.xml
+    --generatorSet=shiboken
+    global.h
+    --include-paths=${rosgui_cpp_INCLUDE_PATH}:${QT_INCLUDE_DIR}
+    --typesystem-paths=${PYSIDE_TYPESYSTEMS}
+    --output-directory=${PROJECT_SOURCE_DIR}/build/src/rosgui_cpp_shiboken
+    typesystem.xml
+  DEPENDS global.h typesystem.xml ${rosgui_cpp_HDRS}
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken
   COMMENT "Running Shiboken generator for librosgui_cpp Python bindings..."
 )
 
