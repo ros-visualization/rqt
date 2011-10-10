@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, traceback
 
 from rosgui.QtBindingHelper import QT_BINDING
 from rosgui.RosPackageHelper import get_package_path
@@ -22,4 +22,4 @@ try:
         raise ImportError()
 
 except ImportError:
-    raise ImportError('Could not import "%s" bindings of rosgui_cpp library - so C++ plugins will not be available' % QT_BINDING)
+    raise ImportError('Could not import "%s" bindings of rosgui_cpp library - so C++ plugins will not be available:\n%s' % (QT_BINDING, traceback.format_exc()))
