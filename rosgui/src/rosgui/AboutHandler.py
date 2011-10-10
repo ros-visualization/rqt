@@ -17,9 +17,9 @@ class AboutHandler(QObject):
         sys.path.append(os.path.realpath(os.path.join(get_package_path('rosgui_cpp'), 'lib')))
         try:
             import CppBindingHelper
-            from ros_gui import ros_gui
+            from rosgui_cpp import rosgui_cpp
         except ImportError:
-            ros_gui = None
+            rosgui_cpp = None
 
         _rospkg_version = None
         try:
@@ -52,7 +52,7 @@ class AboutHandler(QObject):
 
         text += 'Qt %s, ' % qVersion()
 
-        if ros_gui is not None:
+        if rosgui_cpp is not None:
             if QT_BINDING == 'pyside':
                 text += '%s' % (self.tr('%s C++ bindings available') % 'Shiboken')
             elif QT_BINDING == 'pyqt':
