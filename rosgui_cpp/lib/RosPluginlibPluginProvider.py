@@ -9,7 +9,6 @@ class RosPluginlibPluginProvider(PluginProvider):
     def __init__(self, plugin_provider):
         super(RosPluginlibPluginProvider, self).__init__()
         self.plugin_provider_ = plugin_provider
-        self.instances_ = {}
 
     def discover(self):
         discovered_plugins = self.__unfold(self.plugin_provider_.discover())
@@ -34,17 +33,15 @@ class RosPluginlibPluginProvider(PluginProvider):
             cpp_plugin_context = rosgui_cpp.PluginContext(main_window, plugin_context.serial_number())
             for key, value in plugin_context.attributes().items():
                 cpp_plugin_context.set_attribute(key, value)
-        instance = self.plugin_provider_.load_plugin(plugin_id, cpp_plugin_context)
-        if instance is None:
+        bridge = rosgui_cpp.PluginBridge()
+        loaded = bridge.load_plugin(self.plugin_provider_, plugin_id, cpp_plugin_context)
+        if not loaded:
             return None
-        bridge = rosgui_cpp.PluginBridge(instance)
         main_window.set_plugin_instance(bridge)
-        self.instances_[bridge] = instance
         return bridge
 
-    def unload(self, plugin_instance):
-        instance = self.instances_.pop(plugin_instance)
-        return self.plugin_provider_.unload_plugin(instance)
+    def unload(self, bridge):
+        return bridge.unload_plugin()
 
     def __unfold(self, flat_dict):
         dictionary = {}

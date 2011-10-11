@@ -12,7 +12,9 @@ public:
 
   PluginBridge();
 
-  PluginBridge(rosgui_cpp::Plugin* plugin);
+  virtual bool load_plugin(rosgui_cpp::PluginProvider* provider, const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context);
+
+  virtual void unload_plugin();
 
   virtual void plugin_defered_delete();
 
