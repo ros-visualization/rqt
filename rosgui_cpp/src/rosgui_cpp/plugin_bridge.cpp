@@ -20,6 +20,13 @@ bool PluginBridge::load_plugin(PluginProvider* provider, const QString& plugin_i
 {
   provider_ = provider;
   plugin_ = provider_->load_plugin(plugin_id, plugin_context);
+  if (plugin_)
+  {
+    QVariant variant;
+    QObject* obj = this;
+    qVariantSetValue(variant, obj);
+    plugin_->setProperty("PluginBridge", variant);
+  }
   return plugin_ != 0;
 }
 
@@ -39,6 +46,7 @@ void PluginBridge::close_plugin()
   if (plugin_)
   {
     plugin_->closePlugin();
+    plugin_->deleteLater();
   }
 }
 

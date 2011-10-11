@@ -1,7 +1,7 @@
 import os
 
 import QtBindingHelper #@UnusedImport
-from QtCore import qWarning, Signal, Slot
+from QtCore import Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget, QWidget
 
 from DockWidgetTitleBar import DockWidgetTitleBar
@@ -20,7 +20,8 @@ class MainWindowInterface(QWidget):
         self.dock_widgets_ = []
 
 
-    @Slot(int, 'QDockWidget')
+    # pointer to QDockWidget must be used for PySide to work (at least with 1.0.1)
+    @Slot(int, 'QDockWidget*')
     def addDockWidget(self, area, dock_widget):
         # generate unique object name for this dock_widget
         unique_object_name = os.path.join(self.plugin_instance_id_, dock_widget.objectName())
@@ -31,13 +32,14 @@ class MainWindowInterface(QWidget):
             self.main_window_.removeDockWidget(old_dock_widget)
         # rename dock_widget object
         dock_widget.setObjectName(unique_object_name)
-        # add new dock_widget
-        self.main_window_.addDockWidget(area, dock_widget)
+        # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
+        self.main_window_.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
         self.dock_widgets_.append(dock_widget)
         self._update_title_bar(dock_widget)
 
 
-    @Slot('QObject')
+    # pointer to QObject must be used for PySide to work (at least with 1.0.1)
+    @Slot('QObject*')
     def set_plugin_instance(self, plugin_instance):
         self.plugin_instance_ = plugin_instance
         for dock_widget in self.dock_widgets_:

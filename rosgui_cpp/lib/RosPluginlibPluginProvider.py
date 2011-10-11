@@ -28,7 +28,7 @@ class RosPluginlibPluginProvider(PluginProvider):
 
     def load(self, plugin_id, plugin_context):
         cpp_plugin_context = None
-        main_window = rosgui_cpp.MainWindowInterface.create_instance(plugin_context.main_window())
+        main_window = rosgui_cpp.MainWindowInterface(plugin_context.main_window())
         if plugin_context is not None:
             cpp_plugin_context = rosgui_cpp.PluginContext(main_window, plugin_context.serial_number())
             for key, value in plugin_context.attributes().items():

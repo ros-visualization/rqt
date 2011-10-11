@@ -37,11 +37,7 @@ protected:
   virtual void deletePluginLater()
   {
     QVariant p = property("PluginBridge");
-    if (!p.isValid())
-    {
-      qWarning("Plugin::delete_plugin_later() no property 'PluginBridge' found");
-    }
-    else
+    if (p.isValid())
     {
       QObject* obj = qVariantValue<QObject*>(p);
       if (!obj)
@@ -61,7 +57,6 @@ protected:
         }
       }
     }
-    deleteLater();
   }
 
 };
