@@ -193,7 +193,7 @@ class PoseViewWidget(QDockWidget):
                 return
             item = event.source().selectedItems()[0]
             ros_topic_name = item.data(0, Qt.UserRole)
-            if ros_topic_name == None:
+            if ros_topic_name is None:
                 qDebug('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
         # TODO: do some checks for valid topic here

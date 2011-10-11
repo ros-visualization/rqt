@@ -83,7 +83,7 @@ class TopicWidget(QDockWidget):
 
                 # update bandwidth
                 bytes_per_s, _, _, _ = topic_info.get_bw()
-                if bytes_per_s == None:
+                if bytes_per_s is None:
                     bandwidth_text = 'unknown'
                 elif bytes_per_s < 1000:
                     bandwidth_text = '%.2fB/s' % bytes_per_s
@@ -125,7 +125,7 @@ class TopicWidget(QDockWidget):
 
 
     def _recursive_create_widget_items(self, parent, topic_name, type_name, message):
-        if parent == self.topics_tree_widget:
+        if parent is self.topics_tree_widget:
             # show full topic name with preceding namespace on toplevel item
             topic_text = topic_name
         else:
@@ -150,7 +150,7 @@ class TopicWidget(QDockWidget):
         menu = QMenu(self)
         actionToggleMonitoring = menu.addAction("Toggle Monitoring")
         action = menu.exec_(self.topics_tree_widget.mapToGlobal(pos))
-        if action == actionToggleMonitoring:
+        if action is actionToggleMonitoring:
             self.topic_infos[topic_name].toggle_monitoring()
 
 

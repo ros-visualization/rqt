@@ -137,7 +137,7 @@ class Publisher(QDockWidget):
 
 
     def _recursive_create_widget_items(self, parent, topic_name, type_name, message, publisher_id, expressions):
-        if parent == None:
+        if parent is None:
             # show full topic name with preceding namespace on toplevel item
             topic_text = topic_name
         else:
@@ -266,7 +266,7 @@ class Publisher(QDockWidget):
         menu = QMenu(self)
         action_remove_publisher = menu.addAction("Remove Publisher")
         action = menu.exec_(self.publishers_tree_widget.mapToGlobal(pos))
-        if action == action_remove_publisher:
+        if action is action_remove_publisher:
             self.remove_publisher_item_(item)
 
 

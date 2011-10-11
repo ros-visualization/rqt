@@ -90,8 +90,6 @@ class TopicInfo(ROSTopicHz):
     def get_hz(self):
         if not self.times:
             return None, None, None, None
-        elif self.msg_tn == self.last_printed_tn:
-            return 0#, 0, 0, 0
         with self.lock:
             n = len(self.times)
             mean = sum(self.times) / n

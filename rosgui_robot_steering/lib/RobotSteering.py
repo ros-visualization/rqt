@@ -132,7 +132,7 @@ class RobotSteering(QObject):
             self.publisher_ = None
 
     def eventFilter(self, obj, event):
-        if obj == self.widget_ and event.type() == QEvent.Close:
+        if obj is self.widget_ and event.type() == QEvent.Close:
             # TODO: ignore() should not be necessary when returning True
             event.ignore()
             self.deleteLater()
