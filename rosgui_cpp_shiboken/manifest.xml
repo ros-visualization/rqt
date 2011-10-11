@@ -9,10 +9,10 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_cpp_shiboken</url>
 
+  <depend package="rosgui_pyside"/>
   <depend package="rosgui_cpp"/>
 
   <rosdep name="libqt4-dev"/>
-  <rosdep name="python-pyside"/>
   <rosdep name="libpyside-dev"/>
   <rosdep name="shiboken"/>
   <rosdep name="libshiboken-dev"/>

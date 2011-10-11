@@ -11,5 +11,7 @@ except ImportError:
     import roslib
     roslib.load_manifest('rosgui')
 
+sys.argv.append('--qt-binding=pyside')
+
 from rosgui import rosgui_main
 rosgui_main.rosgui_main()
