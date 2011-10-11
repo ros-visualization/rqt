@@ -1,6 +1,6 @@
 import os, platform, sys
 
-from QtBindingHelper import QT_BINDING, _selected_qt_binding
+from QtBindingHelper import QT_BINDING, QT_BINDING_VERSION
 from QtCore import QObject, qVersion
 from QtGui import QMessageBox
 
@@ -46,9 +46,9 @@ class AboutHandler(QObject):
             text += '%s, ' % self.tr('rospkg not found - using roslib')
 
         if QT_BINDING == 'pyside':
-            text += 'PySide %s, ' % _selected_qt_binding['version']
+            text += 'PySide %s, ' % QT_BINDING_VERSION
         elif QT_BINDING == 'pyqt':
-            text += 'PyQt %s, ' % _selected_qt_binding['version']
+            text += 'PyQt %s, ' % QT_BINDING_VERSION
 
         text += 'Qt %s, ' % qVersion()
 
