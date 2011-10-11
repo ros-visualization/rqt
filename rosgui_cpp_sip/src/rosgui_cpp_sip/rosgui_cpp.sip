@@ -1,4 +1,4 @@
-%Module(name = librosgui_cpp_sip, version = 1)
+%Module librosgui_cpp_sip 1
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
