@@ -17,7 +17,7 @@ class DataPlot(Qwt.QwtPlot):
     dataNumValuesPloted = 1000
 
     def __init__(self, *args, **kwargs):
-        super(Qwt.QwtPlot, self).__init__(*args, **kwargs)
+        super(DataPlot, self).__init__(*args, **kwargs)
         self.setCanvasBackground(Qt.white)
         self.insertLegend(Qwt.QwtLegend(), Qwt.QwtPlot.BottomLegend)
 
@@ -68,8 +68,9 @@ class DataPlot(Qwt.QwtPlot):
             self.redrawOnFullUpdate = False
             self.timerRedraw.start(self.redrawTimerInterval)
 
-    def resize(self, *args):
-        Qwt.QwtPlot.resize(self, *args)
+    #def resize(self, *args):
+    def resizeEvent(self, event):
+        super(DataPlot, self).resizeEvent(event)
         self.rescale()
 
     def getCurves(self):
@@ -128,11 +129,19 @@ class DataPlot(Qwt.QwtPlot):
         self.replot()
 
     def rescale(self):
-        canvasDisplayHeight = self.canvasDisplayHeight
-        if canvasDisplayHeight > 2: # for bigger values, round up the value to get a nicer look for the y-axis
-            canvasDisplayHeight = math.ceil(canvasDisplayHeight)
-        self.setAxisScale(0, self.canvasOffsetY - (self.canvasDisplayHeight / 2), self.canvasOffsetY + (self.canvasDisplayHeight / 2), self.canvasDisplayHeight / 20)
-        self.setAxisScale(2, 0, len(self.timeAxis))
+        yNumTicks = self.parent().height() / 40
+        yLowerLimit = self.canvasOffsetY - (self.canvasDisplayHeight / 2)
+        yUpperLimit = self.canvasOffsetY + (self.canvasDisplayHeight / 2)
+
+        # calculate a fitting step size for nice, round tick labels, depending on the displayed value area
+        yDelta = yUpperLimit - yLowerLimit
+        exponent = int(math.log10(yDelta))
+        presicion = -(exponent - 2)
+        yStepSize = round(yDelta / yNumTicks, presicion)
+
+        self.setAxisScale(Qwt.QwtPlot.yLeft, yLowerLimit, yUpperLimit, yStepSize)
+
+        self.setAxisScale(Qwt.QwtPlot.xBottom, 0, len(self.timeAxis))
         self.redraw()
 
     def rescaleAxisX(self, deltaX):
@@ -179,7 +188,7 @@ class DataPlot(Qwt.QwtPlot):
         zoomFactor = max(-0.6, min(0.6, (event.delta() / 120) / 6.0))
         deltaY = (self.canvas().height() / 2.0) - canvasY
         self.moveCanvas(0, zoomFactor * deltaY * 1.0225)
-        self.scaleAxisY(max(0.005, self.canvasDisplayHeight - zoomFactor * self.canvasDisplayHeight))
+        self.scaleAxisY(max(0.0005, self.canvasDisplayHeight - zoomFactor * self.canvasDisplayHeight))
 
 
 if __name__ == '__main__':

@@ -12,7 +12,8 @@ import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
-from DataPlot import DataPlot
+import DataPlot
+reload(DataPlot)
 from TopicCompleter import TopicCompleter
 
 # main class inherits from the ui window class
@@ -23,7 +24,7 @@ class Plot(QDockWidget):
         self.setObjectName('Plot')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
-        loadUi(ui_file, self, {'DataPlot': DataPlot})
+        loadUi(ui_file, self, {'DataPlot': DataPlot.DataPlot})
 
         if plugin_context.serial_number() != 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
