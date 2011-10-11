@@ -50,7 +50,6 @@ bool ImageView::eventFilter(QObject* watched, QEvent* event)
   if (watched == widget_ && event->type() == QEvent::Close)
   {
     event->ignore();
-    widget_->removeEventFilter(this);
     deletePluginLater();
     return true;
   }
@@ -207,8 +206,10 @@ void ImageView::onTopicChanged(int index)
 
 void ImageView::onZoom1(bool checked)
 {
-  if (checked) {
-    if (qimage_.isNull()) {
+  if (checked)
+  {
+    if (qimage_.isNull())
+    {
       return;
     }
     ui_.image_frame->setInnerFrameFixedSize(qimage_.size());
@@ -239,7 +240,8 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
   QImage shared_image(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
   qimage_ = shared_image.copy();
   ui_.image_frame->setAspectRatio(cv_ptr->image.cols, cv_ptr->image.rows);
-  if (!ui_.zoom_1_push_button->isEnabled()) {
+  if (!ui_.zoom_1_push_button->isEnabled())
+  {
     ui_.zoom_1_push_button->setEnabled(true);
     onZoom1(ui_.zoom_1_push_button->isChecked());
   }
