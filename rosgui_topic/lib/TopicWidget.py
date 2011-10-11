@@ -143,15 +143,19 @@ class TopicWidget(QDockWidget):
     @Slot('QPoint')
     def on_topics_tree_widget_customContextMenuRequested(self, pos):
         item = self.topics_tree_widget.itemAt(pos)
-        if not item:
+        if item is None:
             return
-        topic_name = item.data(0, Qt.UserRole)
 
         menu = QMenu(self)
         actionToggleMonitoring = menu.addAction("Toggle Monitoring")
         action = menu.exec_(self.topics_tree_widget.mapToGlobal(pos))
         if action is actionToggleMonitoring:
-            self.topic_infos[topic_name].toggle_monitoring()
+            root_item = item
+            while root_item.parent() is not None:
+                print root_item.parent()
+                root_item = root_item.parent()
+            root_topic_name = root_item.data(0, Qt.UserRole)
+            self.topic_infos[root_topic_name].toggle_monitoring()
 
 
     # override Qt's closeEvent() method to trigger plugin unloading
