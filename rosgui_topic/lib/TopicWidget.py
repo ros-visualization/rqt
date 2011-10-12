@@ -152,7 +152,6 @@ class TopicWidget(QDockWidget):
         if action is actionToggleMonitoring:
             root_item = item
             while root_item.parent() is not None:
-                print root_item.parent()
                 root_item = root_item.parent()
             root_topic_name = root_item.data(0, Qt.UserRole)
             self.topic_infos[root_topic_name].toggle_monitoring()

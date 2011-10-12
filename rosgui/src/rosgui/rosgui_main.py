@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, signal, sys
+import signal, sys
 from optparse import OptionParser
 
 def rosgui_main():

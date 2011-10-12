@@ -2,8 +2,7 @@
 
 from __future__ import division
 import inspect, os, sys
-from math import * #@UnusedWildImport so math functions can be used in custom expressions
-from random import random, randint, gauss #@UnusedImport
+import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
@@ -21,6 +20,14 @@ class Publisher(QDockWidget):
     def __init__(self, parent, plugin_context):
         super(Publisher, self).__init__(plugin_context.main_window())
         self.setObjectName('Publisher')
+
+        # create context for the expression eval statement
+        self.eval_locals = {}
+        self.eval_locals.update(math.__dict__)
+        self.eval_locals.update(random.__dict__)
+        self.eval_locals.update(time.__dict__)
+        del self.eval_locals['__name__']
+        del self.eval_locals['__doc__']
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self)
@@ -59,8 +66,8 @@ class Publisher(QDockWidget):
         try:
             __import__(package_name + '.msg')
             package_module = sys.modules[package_name + '.msg']
-        except Exception:
-            qDebug('failed to import %s' % (package_name + '.msg'))
+        except:
+            qDebug('Publisher.add_message_package(): failed to import %s' % (package_name + '.msg'))
             return
         message_types = inspect.getmembers(package_module, inspect.isclass)
         if len(message_types) == 0:
@@ -162,7 +169,7 @@ class Publisher(QDockWidget):
     def publishers_tree_widget_itemChanged(self, item, column):
         column_name = self.column_names[column]
         new_value = str(item.text(column))
-        qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
+        #qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
         if not hasattr(item, 'publisher_id'):
             qDebug('Publisher.on_treePublishers_itemChanged(): no publisher_id found in: %s' % (item))
         else:
@@ -170,7 +177,8 @@ class Publisher(QDockWidget):
 
             if column_name == 'enabled':
                 publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
-                qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
+                item.setText(column, '%s' % publisher_info['enabled'])
+                #qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
                 if publisher_info['enabled']:
                     publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
                 else:
@@ -193,7 +201,7 @@ class Publisher(QDockWidget):
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s expression: %s' % (topic_name, new_value))
 
 
-    def fill_message_slots(self, message, topic_name, expressions, i):
+    def fill_message_slots(self, message, topic_name, expressions, counter):
         if not hasattr(message, '__slots__'):
             return
         for slot_name in message.__slots__:
@@ -201,7 +209,7 @@ class Publisher(QDockWidget):
 
             # if no expression exists for this slot_key, continue with it's child slots
             if not expressions.has_key(slot_key):
-                self.fill_message_slots(getattr(message, slot_name), slot_key, expressions, i)
+                self.fill_message_slots(getattr(message, slot_name), slot_key, expressions, counter)
                 continue
 
             expression = expressions[slot_key]
@@ -215,16 +223,38 @@ class Publisher(QDockWidget):
             else:
                 slot_type = type(slot)
 
-            # if slot type is a string and expression has no string markers, add them
-            if (slot_type in (str, 'string')) and not ('"' in expression or "'" in expression):
-                expression = "'%s'" % expression
-
-            try:
-                value = eval(expression)
-            except Exception:
-                qWarning('Publisher.fill_message_slots(): failed to evaluate expression: %s' % (expression))
-            else:
+            self.eval_locals['i'] = counter
+            value = self._evaluate_expression(expression, slot_type)
+            if value is not None:
                 setattr(message, slot_name, value)
+
+
+    def _evaluate_expression(self, expression, slot_type):
+        successful_eval = True
+        successful_conversion = True
+
+        try:
+            # try to evaluate expression
+            value = eval(expression, {}, self.eval_locals)
+        except:
+            # just use expression-string as value
+            value = expression
+            successful_eval = False
+
+        try:
+            # try to convert value to right type
+            value = slot_type(value)
+        except:
+            successful_conversion = False
+
+        if successful_conversion:
+            return value
+        elif successful_eval:
+            qWarning('Publisher.fill_message_slots(): can not convert expression to slot type: %s -> %s' % (type(value), slot_type))
+        else:
+            qWarning('Publisher.fill_message_slots(): failed to evaluate expression: %s' % (expression))
+
+        return None
 
 
     @Slot(int)
