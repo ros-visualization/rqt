@@ -16,8 +16,6 @@ class MainWindowInterface
 
 public:
 
-  static MainWindowInterface* create_instance(QWidget* obj);
-
   MainWindowInterface(QWidget* obj);
 
   MainWindowInterface(const MainWindowInterface& other);

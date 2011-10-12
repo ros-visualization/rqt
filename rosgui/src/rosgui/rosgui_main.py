@@ -1,34 +1,15 @@
 #!/usr/bin/env python
 
-import signal, sys
+import os, signal, sys
 from optparse import OptionParser
 
-import QtBindingHelper #@UnusedImport
-from QtCore import qDebug, QSettings, QTimer, qWarning
-from QtGui import QAction, QApplication, QIcon, QMenuBar
-
-from AboutHandler import AboutHandler
-from CompositePluginProvider import CompositePluginProvider
-from HelpProvider import HelpProvider
-from MainWindow import MainWindow
-from PerspectiveManager import PerspectiveManager
-from PluginManager import PluginManager
-from RecursivePluginProvider import RecursivePluginProvider
-
-try:
-    from RospkgPluginProvider import RospkgPluginProvider
-    ActualRosPluginProvider = RospkgPluginProvider
-except ImportError:
-    qDebug('rospkg not found - falling back to roslib')
-    from RoslibPluginProvider import RoslibPluginProvider
-    ActualRosPluginProvider = RoslibPluginProvider
-
 def rosgui_main():
-    qDebug('rosgui_main()')
-
     # parse command line
     usage = 'usage: %prog [options]'
     parser = OptionParser(usage)
+
+    parser.add_option('-b', '--qt-binding', dest='qt_binding', default=None, type='str',
+                    help='choose Qt bindings to be used [pyqt|pyside]')
 
     parser.add_option('-p', '--perspective', dest='perspective', default=None, type='str',
                     help='startup with this perspective')
@@ -42,6 +23,28 @@ def rosgui_main():
     options, _ = parser.parse_args()
     if options.standalone_plugin is not None:
         options.lock_perspective = True
+
+    setattr(sys, 'SELECT_QT_BINDING', options.qt_binding)
+    import QtBindingHelper #@UnusedImport
+
+    from QtCore import qDebug, QSettings, QTimer, qWarning
+    from QtGui import QAction, QApplication, QIcon, QMenuBar
+
+    from AboutHandler import AboutHandler
+    from CompositePluginProvider import CompositePluginProvider
+    from HelpProvider import HelpProvider
+    from MainWindow import MainWindow
+    from PerspectiveManager import PerspectiveManager
+    from PluginManager import PluginManager
+    from RecursivePluginProvider import RecursivePluginProvider
+
+    try:
+        from RospkgPluginProvider import RospkgPluginProvider
+        ActualRosPluginProvider = RospkgPluginProvider
+    except ImportError:
+        qDebug('rospkg not found - falling back to roslib')
+        from RoslibPluginProvider import RoslibPluginProvider
+        ActualRosPluginProvider = RoslibPluginProvider
 
     app = QApplication(sys.argv)
     app.lastWindowClosed.connect(app.quit)

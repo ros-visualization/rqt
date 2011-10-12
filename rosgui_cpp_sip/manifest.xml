@@ -9,6 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_cpp_sip</url>
 
+  <depend package="rosgui_pyqt"/>
   <depend package="rosgui_cpp"/>
 
   <rosdep name="libqt4-dev"/>

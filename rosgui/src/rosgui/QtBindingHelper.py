@@ -1,30 +1,37 @@
 #!/usr/bin/env python
+
 import sys
 
-def pyside(data):
-    # register PySide modules
-    import PySide.QtCore, PySide.QtGui, PySide.QtOpenGL
-    sys.modules['QtCore'] = PySide.QtCore
-    sys.modules['QtGui'] = PySide.QtGui
-    sys.modules['QtOpenGL'] = PySide.QtOpenGL
+def select_qt_binding(binding_name=None):
+    global QT_BINDING, QT_BINDING_VERSION
 
-    # set some names for compatibility with PyQt4
-    sys.modules['QtCore'].pyqtSignal = sys.modules['QtCore'].Signal
-    sys.modules['QtCore'].pyqtSlot = sys.modules['QtCore'].Slot
-    sys.modules['QtCore'].pyqtProperty = sys.modules['QtCore'].Property
+    # order of default bindings can be changed here
+    DEFAULT_BINDING_ORDER = [pyqt, pyside]
 
-    data['qt_package'] = 'PySide'
-    data['version'] = PySide.__version__
+    # determine binding preference
+    if binding_name is not None:
+        bindings = dict((binding.__name__, binding) for binding in DEFAULT_BINDING_ORDER)
+        if binding_name not in bindings:
+            raise ImportError('Qt binding "%s" is unknown' % binding_name)
+        DEFAULT_BINDING_ORDER = [bindings[binding_name]]
 
-    # try to register PySideQwt module
-    try:
-        import PySideQwt
-        sys.modules['Qwt'] = PySideQwt
-    except ImportError:
-        pass
+    # try to load preferred bindings
+    for binding in DEFAULT_BINDING_ORDER:
+        try:
+            QT_BINDING_VERSION = binding()
+            QT_BINDING = binding.__name__
+            break
+        except ImportError:
+            pass
+
+    if QT_BINDING is None:
+        bindings = [binding.__name__ for binding in DEFAULT_BINDING_ORDER]
+        raise ImportError('Could not find Qt binding (looked for "%s")' % bindings)
+
+    print 'QtBindingHelper: using %s' % QT_BINDING
 
 
-def pyqt(data):
+def pyqt():
     # select PyQt4 API
     import sip
     sip.setapi('QString', 2)
@@ -41,9 +48,6 @@ def pyqt(data):
     sys.modules['QtCore'].Slot = sys.modules['QtCore'].pyqtSlot
     sys.modules['QtCore'].Property = sys.modules['QtCore'].pyqtProperty
 
-    data['version'] = PyQt4.QtCore.PYQT_VERSION_STR
-    data['qt_package'] = 'PyQt4'
-
     # try to register PyQt4.Qwt5 module
     try:
         import PyQt4.Qwt5
@@ -51,35 +55,34 @@ def pyqt(data):
     except ImportError:
         pass
 
+    global loadUi
+    def loadUi(uifile, baseinstance=None, user_classes={}):
+        from PyQt4 import uic
+        return uic.loadUi(uifile, baseinstance=baseinstance)
 
-# order of bindings can be changed here
-_ORDER_OF_BINDINGS = [pyqt, pyside]
+    return PyQt4.QtCore.PYQT_VERSION_STR
 
-_selected_qt_binding = {
-    'id': None,
-    'qt_package': None,
-    'version': None,
-}
 
-# try to load any Qt binding
-for binding in _ORDER_OF_BINDINGS:
+def pyside():
+    # register PySide modules
+    import PySide.QtCore, PySide.QtGui, PySide.QtOpenGL
+    sys.modules['QtCore'] = PySide.QtCore
+    sys.modules['QtGui'] = PySide.QtGui
+    sys.modules['QtOpenGL'] = PySide.QtOpenGL
+
+    # set some names for compatibility with PyQt4
+    sys.modules['QtCore'].pyqtSignal = sys.modules['QtCore'].Signal
+    sys.modules['QtCore'].pyqtSlot = sys.modules['QtCore'].Slot
+    sys.modules['QtCore'].pyqtProperty = sys.modules['QtCore'].Property
+
+    # try to register PySideQwt module
     try:
-        binding(_selected_qt_binding)
-        _selected_qt_binding['id'] = binding.__name__
-        break
+        import PySideQwt
+        sys.modules['Qwt'] = PySideQwt
     except ImportError:
         pass
 
-if _selected_qt_binding['id'] is None:
-    bindings = [binding.__name__ for binding in _ORDER_OF_BINDINGS]
-    raise ImportError('Could not find any Qt binding (looked for %s)' % bindings)
-
-QT_BINDING = _selected_qt_binding['id']
-print 'QtBindingHelper: using %s' % QT_BINDING
-
-
-if _selected_qt_binding['id'] == 'pyside':
-
+    global loadUi
     def loadUi(uifile, baseinstance=None, user_classes={}):
         from PySide.QtUiTools import QUiLoader
         from PySide.QtCore import QMetaObject
@@ -107,14 +110,11 @@ if _selected_qt_binding['id'] == 'pyside':
         QMetaObject.connectSlotsByName(ui)
         return ui
 
-
-elif _selected_qt_binding['id'] == 'pyqt':
-
-    def loadUi(uifile, baseinstance=None, user_classes={}):
-        from PyQt4 import uic
-        return uic.loadUi(uifile, baseinstance=baseinstance)
+    return PySide.__version__
 
 
-if __name__ == "__main__":
-    pass
+QT_BINDING = None
+QT_BINDING_VERSION = None
+
+select_qt_binding(getattr(sys, 'SELECT_QT_BINDING', None))
 
