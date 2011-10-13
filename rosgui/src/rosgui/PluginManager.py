@@ -13,7 +13,7 @@ class PluginManager(QObject):
     plugins_about_to_change_signal = Signal()
     plugins_changed_signal = Signal()
     plugin_help_signal = Signal(object)
-    _deferred_load_plugin_signal = Signal(str, int)
+    _deferred_reload_plugin_signal = Signal(str, int)
 
     def __init__(self, main_window, plugin_menu, running_menu, plugin_provider, hide_close_button=False):
         super(PluginManager, self).__init__()
@@ -39,111 +39,9 @@ class PluginManager(QObject):
         plugin_descriptors = self.plugin_provider_.discover()
 
         # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
-        self._deferred_load_plugin_signal.connect(self.load_plugin, type=Qt.QueuedConnection)
+        self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
 
-        self.__register_plugins(plugin_descriptors)
-
-    @Slot(str)
-    def reload_plugin(self, instance_id):
-        # unload plugin now
-        self.unload_plugin(instance_id)
-
-        plugin_id, serial_number = self.__split_instance_id(instance_id)
-        serial_number = int(serial_number)
-        # deferred call to load_plugin 
-        self._deferred_load_plugin_signal.emit(plugin_id, serial_number)
-
-    @Slot(str)
-    def relay_plugin_help_signal(self, instance_id):
-        plugin_id, _ = self.__split_instance_id(instance_id)
-        plugin_descriptor = self.plugin_descriptors_[plugin_id]
-        self.plugin_help_signal.emit(plugin_descriptor)
-
-    def find_plugin_by_name(self, lookup_name):
-        found_plugins = {}
-        for plugin_id, plugin_descriptor in self.plugin_descriptors_.items():
-
-            plugin_name_parts = []
-            plugin_name = plugin_descriptor.attributes().get('plugin_name', None)
-            if plugin_name is not None:
-                plugin_name_parts.append(plugin_name)
-            plugin_name_parts += plugin_descriptor.attributes().get('class_type', 'unknown').split('::')
-
-            plugin_full_name = '/'.join(plugin_name_parts)
-
-            if plugin_full_name.lower().find(lookup_name) >= 0:
-                found_plugins[plugin_id] = plugin_full_name
-
-        return found_plugins
-
-    @Slot(str)
-    @Slot(str, int)
-    def load_plugin(self, plugin_id, serial_number=None):
-        # convert from unicode
-        plugin_id = str(plugin_id)
-
-        if serial_number is None:
-            serial_number = self.__next_serial_number(plugin_id)
-        instance_id = self.__build_instance_id(plugin_id, serial_number)
-
-        # if the requested instance is already running, so nothing
-        if instance_id in self.running_plugins_:
-            return
-
-        try:
-            main_window_interface = MainWindowInterface(self.main_window_, instance_id, self.hide_close_button)
-            main_window_interface.reload_plugin_instance_signal.connect(self.reload_plugin)
-            main_window_interface.plugin_help_signal.connect(self.relay_plugin_help_signal)
-
-            plugin_context = PluginContext()
-            plugin_context.set_main_window(main_window_interface)
-            plugin_context.set_serial_number(serial_number)
-
-            instance = self.plugin_provider_.load(plugin_id, plugin_context)
-            if instance is None:
-                raise Exception('load returned None')
-
-        except Exception:
-            qCritical('PluginManager.load_plugin(%s) failed:\n%s' % (plugin_id, traceback.format_exc()))
-
-        else:
-            qDebug('PluginManager.load_plugin(%s) successful' % plugin_id)
-            # set plugin instance for custom titlebar callbacks
-            main_window_interface.set_plugin_instance(instance)
-            self.__add_running_plugin(plugin_id, serial_number, instance, main_window_interface)
-            # restore settings after load
-            self.__call_method_on_plugin(instance_id, 'restore_settings')
-            self.plugins_changed_signal.emit()
-
-    @Slot(str)
-    def unload_plugin(self, instance_id):
-        # convert from unicode
-        instance_id = str(instance_id)
-        # trigger save of top-level widget setup
-        self.plugins_about_to_change_signal.emit()
-        # save settings before unloading
-        self.__call_method_on_plugin(instance_id, 'save_settings')
-        self.__unload_plugin(instance_id)
-
-    def __unload_plugin(self, instance_id):
-        # destroy instance and unload plugin
-        info = self.running_plugins_[instance_id]
-        self.__remove_running_plugin(info['action'])
-        self.running_plugins_.pop(instance_id)
-
-        instance = info['instance']
-        instance.removeEventFilter(self)
-        try:
-            if not hasattr(instance, 'close_plugin'):
-                raise NotImplementedError('method not implemented')
-            instance.close_plugin()
-        except NotImplementedError:
-            qCritical('PluginManager.__unload_plugin() plugin "%s" must implement close_plugin method' % str(info['plugin_id']))
-        instance.deleteLater()
-        self.plugin_provider_.unload(instance)
-        qDebug('PluginManager.__unload_plugin() successful')
-
-    def __register_plugins(self, plugin_descriptors):
+        # register plugins
         for plugin_descriptor in plugin_descriptors:
             self.plugin_descriptors_[plugin_descriptor.plugin_id()] = plugin_descriptor
 
@@ -177,6 +75,111 @@ class PluginManager(QObject):
             # add action to menu
             menu_manager.add_item(action)
 
+
+    def find_plugins_by_name(self, lookup_name):
+        found_plugins = {}
+        for plugin_id, plugin_descriptor in self.plugin_descriptors_.items():
+
+            plugin_name_parts = []
+            plugin_name = plugin_descriptor.attributes().get('plugin_name', None)
+            if plugin_name is not None:
+                plugin_name_parts.append(plugin_name)
+            plugin_name_parts += plugin_descriptor.attributes().get('class_type', 'unknown').split('::')
+
+            plugin_full_name = '/'.join(plugin_name_parts)
+
+            if plugin_full_name.lower().find(lookup_name) >= 0:
+                found_plugins[plugin_id] = plugin_full_name
+
+        return found_plugins
+
+
+    @Slot(str)
+    @Slot(str, int)
+    def load_plugin(self, plugin_id, serial_number=None):
+        # save state of top-level widgets
+        self.plugins_about_to_change_signal.emit()
+        if serial_number is None:
+            serial_number = self._next_serial_number(plugin_id)
+        self._load_and_restore_plugin(plugin_id, serial_number)
+
+
+    def _next_serial_number(self, plugin_id):
+        # convert from unicode
+        plugin_id = str(plugin_id)
+        # collect serial numbers of all running instances of the specific plugin
+        used_serial_numbers = {}
+        for info in self.running_plugins_.values():
+            if info['plugin_id'] == plugin_id:
+                used_serial_numbers[info['serial_number']] = None
+
+        # find first non-used serial number
+        serial_number = 1
+        while serial_number in used_serial_numbers:
+            serial_number = serial_number + 1
+        return serial_number
+
+
+    @Slot(str)
+    def unload_plugin(self, instance_id):
+        # save state of top-level widgets
+        self.plugins_about_to_change_signal.emit()
+        self._unload_plugin(instance_id)
+
+
+    @Slot(str)
+    def reload_plugin(self, instance_id):
+        # save state of top-level widgets
+        self.plugins_about_to_change_signal.emit()
+        self._unload_plugin(instance_id)
+        # deferred call to reload_plugin
+        plugin_id, serial_number = self._split_instance_id(instance_id)
+        self._deferred_reload_plugin_signal.emit(plugin_id, serial_number)
+
+
+    @Slot(str, str)
+    def _load_and_restore_plugin(self, plugin_id, serial_number):
+        # convert from unicode
+        plugin_id = str(plugin_id)
+        self._load_plugin(plugin_id, serial_number)
+        # restore state of top-level widgets
+        self.plugins_changed_signal.emit()
+
+
+    def _load_plugin(self, plugin_id, serial_number):
+        # convert from unicode
+        plugin_id = str(plugin_id)
+
+        # if the requested instance is already running, do nothing
+        instance_id = self._build_instance_id(plugin_id, serial_number)
+        if instance_id in self.running_plugins_:
+            raise Exception('PluginManager._load_plugin(%s, %d) instance already loaded' % (plugin_id, serial_number))
+
+        main_window_interface = MainWindowInterface(self.main_window_, instance_id, self.hide_close_button)
+        main_window_interface.reload_plugin_instance_signal.connect(self.reload_plugin)
+        main_window_interface.plugin_help_signal.connect(self._relay_plugin_help_signal)
+
+        plugin_context = PluginContext()
+        plugin_context.set_main_window(main_window_interface)
+        plugin_context.set_serial_number(serial_number)
+
+        try:
+            instance = self.plugin_provider_.load(plugin_id, plugin_context)
+            if instance is None:
+                raise Exception('PluginProvider "%s" returned None', type(self.plugin_provider_))
+
+        except Exception:
+            qCritical('PluginManager._load_plugin(%s) failed:\n%s' % (plugin_id, traceback.format_exc()))
+
+        else:
+            qDebug('PluginManager._load_plugin(%s, %d) successful' % (plugin_id, serial_number))
+            # set plugin instance for custom titlebar callbacks
+            main_window_interface.set_plugin_instance(instance)
+            self.__add_running_plugin(plugin_id, serial_number, instance, main_window_interface)
+            # restore settings after load
+            self.__call_method_on_plugin(instance_id, 'restore_settings')
+
+
     def __add_running_plugin(self, plugin_id, serial_number, instance, main_window_interface):
         plugin_descriptor = self.plugin_descriptors_[plugin_id]
         action_attributes = plugin_descriptor.action_attributes()
@@ -188,7 +191,7 @@ class PluginManager(QObject):
         base_path = plugin_descriptor.attributes().get('plugin_path')
         self.__enrich_action(action, action_attributes, base_path)
 
-        instance_id = self.__build_instance_id(plugin_id, serial_number)
+        instance_id = self._build_instance_id(plugin_id, serial_number)
         self.running_mapper_.setMapping(action, instance_id)
         action.triggered.connect(self.running_mapper_.map)
 
@@ -209,6 +212,7 @@ class PluginManager(QObject):
         }
         self.running_plugins_[instance_id] = info
 
+
     def eventFilter(self, watched, event):
         if event.type() == QEvent.DeferredDelete:
             instance_id = watched.property('rosgui.PluginManager.instance_id')
@@ -218,33 +222,57 @@ class PluginManager(QObject):
                 return True
         return QObject.eventFilter(self, watched, event)
 
-    def __remove_running_plugin(self, action):
-        self.running_mapper_.removeMappings(action)
-        self.running_menu_manager_.remove_item(action)
 
-    def __next_serial_number(self, plugin_id):
-        # collect serial numbers of all running instances of the specific plugin
-        used_serial_numbers = {}
-        for info in self.running_plugins_.values():
-            if info['plugin_id'] == plugin_id:
-                used_serial_numbers[info['serial_number']] = None
+    def _unload_plugin(self, instance_id):
+        # convert from unicode
+        instance_id = str(instance_id)
 
-        # find first non-used serial number
-        serial_number = 1
-        while serial_number in used_serial_numbers:
-            serial_number = serial_number + 1
-        return serial_number
+        # save settings before unloading
+        self.__call_method_on_plugin(instance_id, 'save_settings')
 
-    def __build_instance_id(self, plugin_id, serial_number):
+        # garbage references
+        info = self.running_plugins_[instance_id]
+        self.running_mapper_.removeMappings(info['action'])
+        self.running_menu_manager_.remove_item(info['action'])
+        self.running_plugins_.pop(instance_id)
+
+        # destroy instance and unload plugin
+        instance = info['instance']
+        instance.removeEventFilter(self)
+        try:
+            if not hasattr(instance, 'close_plugin'):
+                raise NotImplementedError('method "close_plugin" not implemented by plugin')
+            instance.close_plugin()
+        except NotImplementedError:
+            qCritical('PluginManager._unload_plugin() plugin "%s" must implement close_plugin method' % str(info['plugin_id']))
+        instance.deleteLater()
+        self.plugin_provider_.unload(instance)
+        qDebug('PluginManager._unload_plugin() successful')
+
+
+    def _build_instance_id(self, plugin_id, serial_number):
         return plugin_id + '#' + str(serial_number)
 
-    def __split_instance_id(self, instance_id):
-        return instance_id.rsplit('#', 1)
+
+    def _split_instance_id(self, instance_id):
+        # convert from unicode
+        instance_id = str(instance_id)
+        parts = instance_id.rsplit('#', 1)
+        return [parts[0], int(parts[1])]
+
+
+    @Slot(str)
+    def _relay_plugin_help_signal(self, instance_id):
+        plugin_id, _ = self._split_instance_id(instance_id)
+        plugin_descriptor = self.plugin_descriptors_[plugin_id]
+        self.plugin_help_signal.emit(plugin_descriptor)
+
 
     def __enrich_action(self, action, action_attributes, base_path=None):
         self.__set_icon(action, action_attributes, base_path)
         if 'statustip' in action_attributes:
             action.setStatusTip(action_attributes['statustip'])
+
 
     def __set_icon(self, action, action_attributes, base_path=None):
         icontype = action_attributes.get('icontype', 'file')
@@ -268,19 +296,24 @@ class PluginManager(QObject):
             action.setIcon(icon)
             action.setIconVisibleInMenu(True)
 
+
     def save_settings(self, global_settings, perspective_settings):
         qDebug('PluginManager.save_settings()')
         self.global_settings_ = global_settings.get_settings('pluginmanager')
         self.perspective_settings_ = perspective_settings.get_settings('pluginmanager')
         self.__store_running_plugins()
-        self.__save_plugin_settings()
+        # delegate call to all running plugins
+        self.__call_method_on_all_plugins('save_settings')
+
 
     def restore_settings(self, global_settings, perspective_settings):
         qDebug('PluginManager.restore_settings()')
         self.global_settings_ = global_settings.get_settings('pluginmanager')
         self.perspective_settings_ = perspective_settings.get_settings('pluginmanager')
         self.__restore_running_plugins()
+        # restore state of top-level widgets
         self.plugins_changed_signal.emit()
+
 
     def __store_running_plugins(self):
         if self.perspective_settings_ is not None:
@@ -292,6 +325,7 @@ class PluginManager(QObject):
                 plugins[plugin_id].append(info['serial_number'])
             self.perspective_settings_.set_value('running-plugins', plugins)
 
+
     def __restore_running_plugins(self):
         plugins = {}
         if self.perspective_settings_ is not None:
@@ -302,27 +336,21 @@ class PluginManager(QObject):
                         'plugin_id': plugin_id,
                         'serial_number': serial_number,
                     }
-                    instance_id = self.__build_instance_id(plugin_id, serial_number)
+                    instance_id = self._build_instance_id(plugin_id, serial_number)
                     plugins[instance_id] = info
-
         # unload obsolete plugins
         for instance_id in self.running_plugins_.keys():
             if instance_id not in plugins:
-                self.__unload_plugin(instance_id)
-
+                self._unload_plugin(instance_id)
         # restore settings for already loaded plugins
         for instance_id, info in plugins.items():
             if instance_id in self.running_plugins_:
                 self.__call_method_on_plugin(instance_id, 'restore_settings')
-
         # load not yet loaded plugins
         for instance_id, info in plugins.items():
             if instance_id not in self.running_plugins_:
-                self.load_plugin(info['plugin_id'], info['serial_number'])
+                self._load_plugin(info['plugin_id'], info['serial_number'])
 
-    def __save_plugin_settings(self):
-        # delegate call to all running plugins
-        self.__call_method_on_all_plugins('save_settings')
 
     def __call_method_on_all_plugins(self, method_name):
         for instance_id in self.running_plugins_.keys():

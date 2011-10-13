@@ -117,7 +117,7 @@ def rosgui_main():
     main_window.resize(600, 450)
 
     if options.standalone_plugin is not None:
-        found_plugins = plugin_manager.find_plugin_by_name(options.standalone_plugin)
+        found_plugins = plugin_manager.find_plugins_by_name(options.standalone_plugin)
         if len(found_plugins) == 0:
             qWarning('rosgui_main(): found no plugin matching "%s"' % options.standalone_plugin)
             return 1
