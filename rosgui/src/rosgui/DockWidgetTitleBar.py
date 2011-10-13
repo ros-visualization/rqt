@@ -82,24 +82,27 @@ class DockWidgetTitleBar(QWidget):
             dock_widget.setAllowedAreas(Qt.AllDockWidgetAreas)
         else:
             dock_widget.setAllowedAreas(Qt.NoDockWidgetArea)
-            dock_widget.setFloating(True)
 
 
     @Slot()
     def toggle_floating(self):
         dock_widget = self.parentWidget()
-        floating = not dock_widget.isFloating()
-        dock_widget.setFloating(floating)
-        # if widget was docked, make sure the dockable button's state reflects this
-        if not floating:
-            self.dockable_button.setChecked(True)
-            self.toggle_dockable(True)
+        dock_widget.setFloating(not dock_widget.isFloating())
 
 
     def features_changed(self, _features):
         features = self.parentWidget().features()
         self.close_button.setVisible((not self.hide_close_button) and bool(features & QDockWidget.DockWidgetClosable))
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
+
+
+    def save_settings(self, perspective_settings):
+        perspective_settings.set_value('dockable', self.dockable_button.isChecked())
+
+
+    def restore_settings(self, perspective_settings):
+        self.dockable_button.setChecked(perspective_settings.value('dockable', True) in [True, 'true'])
+        self.toggle_dockable(self.dockable_button.isChecked())
 
 
 if __name__ == '__main__':

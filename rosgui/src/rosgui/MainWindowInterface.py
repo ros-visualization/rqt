@@ -1,7 +1,7 @@
-import os
+import os, traceback
 
 import QtBindingHelper #@UnusedImport
-from QtCore import Qt, qWarning, Signal, Slot
+from QtCore import qCritical, Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget, QWidget
 
 from DockWidgetTitleBar import DockWidgetTitleBar
@@ -71,3 +71,24 @@ class MainWindowInterface(QWidget):
     def _reload_request(self):
         self.reload_plugin_instance_signal.emit(self.plugin_instance_id_)
 
+
+    def save_settings(self, perspective_settings):
+        self._call_method_on_all_title_bars('save_settings', perspective_settings)
+
+
+    def restore_settings(self, perspective_settings):
+        self._call_method_on_all_title_bars('restore_settings', perspective_settings)
+
+
+    def _call_method_on_all_title_bars(self, method_name, perspective_settings):
+        settings = perspective_settings.get_settings('mainwindowinterface')
+        for dock_widget in self.dock_widgets_:
+            name = 'title_bar__' + dock_widget.objectName().replace('/', '_')
+            perspective = settings.get_settings(name)
+            title_bar = dock_widget.titleBarWidget()
+            if hasattr(title_bar, method_name):
+                method = getattr(title_bar, method_name)
+                try:
+                    method(perspective)
+                except Exception:
+                    qCritical('MainWindowInterface._call_method_on_all_title_bars(%s) call on DockWidgetTitleBar failed:\n%s' % (method_name, traceback.format_exc()))

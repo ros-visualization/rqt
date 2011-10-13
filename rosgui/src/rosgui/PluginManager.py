@@ -110,7 +110,7 @@ class PluginManager(QObject):
             qDebug('PluginManager.load_plugin(%s) successful' % plugin_id)
             # set plugin instance for custom titlebar callbacks
             main_window_interface.set_plugin_instance(instance)
-            self.__add_running_plugin(plugin_id, serial_number, instance)
+            self.__add_running_plugin(plugin_id, serial_number, instance, main_window_interface)
             # restore settings after load
             self.__call_method_on_plugin(instance_id, 'restore_settings')
             self.plugins_changed_signal.emit()
@@ -177,7 +177,7 @@ class PluginManager(QObject):
             # add action to menu
             menu_manager.add_item(action)
 
-    def __add_running_plugin(self, plugin_id, serial_number, instance):
+    def __add_running_plugin(self, plugin_id, serial_number, instance, main_window_interface):
         plugin_descriptor = self.plugin_descriptors_[plugin_id]
         action_attributes = plugin_descriptor.action_attributes()
         # create action
@@ -204,6 +204,7 @@ class PluginManager(QObject):
             'plugin_id': plugin_id,
             'serial_number': serial_number,
             'instance': instance,
+            'main_window_interface': main_window_interface,
             'action': action,
         }
         self.running_plugins_[instance_id] = info
@@ -235,10 +236,10 @@ class PluginManager(QObject):
         return serial_number
 
     def __build_instance_id(self, plugin_id, serial_number):
-        return os.path.join(plugin_id, str(serial_number))
+        return plugin_id + '#' + str(serial_number)
 
     def __split_instance_id(self, instance_id):
-        return os.path.split(instance_id)
+        return instance_id.rsplit('#', 1)
 
     def __enrich_action(self, action, action_attributes, base_path=None):
         self.__set_icon(action, action_attributes, base_path)
@@ -289,12 +290,12 @@ class PluginManager(QObject):
                 if not plugins.has_key(plugin_id):
                     plugins[plugin_id] = []
                 plugins[plugin_id].append(info['serial_number'])
-            self.perspective_settings_.set_value('plugins', plugins)
+            self.perspective_settings_.set_value('running-plugins', plugins)
 
     def __restore_running_plugins(self):
         plugins = {}
         if self.perspective_settings_ is not None:
-            data = self.perspective_settings_.value('plugins', {})
+            data = self.perspective_settings_.value('running-plugins', {})
             for plugin_id, serial_numbers in data.items():
                 for serial_number in serial_numbers:
                     info = {
@@ -330,12 +331,24 @@ class PluginManager(QObject):
     def __call_method_on_plugin(self, instance_id, method_name):
         if self.running_plugins_.has_key(instance_id):
             info = self.running_plugins_[instance_id]
+            global_settings_instance = self.global_settings_.get_settings(instance_id)
+            perspective_settings_instance = self.perspective_settings_.get_settings(instance_id)
+
             instance = info['instance']
             if hasattr(instance, method_name):
-                global_settings = self.global_settings_.get_settings(instance_id)
-                perspective_settings = self.perspective_settings_.get_settings(instance_id)
                 method = getattr(instance, method_name)
                 try:
-                    method(global_settings, perspective_settings)
+                    global_settings_plugin = global_settings_instance.get_settings('plugin')
+                    perspective_settings_plugin = perspective_settings_instance.get_settings('plugin')
+                    method(global_settings_plugin, perspective_settings_plugin)
                 except Exception:
                     qCritical('PluginManager.__call_method_on_plugin(%s, %s) failed:\n%s' % (str(info['plugin_id']), method_name, traceback.format_exc()))
+
+            # call after instance method since the plugin may spawn additional dock widgets depending on current settings 
+            main_window_interface = info['main_window_interface']
+            if hasattr(main_window_interface, method_name):
+                method = getattr(main_window_interface, method_name)
+                try:
+                    method(perspective_settings_instance)
+                except Exception:
+                    qCritical('PluginManager.__call_method_on_plugin(%s, %s) call on main_window_interface failed:\n%s' % (str(info['plugin_id']), method_name, traceback.format_exc()))
