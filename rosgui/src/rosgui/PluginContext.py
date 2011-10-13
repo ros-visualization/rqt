@@ -29,9 +29,7 @@ class PluginContext(QObject):
         return self.dict_
 
     def attribute(self, key):
-        if key in self.dict_:
-            return self.dict_[key]
-        return None
+        return self.dict_.get(key, None)
 
     def set_attribute(self, key, value):
         self.dict_[key] = value

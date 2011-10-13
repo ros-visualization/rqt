@@ -74,9 +74,7 @@ class RosPluginProvider(PluginProvider):
                     attributes['class_' + key] = value
 
                 # skip classes with non-matching base_class_type
-                class_base_class_type = None
-                if 'class_base_class_type' in attributes:
-                    class_base_class_type = attributes['class_base_class_type']
+                class_base_class_type = attributes.get('class_base_class_type', None)
                 if class_base_class_type != self.base_class_type_:
                     continue
 

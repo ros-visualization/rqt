@@ -19,7 +19,7 @@ class RosPluginlibPluginProvider(PluginProvider):
             action_attributes = plugin['action']
             plugin_descriptor.set_action_attributes(action_attributes['label'], action_attributes.get('statustip', None), action_attributes.get('icon', None), action_attributes.get('icontype', None))
 
-            groups = plugin['groups'] if 'groups' in plugin else {}
+            groups = plugin.get('groups', {})
             for group in groups.values():
                 plugin_descriptor.add_group_attributes(group['label'], group['statustip'], group['icon'], group['icontype'])
 

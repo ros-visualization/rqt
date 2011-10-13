@@ -39,7 +39,7 @@ class MenuManager(QObject):
                 self.ordered_items_.insert(i, new_item)
                 return
 
-        before = self.suffixes_separator_ if self.suffixes_separator_ is not None else None
+        before = self.suffixes_separator_ or None
         self.__insert_item(before, new_item)
         self.ordered_items_.append(new_item)
 

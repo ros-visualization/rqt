@@ -57,10 +57,10 @@ class Settings(QObject):
         return {'keys': keys, 'groups': groups}
 
     def from_dict(self, data):
-        keys = data['keys'] if 'keys' in data else {}
+        keys = data.get('keys', {})
         for key in keys:
             self.set_value(key, keys[key])
-        groups = data['groups'] if 'groups' in data else {}
+        groups = data.get('groups', {})
         for group in groups:
             settings = self.get_settings(group)
             settings.from_dict(groups[group])

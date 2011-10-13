@@ -43,8 +43,7 @@ class PerspectiveManager(QObject):
 
     def set_perspective(self, name, hide_perspective=False):
         if name is None:
-            current = self.settings_proxy_.value('', 'current-perspective')
-            name = current if current is not None else 'Default'
+            name = self.settings_proxy_.value('', 'current-perspective', 'Default')
         elif hide_perspective:
             name = self.HIDDEN_PREFIX + name
         self.switch_perspective(name)
@@ -289,10 +288,10 @@ class PerspectiveManager(QObject):
 
 
     def __convert_values(self, data, convert_function):
-        keys = data['keys'] if 'keys' in data else {}
+        keys = data.get('keys', {})
         for key in keys:
             keys[key] = convert_function(keys[key])
-        groups = data['groups'] if 'groups' in data else {}
+        groups = data.get('groups', {})
         for group in groups:
             self.__convert_values(groups[group], convert_function)
 
