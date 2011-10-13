@@ -9,10 +9,8 @@ class MenuManager(QObject):
         self.setObjectName('MenuManager')
 
         self.menu_ = menu
-        self.prefixes_ = []
         self.prefixes_separator_ = None
         self.ordered_items_ = []
-        self.suffixes_ = []
         self.suffixes_separator_ = None
 
         # get already existing items from menu
@@ -33,7 +31,6 @@ class MenuManager(QObject):
                 before = before.menuAction()
             self.prefixes_separator_ = self.menu_.insertSeparator(before)
         self.__insert_item(self.prefixes_separator_, item)
-        self.prefixes_.append(item)
 
     def add_item(self, new_item):
         for i, item in enumerate(self.ordered_items_):
@@ -50,7 +47,6 @@ class MenuManager(QObject):
         if self.suffixes_separator_ is None:
             self.suffixes_separator_ = self.menu_.addSeparator()
         self.__insert_item(None, item)
-        self.suffixes_.append(item)
 
     def count_items(self):
         return len(self.ordered_items_)
@@ -107,6 +103,8 @@ class MenuManager(QObject):
             self.menu_.insertAction(before, item)
         elif isinstance(item, QMenu):
             self.menu_.insertMenu(before, item)
+        elif item is None:
+            self.menu_.insertSeparator(before)
         else:
             raise UserWarning('unknown item type')
 

@@ -81,9 +81,9 @@ class RosPluginProvider(PluginProvider):
                     continue
 
                 # generate unique identifier
-                plugin_id = os.path.join(plugin_path, plugin_name)
+                plugin_id = plugin_name
                 if attributes.has_key('class_name'):
-                    plugin_id = os.path.join(plugin_id, attributes['class_name'])
+                    plugin_id = plugin_id + ' ' + attributes['class_name']
                 attributes['plugin_id'] = plugin_id
 
                 # check if plugin is available
