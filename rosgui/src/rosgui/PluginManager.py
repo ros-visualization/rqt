@@ -212,7 +212,7 @@ class PluginManager(QObject):
     def eventFilter(self, watched, event):
         if event.type() == QEvent.DeferredDelete:
             instance_id = watched.property('rosgui.PluginManager.instance_id')
-            if self.running_plugins_.has_key(instance_id):
+            if instance_id in self.running_plugins_:
                 self.unload_plugin(instance_id)
                 # TOOD: check if ignore() is necessary
                 return True
@@ -231,7 +231,7 @@ class PluginManager(QObject):
 
         # find first non-used serial number
         serial_number = 1
-        while used_serial_numbers.has_key(serial_number):
+        while serial_number in used_serial_numbers:
             serial_number = serial_number + 1
         return serial_number
 
@@ -243,12 +243,12 @@ class PluginManager(QObject):
 
     def __enrich_action(self, action, action_attributes, base_path=None):
         self.__set_icon(action, action_attributes, base_path)
-        if action_attributes.has_key('statustip'):
+        if 'statustip' in action_attributes:
             action.setStatusTip(action_attributes['statustip'])
 
     def __set_icon(self, action, action_attributes, base_path=None):
         icontype = action_attributes.get('icontype', 'file')
-        if action_attributes.has_key('icon') and action_attributes['icon'] is not None:
+        if 'icon' in action_attributes and action_attributes['icon'] is not None:
             if icontype == 'file':
                 path = action_attributes['icon']
                 if base_path is not None:
@@ -287,7 +287,7 @@ class PluginManager(QObject):
             plugins = {}
             for info in self.running_plugins_.values():
                 plugin_id = info['plugin_id']
-                if not plugins.has_key(plugin_id):
+                if plugin_id not in plugins:
                     plugins[plugin_id] = []
                 plugins[plugin_id].append(info['serial_number'])
             self.perspective_settings_.set_value('running-plugins', plugins)
@@ -307,17 +307,17 @@ class PluginManager(QObject):
 
         # unload obsolete plugins
         for instance_id in self.running_plugins_.keys():
-            if not plugins.has_key(instance_id):
+            if instance_id not in plugins:
                 self.__unload_plugin(instance_id)
 
         # restore settings for already loaded plugins
         for instance_id, info in plugins.items():
-            if self.running_plugins_.has_key(instance_id):
+            if instance_id in self.running_plugins_:
                 self.__call_method_on_plugin(instance_id, 'restore_settings')
 
         # load not yet loaded plugins
         for instance_id, info in plugins.items():
-            if not self.running_plugins_.has_key(instance_id):
+            if instance_id not in self.running_plugins_:
                 self.load_plugin(info['plugin_id'], info['serial_number'])
 
     def __save_plugin_settings(self):
@@ -329,10 +329,10 @@ class PluginManager(QObject):
             self.__call_method_on_plugin(instance_id, method_name)
 
     def __call_method_on_plugin(self, instance_id, method_name):
-        if self.running_plugins_.has_key(instance_id):
+        if instance_id in self.running_plugins_:
             info = self.running_plugins_[instance_id]
-            global_settings_instance = self.global_settings_.get_settings(instance_id)
-            perspective_settings_instance = self.perspective_settings_.get_settings(instance_id)
+            global_settings_instance = self.global_settings_.get_settings('plugin ' + instance_id)
+            perspective_settings_instance = self.perspective_settings_.get_settings('plugin ' + instance_id)
 
             instance = info['instance']
             if hasattr(instance, method_name):
@@ -344,11 +344,7 @@ class PluginManager(QObject):
                 except Exception:
                     qCritical('PluginManager.__call_method_on_plugin(%s, %s) failed:\n%s' % (str(info['plugin_id']), method_name, traceback.format_exc()))
 
-            # call after instance method since the plugin may spawn additional dock widgets depending on current settings 
+            # call after instance method since the plugin may spawn additional dock widgets depending on current settings
             main_window_interface = info['main_window_interface']
-            if hasattr(main_window_interface, method_name):
-                method = getattr(main_window_interface, method_name)
-                try:
-                    method(perspective_settings_instance)
-                except Exception:
-                    qCritical('PluginManager.__call_method_on_plugin(%s, %s) call on main_window_interface failed:\n%s' % (str(info['plugin_id']), method_name, traceback.format_exc()))
+            method = getattr(main_window_interface, method_name)
+            method(perspective_settings_instance)

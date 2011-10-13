@@ -43,7 +43,7 @@ class CompositePluginProvider(PluginProvider):
 
     def unload(self, plugin_instance):
         # dispatch unload to appropriate provider
-        if self.running_plugins_.has_key(plugin_instance):
+        if plugin_instance in self.running_plugins_:
             self.running_plugins_[plugin_instance].unload(plugin_instance)
             self.running_plugins_.pop(plugin_instance)
             return

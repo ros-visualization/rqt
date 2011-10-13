@@ -289,10 +289,10 @@ class PerspectiveManager(QObject):
 
 
     def __convert_values(self, data, convert_function):
-        keys = data['keys'] if data.has_key('keys') else {}
+        keys = data['keys'] if 'keys' in data else {}
         for key in keys:
             keys[key] = convert_function(keys[key])
-        groups = data['groups'] if data.has_key('groups') else {}
+        groups = data['groups'] if 'groups' in data else {}
         for group in groups:
             self.__convert_values(groups[group], convert_function)
 

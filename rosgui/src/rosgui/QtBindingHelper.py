@@ -98,7 +98,7 @@ def pyside():
                 self.baseinstance = baseinstance
 
             def createWidget(self, className, parent=None, name=""):
-                if user_classes.has_key(className):
+                if className in user_classes:
                     widget = user_classes[className](parent)
                 else:
                     widget = QUiLoader.createWidget(self, className, parent, name)

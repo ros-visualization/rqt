@@ -75,14 +75,14 @@ class RosPluginProvider(PluginProvider):
 
                 # skip classes with non-matching base_class_type
                 class_base_class_type = None
-                if attributes.has_key('class_base_class_type'):
+                if 'class_base_class_type' in attributes:
                     class_base_class_type = attributes['class_base_class_type']
                 if class_base_class_type != self.base_class_type_:
                     continue
 
                 # generate unique identifier
                 plugin_id = plugin_name
-                if attributes.has_key('class_name'):
+                if 'class_name' in attributes:
                     plugin_id = plugin_id + ' ' + attributes['class_name']
                 attributes['plugin_id'] = plugin_id
 

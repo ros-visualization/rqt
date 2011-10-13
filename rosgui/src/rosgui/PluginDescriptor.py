@@ -12,7 +12,7 @@ class PluginDescriptor(object):
         return self.dict_['attributes']
 
     def action_attributes(self):
-        if self.dict_.has_key('action'):
+        if 'action' in self.dict_:
             return self.dict_['action']
         return {}
 
@@ -25,12 +25,12 @@ class PluginDescriptor(object):
         }
 
     def groups(self):
-        if self.dict_.has_key('groups'):
+        if 'groups' in self.dict_:
             return self.dict_['groups']
         return []
 
     def add_group_attributes(self, label, statustip=None, icon=None, icontype=None):
-        if not self.dict_.has_key('groups'):
+        if 'groups' not in self.dict_:
             self.dict_['groups'] = []
         self.dict_['groups'].append({
             'label': label,

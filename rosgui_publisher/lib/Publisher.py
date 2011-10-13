@@ -66,7 +66,7 @@ class Publisher(QDockWidget):
         try:
             __import__(package_name + '.msg')
             package_module = sys.modules[package_name + '.msg']
-        except:
+        except Exception:
             qDebug('Publisher.add_message_package(): failed to import %s' % (package_name + '.msg'))
             return
         message_types = inspect.getmembers(package_module, inspect.isclass)
@@ -82,10 +82,10 @@ class Publisher(QDockWidget):
 
 
     def check_valid_message_type(self, type_str):
-        if not self.message_classes_.has_key(type_str):
+        if type_str not in self.message_classes_:
             package_name = type_str.split('/', 1)[0]
             self.add_message_package(package_name)
-            if not self.message_classes_.has_key(type_str):
+            if type_str not in self.message_classes_:
                 qDebug('Publisher.on_add_publisher_button_clicked(): failed to resolve message type "%s"' % type_str)
                 return False
             self.update_comboType()
@@ -152,7 +152,7 @@ class Publisher(QDockWidget):
         item = QTreeWidgetItem(parent)
         item.setText(self.column_index['topic'], topic_text)
         item.setText(self.column_index['type'], type_name)
-        if expressions.has_key(topic_name):
+        if topic_name in expressions:
             item.setText(self.column_index['expression'], expressions[topic_name])
         elif not hasattr(message, '__slots__'):
             item.setText(self.column_index['expression'], repr(message))
@@ -208,7 +208,7 @@ class Publisher(QDockWidget):
             slot_key = topic_name + '/' + slot_name
 
             # if no expression exists for this slot_key, continue with it's child slots
-            if not expressions.has_key(slot_key):
+            if slot_key not in expressions:
                 self.fill_message_slots(getattr(message, slot_name), slot_key, expressions, counter)
                 continue
 
@@ -236,7 +236,7 @@ class Publisher(QDockWidget):
         try:
             # try to evaluate expression
             value = eval(expression, {}, self.eval_locals)
-        except:
+        except Exception:
             # just use expression-string as value
             value = expression
             successful_eval = False
@@ -244,7 +244,7 @@ class Publisher(QDockWidget):
         try:
             # try to convert value to right type
             value = slot_type(value)
-        except:
+        except Exception:
             successful_conversion = False
 
         if successful_conversion:

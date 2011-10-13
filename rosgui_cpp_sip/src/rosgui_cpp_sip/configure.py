@@ -50,7 +50,7 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
 # Add the library we are wrapping.  The name doesn't include any platform
 # specific prefixes or extensions (e.g. the 'lib' prefix on UNIX, or the
 # '.dll' extension on Windows).
-if not os.environ.has_key('ROS_ROOT'):
+if 'ROS_ROOT' not in os.environ:
     print 'ROS_ROOT was not found in evironment, please setup ROS!'
     exit(1)
 

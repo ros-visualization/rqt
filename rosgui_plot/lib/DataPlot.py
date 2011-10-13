@@ -91,7 +91,7 @@ class DataPlot(Qwt.QwtPlot):
 
     def removeCurve(self, curveId):
         curveId = str(curveId)
-        if self.curves.has_key(curveId):
+        if curveId in self.curves:
             self.curves[curveId]['object'].hide()
             self.curves[curveId]['object'].attach(None)
             del self.curves[curveId]['object']
@@ -106,7 +106,7 @@ class DataPlot(Qwt.QwtPlot):
     def updateValue(self, curveId, value):
         curveId = str(curveId)
         # update data plot
-        if (not self.pauseFlag) and self.curves.has_key(curveId):
+        if (not self.pauseFlag) and curveId in self.curves:
             self.curves[curveId]['data'] = concatenate((self.curves[curveId]['data'][1:], self.curves[curveId]['data'][:1]), 1)
             self.curves[curveId]['data'][-1] = float(value)
 
@@ -120,7 +120,7 @@ class DataPlot(Qwt.QwtPlot):
 
     def hasCurve(self, curveId):
         curveId = str(curveId)
-        return self.curves.has_key(curveId)
+        return curveId in self.curves
 
     def redraw(self):
         for curveId in self.curves.keys():

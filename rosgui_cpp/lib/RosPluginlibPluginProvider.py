@@ -19,7 +19,7 @@ class RosPluginlibPluginProvider(PluginProvider):
             action_attributes = plugin['action']
             plugin_descriptor.set_action_attributes(action_attributes['label'], action_attributes.get('statustip', None), action_attributes.get('icon', None), action_attributes.get('icontype', None))
 
-            groups = plugin['groups'] if plugin.has_key('groups') else {}
+            groups = plugin['groups'] if 'groups' in plugin else {}
             for group in groups.values():
                 plugin_descriptor.add_group_attributes(group['label'], group['statustip'], group['icon'], group['icontype'])
 
@@ -49,7 +49,7 @@ class RosPluginlibPluginProvider(PluginProvider):
             keys = str(key).split('.')
             current_level = dictionary
             for i in keys[:-1]:
-                if not current_level.has_key(i):
+                if i not in current_level:
                     current_level[i] = {}
                 current_level = current_level[i]
             current_level[keys[-1]] = str(value) if value != '' else None
