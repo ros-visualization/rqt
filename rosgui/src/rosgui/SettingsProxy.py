@@ -63,7 +63,7 @@ class SettingsProxy(QObject):
         self.qsettings_.setValue(key, value)
         self.qsettings_.endGroup()
 
-    def value(self, group, key, defaultValue):
+    def value(self, group, key, defaultValue=None):
         locker = QMutexLocker(self.mutex_) #@UnusedVariable
         self.qsettings_.beginGroup(group)
         v = self.qsettings_.value(key, defaultValue)

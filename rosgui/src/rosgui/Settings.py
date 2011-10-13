@@ -45,3 +45,22 @@ class Settings(QObject):
     @Slot(str, 'QVariant', result='QVariant')
     def value(self, key, defaultValue=None):
         return self.settings_proxy_.value(self.group_, key, defaultValue)
+
+    def to_dict(self):
+        keys = {}
+        for key in self.child_keys():
+            keys[str(key)] = self.value(key)
+        groups = {}
+        for group in self.child_groups():
+            settings = self.get_settings(group)
+            groups[str(group)] = settings.to_dict()
+        return {'keys': keys, 'groups': groups}
+
+    def from_dict(self, data):
+        keys = data['keys'] if data.has_key('keys') else {}
+        for key in keys:
+            self.set_value(key, keys[key])
+        groups = data['groups'] if data.has_key('groups') else {}
+        for group in groups:
+            settings = self.get_settings(group)
+            settings.from_dict(groups[group])
