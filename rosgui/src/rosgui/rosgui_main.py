@@ -134,7 +134,12 @@ def rosgui_main():
 
     main_window.show()
 
-    return app.exec_()
+    exit_code = app.exec_()
+
+    # explicitly sync settings to file before exiting
+    settings.sync()
+
+    return exit_code
 
 
 if __name__ == '__main__':
