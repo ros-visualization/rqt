@@ -64,6 +64,10 @@ class PerspectiveManager(QObject):
             self.menu_manager_.set_item_checked(self.current_perspective_, False)
             self.menu_manager_.set_item_disabled(self.current_perspective_, False)
 
+        # create perspective if necessary 
+        if name not in self.perspectives_:
+            self.__create_perspective(name, clone_perspective=False)
+
         # update current perspective
         self.current_perspective_ = name
         self.menu_manager_.set_item_checked(self.current_perspective_, True)
@@ -71,13 +75,6 @@ class PerspectiveManager(QObject):
         if not self.current_perspective_.startswith(self.HIDDEN_PREFIX):
             self.settings_proxy_.set_value('', 'current-perspective', self.current_perspective_)
         self.perspective_settings_ = self._get_perspective_settings(self.current_perspective_)
-
-        # create perspective if necessary 
-        if name not in self.perspectives_:
-            qDebug('PerspectiveManager.switch_perspective(): unknown perspective %s' % name)
-            self.__create_perspective(name, clone_perspective=False)
-            self.switch_perspective(name, settings_changed=True, save_before=False)
-            return
 
         # emit signals
         self.perspective_changed_signal.emit(self.current_perspective_.lstrip(self.HIDDEN_PREFIX))
@@ -186,8 +183,8 @@ class PerspectiveManager(QObject):
             self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
 
         # clone settings
-        new_settings = self._get_perspective_settings(name)
         if clone_perspective:
+            new_settings = self._get_perspective_settings(name)
             keys = self.perspective_settings_.all_keys()
             for key in keys:
                 value = self.perspective_settings_.value(key)
