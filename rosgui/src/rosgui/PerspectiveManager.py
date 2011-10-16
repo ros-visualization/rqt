@@ -270,7 +270,7 @@ class PerspectiveManager(QObject):
 
     def _on_export_perspective(self):
         file_name = QFileDialog.getSaveFileName (self.menu_manager_.menu(), self.tr('Export perspective to file'), self.current_perspective_ + '.perspective', self.tr('Perspectives (*.perspective)'))
-        if file_name is None:
+        if file_name is None or file_name == '':
             return
 
         # trigger save of perspective before export
