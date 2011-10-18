@@ -11,7 +11,6 @@ namespace rosgui_cpp
 {
 
 class Settings
-  : private GenericProxy
 {
 
 public:
@@ -41,6 +40,10 @@ public:
   void setValue(const QString& key, const QVariant& value);
 
   QVariant value(const QString& key, const QVariant& defaultValue = QVariant()) const;
+
+protected:
+
+  GenericProxy proxy_;
 
 };
 
