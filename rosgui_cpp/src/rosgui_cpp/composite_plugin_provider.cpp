@@ -9,6 +9,15 @@ CompositePluginProvider::CompositePluginProvider(const QList<PluginProvider*>& p
   , plugin_providers_(plugin_providers)
 {}
 
+CompositePluginProvider::~CompositePluginProvider()
+{
+  for (QList<PluginProvider*>::iterator it = plugin_providers_.begin(); it != plugin_providers_.end(); it++)
+  {
+    qDebug("CompositePluginProvider::~CompositePluginProvider() pp");
+    delete *it;
+  }
+}
+
 void CompositePluginProvider::set_plugin_providers(const QList<PluginProvider*>& plugin_providers)
 {
   plugin_providers_ = plugin_providers;

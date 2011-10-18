@@ -20,6 +20,8 @@ public:
 
   CompositePluginProvider(const QList<PluginProvider*>& plugin_providers = QList<PluginProvider*>());
 
+  virtual ~CompositePluginProvider();
+
   virtual void set_plugin_providers(const QList<PluginProvider*>& plugin_providers);
 
   virtual QList<PluginDescriptor*> discover_descriptors();

@@ -19,6 +19,8 @@ public:
 
   PluginProvider();
 
+  virtual ~PluginProvider();
+
   virtual QMap<QString, QString> discover();
 
   /**

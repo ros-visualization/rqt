@@ -12,6 +12,8 @@ public:
 
   RecursivePluginProvider(rosgui_cpp::RosPluginlibPluginProvider_ForPluginProviders* plugin_provider);
 
+  virtual ~RecursivePluginProvider();
+
   virtual QMap<QString, QString> discover();
 
 };

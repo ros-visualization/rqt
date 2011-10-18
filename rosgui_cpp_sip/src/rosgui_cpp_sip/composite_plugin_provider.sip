@@ -12,6 +12,8 @@ public:
 
   CompositePluginProvider(const QList<rosgui_cpp::PluginProvider*>& plugin_providers = QList<rosgui_cpp::PluginProvider*>());
 
+  virtual ~CompositePluginProvider();
+
   virtual void set_plugin_providers(const QList<rosgui_cpp::PluginProvider*>& plugin_providers);
 
   virtual QList<rosgui_cpp::PluginDescriptor*> discover_descriptors();

@@ -9,6 +9,11 @@ RecursivePluginProvider::RecursivePluginProvider(RosPluginlibPluginProvider_ForP
   , plugin_provider_(plugin_provider)
 {}
 
+RecursivePluginProvider::~RecursivePluginProvider()
+{
+  delete plugin_provider_;
+}
+
 QMap<QString, QString> RecursivePluginProvider::discover()
 {
   // discover plugins, which are providers themselves

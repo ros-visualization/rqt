@@ -23,6 +23,19 @@ RosCppPluginProvider::RosCppPluginProvider()
   set_plugin_providers(plugin_providers);
 }
 
+RosCppPluginProvider::~RosCppPluginProvider()
+{
+  if (callback_manager_)
+  {
+    delete callback_manager_;
+  }
+
+  if (ros::isStarted())
+  {
+    ros::shutdown();
+  }
+}
+
 QList<rosgui_cpp::PluginDescriptor*> RosCppPluginProvider::discover_descriptors()
 {
   // initialize ROS nodelet manager

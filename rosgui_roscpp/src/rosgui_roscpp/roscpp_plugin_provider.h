@@ -17,6 +17,8 @@ public:
 
   RosCppPluginProvider();
 
+  virtual ~RosCppPluginProvider();
+
   virtual QList<rosgui_cpp::PluginDescriptor*> discover_descriptors();
 
   std::string manager_name_;

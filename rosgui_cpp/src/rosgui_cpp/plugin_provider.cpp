@@ -5,6 +5,9 @@ namespace rosgui_cpp {
 PluginProvider::PluginProvider()
 {}
 
+PluginProvider::~PluginProvider()
+{}
+
 QMap<QString, QString> PluginProvider::discover()
 {
   QMap<QString, QString> plugins;
@@ -27,7 +30,7 @@ QList<PluginDescriptor*> PluginProvider::discover_descriptors()
 
 void* PluginProvider::load(const QString& plugin_id, PluginContext* plugin_context)
 {
-  return 0;
+  return load_plugin(plugin_id, plugin_context);
 }
 
 Plugin* PluginProvider::load_plugin(const QString& plugin_id, PluginContext* plugin_context)
