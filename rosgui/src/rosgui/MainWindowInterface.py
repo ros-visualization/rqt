@@ -63,12 +63,12 @@ class MainWindowInterface(QWidget):
             title_bar.connect_button('help', self._help_request)
             title_bar.connect_button('reload', self._reload_request)
 
-        # connect settings button to plugin instance
-        if hasattr(self.plugin_instance_, 'settings_request'):
-            title_bar.connect_button('settings', getattr(self.plugin_instance_, 'settings_request'))
-            title_bar.show_button('settings')
-        else:
-            title_bar.hide_button('settings')
+            # connect settings button to plugin instance
+            if hasattr(self.plugin_instance_, 'settings_request'):
+                title_bar.connect_button('settings', getattr(self.plugin_instance_, 'settings_request'))
+                title_bar.show_button('settings')
+            else:
+                title_bar.hide_button('settings')
 
 
     def _help_request(self):
