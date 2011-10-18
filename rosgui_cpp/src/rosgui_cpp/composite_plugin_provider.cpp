@@ -13,7 +13,6 @@ CompositePluginProvider::~CompositePluginProvider()
 {
   for (QList<PluginProvider*>::iterator it = plugin_providers_.begin(); it != plugin_providers_.end(); it++)
   {
-    qDebug("CompositePluginProvider::~CompositePluginProvider() pp");
     delete *it;
   }
 }

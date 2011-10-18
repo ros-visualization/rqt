@@ -38,6 +38,13 @@ class MainWindowInterface(QWidget):
         self._update_title_bar(dock_widget)
 
 
+    # pointer to QDockWidget must be used for PySide to work (at least with 1.0.1)
+    @Slot('QDockWidget*')
+    def removeDockWidget(self, dock_widget):
+        self.main_window_.removeDockWidget(dock_widget)
+        self.dock_widgets_.remove(dock_widget)
+
+
     # pointer to QObject must be used for PySide to work (at least with 1.0.1)
     @Slot('QObject*')
     def set_plugin_instance(self, plugin_instance):

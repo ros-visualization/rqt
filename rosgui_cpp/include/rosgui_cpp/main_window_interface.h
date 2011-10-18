@@ -22,6 +22,8 @@ public:
 
   virtual void addDockWidget(Qt::DockWidgetArea area, QDockWidget* dock_widget);
 
+  virtual void removeDockWidget(QDockWidget* dock_widget);
+
   virtual void set_plugin_instance(PluginBridge* plugin_instance);
 
 protected:

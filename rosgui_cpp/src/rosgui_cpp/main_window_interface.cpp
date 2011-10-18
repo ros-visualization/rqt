@@ -20,6 +20,12 @@ void MainWindowInterface::addDockWidget(Qt::DockWidgetArea area, QDockWidget* do
   if (!rc) throw std::runtime_error("MainWindowInterface::addDockWidget() invoke method failed");
 }
 
+void MainWindowInterface::removeDockWidget(QDockWidget* dock_widget)
+{
+  bool rc = proxy_.invokeMethod("removeDockWidget", Q_ARG(QDockWidget*, dock_widget));
+  if (!rc) throw std::runtime_error("MainWindowInterface::removeDockWidget() invoke method failed");
+}
+
 void MainWindowInterface::set_plugin_instance(PluginBridge* plugin_instance)
 {
   bool rc = proxy_.invokeMethod("set_plugin_instance", Q_ARG(QObject*, plugin_instance));
