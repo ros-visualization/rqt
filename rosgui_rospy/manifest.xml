@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_rospy">
+  <description brief="Foundation for plugins using rospy">
 
-     rosgui_rospy
+     rosgui_rospy enables rosgui plugins to use the Python client library for ROS.
 
   </description>
   <author>Dirk Thomas</author>

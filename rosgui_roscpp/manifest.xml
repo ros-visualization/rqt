@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_roscpp">
+  <description brief="Foundation for plugins using roscpp">
 
-     rosgui_roscpp
+     rosgui_roscpp enables rosgui plugins to use the C++ client library for ROS.
 
   </description>
   <author>Dirk Thomas</author>

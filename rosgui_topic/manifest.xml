@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_topic">
+  <description brief="Plugin for displaying topic information">
 
-     rosgui_topic
+     rosgui_topic provides a rosgui plugin for displaying debug information about ROS topics including publishers, subscribers, publishing rate, and ROS Messages.
 
   </description>
   <author>Dorian Scholz</author>

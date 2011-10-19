@@ -1,0 +1,6 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b rosgui_py_common provides common functionality for rosgui plugins written in Python.
+*/

@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_pose_view">
+  <description brief="Plugin for visualizing 3D poses">
 
-     rosgui_pose_view
+     rosgui_pose_view provides a rosgui plugin for visualizing 3D poses.
 
   </description>
   <author>Dorian Scholz</author>

@@ -1,7 +1,8 @@
 <package>
-  <description brief="rosgui_cpp">
+  <description brief="Foundation for C++-bindings">
 
-     rosgui_cpp
+     rosgui_cpp provides the foundation for C++-bindings for rosgui.
+     At least one specific binding (from the packages rosgui_cpp_*) must be built in order to use C++-plugins.
 
   </description>
   <author>Dirk Thomas</author>

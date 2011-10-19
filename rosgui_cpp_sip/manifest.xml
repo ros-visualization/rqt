@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_cpp_sip">
+  <description brief="SIP C++-bindings">
 
-     rosgui_cpp_sip
+     rosgui_cpp_sip provides SIP C++-bindings for rosgui.
 
   </description>
   <author>Dirk Thomas</author>

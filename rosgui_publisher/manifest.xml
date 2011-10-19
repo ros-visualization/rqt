@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_publisher">
+  <description brief="Plugin for publishing arbitrary messages">
 
-     rosgui_publisher
+     rosgui_publisher provides a rosgui plugin for publishing arbitrary messages with fixed or computed field values.
 
   </description>
   <author>Dorian Scholz</author>

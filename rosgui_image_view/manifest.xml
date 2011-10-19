@@ -1,7 +1,7 @@
 <package>
-  <description brief="rosgui_image_view">
+  <description brief="Plugin for displaying images">
 
-     rosgui_image_view
+     rosgui_image_view provides a rosgui plugin for displaying images using image_transport.
 
   </description>
   <author>Dirk Thomas</author>
