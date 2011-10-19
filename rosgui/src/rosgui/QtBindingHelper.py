@@ -61,7 +61,7 @@ def pyqt():
         pass
 
     global loadUi
-    def loadUi(uifile, baseinstance=None, user_classes={}):
+    def loadUi(uifile, baseinstance=None, custom_widgets=None):
         from PyQt4 import uic
         return uic.loadUi(uifile, baseinstance=baseinstance)
 
@@ -88,29 +88,37 @@ def pyside():
         pass
 
     global loadUi
-    def loadUi(uifile, baseinstance=None, user_classes={}):
+    def loadUi(uifile, baseinstance=None, custom_widgets=None):
         from PySide.QtUiTools import QUiLoader
         from PySide.QtCore import QMetaObject
 
         class CustomUiLoader(QUiLoader):
-            def __init__(self, baseinstance):
-                super(CustomUiLoader, self).__init__()
-                self.baseinstance = baseinstance
+            def __init__(self, baseinstance=None, custom_widgets=None):
+                super(CustomUiLoader, self).__init__(baseinstance)
+                self._base_instance = baseinstance
+                self._custom_widgets = custom_widgets or {}
 
             def createWidget(self, className, parent=None, name=""):
-                if className in user_classes:
-                    widget = user_classes[className](parent)
+                if className in self._custom_widgets:
+                    widget = self._custom_widgets[className](parent)
                 else:
                     widget = QUiLoader.createWidget(self, className, parent, name)
-                if str(type(_widget)).find(className) < 0:
-                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find _widget class "%s", defaulting to "%s"' % (className, type(widget))))
+                if str(type(widget)).find(className) < 0:
+                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (className, type(widget))))
                 if parent is None:
-                    return self.baseinstance
-                else:
-                    setattr(self.baseinstance, name, widget)
-                    return widget
+                    return self._base_instance
+                setattr(self._base_instance, name, widget)
+                return widget
 
-        loader = CustomUiLoader(baseinstance)
+        loader = CustomUiLoader(baseinstance, custom_widgets)
+
+        # instead of passing the custom widgets, they should be registered using QUiLoader.registerCustomWidget(),
+        # but this does not work in PySide 1.0.6: it simply segfaults...
+        #loader = CustomUiLoader(baseinstance)
+        #custom_widgets = custom_widgets or {}
+        #for custom_widget in custom_widgets.values():
+        #    loader.registerCustomWidget(custom_widget)
+
         ui = loader.load(uifile)
         QMetaObject.connectSlotsByName(ui)
         return ui

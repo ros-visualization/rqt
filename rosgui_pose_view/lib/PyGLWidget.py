@@ -47,7 +47,7 @@ class PyGLWidget(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         glformat = QtOpenGL.QGLFormat()
         glformat.setSampleBuffers(True)
-        super(QtOpenGL.QGLWidget, self).__init__(glformat, parent)
+        super(PyGLWidget, self).__init__(glformat, parent)
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setMouseTracking(True)
 
