@@ -31,11 +31,11 @@ class Plot(QDockWidget):
 
         self.subscribe_topic_button.setEnabled(False)
 
-        self.topic_completer = TopicCompleter(self.topic_edit)
-        self.topic_edit.setCompleter(self.topic_completer)
+        self._topic_completer = TopicCompleter(self.topic_edit)
+        self.topic_edit.setCompleter(self._topic_completer)
 
-        self.start_time = rospy.get_time()
-        self.rosdata_ = {}
+        self._start_time = rospy.get_time()
+        self._rosdata = {}
 
         # setup drag 'n drop
         self.data_plot.dropEvent = self.dropEvent
@@ -49,13 +49,13 @@ class Plot(QDockWidget):
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
 
         # init and start update timer for plot
-        self.timerUpdatePlot = QTimer(self)
-        self.timerUpdatePlot.timeout.connect(self.update_plot)
-        self.timerUpdatePlot.start(40)
+        self._update_plot_timer = QTimer(self)
+        self._update_plot_timer.timeout.connect(self.update_plot)
+        self._update_plot_timer.start(40)
 
 
     def update_plot(self):
-        for topic_name, rosdata in self.rosdata_.items():
+        for topic_name, rosdata in self._rosdata.items():
             # TODO: use data_x as time stamp
             data_x, data_y = rosdata.next() #@UnusedVariable
             for value in data_y:
@@ -123,7 +123,7 @@ class Plot(QDockWidget):
     def on_topic_edit_textChanged(self, topic_name):
         # on empty topic name, update topics 
         if topic_name in ('', '/'):
-            self.topic_completer.update_topics()
+            self._topic_completer.update_topics()
 
         # check for numeric field type
         field_type = self._get_field_type(topic_name)
@@ -141,12 +141,12 @@ class Plot(QDockWidget):
 
 
     def add_topic(self, topic_name):
-        if topic_name in self.rosdata_:
+        if topic_name in self._rosdata:
             qDebug('Plot.add_topic(): topic already subscribed: %s' % topic_name)
             return
 
         self.data_plot.addCurve(topic_name, topic_name)
-        self.rosdata_[topic_name] = ROSData(topic_name, self.start_time)
+        self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
 
 
     @Slot()
@@ -155,19 +155,17 @@ class Plot(QDockWidget):
 
 
     def clean_up_subscribers(self):
-        for topic_name, rosdata in self.rosdata_.items():
+        for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.removeCurve(topic_name)
-        self.rosdata_ = {}
+        self._rosdata = {}
 
 
     def save_settings(self, global_settings, perspective_settings):
-        #perspective_settings.set_value('publishing_', self.publishing_)
         pass
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        #self.publishing_ = perspective_settings.value('publishing_') in [True, 'true']
         pass
 
 

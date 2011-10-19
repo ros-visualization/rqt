@@ -14,28 +14,28 @@ class PoseView(QObject):
         super(PoseView, self).__init__(parent)
         self.setObjectName('PoseView')
 
-        self.widget_ = PoseViewWidget.PoseViewWidget(self, plugin_context)
+        self._widget = PoseViewWidget.PoseViewWidget(self, plugin_context)
         self.set_name('Pose View')
 
         if plugin_context.serial_number() != 1:
-            self.widget_.setWindowTitle(self.widget_.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
-        # add widget to the main window
-        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self.widget_)
+        # add _widget to the main window
+        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self._widget)
 
 
     def set_name(self, name):
-        self.widget_.setWindowTitle(name)
+        self._widget.setWindowTitle(name)
 
 
     def save_settings(self, global_settings, perspective_settings):
-        self.widget_.save_settings(global_settings, perspective_settings)
+        self._widget.save_settings(global_settings, perspective_settings)
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        self.widget_.restore_settings(global_settings, perspective_settings)
+        self._widget.restore_settings(global_settings, perspective_settings)
 
 
     def close_plugin(self):
-        QDockWidget.close(self.widget_)
-        self.widget_.deleteLater()
+        QDockWidget.close(self._widget)
+        self._widget.deleteLater()

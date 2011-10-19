@@ -11,18 +11,18 @@ class RecursivePluginProvider(CompositePluginProvider):
         super(RecursivePluginProvider, self).__init__([])
         self.setObjectName('RecursivePluginProvider')
 
-        self.plugin_provider_ = plugin_provider
+        self._plugin_provider = plugin_provider
 
     def discover(self):
         # discover plugins, which are providers themselves
-        plugin_descriptors = self.plugin_provider_.discover()
+        plugin_descriptors = self._plugin_provider.discover()
 
         # instantiate plugins
         plugin_providers = []
         for plugin_descriptor in plugin_descriptors:
             try:
                 # pass None as PluginContext for PluginProviders
-                instance = self.plugin_provider_.load(plugin_descriptor.plugin_id(), None)
+                instance = self._plugin_provider.load(plugin_descriptor.plugin_id(), None)
             except Exception:
                 qCritical('RecursivePluginProvider.discover() loading plugin "%s" failed:\n%s' % (str(plugin_descriptor.plugin_id()), traceback.format_exc()))
             else:

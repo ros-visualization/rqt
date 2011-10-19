@@ -10,7 +10,6 @@ class AboutHandler(QObject):
 
     def __init__(self, parent=None):
         super(AboutHandler, self).__init__(parent)
-        self.parent_ = parent
 
     def show(self):
         # append folder of 'rosgui_cpp/lib' to module search path
@@ -64,4 +63,4 @@ class AboutHandler(QObject):
 
         text += '.</p>'
 
-        QMessageBox.about(self.parent_, self.tr('About ROS GUI'), text)
+        QMessageBox.about(self.parent(), self.tr('About ROS GUI'), text)

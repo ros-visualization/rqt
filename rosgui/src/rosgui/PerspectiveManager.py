@@ -21,29 +21,29 @@ class PerspectiveManager(QObject):
         super(PerspectiveManager, self).__init__()
         self.setObjectName('PerspectiveManager')
 
-        self.settings_proxy_ = SettingsProxy(settings)
-        self.global_settings_ = Settings(self.settings_proxy_, 'global')
-        self.perspective_settings_ = None
-        self.create_perspective_dialog = None
+        self._settings_proxy = SettingsProxy(settings)
+        self._global_settings = Settings(self._settings_proxy, 'global')
+        self._perspective_settings = None
+        self._create_perspective_dialog = None
 
-        self.menu_manager_ = MenuManager(menu)
-        self.perspective_mapper_ = QSignalMapper(menu)
-        self.perspective_mapper_.mapped[str].connect(self.switch_perspective)
+        self._menu_manager = MenuManager(menu)
+        self._perspective_mapper = QSignalMapper(menu)
+        self._perspective_mapper.mapped[str].connect(self.switch_perspective)
 
         # get perspective list from settings
-        self.perspectives_ = self.settings_proxy_.value('', 'perspectives', [])
-        if isinstance(self.perspectives_, basestring):
-            self.perspectives_ = [ self.perspectives_ ]
+        self._perspectives = self._settings_proxy.value('', '_perspectives', [])
+        if isinstance(self._perspectives, basestring):
+            self._perspectives = [ self._perspectives ]
 
-        self.current_perspective_ = None
-        self.remove_action_ = None
+        self._current_perspective = None
+        self._remove_action = None
 
-        self.__generate_menu()
+        self._generate_menu()
 
 
     def set_perspective(self, name, hide_perspective=False):
         if name is None:
-            name = self.settings_proxy_.value('', 'current-perspective', 'Default')
+            name = self._settings_proxy.value('', 'current-perspective', 'Default')
         elif hide_perspective:
             name = self.HIDDEN_PREFIX + name
         self.switch_perspective(name)
@@ -53,86 +53,86 @@ class PerspectiveManager(QObject):
     @Slot(str, bool)
     @Slot(str, bool, bool)
     def switch_perspective(self, name, settings_changed=True, save_before=True):
-        if save_before and self.global_settings_ is not None and self.perspective_settings_ is not None:
-            self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+        if save_before and self._global_settings is not None and self._perspective_settings is not None:
+            self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
         # convert from unicode
         name = str(name)
 
         qDebug('PerspectiveManager.switch_perspective() switching to perspective "%s"' % name)
-        if self.current_perspective_ is not None:
-            self.menu_manager_.set_item_checked(self.current_perspective_, False)
-            self.menu_manager_.set_item_disabled(self.current_perspective_, False)
+        if self._current_perspective is not None:
+            self._menu_manager.set_item_checked(self._current_perspective, False)
+            self._menu_manager.set_item_disabled(self._current_perspective, False)
 
         # create perspective if necessary 
-        if name not in self.perspectives_:
-            self.__create_perspective(name, clone_perspective=False)
+        if name not in self._perspectives:
+            self._create_perspective(name, clone_perspective=False)
 
         # update current perspective
-        self.current_perspective_ = name
-        self.menu_manager_.set_item_checked(self.current_perspective_, True)
-        self.menu_manager_.set_item_disabled(self.current_perspective_, True)
-        if not self.current_perspective_.startswith(self.HIDDEN_PREFIX):
-            self.settings_proxy_.set_value('', 'current-perspective', self.current_perspective_)
-        self.perspective_settings_ = self._get_perspective_settings(self.current_perspective_)
+        self._current_perspective = name
+        self._menu_manager.set_item_checked(self._current_perspective, True)
+        self._menu_manager.set_item_disabled(self._current_perspective, True)
+        if not self._current_perspective.startswith(self.HIDDEN_PREFIX):
+            self._settings_proxy.set_value('', 'current-perspective', self._current_perspective)
+        self._perspective_settings = self._get_perspective_settings(self._current_perspective)
 
         # emit signals
-        self.perspective_changed_signal.emit(self.current_perspective_.lstrip(self.HIDDEN_PREFIX))
+        self.perspective_changed_signal.emit(self._current_perspective.lstrip(self.HIDDEN_PREFIX))
         if settings_changed:
-            self.restore_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+            self.restore_settings_signal.emit(self._global_settings, self._perspective_settings)
 
 
     def _get_perspective_settings(self, perspective_name):
-        return Settings(self.settings_proxy_, 'perspective/%s' % perspective_name)
+        return Settings(self._settings_proxy, 'perspective/%s' % perspective_name)
 
 
-    def __generate_menu(self):
-        create_action = QAction('Create perspective...', self.menu_manager_.menu())
+    def _generate_menu(self):
+        create_action = QAction('Create perspective...', self._menu_manager.menu)
         create_action.setIcon(QIcon.fromTheme('list-add'))
         create_action.setIconVisibleInMenu(True)
         create_action.triggered.connect(self._on_create_perspective)
-        self.menu_manager_.add_suffix(create_action)
+        self._menu_manager.add_suffix(create_action)
 
-        self.remove_action_ = QAction('Remove perspective...', self.menu_manager_.menu())
-        self.remove_action_.setEnabled(False)
-        self.remove_action_.setIcon(QIcon.fromTheme('list-remove'))
-        self.remove_action_.setIconVisibleInMenu(True)
-        self.remove_action_.triggered.connect(self._on_remove_perspective)
-        self.menu_manager_.add_suffix(self.remove_action_)
+        self._remove_action = QAction('Remove perspective...', self._menu_manager.menu)
+        self._remove_action.setEnabled(False)
+        self._remove_action.setIcon(QIcon.fromTheme('list-remove'))
+        self._remove_action.setIconVisibleInMenu(True)
+        self._remove_action.triggered.connect(self._on_remove_perspective)
+        self._menu_manager.add_suffix(self._remove_action)
 
-        self.menu_manager_.add_suffix(None)
+        self._menu_manager.add_suffix(None)
 
-        import_action = QAction('Import...', self.menu_manager_.menu())
+        import_action = QAction('Import...', self._menu_manager.menu)
         import_action.setIcon(QIcon.fromTheme('document-open'))
         import_action.setIconVisibleInMenu(True)
         import_action.triggered.connect(self._on_import_perspective)
-        self.menu_manager_.add_suffix(import_action)
+        self._menu_manager.add_suffix(import_action)
 
-        export_action = QAction('Export...', self.menu_manager_.menu())
+        export_action = QAction('Export...', self._menu_manager.menu)
         export_action.setIcon(QIcon.fromTheme('document-save-as'))
         export_action.setIconVisibleInMenu(True)
         export_action.triggered.connect(self._on_export_perspective)
-        self.menu_manager_.add_suffix(export_action)
+        self._menu_manager.add_suffix(export_action)
 
-        # add perspectives to menu
-        for name in self.perspectives_:
+        # add _perspectives to menu
+        for name in self._perspectives:
             if not name.startswith(self.HIDDEN_PREFIX):
-                self.__add_perspective_action(name)
+                self._add_perspective_action(name)
 
 
     def _on_create_perspective(self):
-        name = self.__choose_new_perspective_name()
+        name = self._choose_new_perspective_name()
         if name is not None:
-            clone_perspective = self.create_perspective_dialog.clone_checkbox.isChecked()
-            self.__create_perspective(name, clone_perspective)
+            clone_perspective = self._create_perspective_dialog.clone_checkbox.isChecked()
+            self._create_perspective(name, clone_perspective)
             self.switch_perspective(name, settings_changed=not clone_perspective, save_before=False)
 
 
-    def __choose_new_perspective_name(self, show_cloning=True):
+    def _choose_new_perspective_name(self, show_cloning=True):
         # input dialog for new perspective name
-        if self.create_perspective_dialog is None:
+        if self._create_perspective_dialog is None:
             ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PerspectiveCreate.ui')
-            self.create_perspective_dialog = loadUi(ui_file)
+            self._create_perspective_dialog = loadUi(ui_file)
             # custom validator preventing forward slashs
             class CustomValidator(QValidator):
                 def __init__(self, parent=None):
@@ -146,99 +146,99 @@ class PerspectiveManager(QObject):
                     if value == '':
                         return (QValidator.Intermediate, value, pos)
                     return (QValidator.Acceptable, value, pos)
-            self.create_perspective_dialog.perspective_name_edit.setValidator(CustomValidator())
+            self._create_perspective_dialog.perspective_name_edit.setValidator(CustomValidator())
 
         # set default values
-        self.create_perspective_dialog.perspective_name_edit.setText('')
-        self.create_perspective_dialog.clone_checkbox.setChecked(True)
-        self.create_perspective_dialog.clone_checkbox.setVisible(show_cloning)
+        self._create_perspective_dialog.perspective_name_edit.setText('')
+        self._create_perspective_dialog.clone_checkbox.setChecked(True)
+        self._create_perspective_dialog.clone_checkbox.setVisible(show_cloning)
 
         # show dialog and wait for it's return value 
-        return_value = self.create_perspective_dialog.exec_()
-        if return_value == self.create_perspective_dialog.Rejected:
+        return_value = self._create_perspective_dialog.exec_()
+        if return_value == self._create_perspective_dialog.Rejected:
             return
 
-        name = str(self.create_perspective_dialog.perspective_name_edit.text()).lstrip(self.HIDDEN_PREFIX)
+        name = str(self._create_perspective_dialog.perspective_name_edit.text()).lstrip(self.HIDDEN_PREFIX)
         if name == '':
-            QMessageBox.warning(self.menu_manager_.menu(), self.tr('Empty perspective name'), self.tr('The name of the perspective must be non-empty.'))
+            QMessageBox.warning(self._menu_manager.menu, self.tr('Empty perspective name'), self.tr('The name of the perspective must be non-empty.'))
             return
-        if name in self.perspectives_:
-            QMessageBox.warning(self.menu_manager_.menu(), self.tr('Duplicate perspective name'), self.tr('A perspective with the same name already exists.'))
+        if name in self._perspectives:
+            QMessageBox.warning(self._menu_manager.menu, self.tr('Duplicate perspective name'), self.tr('A perspective with the same name already exists.'))
             return
         return name
 
-    def __create_perspective(self, name, clone_perspective=True):
+    def _create_perspective(self, name, clone_perspective=True):
         # convert from unicode
         name = str(name)
         if name.find('/') != -1:
-            raise RuntimeError('PerspectiveManager.__create_perspective() name must not contain forward slashs (/)')
+            raise RuntimeError('PerspectiveManager._create_perspective() name must not contain forward slashs (/)')
 
-        qDebug('PerspectiveManager.__create_perspective(%s, %s)' % (name, clone_perspective))
-        # add to list of perspectives
-        self.perspectives_.append(name)
-        self.settings_proxy_.set_value('', 'perspectives', self.perspectives_)
+        qDebug('PerspectiveManager._create_perspective(%s, %s)' % (name, clone_perspective))
+        # add to list of _perspectives
+        self._perspectives.append(name)
+        self._settings_proxy.set_value('', '_perspectives', self._perspectives)
 
         # save current settings
-        if self.global_settings_ is not None and self.perspective_settings_ is not None:
-            self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+        if self._global_settings is not None and self._perspective_settings is not None:
+            self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
         # clone settings
         if clone_perspective:
             new_settings = self._get_perspective_settings(name)
-            keys = self.perspective_settings_.all_keys()
+            keys = self._perspective_settings.all_keys()
             for key in keys:
-                value = self.perspective_settings_.value(key)
+                value = self._perspective_settings.value(key)
                 new_settings.set_value(key, value)
 
         # add and switch to perspective
-        self.__add_perspective_action(name)
+        self._add_perspective_action(name)
 
 
-    def __add_perspective_action(self, name):
+    def _add_perspective_action(self, name):
         # create action
-        action = QAction(name, self.menu_manager_.menu())
+        action = QAction(name, self._menu_manager.menu)
         action.setCheckable(True)
-        self.perspective_mapper_.setMapping(action, name)
-        action.triggered.connect(self.perspective_mapper_.map)
+        self._perspective_mapper.setMapping(action, name)
+        action.triggered.connect(self._perspective_mapper.map)
 
         # add action to menu
-        self.menu_manager_.add_item(action)
+        self._menu_manager.add_item(action)
         # enable remove-action
-        if self.menu_manager_.count_items() > 1:
-            self.remove_action_.setEnabled(True)
+        if self._menu_manager.count_items() > 1:
+            self._remove_action.setEnabled(True)
 
 
     def _on_remove_perspective(self):
         # input dialog to choose perspective to be removed
-        names = list(self.perspectives_)
-        names.remove(self.current_perspective_)
-        name, return_value = QInputDialog.getItem(self.menu_manager_.menu(), self.menu_manager_.tr('Remove perspective'), self.menu_manager_.tr('Select the perspective'), names, 0, False)
+        names = list(self._perspectives)
+        names.remove(self._current_perspective)
+        name, return_value = QInputDialog.getItem(self._menu_manager.menu, self._menu_manager.tr('Remove perspective'), self._menu_manager.tr('Select the perspective'), names, 0, False)
         # convert from unicode
         name = str(name)
         if return_value == QInputDialog.Rejected:
             return
-        if name not in self.perspectives_:
+        if name not in self._perspectives:
             raise UserWarning('unknown perspective: %s' % name)
         qDebug('PerspectiveManager._on_remove_perspective(%s)' % str(name))
 
-        # remove from list of perspectives
-        self.perspectives_.remove(name)
-        self.settings_proxy_.set_value('', 'perspectives', self.perspectives_)
+        # remove from list of _perspectives
+        self._perspectives.remove(name)
+        self._settings_proxy.set_value('', '_perspectives', self._perspectives)
 
         # remove settings
         settings = self._get_perspective_settings(name)
         settings.remove('')
 
         # remove from menu
-        self.menu_manager_.remove_item(name)
+        self._menu_manager.remove_item(name)
 
         # disable remove-action
-        if self.menu_manager_.count_items() < 2:
-            self.remove_action_.setEnabled(False)
+        if self._menu_manager.count_items() < 2:
+            self._remove_action.setEnabled(False)
 
 
     def _on_import_perspective(self):
-        file_name = QFileDialog.getOpenFileName(self.menu_manager_.menu(), self.tr('Import perspective from file'), None, self.tr('Perspectives (*.perspective)'))
+        file_name = QFileDialog.getOpenFileName(self._menu_manager.menu, self.tr('Import perspective from file'), None, self.tr('Perspectives (*.perspective)'))
         if file_name is None or file_name == '':
             return
 
@@ -246,18 +246,18 @@ class PerspectiveManager(QObject):
         suffix = '.perspective'
         if perspective_name.endswith(suffix):
             perspective_name = perspective_name[:-len(suffix)]
-        if perspective_name in self.perspectives_:
-            perspective_name = self.__choose_new_perspective_name(False)
+        if perspective_name in self._perspectives:
+            perspective_name = self._choose_new_perspective_name(False)
             if perspective_name is None:
                 return
 
-        self.__create_perspective(perspective_name, clone_perspective=False)
+        self._create_perspective(perspective_name, clone_perspective=False)
 
         # read perspective from file
         file_handle = open(file_name, 'r')
         #data = eval(file_handle.read())
         data = json.loads(file_handle.read())
-        self.__convert_values(data, self.__import_value)
+        self._convert_values(data, self._import_value)
 
         new_settings = self._get_perspective_settings(perspective_name)
         new_settings.from_dict(data)
@@ -266,16 +266,16 @@ class PerspectiveManager(QObject):
 
 
     def _on_export_perspective(self):
-        file_name = QFileDialog.getSaveFileName (self.menu_manager_.menu(), self.tr('Export perspective to file'), self.current_perspective_ + '.perspective', self.tr('Perspectives (*.perspective)'))
+        file_name = QFileDialog.getSaveFileName (self._menu_manager.menu, self.tr('Export perspective to file'), self._current_perspective + '.perspective', self.tr('Perspectives (*.perspective)'))
         if file_name is None or file_name == '':
             return
 
         # trigger save of perspective before export
-        self.save_settings_signal.emit(self.global_settings_, self.perspective_settings_)
+        self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
         # convert every value and add pretty print
-        data = self.perspective_settings_.to_dict()
-        self.__convert_values(data, self.__export_value)
+        data = self._perspective_settings.to_dict()
+        self._convert_values(data, self._export_value)
 
         # write perspective data to file
         file_handle = open(file_name, 'w')
@@ -284,34 +284,34 @@ class PerspectiveManager(QObject):
         file_handle.close()
 
 
-    def __convert_values(self, data, convert_function):
+    def _convert_values(self, data, convert_function):
         keys = data.get('keys', {})
         for key in keys:
             keys[key] = convert_function(keys[key])
         groups = data.get('groups', {})
         for group in groups:
-            self.__convert_values(groups[group], convert_function)
+            self._convert_values(groups[group], convert_function)
 
 
-    def __import_value(self, value):
+    def _import_value(self, value):
         import QtCore #@UnusedImport
         return eval(value['repr'])
 
 
-    def __export_value(self, value):
-        mod_repr = self.__strip_qt_binding_prefix(value, repr(value))
-        pretty_print = self.__pretty_print(value)
+    def _export_value(self, value):
+        mod_repr = self._strip_qt_binding_prefix(value, repr(value))
+        pretty_print = self._pretty_print(value)
         data = {
             'repr': mod_repr,
             'pretty-print': pretty_print,
         }
-        reimported = self.__import_value(data)
+        reimported = self._import_value(data)
         if reimported != value:
-            raise RuntimeError('PerspectiveManager.__export_value() stored value can not be restored (%s)' % type(value))
+            raise RuntimeError('PerspectiveManager._export_value() stored value can not be restored (%s)' % type(value))
         return data
 
 
-    def __strip_qt_binding_prefix(self, obj, data):
+    def _strip_qt_binding_prefix(self, obj, data):
         if hasattr(obj, '__module__'):
             parts = obj.__module__.split('.')
             if len(parts) > 1 and parts[1] == 'QtCore':
@@ -320,9 +320,9 @@ class PerspectiveManager(QObject):
         return data
 
 
-    def __pretty_print(self, obj):
+    def _pretty_print(self, obj):
         value = pformat(obj, 2)
-        value = self.__strip_qt_binding_prefix(obj, value)
+        value = self._strip_qt_binding_prefix(obj, value)
         if isinstance(obj, QByteArray):
             value = value.replace('\\x00', '')
             value = re.sub('\\\\x[0-9a-f]{2}', ' ', value)

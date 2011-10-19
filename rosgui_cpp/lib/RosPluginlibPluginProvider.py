@@ -8,10 +8,10 @@ class RosPluginlibPluginProvider(PluginProvider):
 
     def __init__(self, plugin_provider):
         super(RosPluginlibPluginProvider, self).__init__()
-        self.plugin_provider_ = plugin_provider
+        self._plugin_provider = plugin_provider
 
     def discover(self):
-        discovered_plugins = self.__unfold(self.plugin_provider_.discover())
+        discovered_plugins = self._unfold(self._plugin_provider.discover())
         plugin_descriptors = []
         for plugin in discovered_plugins.values():
             plugin_descriptor = PluginDescriptor(plugin['plugin_id'], plugin['attributes'])
@@ -34,7 +34,7 @@ class RosPluginlibPluginProvider(PluginProvider):
             for key, value in plugin_context.attributes().items():
                 cpp_plugin_context.set_attribute(key, value)
         bridge = rosgui_cpp.PluginBridge()
-        loaded = bridge.load_plugin(self.plugin_provider_, plugin_id, cpp_plugin_context)
+        loaded = bridge.load_plugin(self._plugin_provider, plugin_id, cpp_plugin_context)
         if not loaded:
             return None
         main_window.set_plugin_instance(bridge)
@@ -43,7 +43,7 @@ class RosPluginlibPluginProvider(PluginProvider):
     def unload(self, bridge):
         return bridge.unload_plugin()
 
-    def __unfold(self, flat_dict):
+    def _unfold(self, flat_dict):
         dictionary = {}
         for key, value in flat_dict.items():
             keys = str(key).split('.')

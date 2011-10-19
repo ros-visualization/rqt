@@ -8,11 +8,11 @@ class DockWidgetTitleBar(QWidget):
 
     def __init__(self, dock_widget, hide_close_button=False):
         super(DockWidgetTitleBar, self).__init__(dock_widget)
-        self.hide_close_button = hide_close_button
+        self._hide_close_button_flag = hide_close_button
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DockWidgetTitleBar.ui')
         loadUi(ui_file, self)
-        self.extra_buttons = {
+        self._extra_buttons = {
             'settings': self.settings_button,
             'reload': self.reload_button,
             'help': self.help_button,
@@ -37,14 +37,14 @@ class DockWidgetTitleBar(QWidget):
 
         self.update_title()
 
-        self.event_callbacks = {
+        self._event_callbacks = {
             QEvent.WindowTitleChange: self.update_title,
         }
         dock_widget.installEventFilter(self)
 
 
     def connect_button(self, button_id, callback):
-        button = self.extra_buttons.get(button_id, None)
+        button = self._extra_buttons.get(button_id, None)
         if button is None:
             qDebug('DockWidgetTitleBar.connect_button(): unknown button_id: %s' % button_id)
             return
@@ -52,7 +52,7 @@ class DockWidgetTitleBar(QWidget):
 
 
     def show_button(self, button_id, visibility=True):
-        button = self.extra_buttons.get(button_id, None)
+        button = self._extra_buttons.get(button_id, None)
         if button is None:
             qDebug('DockWidgetTitleBar.show_button(): unknown button_id: %s' % button_id)
             return
@@ -64,8 +64,8 @@ class DockWidgetTitleBar(QWidget):
 
 
     def eventFilter(self, obj, event):
-        if event.type() in self.event_callbacks:
-            ret_val = self.event_callbacks[event.type()](obj, event)
+        if event.type() in self._event_callbacks:
+            ret_val = self._event_callbacks[event.type()](obj, event)
             if ret_val is not None:
                 return ret_val
         return QObject.eventFilter(self, obj, event)
@@ -92,7 +92,7 @@ class DockWidgetTitleBar(QWidget):
 
     def features_changed(self, _features):
         features = self.parentWidget().features()
-        self.close_button.setVisible((not self.hide_close_button) and bool(features & QDockWidget.DockWidgetClosable))
+        self.close_button.setVisible((not self._hide_close_button_flag) and bool(features & QDockWidget.DockWidgetClosable))
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
 
 

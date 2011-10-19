@@ -7,44 +7,44 @@ class Settings(QObject):
         super(Settings, self).__init__()
         self.setObjectName('Settings')
 
-        self.settings_proxy_ = settings_proxy
-        self.group_ = group
+        self._settings_proxy = settings_proxy
+        self._group = group
 
     def get_settings(self, group):
-        return Settings(self.settings_proxy_, self.group_ + '/' + group)
+        return Settings(self._settings_proxy, self._group + '/' + group)
 
     def all_keys(self):
-        return self.settings_proxy_.all_keys(self.group_)
+        return self._settings_proxy.all_keys(self._group)
 
 #    def begin_read_array(self):
 
 #    def begin_write_array(self):
 
     def child_groups(self):
-        return self.settings_proxy_.child_groups(self.group_)
+        return self._settings_proxy.child_groups(self._group)
 
     def child_keys(self):
-        return self.settings_proxy_.child_keys(self.group_)
+        return self._settings_proxy.child_keys(self._group)
 
     @Slot(str, result=bool)
     def contains(self, key):
-        return self.settings_proxy_.contains(self.group_, key)
+        return self._settings_proxy.contains(self._group, key)
 
 #    def end_array(self):
 
     @Slot(str)
     def remove(self, key):
-        self.settings_proxy_.remove(self.group_, key)
+        self._settings_proxy.remove(self._group, key)
 
 #    def set_array_index(self, i):
 
     @Slot(str, 'QVariant')
     def set_value(self, key, value):
-        self.settings_proxy_.set_value(self.group_, key, value)
+        self._settings_proxy.set_value(self._group, key, value)
 
     @Slot(str, 'QVariant', result='QVariant')
     def value(self, key, defaultValue=None):
-        return self.settings_proxy_.value(self.group_, key, defaultValue)
+        return self._settings_proxy.value(self._group, key, defaultValue)
 
     def to_dict(self):
         keys = {}

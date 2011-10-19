@@ -16,13 +16,13 @@ class TopicInfo(ROSTopicHz):
 
     def __init__(self, topic_name):
         super(TopicInfo, self).__init__(100)
-        self.subscriber = None
+        self._subscriber = None
         self.monitoring = False
         self._reset_data()
         try:
-            self.message_class, self.topic_name, _ = get_topic_class(topic_name)
+            self.message_class, self._topic_name, _ = get_topic_class(topic_name)
         except Exception:
-            self.topic_name = None
+            self._topic_name = None
             qDebug('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
             return
 
@@ -43,16 +43,16 @@ class TopicInfo(ROSTopicHz):
 
     def start_monitoring(self):
         self.monitoring = True
-        if self.topic_name is not None:
+        if self._topic_name is not None:
             # FIXME: subscribing to class AnyMsg breaks other subscribers on same node
-            self.subscriber = rospy.Subscriber(self.topic_name, self.message_class, self.message_callback)
+            self._subscriber = rospy.Subscriber(self._topic_name, self.message_class, self.message_callback)
 
 
     def stop_monitoring(self):
         self.monitoring = False
         self._reset_data()
-        if self.subscriber is not None:
-            self.subscriber.unregister()
+        if self._subscriber is not None:
+            self._subscriber.unregister()
 
 
     def message_callback(self, message):

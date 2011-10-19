@@ -7,29 +7,29 @@ class PluginContext(QObject):
         super(PluginContext, self).__init__(parent)
         self.setObjectName('PluginContext')
 
-        self.main_window_ = None
-        self.serial_number_ = 0
-        self.dict_ = {}
+        self._main_window = None
+        self._serial_number = 0
+        self._dict = {}
 
     @Slot(result=object)
     def main_window(self):
-        return self.main_window_
+        return self._main_window
 
     def set_main_window(self, main_window):
-        self.main_window_ = main_window
+        self._main_window = main_window
 
-    @Slot(result=str)
+    @Slot(result=int)
     def serial_number(self):
-        return self.serial_number_
+        return self._serial_number
 
     def set_serial_number(self, serial_number):
-        self.serial_number_ = serial_number
+        self._serial_number = serial_number
 
     def attributes(self):
-        return self.dict_
+        return self._dict
 
     def attribute(self, key):
-        return self.dict_.get(key, None)
+        return self._dict.get(key, None)
 
     def set_attribute(self, key, value):
-        self.dict_[key] = value
+        self._dict[key] = value

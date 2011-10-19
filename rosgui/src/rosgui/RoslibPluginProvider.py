@@ -9,4 +9,4 @@ class RoslibPluginProvider(RosPluginProvider):
         self.setObjectName('RoslibPluginProvider')
 
     def _find_rosgui_plugins(self):
-        return roslib.rospack.rospack_plugins(self.export_tag_)
+        return roslib.rospack.rospack_plugins(self._export_tag)

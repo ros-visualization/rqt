@@ -13,7 +13,7 @@ class RospkgPluginProvider(RosPluginProvider):
         r = rospkg.RosPack()
         for package_name in r.list():
             manifest = r.get_manifest(package_name)
-            exports = manifest.get_export(self.export_tag_, 'plugin')
+            exports = manifest.get_export(self._export_tag, 'plugin')
             for export in exports:
                 plugins.append([package_name, str(export)])
         return plugins

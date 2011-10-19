@@ -22,12 +22,12 @@ class Publisher(QDockWidget):
         self.setObjectName('Publisher')
 
         # create context for the expression eval statement
-        self.eval_locals = {}
-        self.eval_locals.update(math.__dict__)
-        self.eval_locals.update(random.__dict__)
-        self.eval_locals.update(time.__dict__)
-        del self.eval_locals['__name__']
-        del self.eval_locals['__doc__']
+        self._eval_locals = {}
+        self._eval_locals.update(math.__dict__)
+        self._eval_locals.update(random.__dict__)
+        self._eval_locals.update(time.__dict__)
+        del self._eval_locals['__name__']
+        del self._eval_locals['__doc__']
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self)
@@ -35,21 +35,21 @@ class Publisher(QDockWidget):
         if plugin_context.serial_number() != 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
-        self.column_index = {}
+        self._column_index = {}
         for column_name in self.column_names:
-            self.column_index[column_name] = len(self.column_index)
-        self.counter_ = 0
-        self.publishers_ = {}
-        self.id_counter_ = 0
-        self.message_classes_ = {}
+            self._column_index[column_name] = len(self._column_index)
+
+        self._publishers = {}
+        self._id_counter = 0
+        self._message_classes = {}
         for message_package_name in rosmsg.iterate_packages('.msg'):
             self.add_message_package(message_package_name)
 
-        self.signal_mapper_ = QSignalMapper(self)
-        self.signal_mapper_.mapped[int].connect(self.timeout)
+        self._timeout_mapper = QSignalMapper(self)
+        self._timeout_mapper.mapped[int].connect(self.timeout)
 
         self.publishers_tree_widget.itemChanged.connect(self.publishers_tree_widget_itemChanged)
-        self.update_comboType()
+        self.update_type_combo_box()
 
         # add our self to the main window
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
@@ -73,22 +73,22 @@ class Publisher(QDockWidget):
         if len(message_types) == 0:
             qDebug('Publisher.add_message_package(%s): no message classes found in %s' % (package_name, package_module))
         for type_name, message_type in message_types:
-            self.message_classes_['%s/%s' % (package_name, type_name)] = message_type
+            self._message_classes['%s/%s' % (package_name, type_name)] = message_type
 
 
-    def update_comboType(self):
+    def update_type_combo_box(self):
         self.type_combo_box.clear()
-        self.type_combo_box.addItems(sorted(self.message_classes_.keys()))
+        self.type_combo_box.addItems(sorted(self._message_classes.keys()))
 
 
     def check_valid_message_type(self, type_str):
-        if type_str not in self.message_classes_:
+        if type_str not in self._message_classes:
             package_name = type_str.split('/', 1)[0]
             self.add_message_package(package_name)
-            if type_str not in self.message_classes_:
+            if type_str not in self._message_classes:
                 qDebug('Publisher.on_add_publisher_button_clicked(): failed to resolve message type "%s"' % type_str)
                 return False
-            self.update_comboType()
+            self.update_type_combo_box()
         return True
 
 
@@ -105,24 +105,24 @@ class Publisher(QDockWidget):
 
 
     def _add_publisher(self, publisher_info):
-        publisher_info['publisher_id'] = self.id_counter_
-        self.id_counter_ += 1
+        publisher_info['publisher_id'] = self._id_counter
+        self._id_counter += 1
         publisher_info['counter'] = 0
         publisher_info['enabled'] = publisher_info.get('enabled', False)
         publisher_info['expressions'] = publisher_info.get('expressions', {})
 
         if not self.check_valid_message_type(publisher_info['type_name']):
             return
-        publisher_info['type'] = self.message_classes_[publisher_info['type_name']]
+        publisher_info['type'] = self._message_classes[publisher_info['type_name']]
 
         # create publisher and timer
         publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], publisher_info['type'])
         publisher_info['timer'] = QTimer(self)
 
-        # add publisher info to publishers_ dict and create signal mapping  
-        self.publishers_[publisher_info['publisher_id']] = publisher_info
-        self.signal_mapper_.setMapping(publisher_info['timer'], publisher_info['publisher_id'])
-        publisher_info['timer'].timeout.connect(self.signal_mapper_.map)
+        # add publisher info to _publishers dict and create signal mapping  
+        self._publishers[publisher_info['publisher_id']] = publisher_info
+        self._timeout_mapper.setMapping(publisher_info['timer'], publisher_info['publisher_id'])
+        publisher_info['timer'].timeout.connect(self._timeout_mapper.map)
         if publisher_info['enabled']:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
 
@@ -130,8 +130,8 @@ class Publisher(QDockWidget):
         top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['type']._type, publisher_info['type'](), publisher_info['publisher_id'], publisher_info['expressions'])
 
         # fill tree widget columns of top level item
-        top_level_item.setText(self.column_index['enabled'], str(publisher_info['enabled']))
-        top_level_item.setText(self.column_index['rate'], str(publisher_info['rate']))
+        top_level_item.setText(self._column_index['enabled'], str(publisher_info['enabled']))
+        top_level_item.setText(self._column_index['rate'], str(publisher_info['rate']))
         publisher_info['widgetItem'] = top_level_item
 
         # add top level item to tree widget
@@ -150,12 +150,12 @@ class Publisher(QDockWidget):
         else:
             topic_text = topic_name.split('/')[-1]
         item = QTreeWidgetItem(parent)
-        item.setText(self.column_index['topic'], topic_text)
-        item.setText(self.column_index['type'], type_name)
+        item.setText(self._column_index['topic'], topic_text)
+        item.setText(self._column_index['type'], type_name)
         if topic_name in expressions:
-            item.setText(self.column_index['expression'], expressions[topic_name])
+            item.setText(self._column_index['expression'], expressions[topic_name])
         elif not hasattr(message, '__slots__'):
-            item.setText(self.column_index['expression'], repr(message))
+            item.setText(self._column_index['expression'], repr(message))
         item.setFlags(item.flags() | Qt.ItemIsEditable)
         item.setData(0, Qt.UserRole, topic_name)
         item.publisher_id = publisher_id
@@ -173,7 +173,7 @@ class Publisher(QDockWidget):
         if not hasattr(item, 'publisher_id'):
             qDebug('Publisher.on_treePublishers_itemChanged(): no publisher_id found in: %s' % (item))
         else:
-            publisher_info = self.publishers_[item.publisher_id]
+            publisher_info = self._publishers[item.publisher_id]
 
             if column_name == 'enabled':
                 publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
@@ -223,7 +223,7 @@ class Publisher(QDockWidget):
             else:
                 slot_type = type(slot)
 
-            self.eval_locals['i'] = counter
+            self._eval_locals['i'] = counter
             value = self._evaluate_expression(expression, slot_type)
             if value is not None:
                 setattr(message, slot_name, value)
@@ -235,7 +235,7 @@ class Publisher(QDockWidget):
 
         try:
             # try to evaluate expression
-            value = eval(expression, {}, self.eval_locals)
+            value = eval(expression, {}, self._eval_locals)
         except Exception:
             # just use expression-string as value
             value = expression
@@ -259,7 +259,7 @@ class Publisher(QDockWidget):
 
     @Slot(int)
     def timeout(self, publisher_id):
-        publisher_info = self.publishers_[publisher_id]
+        publisher_info = self._publishers[publisher_id]
         publisher_info['counter'] += 1
         message = publisher_info['type']()
         self.fill_message_slots(message, publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
@@ -272,10 +272,10 @@ class Publisher(QDockWidget):
         items = [self.publishers_tree_widget.itemFromIndex(index) for index in selection]
         uniqueItems = list(set(items))
         for item in uniqueItems:
-            self.remove_publisher_item_(item)
+            self._remove_publisher_item(item)
 
 
-    def remove_publisher_item_(self, item):
+    def _remove_publisher_item(self, item):
         self.remove_publisher(item.publisher_id)
         index = self.publishers_tree_widget.indexOfTopLevelItem(item)
         while item and index < 0:
@@ -297,7 +297,7 @@ class Publisher(QDockWidget):
         action_remove_publisher = menu.addAction("Remove Publisher")
         action = menu.exec_(self.publishers_tree_widget.mapToGlobal(pos))
         if action is action_remove_publisher:
-            self.remove_publisher_item_(item)
+            self._remove_publisher_item(item)
 
 
     @Slot()
@@ -307,7 +307,7 @@ class Publisher(QDockWidget):
 
     def save_settings(self, global_settings, perspective_settings):
         publisher_copies = []
-        for publisher in self.publishers_.values():
+        for publisher in self._publishers.values():
             publisher_copy = {}
             publisher_copy.update(publisher)
             publisher_copy['enabled'] = False
@@ -316,28 +316,28 @@ class Publisher(QDockWidget):
             del publisher_copy['publisher']
             del publisher_copy['widgetItem']
             publisher_copies.append(publisher_copy)
-        perspective_settings.set_value('publishers', repr(publisher_copies))
+        perspective_settings.set_value('_publishers', repr(publisher_copies))
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        publishers = eval(perspective_settings.value('publishers', '[]'))
+        publishers = eval(perspective_settings.value('_publishers', '[]'))
         for publisher in publishers:
             self._add_publisher(publisher)
 
 
     def remove_publisher(self, publisher_id):
-        publisher_info = self.publishers_[publisher_id]
+        publisher_info = self._publishers[publisher_id]
         publisher_info['timer'].stop()
         publisher_info['publisher'].unregister()
-        del self.publishers_[publisher_id]
+        del self._publishers[publisher_id]
 
 
     def clean_up_publishers(self):
         self.publishers_tree_widget.clear()
-        for publisher_info in self.publishers_.values():
+        for publisher_info in self._publishers.values():
             publisher_info['timer'].stop()
             publisher_info['publisher'].unregister()
-        self.publishers_ = {}
+        self._publishers = {}
 
 
     def set_name(self, name):

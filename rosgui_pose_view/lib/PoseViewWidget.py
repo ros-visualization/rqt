@@ -22,32 +22,32 @@ class PoseViewWidget(QDockWidget):
         super(PoseViewWidget, self).__init__(plugin_context.main_window())
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PoseViewWidget.ui')
         loadUi(ui_file, self)
-        self.plugin_ = plugin
+        self._plugin = plugin
 
-        self.position_ = [0.0, 0.0, 0.0]
-        self.orientation_ = [1.0, 0.0, 0.0, 0.0]
-        self.topic_name_ = None
-        self.subscriber_ = None
+        self._position = [0.0, 0.0, 0.0]
+        self._orientation = [1.0, 0.0, 0.0, 0.0]
+        self._topic_name = None
+        self._subscriber = None
 
         # create GL view         
-        self.gl_view_ = PyGLWidget.PyGLWidget()
-        self.gl_view_.setAcceptDrops(True)
+        self._gl_view = PyGLWidget.PyGLWidget()
+        self._gl_view.setAcceptDrops(True)
 
         # backup and replace original paint method
-        self.gl_view_.paintGL_ = self.gl_view_.paintGL
-        self.gl_view_.paintGL = self.paintGL
+        self._gl_view.paintGL_original = self._gl_view.paintGL
+        self._gl_view.paintGL = self.paintGL
 
         # add GL view to widget layout        
-        self.dockWidgetContents.layout().addWidget(self.gl_view_)
+        self.dockWidgetContents.layout().addWidget(self._gl_view)
 
         # init and start update timer at 40Hz (25fps)
-        self.timerUpdate = QTimer(self)
-        self.timerUpdate.timeout.connect(self.update_timeout)
-        self.timerUpdate.start(40)
+        self._update_timer = QTimer(self)
+        self._update_timer.timeout.connect(self.update_timeout)
+        self._update_timer.start(40)
 
 
     def save_settings(self, global_settings, perspective_settings):
-        view_matrix_string = repr(self.gl_view_.get_view_matrix())
+        view_matrix_string = repr(self._gl_view.get_view_matrix())
         perspective_settings.set_value('view_matrix', view_matrix_string)
 
 
@@ -61,37 +61,37 @@ class PoseViewWidget(QDockWidget):
             view_matrix = None
 
         if view_matrix is None:
-            self.gl_view_.makeCurrent()
-            self.gl_view_.reset_view()
-            self.gl_view_.reset_rotation()
-            self.gl_view_.rotate((1, 0, 0), 270)
-            self.gl_view_.translate((-1, -4, -10))
+            self._gl_view.makeCurrent()
+            self._gl_view.reset_view()
+            self._gl_view.reset_rotation()
+            self._gl_view.rotate((1, 0, 0), 270)
+            self._gl_view.translate((-1, -4, -10))
         else:
-            self.gl_view_.set_view_matrix(view_matrix)
+            self._gl_view.set_view_matrix(view_matrix)
 
 
     def message_callback(self, message):
-        self.position_ = [message.position.x, message.position.y, message.position.z]
-        self.orientation_ = [message.orientation.x, message.orientation.y, message.orientation.z, message.orientation.w]
-        #print 'received:', self.orientation_
+        self._position = [message._position.x, message._position.y, message._position.z]
+        self._orientation = [message._orientation.x, message._orientation.y, message._orientation.z, message._orientation.w]
+        #print 'received:', self._orientation
 
 
     def update_timeout(self):
-        self.gl_view_.makeCurrent()
-        self.gl_view_.updateGL()
+        self._gl_view.makeCurrent()
+        self._gl_view.updateGL()
 
 
     def paintGL(self):
-        self.gl_view_.paintGL_()
+        self._gl_view.paintGL_original()
         self.paintGLGrid()
         self.paintGLCoorsystem()
         self.paintGLBox()
 
 
     def paintGLBox(self):
-        #glTranslatef(*self.position_)     # Move Box
+        #glTranslatef(*self._position)     # Move Box
         glTranslatef(2.0, 2.0, 2.0)       # Move Box
-        matrix = toMatrixQ(self.orientation_) # convert quaternion to rotation matrix
+        matrix = toMatrixQ(self._orientation) # convert quaternion to rotation matrix
         glMultMatrixf(matrix)             # Rotate Box 
 
         glBegin(GL_QUADS)                 # Start Drawing The Box
@@ -213,18 +213,18 @@ class PoseViewWidget(QDockWidget):
 
 
     def unregister_topic(self):
-        if self.subscriber_:
-            self.subscriber_.unregister()
+        if self._subscriber:
+            self._subscriber.unregister()
 
 
     def subscribe_topic(self, topic_name):
         print 'subscribing:', topic_name
-        msg_class, self.topic_name_, _ = get_topic_class(topic_name)
-        self.subscriber_ = rospy.Subscriber(self.topic_name_, msg_class, self.message_callback)
+        msg_class, self._topic_name, _ = get_topic_class(topic_name)
+        self._subscriber = rospy.Subscriber(self._topic_name, msg_class, self.message_callback)
 
 
-    # override Qt's closeEvent() method to trigger plugin unloading
+    # override Qt's closeEvent() method to trigger _plugin unloading
     def closeEvent(self, event):
         self.unregister_topic()
         event.ignore()
-        self.plugin_.deleteLater()
+        self._plugin.deleteLater()

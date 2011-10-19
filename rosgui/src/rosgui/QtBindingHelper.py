@@ -102,8 +102,8 @@ def pyside():
                     widget = user_classes[className](parent)
                 else:
                     widget = QUiLoader.createWidget(self, className, parent, name)
-                if str(type(widget)).find(className) < 0:
-                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (className, type(widget))))
+                if str(type(_widget)).find(className) < 0:
+                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find _widget class "%s", defaulting to "%s"' % (className, type(widget))))
                 if parent is None:
                     return self.baseinstance
                 else:
