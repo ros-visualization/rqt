@@ -13,7 +13,7 @@ class PluginDescriptor
 
 public:
 
-  PluginDescriptor(const QString& plugin_id, const QMap<QString, QString>& attributes = QMap<QString, QString>());
+  PluginDescriptor(const QString& plugin_id, const QMap<QString, QString>& attributes = (QMap<QString, QString>()));
 
   const QString& pluginId() const;
 
