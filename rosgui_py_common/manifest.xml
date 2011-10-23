@@ -9,8 +9,9 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui</url>
 
-  <rosdep name="rosgui"/>
-  <rosdep name="python-qt4"/>
+  <depend package="rosgui"/>
   <depend package="rostopic"/>
+
+  <rosdep name="python-qt4"/>
 
 </package>
