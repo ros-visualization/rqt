@@ -1,32 +1,65 @@
 libgenrunner-dev:
   ubuntu: libgenrunner-dev
+  osxbrew:
+    homebrew:
+      packages: [ generatorrunner ]
 
 libpyside-dev:
   ubuntu: libpyside-dev
+  osxbrew:
+    homebrew:
+      packages: [ pyside ]
 
 libqt4-dev:
   ubuntu: libqt4-dev
+  osxbrew:
+    homebrew:
+      packages: [ qt ]
 
 libshiboken-dev:
   ubuntu: libshiboken-dev
+  osxbrew:
+    homebrew:
+      packages: [ shiboken ]
 
 python-pyside:
   ubuntu: python-pyside
+  osxbrew:
+    homebrew:
+      packages: [ pyside ]
 
 python-qt4:
   ubuntu: python-qt4
+  osxbrew:
+    homebrew:
+      packages: [ pyqt ]
 
 python-qt4-gl:
   ubuntu: python-qt4-gl
+  osxbrew:
+    homebrew:
+      packages: |
 
 python-qt4-dev:
   ubuntu: python-qt4-dev
+  osxbrew:
+    homebrew:
+      packages: [ qt ]
 
 python-qwt5-qt4:
   ubuntu: python-qwt5-qt4
+  osxbrew:
+    homebrew:
+      packages: [ qwt ]
 
 python-sip-dev:
   ubuntu: python-sip-dev
+  osxbrew:
+    homebrew:
+      packages: [ sip ]
 
 shiboken:
   ubuntu: shiboken
+  osxbrew:
+    homebrew:
+      packages: [ shiboken ]
