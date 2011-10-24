@@ -57,14 +57,20 @@ set(rosgui_cpp_shiboken_LINK_LIBRARIES
   ${PYSIDE_LIBRARY}
 )
 
+# See ticket https://code.ros.org/trac/ros-pkg/ticket/5219
+set(QT_INCLUDE_DIR_WITH_COLONS "")
+foreach(dir ${QT_INCLUDE_DIR})
+  set(QT_INCLUDE_DIR_WITH_COLONS "${QT_INCLUDE_DIR_WITH_COLONS}:${dir}")
+endforeach()
+
 add_custom_command(
   OUTPUT ${rosgui_cpp_shiboken_SRCS}
   COMMAND ${GENERATORRUNNER_BINARY}
     --generatorSet=shiboken
-    global.h
-    --include-paths=${rosgui_cpp_INCLUDE_PATH}:${QT_INCLUDE_DIR}
+    --include-paths=${rosgui_cpp_INCLUDE_PATH}:${QT_INCLUDE_DIR_WITH_COLONS}
     --typesystem-paths=${PYSIDE_TYPESYSTEMS}
     --output-directory=${PROJECT_SOURCE_DIR}/build/src/rosgui_cpp_shiboken
+    global.h
     typesystem.xml
   DEPENDS global.h typesystem.xml ${rosgui_cpp_HDRS}
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken
