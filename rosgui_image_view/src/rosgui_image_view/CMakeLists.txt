@@ -29,4 +29,5 @@ rosgui_cpp__hide_plugin_symbols(rosgui_image_view ImageView)
 
 include_directories(${PROJECT_NAME} ${rosgui_image_view_INCLUDE_DIRECTORIES})
 rosbuild_add_library(${PROJECT_NAME} ${rosgui_image_view_SRCS} ${rosgui_image_view_MOCS} ${rosgui_image_view_UIS_H})
+target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
