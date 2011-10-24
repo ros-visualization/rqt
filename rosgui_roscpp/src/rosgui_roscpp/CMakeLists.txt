@@ -7,4 +7,9 @@ SET(rosgui_roscpp_SRCS
 )
 
 rosbuild_add_library(${PROJECT_NAME} ${rosgui_roscpp_SRCS})
+target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+
+if(APPLE) 
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif()
 
