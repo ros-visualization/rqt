@@ -71,8 +71,8 @@ class PoseViewWidget(QDockWidget):
 
 
     def message_callback(self, message):
-        self._position = [message._position.x, message._position.y, message._position.z]
-        self._orientation = [message._orientation.x, message._orientation.y, message._orientation.z, message._orientation.w]
+        self._position = [message.position.x, message.position.y, message.position.z]
+        self._orientation = [message.orientation.x, message.orientation.y, message.orientation.z, message.orientation.w]
         #print 'received:', self._orientation
 
 
