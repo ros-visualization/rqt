@@ -137,7 +137,7 @@ class PluginManager(QObject):
         self._deferred_reload_plugin_signal.emit(plugin_id, serial_number)
 
 
-    @Slot(str, str)
+    @Slot(str, int)
     def _load_and_restore_plugin(self, plugin_id, serial_number):
         # convert from unicode
         plugin_id = str(plugin_id)
