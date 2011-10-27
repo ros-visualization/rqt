@@ -71,13 +71,13 @@ class EdgeItem(RosGraphItem):
             # draw arrow
             self._arrow = QGraphicsPolygonItem()
             polygon = QPolygonF()
-            polygon << point3
+            polygon.append(point3)
             offset = QPointF(end_point - point3)
             corner1 = QPointF(-offset.y(), offset.x()) * 0.35
             corner2 = QPointF(offset.y(), -offset.x()) * 0.35
-            polygon << (point3 + corner1)
-            polygon << end_point
-            polygon << (point3 + corner2)
+            polygon.append(point3 + corner1)
+            polygon.append(end_point)
+            polygon.append(point3 + corner2)
             self._arrow.setPolygon(polygon)
             self.addToGroup(self._arrow)
 
