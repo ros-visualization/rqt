@@ -22,6 +22,9 @@ libshiboken-dev:
     homebrew:
       packages: [ shiboken ]
 
+python-pydot:
+  ubuntu: python-pydot
+
 python-pyside:
   ubuntu: python-pyside
   osxbrew:

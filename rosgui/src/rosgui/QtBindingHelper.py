@@ -43,10 +43,11 @@ def pyqt():
     sip.setapi('QVariant', 2)
 
     # register PyQt4 modules
-    import PyQt4.QtCore, PyQt4.QtGui, PyQt4.QtOpenGL
+    import PyQt4.QtCore, PyQt4.QtGui, PyQt4.QtOpenGL, PyQt4.QtSvg
     sys.modules['QtCore'] = PyQt4.QtCore
     sys.modules['QtGui'] = PyQt4.QtGui
     sys.modules['QtOpenGL'] = PyQt4.QtOpenGL
+    sys.modules['QtSvg'] = PyQt4.QtSvg
 
     # set some names for compatibility with PySide
     sys.modules['QtCore'].Signal = sys.modules['QtCore'].pyqtSignal
@@ -70,10 +71,11 @@ def pyqt():
 
 def pyside():
     # register PySide modules
-    import PySide.QtCore, PySide.QtGui, PySide.QtOpenGL
+    import PySide.QtCore, PySide.QtGui, PySide.QtOpenGL, PySide.QtSvg
     sys.modules['QtCore'] = PySide.QtCore
     sys.modules['QtGui'] = PySide.QtGui
     sys.modules['QtOpenGL'] = PySide.QtOpenGL
+    sys.modules['QtSvg'] = PySide.QtSvg
 
     # set some names for compatibility with PyQt4
     sys.modules['QtCore'].pyqtSignal = sys.modules['QtCore'].Signal
