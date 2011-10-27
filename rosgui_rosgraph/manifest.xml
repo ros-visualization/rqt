@@ -9,6 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_rosgraph</url>
 
+  <depend package="rosgui"/>
   <depend package="rosgraph"/>
   <depend package="roslib"/>
 
