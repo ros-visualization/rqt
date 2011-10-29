@@ -24,7 +24,7 @@ class RobotSteering(QObject):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RobotSteering.ui')
         loadUi(ui_file, self._widget)
         self._widget.setObjectName('RobotSteeringUi')
-        if plugin_context.serial_number() != 1:
+        if plugin_context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
         main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
 

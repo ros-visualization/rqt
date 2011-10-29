@@ -23,7 +23,7 @@ void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
   widget_ = new QDockWidget(context.main_window());
   ui_.setupUi(widget_);
 
-  if (context.serial_number() != 1)
+  if (context.serial_number() > 1)
   {
     widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serial_number()) + ")");
   }

@@ -19,7 +19,7 @@ class Topic(QObject):
 
         self._widget = TopicWidget.TopicWidget(self, plugin_context)
 
-        if plugin_context.serial_number() != 1:
+        if plugin_context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
         # add _widget to the main window

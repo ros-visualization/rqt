@@ -26,7 +26,7 @@ class Plot(QDockWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
         loadUi(ui_file, self, {'DataPlot': DataPlot.DataPlot})
 
-        if plugin_context.serial_number() != 1:
+        if plugin_context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
         self.subscribe_topic_button.setEnabled(False)
