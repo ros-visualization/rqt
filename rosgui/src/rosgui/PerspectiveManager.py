@@ -31,9 +31,9 @@ class PerspectiveManager(QObject):
         self._perspective_mapper.mapped[str].connect(self.switch_perspective)
 
         # get perspective list from settings
-        self._perspectives = self._settings_proxy.value('', '_perspectives', [])
-        if isinstance(self._perspectives, basestring):
-            self._perspectives = [ self._perspectives ]
+        self.perspectives = self._settings_proxy.value('', 'perspectives', [])
+        if isinstance(self.perspectives, basestring):
+            self.perspectives = [ self.perspectives ]
 
         self._current_perspective = None
         self._remove_action = None
@@ -65,7 +65,7 @@ class PerspectiveManager(QObject):
             self._menu_manager.set_item_disabled(self._current_perspective, False)
 
         # create perspective if necessary 
-        if name not in self._perspectives:
+        if name not in self.perspectives:
             self._create_perspective(name, clone_perspective=False)
 
         # update current perspective
@@ -114,8 +114,8 @@ class PerspectiveManager(QObject):
         export_action.triggered.connect(self._on_export_perspective)
         self._menu_manager.add_suffix(export_action)
 
-        # add _perspectives to menu
-        for name in self._perspectives:
+        # add perspectives to menu
+        for name in self.perspectives:
             if not name.startswith(self.HIDDEN_PREFIX):
                 self._add_perspective_action(name)
 
@@ -162,7 +162,7 @@ class PerspectiveManager(QObject):
         if name == '':
             QMessageBox.warning(self._menu_manager.menu, self.tr('Empty perspective name'), self.tr('The name of the perspective must be non-empty.'))
             return
-        if name in self._perspectives:
+        if name in self.perspectives:
             QMessageBox.warning(self._menu_manager.menu, self.tr('Duplicate perspective name'), self.tr('A perspective with the same name already exists.'))
             return
         return name
@@ -174,9 +174,9 @@ class PerspectiveManager(QObject):
             raise RuntimeError('PerspectiveManager._create_perspective() name must not contain forward slashs (/)')
 
         qDebug('PerspectiveManager._create_perspective(%s, %s)' % (name, clone_perspective))
-        # add to list of _perspectives
-        self._perspectives.append(name)
-        self._settings_proxy.set_value('', '_perspectives', self._perspectives)
+        # add to list of perspectives
+        self.perspectives.append(name)
+        self._settings_proxy.set_value('', 'perspectives', self.perspectives)
 
         # save current settings
         if self._global_settings is not None and self._perspective_settings is not None:
@@ -210,20 +210,20 @@ class PerspectiveManager(QObject):
 
     def _on_remove_perspective(self):
         # input dialog to choose perspective to be removed
-        names = list(self._perspectives)
+        names = list(self.perspectives)
         names.remove(self._current_perspective)
         name, return_value = QInputDialog.getItem(self._menu_manager.menu, self._menu_manager.tr('Remove perspective'), self._menu_manager.tr('Select the perspective'), names, 0, False)
         # convert from unicode
         name = str(name)
         if return_value == QInputDialog.Rejected:
             return
-        if name not in self._perspectives:
+        if name not in self.perspectives:
             raise UserWarning('unknown perspective: %s' % name)
         qDebug('PerspectiveManager._on_remove_perspective(%s)' % str(name))
 
-        # remove from list of _perspectives
-        self._perspectives.remove(name)
-        self._settings_proxy.set_value('', '_perspectives', self._perspectives)
+        # remove from list of perspectives
+        self.perspectives.remove(name)
+        self._settings_proxy.set_value('', 'perspectives', self.perspectives)
 
         # remove settings
         settings = self._get_perspective_settings(name)
@@ -246,7 +246,7 @@ class PerspectiveManager(QObject):
         suffix = '.perspective'
         if perspective_name.endswith(suffix):
             perspective_name = perspective_name[:-len(suffix)]
-        if perspective_name in self._perspectives:
+        if perspective_name in self.perspectives:
             perspective_name = self._choose_new_perspective_name(False)
             if perspective_name is None:
                 return

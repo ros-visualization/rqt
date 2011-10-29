@@ -28,8 +28,6 @@ def select_qt_binding(binding_name=None):
         bindings = [binding.__name__ for binding in DEFAULT_BINDING_ORDER]
         raise ImportError('Could not find Qt binding (looked for "%s")' % bindings)
 
-    print 'QtBindingHelper: using %s' % QT_BINDING
-
 
 def pyqt():
     # select PyQt4 API, see http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/incompatible_apis.html

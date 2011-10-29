@@ -8,24 +8,30 @@ def rosgui_main():
     usage = 'usage: %prog [options]'
     parser = OptionParser(usage)
 
-    parser.add_option('-b', '--qt-binding', dest='qt_binding', default=None, type='str',
-                    help='choose Qt bindings to be used [pyqt|pyside]')
-
-    parser.add_option('-p', '--perspective', dest='perspective', default=None, type='str',
-                    help='startup with this perspective')
-
-    parser.add_option('-s', '--stand-alone', dest='standalone_plugin', default=None, type='str',
-                    help='start only this plugin (implies -l)')
+    parser.add_option('-b', '--qt-binding', dest='qt_binding', default=None, type='str', metavar='BINDING',
+                      help='choose Qt bindings to be used [pyqt|pyside]')
 
     parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action="store_true",
-                    help='locks the GUI to the used perspective (hides menu bar and dock widget close buttons)')
+                      help='lock the GUI to the used perspective (hide menu bar and dock widget close buttons)')
+
+    parser.add_option('-p', '--perspective', dest='perspective', default=None, type='str',
+                      help='start with this perspective')
+
+    parser.add_option('-s', '--stand-alone', dest='standalone_plugin', default=None, type='str', metavar='PLUGIN',
+                      help='start only this plugin (implies -L)')
+
+    parser.add_option('--list-perspectives', dest='list_perspectives', action='store_true',
+                      help='list available perspectives and exit')
+
+    parser.add_option('--list-plugins', dest='list_plugins', action='store_true',
+                      help='list available plugins and exit')
 
     options, _ = parser.parse_args()
     if options.standalone_plugin is not None:
         options.lock_perspective = True
 
     setattr(sys, 'SELECT_QT_BINDING', options.qt_binding)
-    import QtBindingHelper #@UnusedImport
+    from QtBindingHelper import QT_BINDING
 
     from QtCore import qDebug, QSettings, QTimer, qWarning
     from QtGui import QAction, QApplication, QIcon, QMenuBar
@@ -85,11 +91,19 @@ def rosgui_main():
     plugin_provider = CompositePluginProvider(plugin_providers)
     plugin_manager = PluginManager(main_window, plugin_menu, running_menu, plugin_provider, options.lock_perspective)
 
+    if options.list_plugins:
+        print '\n'.join(sorted(plugin_manager.get_plugins().values()))
+        return 0
+
     help_provider = HelpProvider()
     plugin_manager.plugin_help_signal.connect(help_provider.plugin_help_request)
 
     perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives'))
     perspective_manager = PerspectiveManager(settings, perspective_menu)
+
+    if options.list_perspectives:
+        print '\n'.join(sorted(perspective_manager.perspectives))
+        return 0
 
     # signal changed perspective to update window title
     perspective_manager.perspective_changed_signal.connect(main_window.perspective_changed)
@@ -126,8 +140,12 @@ def rosgui_main():
             qWarning('rosgui_main(): found multiple plugins matching "%s"\n%s' % (options.standalone_plugin, '\n'.join(found_plugins.values())))
             return 1
 
-        perspective_manager.set_perspective(found_plugins.values()[0], True)
-        plugin_manager.load_plugin(found_plugins.keys()[0], 0)
+    print 'QtBindingHelper: using %s' % QT_BINDING
+
+    if options.standalone_plugin is not None:
+        perspective_manager.set_perspective(found_plugins.keys()[0], True)
+        if not plugin_manager.is_plugin_running(found_plugins.keys()[0], 0):
+            plugin_manager.load_plugin(found_plugins.keys()[0], 0)
 
     else:
         perspective_manager.set_perspective(options.perspective)

@@ -77,21 +77,29 @@ class PluginManager(QObject):
 
 
     def find_plugins_by_name(self, lookup_name):
-        found_plugins = {}
-        for plugin_id, plugin_descriptor in self._plugin_descriptors.items():
+        plugins = {}
+        for plugin_id, plugin_full_name in self.get_plugins().items():
+            if plugin_full_name.lower().find(lookup_name.lower()) >= 0:
+                plugins[plugin_id] = plugin_full_name
+        return plugins
 
+
+    def get_plugins(self):
+        plugins = {}
+        for plugin_id, plugin_descriptor in self._plugin_descriptors.items():
             plugin_name_parts = []
             plugin_name = plugin_descriptor.attributes().get('plugin_name', None)
             if plugin_name is not None:
                 plugin_name_parts.append(plugin_name)
             plugin_name_parts += plugin_descriptor.attributes().get('class_type', 'unknown').split('::')
-
             plugin_full_name = '/'.join(plugin_name_parts)
+            plugins[plugin_id] = plugin_full_name
+        return plugins
 
-            if plugin_full_name.lower().find(lookup_name) >= 0:
-                found_plugins[plugin_id] = plugin_full_name
 
-        return found_plugins
+    def is_plugin_running(self, plugin_id, serial_number):
+        instance_id = self._build_instance_id(plugin_id, serial_number)
+        return instance_id in self._running_plugins
 
 
     @Slot(str)
