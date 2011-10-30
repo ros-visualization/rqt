@@ -98,16 +98,15 @@ def pyside():
                 self._base_instance = baseinstance
                 self._custom_widgets = custom_widgets or {}
 
-            def createWidget(self, className, parent=None, name=""):
-                if className in self._custom_widgets:
-                    widget = self._custom_widgets[className](parent)
+            def createWidget(self, class_name, parent=None, name=''):
+                if class_name in self._custom_widgets:
+                    widget = self._custom_widgets[class_name](parent)
                 else:
-                    widget = QUiLoader.createWidget(self, className, parent, name)
-                if str(type(widget)).find(className) < 0:
-                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (className, type(widget))))
-                if parent is None:
-                    return self._base_instance
-                setattr(self._base_instance, name, widget)
+                    widget = QUiLoader.createWidget(self, class_name, parent, name)
+                if str(type(widget)).find(class_name) < 0:
+                    sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (class_name, type(widget))))
+                if self._base_instance is not None:
+                    setattr(self._base_instance, name, widget)
                 return widget
 
         loader = CustomUiLoader(baseinstance, custom_widgets)
