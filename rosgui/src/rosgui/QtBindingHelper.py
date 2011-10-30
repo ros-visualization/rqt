@@ -106,6 +106,8 @@ def pyside():
                 if str(type(widget)).find(class_name) < 0:
                     sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (class_name, type(widget))))
                 if self._base_instance is not None:
+                    if parent is None:
+                        return self._base_instance
                     setattr(self._base_instance, name, widget)
                 return widget
 
