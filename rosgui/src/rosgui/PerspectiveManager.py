@@ -239,6 +239,11 @@ class PerspectiveManager(QObject):
 
     def _on_import_perspective(self):
         file_name = QFileDialog.getOpenFileName(self._menu_manager.menu, self.tr('Import perspective from file'), None, self.tr('Perspectives (*.perspective)'))
+        # return type might be a string or a tuple
+        try:
+            file_name, _ = file_name
+        except ValueError:
+            pass
         if file_name is None or file_name == '':
             return
 
@@ -267,6 +272,11 @@ class PerspectiveManager(QObject):
 
     def _on_export_perspective(self):
         file_name = QFileDialog.getSaveFileName (self._menu_manager.menu, self.tr('Export perspective to file'), self._current_perspective + '.perspective', self.tr('Perspectives (*.perspective)'))
+        # return type might be a string or a tuple
+        try:
+            file_name, _ = file_name
+        except ValueError:
+            pass
         if file_name is None or file_name == '':
             return
 

@@ -201,6 +201,11 @@ class RosGraph(QObject):
     def _load_dot(self, file_name=None):
         if file_name is None:
             file_name = QFileDialog.getOpenFileName(self._widget, self.tr('Open graph from file'), None, self.tr('DOT graph (*.dot)'))
+            # return type might be a string or a tuple
+            try:
+                file_name, _ = file_name
+            except ValueError:
+                pass
             if file_name is None or file_name == '':
                 return
 
@@ -223,6 +228,11 @@ class RosGraph(QObject):
 
     def _save_dot(self):
         file_name = QFileDialog.getSaveFileName (self._widget, self.tr('Save as DOT'), 'rosgraph.dot', self.tr('DOT graph (*.dot)'))
+        # return type might be a string or a tuple
+        try:
+            file_name, _ = file_name
+        except ValueError:
+            pass
         if file_name is None or file_name == '':
             return
 
@@ -235,6 +245,11 @@ class RosGraph(QObject):
 
     def _save_svg(self):
         file_name = QFileDialog.getSaveFileName (self._widget, self.tr('Save as SVG'), 'rosgraph.svg', self.tr('Scalable Vector Graphic (*.svg)'))
+        # return type might be a string or a tuple
+        try:
+            file_name, _ = file_name
+        except ValueError:
+            pass
         if file_name is None or file_name == '':
             return
 
@@ -249,6 +264,11 @@ class RosGraph(QObject):
 
     def _save_image(self):
         file_name = QFileDialog.getSaveFileName (self._widget, self.tr('Save as image'), 'rosgraph.png', self.tr('Image (*.bmp *.jpg *.png *.tiff)'))
+        # return type might be a string or a tuple
+        try:
+            file_name, _ = file_name
+        except ValueError:
+            pass
         if file_name is None or file_name == '':
             return
 
