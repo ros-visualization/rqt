@@ -305,28 +305,47 @@ class PerspectiveManager(QObject):
 
     def _import_value(self, value):
         import QtCore #@UnusedImport
-        return eval(value['repr'])
+        if value['type'] == 'repr':
+            return eval(value['repr'])
+        elif value['type'] == 'repr(QByteArray.hex)':
+            return QByteArray.fromHex(eval(value['repr(QByteArray.hex)']))
+        raise RuntimeError('PerspectiveManager._import_value() unknown serialization type (%s)' % value['type'])
 
 
     def _export_value(self, value):
-        mod_repr = self._strip_qt_binding_prefix(value, repr(value))
-        pretty_print = self._pretty_print(value)
-        data = {
-            'repr': mod_repr,
-            'pretty-print': pretty_print,
-        }
+        data = {}
+        if value.__class__.__name__ == 'QByteArray':
+            hex_value = value.toHex()
+            data['repr(QByteArray.hex)'] = self._strip_qt_binding_prefix(hex_value, repr(hex_value))
+            data['type'] = 'repr(QByteArray.hex)'
+
+            characters = ''
+            for i in range(1, value.size(), 2):
+                character = value.at(i)
+                # output all non-control characters
+                if character >= ' ' and character <= '~':
+                    characters += character
+                else:
+                    characters += ' '
+            data['pretty-print'] = characters
+
+        else:
+            data['repr'] = self._strip_qt_binding_prefix(value, repr(value))
+            data['type'] = 'repr'
+
+        # verify that serialized data can be deserialized correctly
         reimported = self._import_value(data)
         if reimported != value:
             raise RuntimeError('PerspectiveManager._export_value() stored value can not be restored (%s)' % type(value))
+
         return data
 
 
     def _strip_qt_binding_prefix(self, obj, data):
-        if hasattr(obj, '__module__'):
-            parts = obj.__module__.split('.')
-            if len(parts) > 1 and parts[1] == 'QtCore':
-                prefix = '.'.join(parts[:2])
-                data = data.replace(prefix, 'QtCore', 1)
+        parts = obj.__class__.__module__.split('.')
+        if len(parts) > 1 and parts[1] == 'QtCore':
+            prefix = '.'.join(parts[:2])
+            data = data.replace(prefix, 'QtCore', 1)
         return data
 
 
