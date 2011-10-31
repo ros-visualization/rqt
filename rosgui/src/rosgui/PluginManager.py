@@ -192,7 +192,7 @@ class PluginManager(QObject):
         plugin_descriptor = self._plugin_descriptors[plugin_id]
         action_attributes = plugin_descriptor.action_attributes()
         # create action
-        label = 'Close: ' + action_attributes['label']
+        label = self.tr('Close:') + ' ' + action_attributes['label']
         if serial_number != 1:
             label = label + ' (%s)' % str(serial_number)
         action = QAction(label, self._running_menu_manager.menu)
