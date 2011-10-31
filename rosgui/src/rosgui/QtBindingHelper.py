@@ -98,22 +98,31 @@ def pyside():
         from PySide.QtCore import QMetaObject
 
         class CustomUiLoader(QUiLoader):
+            class_aliases = {
+                'Line': 'QFrame',
+            }
+
             def __init__(self, baseinstance=None, custom_widgets=None):
                 super(CustomUiLoader, self).__init__(baseinstance)
                 self._base_instance = baseinstance
                 self._custom_widgets = custom_widgets or {}
 
             def createWidget(self, class_name, parent=None, name=''):
+                # don't create the top-level widget, if a base instance is set
+                if self._base_instance is not None and parent is None:
+                    return self._base_instance
+
                 if class_name in self._custom_widgets:
                     widget = self._custom_widgets[class_name](parent)
                 else:
                     widget = QUiLoader.createWidget(self, class_name, parent, name)
-                if str(type(widget)).find(class_name) < 0:
+
+                if str(type(widget)).find(self.class_aliases.get(class_name, class_name)) < 0:
                     sys.modules['QtCore'].qDebug(str('PySide.loadUi(): could not find widget class "%s", defaulting to "%s"' % (class_name, type(widget))))
+
                 if self._base_instance is not None:
-                    if parent is None:
-                        return self._base_instance
                     setattr(self._base_instance, name, widget)
+
                 return widget
 
         loader = CustomUiLoader(baseinstance, custom_widgets)
