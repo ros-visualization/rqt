@@ -1,8 +1,7 @@
 from rosgui.PluginDescriptor import PluginDescriptor
 from rosgui.PluginProvider import PluginProvider
 
-import CppBindingHelper #@UnusedImport
-from rosgui_cpp import rosgui_cpp
+from CppBindingHelper import rosgui_cpp
 
 class RosPluginlibPluginProvider(PluginProvider):
 
@@ -27,6 +26,8 @@ class RosPluginlibPluginProvider(PluginProvider):
         return plugin_descriptors
 
     def load(self, plugin_id, plugin_context):
+        if rosgui_cpp is None:
+            return None
         cpp_plugin_context = None
         main_window = rosgui_cpp.MainWindowInterface(plugin_context.main_window())
         if plugin_context is not None:

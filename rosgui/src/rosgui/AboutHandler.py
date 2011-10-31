@@ -14,11 +14,7 @@ class AboutHandler(QObject):
     def show(self):
         # append folder of 'rosgui_cpp/lib' to module search path
         sys.path.append(os.path.realpath(os.path.join(get_package_path('rosgui_cpp'), 'lib')))
-        try:
-            import CppBindingHelper #@UnusedImport
-            from rosgui_cpp import rosgui_cpp
-        except ImportError:
-            rosgui_cpp = None
+        from CppBindingHelper import rosgui_cpp
 
         _rospkg_version = None
         try:
