@@ -38,7 +38,7 @@ set(rosgui_cpp_HDRS
 
 add_custom_command(
   OUTPUT ${SIP_BUILD_DIR}/Makefile
-  COMMAND python configure.py ${rosgui_cpp_SOURCE_DIR} ${SIP_BUILD_DIR} rosgui_cpp.sip ${PROJECT_SOURCE_DIR}/lib
+  COMMAND python configure.py ${SIP_BUILD_DIR} rosgui_cpp.sip ${PROJECT_SOURCE_DIR}/lib
   DEPENDS configure.py ${rosgui_cpp_sip_SIPS} ${rosgui_cpp_HDRS}
   WORKING_DIRECTORY ${SIP_SRC_DIR}
   COMMENT "Running SIP generator for librosgui_cpp Python bindings..."
