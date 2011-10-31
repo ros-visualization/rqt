@@ -18,6 +18,7 @@ class MainWindowInterface(QWidget):
         self._hide_close_button_flag = hide_close_button
         self._plugin_instance = None
         self._dock_widgets = []
+        self.hide()
 
 
     # pointer to QDockWidget must be used for PySide to work (at least with 1.0.1)
