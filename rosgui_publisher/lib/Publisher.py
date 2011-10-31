@@ -11,6 +11,7 @@ from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 import roslib
 roslib.load_manifest('rosgui_publisher')
 import rosmsg, rospy
+from ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
 class Publisher(QDockWidget):
@@ -30,7 +31,7 @@ class Publisher(QDockWidget):
         del self._eval_locals['__doc__']
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
-        loadUi(ui_file, self)
+        loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox})
 
         if plugin_context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
