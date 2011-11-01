@@ -65,7 +65,7 @@ def pyqt():
         return uic.loadUi(uifile, baseinstance=baseinstance)
 
     # override specific function to improve compatibility between different bindings
-    from QtCore import QFileDialog
+    from QtGui import QFileDialog
     QFileDialog.getOpenFileName = QFileDialog.getOpenFileNameAndFilter
     QFileDialog.getSaveFileName = QFileDialog.getSaveFileNameAndFilter
 
