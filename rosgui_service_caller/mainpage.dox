@@ -1,0 +1,6 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b rosgui_publisher provides a rosgui plugin for publishing arbitrary messages with fixed or computed field values.
+*/

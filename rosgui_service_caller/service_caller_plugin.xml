@@ -1,0 +1,12 @@
+<library path="lib/ServiceCaller">
+  <class name="ServiceCaller" type="ServiceCaller" base_class_type="rosgui_rospy::Plugin">
+    <description>
+      A Python GUI plugin calling ROS services.
+    </description>
+    <rosguiplugin>
+      <label>ServiceCaller</label>
+      <icon type="theme">media-playback-start</icon>
+      <statustip>A Python GUI plugin calling ROS services.</statustip>
+    </rosguiplugin>
+  </class>
+</library>

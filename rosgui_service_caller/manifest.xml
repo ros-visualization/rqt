@@ -1,0 +1,22 @@
+<package>
+  <description brief="Plugin for calling arbitrary services">
+
+     rosgui_publisher provides a rosgui plugin for calling arbitrary services.
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_publisher</url>
+
+  <depend package="rosgui"/>
+  <depend package="rosgui_rospy"/>
+  <depend package="rosservice"/>
+  <depend package="rosgui_py_common"/>
+
+  <export>
+    <rosgui plugin="${prefix}/service_caller_plugin.xml"/>
+  </export>
+
+</package>
+
