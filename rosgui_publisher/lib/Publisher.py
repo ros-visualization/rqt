@@ -11,6 +11,7 @@ from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 import roslib
 roslib.load_manifest('rosgui_publisher')
 import rosmsg, rospy
+from roslib.msgs import load_package, load_package_dependencies, REGISTERED_TYPES
 from ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
@@ -42,9 +43,8 @@ class Publisher(QDockWidget):
 
         self._publishers = {}
         self._id_counter = 0
-        self._message_classes = {}
         for message_package_name in rosmsg.iterate_packages('.msg'):
-            self.add_message_package(message_package_name)
+            load_package(message_package_name)
 
         self._timeout_mapper = QSignalMapper(self)
         self._timeout_mapper.mapped[int].connect(self.timeout)
@@ -56,7 +56,7 @@ class Publisher(QDockWidget):
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
 
 
-    def add_message_package(self, package_name):
+    def import_message_package(self, package_name):
         try:
             package_dir = roslib.packages.get_pkg_dir(package_name)
         except Exception:
@@ -79,51 +79,7 @@ class Publisher(QDockWidget):
 
     def update_type_combo_box(self):
         self.type_combo_box.clear()
-        self.type_combo_box.addItems(sorted(self._message_classes.keys()))
-
-
-    def _extract_array_info(self, type_str):
-        array_size = None
-        if '[' in type_str and type_str[-1] == ']':
-            type_str, array_size_str = type_str.split('[', 1)
-            array_size_str = array_size_str[:-1]
-            if len(array_size_str) > 0:
-                array_size = int(array_size_str)
-            else:
-                array_size = 0
-
-        return type_str, array_size
-
-
-    def _create_message_instance(self, type_str):
-        base_type_str, array_size = self._extract_array_info(type_str)
-
-        if base_type_str not in self._message_classes:
-            if '/' not in base_type_str:
-                message = eval(roslib.genpy.default_value(type_str, 'std_msgs'))
-                print 'def:', message
-                return message, base_type_str
-
-            package_name = base_type_str.split('/', 1)[0]
-            self.add_message_package(package_name)
-            if base_type_str not in self._message_classes:
-                qDebug('Publisher._create_message_instance(): failed to resolve message type "%s"' % base_type_str)
-                return None, base_type_str
-
-            self.update_type_combo_box()
-
-        if array_size is not None:
-            message_type = list
-            message = []
-            for i in range(array_size):
-                instance, _ = self._create_message_instance(base_type_str)
-                print 'inst:', instance
-                message.append(instance)
-        else:
-            message_type = self._message_classes[base_type_str]
-            message = self._message_classes[base_type_str]()
-
-        return message, message_type
+        self.type_combo_box.addItems(sorted(REGISTERED_TYPES.keys()))
 
 
     @Slot()
@@ -145,12 +101,12 @@ class Publisher(QDockWidget):
         publisher_info['enabled'] = publisher_info.get('enabled', False)
         publisher_info['expressions'] = publisher_info.get('expressions', {})
 
-        publisher_info['message_instance'], publisher_info['type'] = self._create_message_instance(publisher_info['type_name'])
+        publisher_info['message_instance'] = self._create_message_instance(publisher_info['type_name'])
         if publisher_info['message_instance'] is None:
             return
 
         # create publisher and timer
-        publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], publisher_info['type'])
+        publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], type(publisher_info['message_instance']))
         publisher_info['timer'] = QTimer(self)
 
         # add publisher info to _publishers dict and create signal mapping  
@@ -165,7 +121,7 @@ class Publisher(QDockWidget):
 
     def _show_publisher_in_tree_view(self, publisher_info):
         # recursively create widget items for the message's slots 
-        top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['type']._type, publisher_info['message_instance'], publisher_info['publisher_id'], publisher_info['expressions'])
+        top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['message_instance']._type, publisher_info['message_instance'], publisher_info['publisher_id'], publisher_info['expressions'])
 
         # fill tree widget columns of top level item
         top_level_item.setText(self._column_index['enabled'], str(publisher_info['enabled']))
@@ -217,6 +173,37 @@ class Publisher(QDockWidget):
         return item
 
 
+    def _extract_array_info(self, type_str):
+        array_size = None
+        if '[' in type_str and type_str[-1] == ']':
+            type_str, array_size_str = type_str.split('[', 1)
+            array_size_str = array_size_str[:-1]
+            if len(array_size_str) > 0:
+                array_size = int(array_size_str)
+            else:
+                array_size = 0
+
+        return type_str, array_size
+
+
+    def _create_message_instance(self, type_str):
+        base_type_str, array_size = self._extract_array_info(type_str)
+
+        if roslib.genpy.is_simple(base_type_str):
+            message = eval(roslib.genpy.default_value(type_str, ''))
+        else:
+            base_message_type = roslib.message.get_message_class(base_type_str)
+
+            if array_size is not None:
+                message = []
+                for i in range(array_size):
+                    message.append(base_message_type())
+            else:
+                message = base_message_type()
+
+        return message
+
+
     @Slot('QTreeWidgetItem*', int)
     def publishers_tree_widget_itemChanged(self, item, column):
         column_name = self.column_names[column]
@@ -228,7 +215,7 @@ class Publisher(QDockWidget):
             publisher_info = self._publishers[item.publisher_id]
 
             if column_name == 'enabled':
-                publisher_info['enabled'] = (new_value and str(new_value).lower() in ['1', 'true', 'yes'])
+                publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
                 item.setText(column, '%s' % publisher_info['enabled'])
                 #qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
                 if publisher_info['enabled']:
@@ -237,14 +224,9 @@ class Publisher(QDockWidget):
                     publisher_info['timer'].stop()
 
             elif column_name == 'type':
-                type_name = str(new_value)
+                type_name = new_value
                 # create new slot
-                #slot_value, _ = self._create_message_instance(type_name)
-                if '/' in type_name:
-                    package, type_str = type_name.split('/')
-                else:
-                    package, type_str = 'std_msgs', type_name
-                slot_value = roslib.genpy.default_value(type_str, package)
+                slot_value = self._create_message_instance(type_name)
 
                 # find parent slot
                 topic_name = str(item.data(0, Qt.UserRole))
@@ -400,7 +382,6 @@ class Publisher(QDockWidget):
             publisher_copy.update(publisher)
             publisher_copy['enabled'] = False
             del publisher_copy['timer']
-            del publisher_copy['type']
             del publisher_copy['message_instance']
             del publisher_copy['publisher']
             publisher_copies.append(publisher_copy)
