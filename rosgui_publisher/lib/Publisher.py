@@ -82,15 +82,48 @@ class Publisher(QDockWidget):
         self.type_combo_box.addItems(sorted(self._message_classes.keys()))
 
 
-    def check_valid_message_type(self, type_str):
-        if type_str not in self._message_classes:
-            package_name = type_str.split('/', 1)[0]
+    def _extract_array_info(self, type_str):
+        array_size = None
+        if '[' in type_str and type_str[-1] == ']':
+            type_str, array_size_str = type_str.split('[', 1)
+            array_size_str = array_size_str[:-1]
+            if len(array_size_str) > 0:
+                array_size = int(array_size_str)
+            else:
+                array_size = 0
+
+        return type_str, array_size
+
+
+    def _create_message_instance(self, type_str):
+        base_type_str, array_size = self._extract_array_info(type_str)
+
+        if base_type_str not in self._message_classes:
+            if '/' not in base_type_str:
+                message = eval(roslib.genpy.default_value(type_str, 'std_msgs'))
+                print 'def:', message
+                return message, base_type_str
+
+            package_name = base_type_str.split('/', 1)[0]
             self.add_message_package(package_name)
-            if type_str not in self._message_classes:
-                qDebug('Publisher.on_add_publisher_button_clicked(): failed to resolve message type "%s"' % type_str)
-                return False
+            if base_type_str not in self._message_classes:
+                qDebug('Publisher._create_message_instance(): failed to resolve message type "%s"' % base_type_str)
+                return None, base_type_str
+
             self.update_type_combo_box()
-        return True
+
+        if array_size is not None:
+            message_type = list
+            message = []
+            for i in range(array_size):
+                instance, _ = self._create_message_instance(base_type_str)
+                print 'inst:', instance
+                message.append(instance)
+        else:
+            message_type = self._message_classes[base_type_str]
+            message = self._message_classes[base_type_str]()
+
+        return message, message_type
 
 
     @Slot()
@@ -112,9 +145,9 @@ class Publisher(QDockWidget):
         publisher_info['enabled'] = publisher_info.get('enabled', False)
         publisher_info['expressions'] = publisher_info.get('expressions', {})
 
-        if not self.check_valid_message_type(publisher_info['type_name']):
+        publisher_info['message_instance'], publisher_info['type'] = self._create_message_instance(publisher_info['type_name'])
+        if publisher_info['message_instance'] is None:
             return
-        publisher_info['type'] = self._message_classes[publisher_info['type_name']]
 
         # create publisher and timer
         publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], publisher_info['type'])
@@ -127,16 +160,26 @@ class Publisher(QDockWidget):
         if publisher_info['enabled']:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
 
+        self._show_publisher_in_tree_view(publisher_info)
+
+
+    def _show_publisher_in_tree_view(self, publisher_info):
         # recursively create widget items for the message's slots 
-        top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['type']._type, publisher_info['type'](), publisher_info['publisher_id'], publisher_info['expressions'])
+        top_level_item = self._recursive_create_widget_items(None, publisher_info['topic_name'], publisher_info['type']._type, publisher_info['message_instance'], publisher_info['publisher_id'], publisher_info['expressions'])
 
         # fill tree widget columns of top level item
         top_level_item.setText(self._column_index['enabled'], str(publisher_info['enabled']))
         top_level_item.setText(self._column_index['rate'], str(publisher_info['rate']))
-        publisher_info['widgetItem'] = top_level_item
 
-        # add top level item to tree widget
-        self.publishers_tree_widget.addTopLevelItem(top_level_item)
+        # add/replace top level item in tree widget
+        for index in range(self.publishers_tree_widget.topLevelItemCount()):
+            if publisher_info['publisher_id'] == self.publishers_tree_widget.topLevelItem(index).publisher_id:
+                # publisher already found, replace item
+                self.publishers_tree_widget.takeTopLevelItem(index)
+                self.publishers_tree_widget.insertTopLevelItem(index, top_level_item)
+                break
+        else:
+            self.publishers_tree_widget.addTopLevelItem(top_level_item)
 
         # resize columns
         self.publishers_tree_widget.expandAll()
@@ -153,16 +196,24 @@ class Publisher(QDockWidget):
         item = QTreeWidgetItem(parent)
         item.setText(self._column_index['topic'], topic_text)
         item.setText(self._column_index['type'], type_name)
-        if topic_name in expressions:
-            item.setText(self._column_index['expression'], expressions[topic_name])
-        elif not hasattr(message, '__slots__'):
-            item.setText(self._column_index['expression'], repr(message))
         item.setFlags(item.flags() | Qt.ItemIsEditable)
         item.setData(0, Qt.UserRole, topic_name)
         item.publisher_id = publisher_id
         if hasattr(message, '__slots__') and hasattr(message, '_slot_types'):
             for slot_name, type_name in zip(message.__slots__, message._slot_types):
                 self._recursive_create_widget_items(item, topic_name + '/' + slot_name, type_name, getattr(message, slot_name), publisher_id, expressions)
+
+        elif type(message) in (list, tuple) and (len(message) > 0) and hasattr(message[0], '__slots__'):
+            type_name = type_name.split('[', 1)[0]
+            for index, slot in enumerate(message):
+                self._recursive_create_widget_items(item, topic_name + '[%d]' % index, type_name, slot, publisher_id, expressions)
+
+        else:
+            if topic_name in expressions:
+                item.setText(self._column_index['expression'], expressions[topic_name])
+            elif not hasattr(message, '__slots__'):
+                item.setText(self._column_index['expression'], repr(message))
+
         return item
 
 
@@ -177,7 +228,7 @@ class Publisher(QDockWidget):
             publisher_info = self._publishers[item.publisher_id]
 
             if column_name == 'enabled':
-                publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
+                publisher_info['enabled'] = (new_value and str(new_value).lower() in ['1', 'true', 'yes'])
                 item.setText(column, '%s' % publisher_info['enabled'])
                 #qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
                 if publisher_info['enabled']:
@@ -185,16 +236,53 @@ class Publisher(QDockWidget):
                 else:
                     publisher_info['timer'].stop()
 
+            elif column_name == 'type':
+                type_name = str(new_value)
+                # create new slot
+                #slot_value, _ = self._create_message_instance(type_name)
+                if '/' in type_name:
+                    package, type_str = type_name.split('/')
+                else:
+                    package, type_str = 'std_msgs', type_name
+                slot_value = roslib.genpy.default_value(type_str, package)
+
+                # find parent slot
+                topic_name = str(item.data(0, Qt.UserRole))
+                slot_path = topic_name[len(publisher_info['topic_name']):].strip('/').split('/')
+                parent_slot = eval('.'.join(["publisher_info['message_instance']"] + slot_path[:-1]))
+
+                # find old slot
+                slot_name = slot_path[-1]
+                slot_index = parent_slot.__slots__.index(slot_name)
+
+                # restore type if user value was invalid
+                if slot_value is None:
+                    qDebug('Publisher.on_treePublishers_itemChanged(): could not find type: %s' % (type_name))
+                    item.setText(column, parent_slot._slot_types[slot_index])
+                    return
+
+                # replace old slot
+                parent_slot._slot_types[slot_index] = type_name
+                setattr(parent_slot, slot_name, slot_value)
+
+                self._show_publisher_in_tree_view(publisher_info)
+
             elif column_name == 'rate':
                 try:
-                    publisher_info['rate'] = float(new_value)
+                    rate = float(new_value)
                 except Exception:
                     qDebug('Publisher.on_treePublishers_itemChanged(): could not parse rate value: %s' % (new_value))
-                    return
-                qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
-                if publisher_info['enabled']:
-                    publisher_info['timer'].stop()
-                    publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
+                else:
+                    if rate <= 0:
+                        qDebug('Publisher.on_treePublishers_itemChanged(): invalid rate: %f' % (rate))
+                    else:
+                        publisher_info['rate'] = rate
+                        qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
+                        if publisher_info['enabled']:
+                            publisher_info['timer'].stop()
+                            publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
+                # make sure the column value reflects the actual rate
+                item.setText(column, '%.2f' % publisher_info['rate'])
 
             elif column_name == 'expression':
                 topic_name = str(item.data(0, Qt.UserRole))
@@ -262,9 +350,8 @@ class Publisher(QDockWidget):
     def timeout(self, publisher_id):
         publisher_info = self._publishers[publisher_id]
         publisher_info['counter'] += 1
-        message = publisher_info['type']()
-        self.fill_message_slots(message, publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
-        publisher_info['publisher'].publish(message)
+        self.fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
+        publisher_info['publisher'].publish(publisher_info['message_instance'])
 
 
     @Slot()
@@ -314,14 +401,14 @@ class Publisher(QDockWidget):
             publisher_copy['enabled'] = False
             del publisher_copy['timer']
             del publisher_copy['type']
+            del publisher_copy['message_instance']
             del publisher_copy['publisher']
-            del publisher_copy['widgetItem']
             publisher_copies.append(publisher_copy)
-        perspective_settings.set_value('_publishers', repr(publisher_copies))
+        perspective_settings.set_value('publishers', repr(publisher_copies))
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        publishers = eval(perspective_settings.value('_publishers', '[]'))
+        publishers = eval(perspective_settings.value('publishers', '[]'))
         for publisher in publishers:
             self._add_publisher(publisher)
 
