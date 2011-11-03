@@ -119,9 +119,27 @@ class TopicWidget(QDockWidget):
         if hasattr(message, '__slots__'):
             for slot_name in message.__slots__:
                 self.update_value(topic_name + '/' + slot_name, getattr(message, slot_name))
+
+        elif type(message) in (list, tuple) and (len(message) > 0) and hasattr(message[0], '__slots__'):
+            for index, slot in enumerate(message):
+                self.update_value(topic_name + '[%d]' % index, slot)
+
         else:
             if topic_name in self._tree_items:
                 self._tree_items[topic_name].setText(self._column_index['value'], repr(message))
+
+
+    def _extract_array_info(self, type_str):
+        array_size = None
+        if '[' in type_str and type_str[-1] == ']':
+            type_str, array_size_str = type_str.split('[', 1)
+            array_size_str = array_size_str[:-1]
+            if len(array_size_str) > 0:
+                array_size = int(array_size_str)
+            else:
+                array_size = 0
+
+        return type_str, array_size
 
 
     def _recursive_create_widget_items(self, parent, topic_name, type_name, message):
@@ -138,6 +156,16 @@ class TopicWidget(QDockWidget):
         if hasattr(message, '__slots__') and hasattr(message, '_slot_types'):
             for slot_name, type_name in zip(message.__slots__, message._slot_types):
                 self._recursive_create_widget_items(item, topic_name + '/' + slot_name, type_name, getattr(message, slot_name))
+
+        else:
+            base_type_str, array_size = self._extract_array_info(type_name)
+            try:
+                base_instance = roslib.message.get_message_class(base_type_str)()
+            except ValueError:
+                base_instance = None
+            if array_size is not None and hasattr(base_instance, '__slots__'):
+                for index in range(array_size):
+                    self._recursive_create_widget_items(item, topic_name + '[%d]' % index, type_name, base_instance)
 
 
     @Slot('QPoint')
