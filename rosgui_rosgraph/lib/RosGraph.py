@@ -65,7 +65,8 @@ class RosGraph(QObject):
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
         self._widget.refresh_graph_push_button.pressed.connect(self._update_rosgraph)
 
-        self._widget.highlight_level_spin_box.valueChanged.connect(self._redraw_graph_view)
+        self._widget.highlight_connections_check_box.toggled.connect(self._redraw_graph_view)
+        self._widget.auto_fit_graph_check_box.toggled.connect(self._redraw_graph_view)
         self._widget.fit_in_view_push_button.setIcon(QIcon.fromTheme('zoom-original'))
         self._widget.fit_in_view_push_button.pressed.connect(self._fit_in_view)
 
@@ -85,6 +86,21 @@ class RosGraph(QObject):
         # trigger deleteLater for plugin when _widget is closed
         self._widget.installEventFilter(self)
         main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
+
+    def save_settings(self, global_settings, perspective_settings):
+        perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
+        perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
+        perspective_settings.set_value('quiet_check_box_state', self._widget.quiet_check_box.isChecked())
+        perspective_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
+        perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
+
+    def restore_settings(self, global_settings, perspective_settings):
+        self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
+        self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', '/'))
+        self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', False) in [True, 'true'])
+        self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
+        self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
+        self._refresh_rosgraph()
 
     def _update_rosgraph(self):
         # re-enable controls customizing fetched ROS graph
@@ -138,7 +154,10 @@ class RosGraph(QObject):
     def _redraw_graph_view(self):
         self._scene.clear()
 
-        highlight_level = self._widget.highlight_level_spin_box.value()
+        if self._widget.highlight_connections_check_box.isChecked():
+            highlight_level = 3
+        else:
+            highlight_level = 1
 
         # read dot graph
         raw_graph = pydot.graph_from_dot_data(self._current_dotcode)
@@ -164,7 +183,7 @@ class RosGraph(QObject):
         nodes = {}
         for node in graph.nodes_iter():
             # hack required by pydot
-            if node.get_name() == 'graph' or node.get_name() == 'node':
+            if node.get_name() in ('graph', 'node', 'empty'):
                 continue
             # let pydot imitate pygraphviz api
             attr = {}
@@ -223,6 +242,8 @@ class RosGraph(QObject):
             self._scene.addItem(node_item)
 
         self._scene.setSceneRect(self._scene.itemsBoundingRect())
+        if self._widget.auto_fit_graph_check_box.isChecked():
+            self._fit_in_view()
 
     def _load_dot(self, file_name=None):
         if file_name is None:
