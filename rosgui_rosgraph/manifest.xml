@@ -15,6 +15,7 @@
 
   <depend package="rosnode"/>
   <depend package="rostopic"/>
+  <depend package="rosservice"/>
 
   <rosdep name="python-pydot"/>
 

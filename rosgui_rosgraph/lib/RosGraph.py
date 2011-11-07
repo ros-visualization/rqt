@@ -13,7 +13,7 @@ from QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rosgui_rosgraph')
-import rosgraph.impl.graph
+import rosgraph.impl.graph, rostopic, rosnode, rosservice
 
 import dotcode
 reload(dotcode)
@@ -46,7 +46,6 @@ class RosGraph(QObject):
         self._widget.setObjectName('RosGraphUi')
         if plugin_context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
-        main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
 
         self._scene = QGraphicsScene()
         self._widget.graphics_view.setScene(self._scene)
@@ -85,6 +84,7 @@ class RosGraph(QObject):
 
         # trigger deleteLater for plugin when _widget is closed
         self._widget.installEventFilter(self)
+        main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
 
     def _update_rosgraph(self):
         # re-enable controls customizing fetched ROS graph
@@ -118,6 +118,22 @@ class RosGraph(QObject):
             return
         self._current_dotcode = dotcode
         self._redraw_graph_view()
+
+    def _generate_tool_tip(self, url):
+        if url is not None and ':' in url:
+            item_type, item_path = url.split(':', 1)
+            if item_type == 'node':
+                tool_tip = 'Node:\n  %s' % (item_path)
+                service_names = rosservice.get_service_list(node=item_path)
+                if service_names:
+                    tool_tip += '\nServices:'
+                    for service_name in service_names:
+                        tool_tip += '\n  %s [%s]' % (service_name, rosservice.get_service_type(service_name))
+                return tool_tip
+            elif item_type == 'topic':
+                topic_type, topic_name, _ = rostopic.get_topic_type(item_path)
+                return 'Topic:\n  %s\nType:\n  %s' % (topic_name, topic_type)
+        return url
 
     def _redraw_graph_view(self):
         self._scene.clear()
@@ -162,6 +178,7 @@ class RosGraph(QObject):
             pos = node.attr['pos'].split(',')
             bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
             node_item = NodeItem(highlight_level, bounding_box, node.attr['label'], node.attr.get('shape', 'ellipse'))
+            node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
 
             # let pydot imitate pygraphviz api
             pydot.Node.__repr__ = lambda self: self.get_name()
@@ -177,8 +194,8 @@ class RosGraph(QObject):
                 attr[name] = value
             edge.attr = attr
 
-            label = edge.attr.get('label', '')
-            label_pos = edge.attr.get('lp', '0,0')
+            label = edge.attr.get('label', None)
+            label_pos = edge.attr.get('lp', None)
             label_center = None
             if label_pos is not None:
                 label_pos = label_pos.split(',')
@@ -191,13 +208,16 @@ class RosGraph(QObject):
             # create edge with from-node and to-node
             edge_item = EdgeItem(highlight_level, edge.attr['pos'], label_center, label, nodes[source_node], nodes[destination_node])
             # symmetrically add all sibling edges with same label
-            if not edges.has_key(label):
-                edges[label] = []
-            for sibling in edges[label]:
-                edge_item.add_sibling_edge(sibling)
-                sibling.add_sibling_edge(edge_item)
-            edges[label].append(edge_item)
-            edge_item.add_to_scene(self._scene)
+            if label is not None:
+                if not edges.has_key(label):
+                    edges[label] = []
+                for sibling in edges[label]:
+                    edge_item.add_sibling_edge(sibling)
+                    sibling.add_sibling_edge(edge_item)
+                edges[label].append(edge_item)
+
+            edge_item.setToolTip(self._generate_tool_tip(edge.attr.get('URL', None)))
+            self._scene.addItem(edge_item)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)

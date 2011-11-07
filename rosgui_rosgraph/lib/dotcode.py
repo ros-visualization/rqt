@@ -19,11 +19,17 @@ def safe_dotcode_name(name):
     ret = ret.replace('-', '_')
     return ret
 
-def _edge_to_dot(e):
+def _edge_to_dot(e, is_topic=False):
+    attr = {}
     if e.label:
-        return '    %s->%s [label="%s"]' % (safe_dotcode_name(e.start), safe_dotcode_name(e.end), e.label)
+        attr['label'] = e.label
+        if is_topic:
+            attr['URL'] = 'topic:%s' % e.label
+    if attr:
+        attr_str = '[' + (', '.join(['%s="%s"' % (key, value) for key, value in attr.items()])) + ']'
     else:
-        return '    %s->%s' % (safe_dotcode_name(e.start), safe_dotcode_name(e.end))
+        attr_str = ''
+    return '    %s->%s %s' % (safe_dotcode_name(e.start), safe_dotcode_name(e.end), attr_str)
 
 def _generate_node_dotcode(node, g, quiet):
     if node in g.bad_nodes:
@@ -139,6 +145,6 @@ def generate_dotcode(g, ns_filter, graph_mode, orientation, quiet=False):
         edges = filter(_quiet_filter_edge, edges)
 
     edges = _filter_edges(edges, nodes)
-    edges_str = '\n'.join([_edge_to_dot(e) for e in edges])
+    edges_str = '\n'.join([_edge_to_dot(e, is_topic=(graph_mode == NODE_NODE_GRAPH)) for e in edges])
     return "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
 
