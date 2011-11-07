@@ -15,8 +15,14 @@ import roslib
 roslib.load_manifest('rosgui_rosgraph')
 import rosgraph.impl.graph
 
+import dotcode
+reload(dotcode)
 from dotcode import generate_dotcode, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
+import EdgeItem
+reload(EdgeItem)
 from EdgeItem import EdgeItem
+import NodeItem
+reload(NodeItem)
 from NodeItem import NodeItem
 
 class RosGraph(QObject):
@@ -60,7 +66,7 @@ class RosGraph(QObject):
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
         self._widget.refresh_graph_push_button.pressed.connect(self._update_rosgraph)
 
-        self._widget.highlight_level_spin_box.valueChanged.connect(self._refresh_graph)
+        self._widget.highlight_level_spin_box.valueChanged.connect(self._redraw_graph_view)
         self._widget.fit_in_view_push_button.setIcon(QIcon.fromTheme('zoom-original'))
         self._widget.fit_in_view_push_button.pressed.connect(self._fit_in_view)
 
@@ -96,24 +102,24 @@ class RosGraph(QObject):
         self._refresh_rosgraph()
 
     def _refresh_rosgraph(self):
-        self._update_graph(self._generate_dotcode())
+        self._update_graph_view(self._generate_dotcode())
 
     def _generate_dotcode(self):
         ns_filter = self._widget.filter_line_edit.text()
-        if ns_filter == '' or ns_filter[-1] != '/':
+        if not ns_filter.endswith('/'):
             ns_filter += '/'
         graph_mode = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         orientation = 'LR'
         quiet = self._widget.quiet_check_box.isChecked()
         return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
 
-    def _update_graph(self, dotcode):
+    def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
             return
         self._current_dotcode = dotcode
-        self._refresh_graph()
+        self._redraw_graph_view()
 
-    def _refresh_graph(self):
+    def _redraw_graph_view(self):
         self._scene.clear()
 
         highlight_level = self._widget.highlight_level_spin_box.value()
@@ -151,11 +157,11 @@ class RosGraph(QObject):
                 attr[name] = value
             node.attr = attr
 
-            # decrease rect by one so that edges do not reach inland
-            ellipse_rect = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
+            # decrease rect by one so that edges do not reach inside
+            bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
             pos = node.attr['pos'].split(',')
-            ellipse_rect.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
-            node_item = NodeItem(highlight_level, ellipse_rect, node.attr['label'])
+            bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
+            node_item = NodeItem(highlight_level, bounding_box, node.attr['label'], node.attr.get('shape', 'ellipse'))
 
             # let pydot imitate pygraphviz api
             pydot.Node.__repr__ = lambda self: self.get_name()
@@ -171,12 +177,12 @@ class RosGraph(QObject):
                 attr[name] = value
             edge.attr = attr
 
-            label = edge.attr['label']
-            pos = edge.attr['lp']
+            label = edge.attr.get('label', '')
+            label_pos = edge.attr.get('lp', '0,0')
             label_center = None
-            if pos is not None:
-                pos = pos.split(',')
-                label_center = QPointF(float(pos[0]), -float(pos[1]))
+            if label_pos is not None:
+                label_pos = label_pos.split(',')
+                label_center = QPointF(float(label_pos[0]), -float(label_pos[1]))
 
             # try pydot, fallback for pygraphviz
             source_node = edge.get_source() if hasattr(edge, 'get_source') else edge[0]
@@ -216,7 +222,7 @@ class RosGraph(QObject):
         self._widget.filter_line_edit.setEnabled(False)
         self._widget.quiet_check_box.setEnabled(False)
 
-        self._update_graph(dotcode)
+        self._update_graph_view(dotcode)
 
     def _fit_in_view(self):
         self._widget.graphics_view.fitInView(self._scene.itemsBoundingRect(), Qt.KeepAspectRatio)

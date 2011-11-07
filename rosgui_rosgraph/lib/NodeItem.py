@@ -1,12 +1,12 @@
 import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import Qt
-from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsSimpleTextItem, QPen
+from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen
 
 from RosGraphItem import RosGraphItem
 
 class NodeItem(RosGraphItem):
 
-    def __init__(self, highlight_level, ellipse_rect, label, parent=None):
+    def __init__(self, highlight_level, bounding_box, label, shape='ellipse', parent=None):
         super(NodeItem, self).__init__(highlight_level, parent)
 
         self._default_color = self._COLOR_BLACK
@@ -20,12 +20,15 @@ class NodeItem(RosGraphItem):
         self._incoming_edges = set()
         self._outgoing_edges = set()
 
-        self._ellipse = QGraphicsEllipseItem(ellipse_rect)
-        self.addToGroup(self._ellipse)
+        if shape == 'box':
+            self._graphics_item = QGraphicsRectItem(bounding_box)
+        else:
+            self._graphics_item = QGraphicsEllipseItem(bounding_box)
+        self.addToGroup(self._graphics_item)
 
         self._label = QGraphicsSimpleTextItem(label)
         label_rect = self._label.boundingRect()
-        label_rect.moveCenter(ellipse_rect.center())
+        label_rect.moveCenter(bounding_box.center())
         self._label.setPos(label_rect.x(), label_rect.y())
         self.addToGroup(self._label)
 
@@ -47,7 +50,7 @@ class NodeItem(RosGraphItem):
         self._ellipse_pen.setColor(color)
         self._label_pen.setColor(color)
 
-        self._ellipse.setPen(self._ellipse_pen)
+        self._graphics_item.setPen(self._ellipse_pen)
         self._label.setBrush(self._brush)
         self._label.setPen(self._label_pen)
 
