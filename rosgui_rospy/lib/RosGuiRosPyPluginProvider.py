@@ -19,6 +19,6 @@ class RosGuiRosPyPluginProvider(CompositePluginProvider):
 
     def discover(self):
         # initialize ROS node
-        rospy.init_node('rosgui_rospy_node', None, True, rospy.INFO, False, False, True)
+        rospy.init_node('rosgui_rospy_node', argv=None, anonymous=True, log_level=rospy.INFO, disable_rostime=False, disable_rosout=False, disable_signals=True)
 
         return CompositePluginProvider.discover(self)

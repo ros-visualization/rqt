@@ -16,7 +16,7 @@ reload(TopicInfo) # force reload to update on changes during runtime
 
 # main class inherits from the ui window class
 class TopicWidget(QDockWidget):
-    column_names = ['topic', 'type', 'bandwidth', 'rate', 'value']
+    _column_names = ['topic', 'type', 'bandwidth', 'rate', 'value']
 
     def __init__(self, plugin, plugin_context):
         super(TopicWidget, self).__init__(plugin_context.main_window())
@@ -28,7 +28,7 @@ class TopicWidget(QDockWidget):
         self._topic_infos = {}
         self._tree_items = {}
         self._column_index = {}
-        for column_name in self.column_names:
+        for column_name in self._column_names:
             self._column_index[column_name] = len(self._column_index)
 
         self.refresh_topics()

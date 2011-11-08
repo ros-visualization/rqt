@@ -11,12 +11,12 @@ from QtGui import QDockWidget, QTreeWidgetItem, QMenu
 import roslib
 roslib.load_manifest('rosgui_publisher')
 import rosmsg, rospy
-from roslib.msgs import load_package, load_package_dependencies, REGISTERED_TYPES
+from roslib.msgs import load_package, REGISTERED_TYPES
 from ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
 class Publisher(QDockWidget):
-    column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
+    _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
 
 
     def __init__(self, parent, plugin_context):
@@ -38,7 +38,7 @@ class Publisher(QDockWidget):
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
         self._column_index = {}
-        for column_name in self.column_names:
+        for column_name in self._column_names:
             self._column_index[column_name] = len(self._column_index)
 
         self._publishers = {}
@@ -196,7 +196,7 @@ class Publisher(QDockWidget):
 
             if array_size is not None:
                 message = []
-                for i in range(array_size):
+                for _ in range(array_size):
                     message.append(base_message_type())
             else:
                 message = base_message_type()
@@ -206,7 +206,7 @@ class Publisher(QDockWidget):
 
     @Slot('QTreeWidgetItem*', int)
     def publishers_tree_widget_itemChanged(self, item, column):
-        column_name = self.column_names[column]
+        column_name = self._column_names[column]
         new_value = str(item.text(column))
         #qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
         if not hasattr(item, 'publisher_id'):

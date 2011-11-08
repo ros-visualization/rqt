@@ -19,28 +19,37 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 if __name__ == '__main__':
     import sys
     import rosgui.QtBindingHelper #@UnusedImport
-    from QtGui import QApplication, QLineEdit, QTreeView
+    from QtGui import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
-    l = QLineEdit()
-    c = TopicCompleter(l)
-    #c.setCompletionMode(QCompleter.InlineCompletion)
-    l.setCompleter(c)
+    mw = QMainWindow()
+    widget = QWidget(mw)
+    layout = QVBoxLayout(widget)
 
-    treeView = QTreeView()
-    treeView.setModel(c.model())
-    treeView.header().hide()
-    treeView.expandAll()
-    treeView.move(0, 0)
-    treeView.show()
+    edit = QLineEdit()
+    completer = TopicCompleter(edit)
+    #completer.setCompletionMode(QCompleter.InlineCompletion)
+    edit.setCompleter(completer)
 
-    treeView2 = QTreeView()
-    treeView2.setModel(c.completionModel())
-    treeView2.header().hide()
-    treeView2.expandAll()
-    treeView2.move(300, 0)
-    treeView2.show()
+    model_tree = QTreeView()
+    model_tree.setModel(completer.model())
+    model_tree.expandAll()
+    for column in range(completer.model().columnCount()):
+        model_tree.resizeColumnToContents(column)
 
-    l.move(600, 0)
-    l.show()
+    completion_tree = QTreeView()
+    completion_tree.setModel(completer.completionModel())
+    completion_tree.expandAll()
+    for column in range(completer.completionModel().columnCount()):
+        completion_tree.resizeColumnToContents(column)
+
+    layout.addWidget(model_tree)
+    layout.addWidget(completion_tree)
+    layout.addWidget(edit)
+    layout.setStretchFactor(model_tree, 1)
+    widget.setLayout(layout)
+    mw.setCentralWidget(widget)
+
+    mw.move(300, 0)
+    mw.resize(800, 900)
+    mw.show()
     app.exec_()
-

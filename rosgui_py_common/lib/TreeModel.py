@@ -23,7 +23,9 @@ class TreeModel(QAbstractItemModel):
         def columnCount(self):
             return len(self.itemData)
 
-        def data(self, column):
+        def data(self, column, role):
+            if role not in [Qt.DisplayRole, Qt.EditRole]:
+                return None
             try:
                 return self.itemData[column]
             except IndexError:
@@ -38,13 +40,14 @@ class TreeModel(QAbstractItemModel):
             return self.parentItem.childItems.index(self)
 
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, column_names=None):
         super(TreeModel, self).__init__(parent)
+        self._column_names = column_names or []
         self._clear()
 
 
     def _clear(self):
-        self.rootItem = self.TreeItem([None])
+        self.rootItem = self.TreeItem(self._column_names)
 
 
     def nodeFromIndex(self, index=None):
@@ -63,11 +66,19 @@ class TreeModel(QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role not in [Qt.DisplayRole, Qt.EditRole]:
-            return None
 
         item = index.internalPointer()
-        return item.data(index.column())
+        return item.data(index.column(), role)
+
+
+    def headerData(self, section, orientation, role):
+        if orientation != Qt.Horizontal:
+            return None
+        if role not in [Qt.DisplayRole, Qt.EditRole]:
+            return None
+        if section >= len(self._column_names):
+            return None
+        return self._column_names[section]
 
 
     def index(self, row, column, parent):
