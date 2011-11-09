@@ -48,6 +48,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string>Topic name to publish on</string>
+        </property>
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -73,6 +76,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string>Message type to publish</string>
+        </property>
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -92,6 +98,9 @@
           <width>70</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>Frequency for periodic publishers in Hz (set to 0 for manual publishing)</string>
         </property>
         <property name="editable">
          <bool>true</bool>

@@ -6,7 +6,7 @@ import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
-from QtGui import QDockWidget, QTreeWidgetItem, QMenu
+from QtGui import QDockWidget, QIcon, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_service_caller')
@@ -32,6 +32,8 @@ class ServiceCaller(QDockWidget):
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ServiceCaller.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox})
+        self.refresh_services_button.setIcon(QIcon.fromTheme('view-refresh'))
+        self.call_service_button.setIcon(QIcon.fromTheme('call-start'))
 
         if plugin_context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
@@ -211,6 +213,36 @@ class ServiceCaller(QDockWidget):
         self.response_tree_widget.expandAll()
         for i in range(self.response_tree_widget.columnCount()):
             self.response_tree_widget.resizeColumnToContents(i)
+
+
+    @Slot('QPoint')
+    def on_request_tree_widget_customContextMenuRequested(self, pos):
+        self._show_context_menu(self.request_tree_widget.itemAt(pos), self.request_tree_widget.mapToGlobal(pos))
+
+
+    @Slot('QPoint')
+    def on_response_tree_widget_customContextMenuRequested(self, pos):
+        self._show_context_menu(self.response_tree_widget.itemAt(pos), self.response_tree_widget.mapToGlobal(pos))
+
+
+    def _show_context_menu(self, item, global_pos):
+        if item is None:
+            return
+
+        # show context menu
+        menu = QMenu(self)
+        action_item_expand = menu.addAction(QIcon.fromTheme('zoom-in'), "Expand All Children")
+        action_item_collapse = menu.addAction(QIcon.fromTheme('zoom-out'), "Collapse All Children")
+        action = menu.exec_(global_pos)
+
+        # evaluate user action
+        if action in (action_item_expand, action_item_collapse):
+            expanded = (action is action_item_expand)
+            def recursive_set_expanded(item):
+                item.setExpanded(expanded)
+                for index in range(item.childCount()):
+                    recursive_set_expanded(item.child(index))
+            recursive_set_expanded(item)
 
 
     def save_settings(self, global_settings, perspective_settings):

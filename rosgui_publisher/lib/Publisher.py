@@ -53,7 +53,7 @@ class Publisher(QDockWidget):
             load_package(message_package_name)
 
         self._timeout_mapper = QSignalMapper(self)
-        self._timeout_mapper.mapped[int].connect(self.timeout)
+        self._timeout_mapper.mapped[int].connect(self.publish_once)
 
         self.publishers_tree_widget.itemChanged.connect(self.publishers_tree_widget_itemChanged)
         self.refresh_combo_boxes()
@@ -344,7 +344,7 @@ class Publisher(QDockWidget):
 
 
     @Slot(int)
-    def timeout(self, publisher_id):
+    def publish_once(self, publisher_id):
         publisher_info = self._publishers[publisher_id]
         publisher_info['counter'] += 1
         self.fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
@@ -378,11 +378,28 @@ class Publisher(QDockWidget):
         if not item:
             return
 
+        # show context menu
         menu = QMenu(self)
-        action_remove_publisher = menu.addAction("Remove Publisher")
+        action_remove_publisher = menu.addAction(QIcon.fromTheme('remove'), "Remove Publisher")
+        action_publish_once = menu.addAction(QIcon.fromTheme('media-playback-start'), "Publish Once")
+        action_item_expand = menu.addAction(QIcon.fromTheme('zoom-in'), "Expand All Children")
+        action_item_collapse = menu.addAction(QIcon.fromTheme('zoom-out'), "Collapse All Children")
         action = menu.exec_(self.publishers_tree_widget.mapToGlobal(pos))
+
+        # evaluate user action
         if action is action_remove_publisher:
             self._remove_publisher_item(item)
+
+        elif action is action_publish_once:
+            self.publish_once(item.publisher_id)
+
+        elif action in (action_item_expand, action_item_collapse):
+            expanded = (action is action_item_expand)
+            def recursive_set_expanded(item):
+                item.setExpanded(expanded)
+                for index in range(item.childCount()):
+                    recursive_set_expanded(item.child(index))
+            recursive_set_expanded(item)
 
 
     @Slot()

@@ -5,7 +5,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, Slot
-from QtGui import QDockWidget, QMenu, QTreeWidgetItem
+from QtGui import QDockWidget, QIcon, QMenu, QTreeWidgetItem
 
 import roslib
 roslib.load_manifest('rosgui_topic')
@@ -174,15 +174,28 @@ class TopicWidget(QDockWidget):
         if item is None:
             return
 
+        # show context menu
         menu = QMenu(self)
-        actionToggleMonitoring = menu.addAction("Toggle Monitoring")
+        actionToggleMonitoring = menu.addAction(QIcon.fromTheme('search'), "Toggle Monitoring")
+        action_item_expand = menu.addAction(QIcon.fromTheme('zoom-in'), "Expand All Children")
+        action_item_collapse = menu.addAction(QIcon.fromTheme('zoom-out'), "Collapse All Children")
         action = menu.exec_(self.topics_tree_widget.mapToGlobal(pos))
+
+        # evaluate user action
         if action is actionToggleMonitoring:
             root_item = item
             while root_item.parent() is not None:
                 root_item = root_item.parent()
             root_topic_name = root_item.data(0, Qt.UserRole)
             self._topic_infos[root_topic_name].toggle_monitoring()
+
+        elif action in (action_item_expand, action_item_collapse):
+            expanded = (action is action_item_expand)
+            def recursive_set_expanded(item):
+                item.setExpanded(expanded)
+                for index in range(item.childCount()):
+                    recursive_set_expanded(item.child(index))
+            recursive_set_expanded(item)
 
 
     # override Qt's closeEvent() method to trigger _plugin unloading
