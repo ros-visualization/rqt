@@ -108,12 +108,9 @@ class RosGraph(QObject):
         self._widget.filter_line_edit.setEnabled(True)
         self._widget.quiet_check_box.setEnabled(True)
 
-        if self._graph is None:
-            node_ns = None
-            topic_ns = None
-            self._graph = rosgraph.impl.graph.Graph(node_ns, topic_ns)
-            self._graph.set_master_stale(5.0)
-            self._graph.set_node_stale(5.0)
+        self._graph = rosgraph.impl.graph.Graph()
+        self._graph.set_master_stale(5.0)
+        self._graph.set_node_stale(5.0)
         self._graph.update()
         self._refresh_rosgraph()
 
