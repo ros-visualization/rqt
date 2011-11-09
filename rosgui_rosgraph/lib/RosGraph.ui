@@ -19,9 +19,22 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+      <item>
+       <widget class="QPushButton" name="refresh_graph_push_button">
+        <property name="toolTip">
+         <string>Refresh ROS graph</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QComboBox" name="graph_type_combo_box">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>Choose graph type</string>
         </property>
@@ -38,19 +51,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="refresh_graph_push_button">
-        <property name="toolTip">
-         <string>Refresh ROS graph</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="quiet_check_box">
         <property name="toolTip">
          <string>Hide common debugging nodes</string>
         </property>
         <property name="text">
-         <string>Hide Debug Nodes</string>
+         <string>Hide Debug</string>
         </property>
        </widget>
       </item>
@@ -64,10 +70,10 @@
       <item>
        <widget class="QCheckBox" name="highlight_connections_check_box">
         <property name="toolTip">
-         <string>Highlight incoming and outgoing connections</string>
+         <string>Highlight incoming and outgoing connections on mouse over</string>
         </property>
         <property name="text">
-         <string>Highlight Connections</string>
+         <string>Highlight</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -77,10 +83,10 @@
       <item>
        <widget class="QCheckBox" name="auto_fit_graph_check_box">
         <property name="toolTip">
-         <string>Fit graph into view on update</string>
+         <string>Automatically fit graph into view on update</string>
         </property>
         <property name="text">
-         <string>Auto Fit</string>
+         <string>Fit</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -95,11 +101,17 @@
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line_2">
+       <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
-       </widget>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="load_dot_push_button">
@@ -128,19 +140,6 @@
          <string>Save as image</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>

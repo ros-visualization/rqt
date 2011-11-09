@@ -54,9 +54,9 @@ class RosGraph(QObject):
         self._widget.graphics_view.mouseMoveEvent = self._graphics_view_mouseMoveEvent
         self._widget.graphics_view.wheelEvent = self._graphics_view_wheelEvent
 
-        self._widget.graph_type_combo_box.insertItem(0, self.tr('Node/Node Connectivity'), NODE_NODE_GRAPH)
-        self._widget.graph_type_combo_box.insertItem(1, self.tr('Node/Topic Connections'), NODE_TOPIC_GRAPH)
-        self._widget.graph_type_combo_box.insertItem(2, self.tr('Node/Topic Connections (only with active network connections)'), NODE_TOPIC_ALL_GRAPH)
+        self._widget.graph_type_combo_box.insertItem(0, self.tr('Nodes only'), NODE_NODE_GRAPH)
+        self._widget.graph_type_combo_box.insertItem(1, self.tr('Nodes/Topics (active)'), NODE_TOPIC_GRAPH)
+        self._widget.graph_type_combo_box.insertItem(2, self.tr('Nodes/Topics (all)'), NODE_TOPIC_ALL_GRAPH)
         self._widget.graph_type_combo_box.setCurrentIndex(0)
         self._widget.graph_type_combo_box.currentIndexChanged.connect(self._refresh_rosgraph)
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
