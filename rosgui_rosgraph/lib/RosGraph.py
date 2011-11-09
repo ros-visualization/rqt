@@ -236,7 +236,7 @@ class RosGraph(QObject):
                 edges[label].append(edge_item)
 
             edge_item.setToolTip(self._generate_tool_tip(edge.attr.get('URL', None)))
-            self._scene.addItem(edge_item)
+            edge_item.add_to_scene(self._scene)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)

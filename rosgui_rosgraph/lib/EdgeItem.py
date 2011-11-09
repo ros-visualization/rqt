@@ -30,7 +30,9 @@ class EdgeItem(RosGraphItem):
             label_rect = self._label.boundingRect()
             label_rect.moveCenter(label_center)
             self._label.setPos(label_rect.x(), label_rect.y())
-            self.addToGroup(self._label)
+            self._label.hoverEnterEvent = self._handle_hoverEnterEvent
+            self._label.hoverLeaveEvent = self._handle_hoverLeaveEvent
+            self._label.setAcceptHoverEvents(True)
 
         # spline specification according to http://www.graphviz.org/doc/info/attrs.html#k:splineType
         coordinates = spline.split(' ')
@@ -75,7 +77,9 @@ class EdgeItem(RosGraphItem):
             polygon.append(end_point)
             polygon.append(point3 + corner2)
             self._arrow.setPolygon(polygon)
-            self.addToGroup(self._arrow)
+            self._arrow.hoverEnterEvent = self._handle_hoverEnterEvent
+            self._arrow.hoverLeaveEvent = self._handle_hoverLeaveEvent
+            self._arrow.setAcceptHoverEvents(True)
 
         self._path = QGraphicsPathItem()
         self._path.setPath(path)
@@ -83,7 +87,19 @@ class EdgeItem(RosGraphItem):
 
         self.set_color()
 
-        self.setAcceptHoverEvents(True)
+    def add_to_scene(self, scene):
+        scene.addItem(self)
+        if self._label is not None:
+            scene.addItem(self._label)
+        if self._arrow is not None:
+            scene.addItem(self._arrow)
+
+    def setToolTip(self, tool_tip):
+        super(EdgeItem, self).setToolTip(tool_tip)
+        if self._label is not None:
+            self._label.setToolTip(tool_tip)
+        if self._arrow is not None:
+            self._arrow.setToolTip(tool_tip)
 
     def add_sibling_edge(self, edge):
         self._sibling_edges.add(edge)
@@ -104,7 +120,7 @@ class EdgeItem(RosGraphItem):
             self._label.setBrush(self._brush)
             self._label.setPen(self._label_pen)
 
-    def hoverEnterEvent(self, event):
+    def _handle_hoverEnterEvent(self, event):
         # hovered edge item in red
         self.set_color(self._COLOR_RED)
 
@@ -123,7 +139,7 @@ class EdgeItem(RosGraphItem):
             for sibling_edge in self._sibling_edges:
                 sibling_edge.set_color(self._COLOR_ORANGE)
 
-    def hoverLeaveEvent(self, event):
+    def _handle_hoverLeaveEvent(self, event):
         self.set_color()
         if self._highlight_level > 1:
             self.from_node.set_color()
