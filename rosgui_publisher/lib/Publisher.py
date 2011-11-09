@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import inspect, os, sys
+import inspect, os, sys, threading
 import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
-from QtGui import QDockWidget, QTreeWidgetItem, QMenu
+from QtGui import QDockWidget, QIcon, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
@@ -33,6 +33,11 @@ class Publisher(QDockWidget):
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox})
+        self.refresh_button.setIcon(QIcon.fromTheme('view-refresh'))
+        self.refresh_button.clicked.connect(self.refresh_combo_boxes)
+        self.add_publisher_button.setIcon(QIcon.fromTheme('add'))
+        self.remove_publisher_button.setIcon(QIcon.fromTheme('remove'))
+        self.clear_button.setIcon(QIcon.fromTheme('edit-clear'))
 
         if plugin_context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
@@ -41,6 +46,7 @@ class Publisher(QDockWidget):
         for column_name in self._column_names:
             self._column_index[column_name] = len(self._column_index)
 
+        self._publishers_tree_widget_lock = threading.Lock()
         self._publishers = {}
         self._id_counter = 0
         for message_package_name in rosmsg.iterate_packages('.msg'):
@@ -50,36 +56,42 @@ class Publisher(QDockWidget):
         self._timeout_mapper.mapped[int].connect(self.timeout)
 
         self.publishers_tree_widget.itemChanged.connect(self.publishers_tree_widget_itemChanged)
-        self.update_type_combo_box()
+        self.refresh_combo_boxes()
 
         # add our self to the main window
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
 
 
-    def import_message_package(self, package_name):
-        try:
-            package_dir = roslib.packages.get_pkg_dir(package_name)
-        except Exception:
-            qDebug('Publisher.add_message_package(%s): package dir not found' % package_name)
-            return
-        package_dir = os.path.join(package_dir, 'src')
-        sys.path.append(package_dir)
-        try:
-            __import__(package_name + '.msg')
-            package_module = sys.modules[package_name + '.msg']
-        except Exception:
-            qDebug('Publisher.add_message_package(): failed to import %s' % (package_name + '.msg'))
-            return
-        message_types = inspect.getmembers(package_module, inspect.isclass)
-        if len(message_types) == 0:
-            qDebug('Publisher.add_message_package(%s): no message classes found in %s' % (package_name, package_module))
-        for type_name, message_type in message_types:
-            self._message_classes['%s/%s' % (package_name, type_name)] = message_type
+    @Slot()
+    def refresh_combo_boxes(self):
+        self._topic_dict = {}
+        self._update_topic_combo_box()
+        self._update_type_combo_box()
+        self.on_topic_combo_box_currentIndexChanged(self.topic_combo_box.currentText())
 
 
-    def update_type_combo_box(self):
+    def _update_topic_combo_box(self):
+        topic_dict = dict(rospy.get_published_topics())
+        if topic_dict != self._topic_dict:
+            self._topic_dict = topic_dict
+            self.topic_combo_box.clear()
+            self.topic_combo_box.addItems(sorted(topic_dict.keys()))
+
+
+    def _update_type_combo_box(self):
+        def filter_func(s):
+            l = s.split('/')
+            # filter out the message types with prefixed package name (i.e. actionlib/actionlib/TestAction)
+            return (len(l) < 3 or l[0] != l[1])
+        message_type_names = filter(filter_func, REGISTERED_TYPES.keys())
         self.type_combo_box.clear()
-        self.type_combo_box.addItems(sorted(REGISTERED_TYPES.keys()))
+        self.type_combo_box.addItems(sorted(message_type_names))
+
+
+    @Slot(str)
+    def on_topic_combo_box_currentIndexChanged(self, topic_name):
+        if topic_name in self._topic_dict:
+            self.type_combo_box.setEditText(self._topic_dict[topic_name])
 
 
     @Slot()
@@ -113,7 +125,7 @@ class Publisher(QDockWidget):
         self._publishers[publisher_info['publisher_id']] = publisher_info
         self._timeout_mapper.setMapping(publisher_info['timer'], publisher_info['publisher_id'])
         publisher_info['timer'].timeout.connect(self._timeout_mapper.map)
-        if publisher_info['enabled']:
+        if publisher_info['enabled'] and publisher_info['rate'] > 0:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
 
         self._show_publisher_in_tree_view(publisher_info)
@@ -206,6 +218,9 @@ class Publisher(QDockWidget):
 
     @Slot('QTreeWidgetItem*', int)
     def publishers_tree_widget_itemChanged(self, item, column):
+        if not self._publishers_tree_widget_lock.acquire(False):
+            return
+        # lock has been acquired
         column_name = self._column_names[column]
         new_value = str(item.text(column))
         #qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
@@ -218,7 +233,7 @@ class Publisher(QDockWidget):
                 publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
                 item.setText(column, '%s' % publisher_info['enabled'])
                 #qDebug('Publisher.on_treePublishers_itemChanged(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
-                if publisher_info['enabled']:
+                if publisher_info['enabled'] and publisher_info['rate'] > 0:
                     publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
                 else:
                     publisher_info['timer'].stop()
@@ -241,13 +256,13 @@ class Publisher(QDockWidget):
                 if slot_value is None:
                     qDebug('Publisher.on_treePublishers_itemChanged(): could not find type: %s' % (type_name))
                     item.setText(column, parent_slot._slot_types[slot_index])
-                    return
 
-                # replace old slot
-                parent_slot._slot_types[slot_index] = type_name
-                setattr(parent_slot, slot_name, slot_value)
+                else:
+                    # replace old slot
+                    parent_slot._slot_types[slot_index] = type_name
+                    setattr(parent_slot, slot_name, slot_value)
 
-                self._show_publisher_in_tree_view(publisher_info)
+                    self._show_publisher_in_tree_view(publisher_info)
 
             elif column_name == 'rate':
                 try:
@@ -255,14 +270,11 @@ class Publisher(QDockWidget):
                 except Exception:
                     qDebug('Publisher.on_treePublishers_itemChanged(): could not parse rate value: %s' % (new_value))
                 else:
-                    if rate <= 0:
-                        qDebug('Publisher.on_treePublishers_itemChanged(): invalid rate: %f' % (rate))
-                    else:
-                        publisher_info['rate'] = rate
-                        qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
-                        if publisher_info['enabled']:
-                            publisher_info['timer'].stop()
-                            publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
+                    publisher_info['rate'] = rate
+                    qDebug('Publisher.on_treePublishers_itemChanged(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
+                    publisher_info['timer'].stop()
+                    if publisher_info['enabled'] and publisher_info['rate'] > 0:
+                        publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
                 # make sure the column value reflects the actual rate
                 item.setText(column, '%.2f' % publisher_info['rate'])
 
@@ -270,6 +282,9 @@ class Publisher(QDockWidget):
                 topic_name = str(item.data(0, Qt.UserRole))
                 publisher_info['expressions'][topic_name] = new_value
                 qDebug('Publisher.on_treePublishers_itemChanged(): %s expression: %s' % (topic_name, new_value))
+
+        # release lock
+        self._publishers_tree_widget_lock.release()
 
 
     def fill_message_slots(self, message, topic_name, expressions, counter):

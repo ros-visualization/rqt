@@ -18,6 +18,16 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
+       <widget class="QPushButton" name="refresh_button">
+        <property name="toolTip">
+         <string>Refresh topics and types</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -31,9 +41,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="topic_combo_box">
+       <widget class="ExtendedComboBox" name="topic_combo_box">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -58,7 +68,7 @@
       <item>
        <widget class="ExtendedComboBox" name="type_combo_box">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -100,32 +110,53 @@
         </property>
        </widget>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QPushButton" name="add_publisher_button">
+        <property name="toolTip">
+         <string>Add new publisher</string>
+        </property>
         <property name="text">
-         <string>Add</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="remove_publisher_button">
+        <property name="toolTip">
+         <string>Remove selected publisher</string>
+        </property>
         <property name="text">
-         <string>Remove Selected</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QPushButton" name="clear_button">
+        <property name="toolTip">
+         <string>Clear all publishers</string>
+        </property>
         <property name="text">
-         <string>Clear All</string>
+         <string>Clear</string>
         </property>
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
     </item>
     <item>
      <widget class="QTreeWidget" name="publishers_tree_widget">
