@@ -19,32 +19,39 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 if __name__ == '__main__':
     import sys
     import rosgui.QtBindingHelper #@UnusedImport
-    from QtGui import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
+    from QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     mw = QMainWindow()
     widget = QWidget(mw)
     layout = QVBoxLayout(widget)
 
     edit = QLineEdit()
-    completer = TopicCompleter(edit)
-    #completer.setCompletionMode(QCompleter.InlineCompletion)
-    edit.setCompleter(completer)
+    edit_completer = TopicCompleter(edit)
+    #edit_completer.setCompletionMode(QCompleter.InlineCompletion)
+    edit.setCompleter(edit_completer)
+
+    combo = QComboBox()
+    combo.setEditable(True)
+    combo_completer = TopicCompleter(combo)
+    #combo_completer.setCompletionMode(QCompleter.InlineCompletion)
+    combo.lineEdit().setCompleter(combo_completer)
 
     model_tree = QTreeView()
-    model_tree.setModel(completer.model())
+    model_tree.setModel(combo_completer.model())
     model_tree.expandAll()
-    for column in range(completer.model().columnCount()):
+    for column in range(combo_completer.model().columnCount()):
         model_tree.resizeColumnToContents(column)
 
     completion_tree = QTreeView()
-    completion_tree.setModel(completer.completionModel())
+    completion_tree.setModel(combo_completer.completionModel())
     completion_tree.expandAll()
-    for column in range(completer.completionModel().columnCount()):
+    for column in range(combo_completer.completionModel().columnCount()):
         completion_tree.resizeColumnToContents(column)
 
     layout.addWidget(model_tree)
     layout.addWidget(completion_tree)
     layout.addWidget(edit)
+    layout.addWidget(combo)
     layout.setStretchFactor(model_tree, 1)
     widget.setLayout(layout)
     mw.setCentralWidget(widget)

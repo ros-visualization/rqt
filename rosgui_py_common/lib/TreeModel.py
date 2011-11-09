@@ -23,7 +23,7 @@ class TreeModel(QAbstractItemModel):
         def columnCount(self):
             return len(self.itemData)
 
-        def data(self, column, role):
+        def data(self, column, role=Qt.DisplayRole):
             if role not in [Qt.DisplayRole, Qt.EditRole]:
                 return None
             try:
