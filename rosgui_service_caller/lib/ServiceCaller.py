@@ -43,7 +43,7 @@ class ServiceCaller(QDockWidget):
             self._column_index[column_name] = len(self._column_index)
 
         self._service_info = None
-        self.refresh_services()
+        self.on_refresh_services_button_clicked()
 
         self.request_tree_widget.itemChanged.connect(self.request_tree_widget_itemChanged)
 
@@ -51,12 +51,13 @@ class ServiceCaller(QDockWidget):
         plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
 
 
-    def refresh_services(self):
+    @Slot()
+    def on_refresh_services_button_clicked(self):
         service_names = rosservice.get_service_list()
         self._services = {}
         for service_name in service_names:
             self._services[service_name] = rosservice.get_service_class_by_name(service_name)
-            #qDebug('ServiceCaller.refresh_services(): found service %s using class %s' % (service_name, self._services[service_name]))
+            #qDebug('ServiceCaller.on_refresh_services_button_clicked(): found service %s using class %s' % (service_name, self._services[service_name]))
 
         self.service_combo_box.clear()
         self.service_combo_box.addItems(sorted(service_names))
@@ -67,6 +68,8 @@ class ServiceCaller(QDockWidget):
         self.request_tree_widget.clear()
         self.response_tree_widget.clear()
         service_name = str(service_name)
+        if not service_name:
+            return
 
         self._service_info = {}
         self._service_info['service_name'] = service_name
