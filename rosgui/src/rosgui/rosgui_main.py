@@ -33,7 +33,7 @@ def rosgui_main():
     setattr(sys, 'SELECT_QT_BINDING', options.qt_binding)
     from QtBindingHelper import QT_BINDING
 
-    from QtCore import qDebug, QSettings, QTimer, qWarning
+    from QtCore import qDebug, QSettings, Qt, QTimer, qWarning
     from QtGui import QAction, QApplication, QIcon, QMenuBar
 
     from AboutHandler import AboutHandler
@@ -53,6 +53,7 @@ def rosgui_main():
         ActualRosPluginProvider = RoslibPluginProvider
 
     app = QApplication(sys.argv)
+    app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
     app.lastWindowClosed.connect(app.quit)
 
     settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', 'rosgui')
@@ -78,7 +79,6 @@ def rosgui_main():
     file_menu = menu_bar.addMenu(menu_bar.tr('File'))
     action = QAction(file_menu.tr('Quit'), file_menu)
     action.setIcon(QIcon.fromTheme('application-exit'))
-    action.setIconVisibleInMenu(True)
     action.triggered.connect(main_window.close)
     file_menu.addAction(action)
 
@@ -123,7 +123,6 @@ def rosgui_main():
     help_menu = menu_bar.addMenu(menu_bar.tr('Help'))
     action = QAction(file_menu.tr('About'), help_menu)
     action.setIcon(QIcon.fromTheme('help-about'))
-    action.setIconVisibleInMenu(True)
     action.triggered.connect(about_handler.show)
     help_menu.addAction(action)
 

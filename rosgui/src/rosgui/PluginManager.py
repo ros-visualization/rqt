@@ -302,7 +302,6 @@ class PluginManager(QObject):
             else:
                 raise UserWarning('unknown icon type "%s"' % str(icontype))
             action.setIcon(icon)
-            action.setIconVisibleInMenu(True)
 
 
     def save_settings(self, global_settings, perspective_settings):
