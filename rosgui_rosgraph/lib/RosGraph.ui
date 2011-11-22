@@ -144,7 +144,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QGraphicsView" name="graphics_view">
+     <widget class="InteractiveGraphicsView" name="graphics_view">
       <property name="renderHints">
        <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
       </property>
@@ -156,6 +156,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>InteractiveGraphicsView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -8,7 +8,7 @@ import pydot
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal
-from QtGui import QDockWidget, QFileDialog, QGraphicsScene, QGraphicsView, QIcon, QImage, QPainter, QTransform
+from QtGui import QDockWidget, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter
 from QtSvg import QSvgGenerator
 
 import roslib
@@ -21,6 +21,9 @@ from dotcode import generate_dotcode, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NOD
 import EdgeItem
 reload(EdgeItem)
 from EdgeItem import EdgeItem
+import InteractiveGraphicsView
+reload(InteractiveGraphicsView)
+from InteractiveGraphicsView import InteractiveGraphicsView
 import NodeItem
 reload(NodeItem)
 from NodeItem import NodeItem
@@ -35,24 +38,18 @@ class RosGraph(QObject):
 
         self._graph = None
         self._current_dotcode = None
-        self._last_pan_point = None
-        self._last_scene_center = None
 
         main_window = plugin_context.main_window()
         self._widget = QDockWidget(main_window)
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosGraph.ui')
-        loadUi(ui_file, self._widget)
+        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosGraphUi')
         if plugin_context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
 
         self._scene = QGraphicsScene()
         self._widget.graphics_view.setScene(self._scene)
-        self._widget.graphics_view.mousePressEvent = self._graphics_view_mousePressEvent
-        self._widget.graphics_view.mouseReleaseEvent = self._graphics_view_mouseReleaseEvent
-        self._widget.graphics_view.mouseMoveEvent = self._graphics_view_mouseMoveEvent
-        self._widget.graphics_view.wheelEvent = self._graphics_view_wheelEvent
 
         self._widget.graph_type_combo_box.insertItem(0, self.tr('Nodes only'), NODE_NODE_GRAPH)
         self._widget.graph_type_combo_box.insertItem(1, self.tr('Nodes/Topics (active)'), NODE_TOPIC_GRAPH)
@@ -302,67 +299,6 @@ class RosGraph(QObject):
         self._scene.render(painter)
         painter.end()
         img.save(file_name)
-
-    def _graphics_view_mousePressEvent(self, mouse_event):
-        self._last_pan_point = mouse_event.pos()
-        self._last_scene_center = self._map_to_scene_f(QRectF(self._widget.graphics_view.frameRect()).center())
-        self._widget.graphics_view.setCursor(Qt.ClosedHandCursor)
-
-    def _graphics_view_mouseReleaseEvent(self, mouse_event):
-        self._widget.graphics_view.setCursor(Qt.OpenHandCursor)
-        self._last_pan_point = None
-
-    def _graphics_view_mouseMoveEvent(self, mouse_event):
-        if self._last_pan_point is not None:
-            delta_scene = self._widget.graphics_view.mapToScene(mouse_event.pos()) - self._widget.graphics_view.mapToScene(self._last_pan_point)
-            if not delta_scene.isNull():
-                self._widget.graphics_view.centerOn(self._last_scene_center - delta_scene)
-                self._last_scene_center -= delta_scene
-            self._last_pan_point = mouse_event.pos()
-        QGraphicsView.mouseMoveEvent(self._widget.graphics_view, mouse_event)
-
-    def _graphics_view_wheelEvent(self, wheel_event):
-        if wheel_event.modifiers() == Qt.NoModifier:
-            num_degrees = wheel_event.delta() / 8.0
-            num_steps = num_degrees / 15.0
-            mouse_before_scale_in_scene = self._widget.graphics_view.mapToScene(wheel_event.pos())
-
-            scale_factor = 1.2 * num_steps
-            if num_steps < 0:
-                scale_factor = -1.0 / scale_factor
-            scaling = QTransform(scale_factor, 0, 0, scale_factor, 0, 0)
-            self._widget.graphics_view.setTransform(self._widget.graphics_view.transform() * scaling)
-
-            mouse_after_scale_in_scene = self._widget.graphics_view.mapToScene(wheel_event.pos())
-            center_in_scene = self._widget.graphics_view.mapToScene(self._widget.graphics_view.frameRect().center())
-            self._widget.graphics_view.centerOn(center_in_scene + mouse_before_scale_in_scene - mouse_after_scale_in_scene)
-
-            wheel_event.accept()
-        else:
-            QGraphicsView.wheelEvent(self._widget.graphics_view, wheel_event)
-
-    def _map_to_scene_f(self, pointf):
-        point = pointf.toPoint()
-        if pointf.x() == point.x() and pointf.y() == point.y():
-            # map integer coordinates
-            return self._widget.graphics_view.mapToScene(point)
-        elif pointf.x() == point.x():
-            # map integer x and decimal y coordinates
-            pointA = self._widget.graphics_view.mapToScene((pointf + QPointF(0, -0.5)).toPoint())
-            pointB = self._widget.graphics_view.mapToScene((pointf + QPointF(0, 0.5)).toPoint())
-            return (pointA + pointB) / 2.0
-        elif pointf.y() == point.y():
-            # map decimal x  and integer y and coordinates
-            pointA = self._widget.graphics_view.mapToScene((pointf + QPointF(-0.5, 0)).toPoint())
-            pointB = self._widget.graphics_view.mapToScene((pointf + QPointF(0.5, 0)).toPoint())
-            return (pointA + pointB) / 2.0
-        else:
-            # map decimal coordinates
-            pointA = self._widget.graphics_view.mapToScene((pointf + QPointF(-0.5, -0.5)).toPoint())
-            pointB = self._widget.graphics_view.mapToScene((pointf + QPointF(-0.5, 0.5)).toPoint())
-            pointC = self._widget.graphics_view.mapToScene((pointf + QPointF(0.5, -0.5)).toPoint())
-            pointD = self._widget.graphics_view.mapToScene((pointf + QPointF(0.5, 0.5)).toPoint())
-            return (pointA + pointB + pointC + pointD) / 4.0
 
     def eventFilter(self, obj, event):
         if obj is self._widget and event.type() == QEvent.Close:
