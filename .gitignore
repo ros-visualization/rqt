@@ -1,11 +1,5 @@
 .project
 .pydevproject
-.pydevspelling
 .settings
-*.config
-*.creator
-*.creator.user
-*.files
-*.includes
 *.pyc
 

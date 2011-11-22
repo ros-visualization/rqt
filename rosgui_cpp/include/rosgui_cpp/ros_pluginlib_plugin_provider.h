@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#define USE_PATCHED_PLUGINLIB
+//#define USE_PATCHED_PLUGINLIB
 
 namespace rosgui_cpp
 {
@@ -87,7 +87,9 @@ public:
 
       // check if plugin is available
 #ifdef USE_PATCHED_PLUGINLIB
-      std::string library_path = class_loader_->getClassLibraryPath(lookup_name);
+      std::string package_path = class_loader_->getPackagePath(lookup_name);
+      std::string library_path = class_loader_->getClassRelativeLibraryPath(lookup_name);
+      library_path = pluginlib::joinPaths(package_path, library_path);
       library_path.append(Poco::SharedLibrary::suffix());
       attributes["not_available"] = !std::ifstream(library_path.c_str()) ? lookup_name.c_str() : "";
 #else
@@ -100,11 +102,7 @@ public:
       QString icon;
       QString icontype;
 #ifdef USE_PATCHED_PLUGINLIB
-      std::string package_path = ros::package::getPath(class_loader_->getClassPackage(lookup_name));
-      size_t package_path_length = package_path.length();
-      assert(library_path.compare(0, package_path_length, package_path) == 0);
-      std::string relative_library_path = library_path.substr(package_path_length + 1);
-      parseManifest(lookup_name, package_path, relative_library_path, label, statustip, icon, icontype, plugin_descriptor);
+      parseManifest(lookup_name, package_path, label, statustip, icon, icontype, plugin_descriptor);
 #endif
       plugin_descriptor->setActionAttributes(label, statustip, icon, icontype);
 
@@ -232,10 +230,8 @@ private slots:
 private:
 
 #ifdef USE_PATCHED_PLUGINLIB
-  bool parseManifest(const std::string& lookup_name, const std::string& package_path, const std::string& relative_library_path, QString& label, QString& statustip, QString& icon, QString& icontype, PluginDescriptor* plugin_descriptor)
+  bool parseManifest(const std::string& lookup_name, const std::string& package_path, QString& label, QString& statustip, QString& icon, QString& icontype, PluginDescriptor* plugin_descriptor)
   {
-    //qDebug("RosPluginlibPluginProvider::parseManifest() relative_library_path \"%s\"", relative_library_path.c_str());
-
     std::string manifest_path = class_loader_->getPluginManifestPath(lookup_name);
     //qDebug("RosPluginlibPluginProvider::parseManifest() manifest_path \"%s\"", manifest_path.c_str());
     TiXmlDocument doc;
@@ -253,12 +249,15 @@ private:
       return false;
     }
 
-    // search library-tag with specific path-attribute
+    std::string library_path = class_loader_->getClassRelativeLibraryPath(lookup_name);
+    //qDebug("RosPluginlibPluginProvider::parseManifest() library_path \"%s\"", library_path.c_str());
     std::string class_type = class_loader_->getClassType(lookup_name);
+
+    // search library-tag with specific path-attribute
     TiXmlElement* library_element = doc.FirstChildElement("library");
     while (library_element)
     {
-//      if (relative_library_path.compare(library_element->Attribute("path")) == 0)
+//      if (library_path.compare(library_element->Attribute("path")) == 0)
 //      {
         // search class-tag with specific type- and base_class_type-attribute
         TiXmlElement* class_element = library_element->FirstChildElement("class");
