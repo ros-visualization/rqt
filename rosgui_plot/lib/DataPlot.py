@@ -1,23 +1,24 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 from __future__ import division
 import math, sys
 
 import rosgui.QtBindingHelper #@UnusedImport
-from QtCore import Qt, QTimer, SIGNAL, Slot
-from QtGui import QPen
+from QtCore import QEvent, QPointF, QTimer, Qt, SIGNAL, Signal, Slot
+from QtGui import QPen, QVector2D
 import Qwt
 
 from numpy import arange, zeros, concatenate
 
 # create real DataPlot class
 class DataPlot(Qwt.QwtPlot):
+    mouseCoordinatesChanged = Signal(QPointF)
     colors = [Qt.red, Qt.blue, Qt.green, Qt.magenta]
     dataNumValuesSaved = 1000
     dataNumValuesPloted = 1000
 
-    def __init__(self, *args, **kwargs):
-        super(DataPlot, self).__init__(*args, **kwargs)
+    def __init__(self, *args):
+        super(DataPlot, self).__init__(*args)
         self.setCanvasBackground(Qt.white)
         self.insertLegend(Qwt.QwtLegend(), Qwt.QwtPlot.BottomLegend)
 
@@ -33,6 +34,7 @@ class DataPlot(Qwt.QwtPlot):
         self.redrawOnFullUpdate = True
         self.redrawTimerInterval = None
         self.redrawManually = False
+        self.lastClickCoordinates = None
 
         markerAxisY = Qwt.QwtPlotMarker()
         markerAxisY.setLabelAlignment(Qt.AlignRight | Qt.AlignTop)
@@ -43,6 +45,14 @@ class DataPlot(Qwt.QwtPlot):
         #self.setAxisTitle(Qwt.QwtPlot.xBottom, "Time")
         #self.setAxisTitle(Qwt.QwtPlot.yLeft, "Value")
 
+
+        self.picker = Qwt.QwtPlotPicker(
+            Qwt.QwtPlot.xBottom, Qwt.QwtPlot.yLeft, Qwt.QwtPicker.PolygonSelection,
+            Qwt.QwtPlotPicker.PolygonRubberBand, Qwt.QwtPicker.AlwaysOn, self.canvas()
+        )
+        self.picker.setRubberBandPen(QPen(Qt.red))
+        self.picker.setTrackerPen(QPen(Qt.red))
+
         # Initialize data
         self.timeAxis = arange(self.dataNumValuesPloted)
         self.canvasDisplayHeight = 1000
@@ -50,6 +60,8 @@ class DataPlot(Qwt.QwtPlot):
         self.dataOffsetX = self.dataNumValuesSaved - len(self.timeAxis)
         self.redraw()
         self.moveCanvas(0, 0)
+        self.canvas().setMouseTracking(True)
+        self.canvas().installEventFilter(self)
 
         # init and start redraw timer
         self.timerRedraw = QTimer(self)
@@ -57,6 +69,24 @@ class DataPlot(Qwt.QwtPlot):
         if self.redrawTimerInterval:
             self.timerRedraw.start(self.redrawTimerInterval)
 
+    def eventFilter(self, _, event):
+        if event.type() == QEvent.MouseButtonRelease:
+            x = self.invTransform(Qwt.QwtPlot.xBottom, event.pos().x())
+            y = self.invTransform(Qwt.QwtPlot.yLeft, event.pos().y())
+            self.lastClickCoordinates = QPointF(x, y)
+        elif event.type() == QEvent.MouseMove:
+            x = self.invTransform(Qwt.QwtPlot.xBottom, event.pos().x())
+            y = self.invTransform(Qwt.QwtPlot.yLeft, event.pos().y())
+            coords = QPointF(x, y)
+            if self.picker.isActive():
+                toolTip = 'origin x: %.5f, y: %.5f' % (self.lastClickCoordinates.x(), self.lastClickCoordinates.y())
+                delta = coords - self.lastClickCoordinates
+                toolTip += '\ndelta x: %.5f, y: %.5f\nlength: %.5f' % (delta.x(), delta.y(), QVector2D(delta).length())
+            else:
+                toolTip = '(click to meassurement)'
+            self.setToolTip(toolTip)
+            self.mouseCoordinatesChanged.emit(coords)
+        return False
 
     def log(self, level, message):
         self.emit(SIGNAL('logMessage'), level, message)
@@ -68,7 +98,6 @@ class DataPlot(Qwt.QwtPlot):
             self.redrawOnFullUpdate = False
             self.timerRedraw.start(self.redrawTimerInterval)
 
-    #def resize(self, *args):
     def resizeEvent(self, event):
         super(DataPlot, self).resizeEvent(event)
         self.rescale()
@@ -129,7 +158,7 @@ class DataPlot(Qwt.QwtPlot):
         self.replot()
 
     def rescale(self):
-        yNumTicks = self.parent().height() / 40
+        yNumTicks = self.height() / 40
         yLowerLimit = self.canvasOffsetY - (self.canvasDisplayHeight / 2)
         yUpperLimit = self.canvasOffsetY + (self.canvasDisplayHeight / 2)
 
@@ -199,10 +228,10 @@ if __name__ == '__main__':
     plot.setRedrawInterval(30)
     plot.resize(700, 500)
     plot.show()
-    plot.addCurve(0, '(x/5)^2')
-    plot.addCurve(1, 'sin(x / 20) * 5000')
+    plot.addCurve(0, '(x/500)^2')
+    plot.addCurve(1, 'sin(x / 20) * 500')
     for i in range(plot.dataNumValuesSaved):
-        plot.updateValue(0, (i / 5.0) * (i / 5.0))
-        plot.updateValue(1, math.sin(i / 20.0) * 5000)
+        plot.updateValue(0, (i / 500.0) * (i / 5.0))
+        plot.updateValue(1, math.sin(i / 20.0) * 500)
 
     sys.exit(app.exec_())
