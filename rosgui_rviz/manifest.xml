@@ -1,0 +1,21 @@
+<package>
+  <description brief="rosgui_rviz">
+
+     rosgui_rviz
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_rviz</url>
+  <depend package="rosgui"/>
+  <depend package="rosgui_roscpp"/>
+  <depend package="rviz_qt"/>
+
+  <export>
+    <rosgui plugin="${prefix}/rviz_plugin.xml"/>
+  </export>
+
+</package>
+
+

@@ -1,0 +1,12 @@
+<library path="lib/librosgui_rviz">
+  <class name="rosgui_rviz/RViz" type="rosgui_rviz::RViz" base_class_type="rosgui_roscpp::Plugin">
+    <description>
+      A GUI plugin version of rviz.
+    </description>
+    <rosguiplugin>
+      <label>RViz</label>
+      <icon type="theme">image-x-generic</icon>
+      <statustip>A GUI plugin version of rviz</statustip>
+    </rosguiplugin>
+  </class>
+</library>
