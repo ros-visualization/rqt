@@ -138,7 +138,11 @@ class RosGraph(QObject):
                 if service_names:
                     tool_tip += '\nServices:'
                     for service_name in service_names:
-                        tool_tip += '\n  %s [%s]' % (service_name, rosservice.get_service_type(service_name))
+                        try:
+                            service_type = rosservice.get_service_type(service_name)
+                            tool_tip += '\n  %s [%s]' % (service_name, service_type)
+                        except rosservice.ROSServiceIOException, e:
+                            tool_tip += '\n  %s' % (e)
                 return tool_tip
             elif item_type == 'topic':
                 topic_type, topic_name, _ = rostopic.get_topic_type(item_path)
