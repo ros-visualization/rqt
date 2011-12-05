@@ -71,7 +71,8 @@ class Publisher(QDockWidget):
 
 
     def _update_topic_combo_box(self):
-        topic_dict = dict(rospy.get_published_topics())
+        _, _, topic_types = rospy.get_master().getTopicTypes()
+        topic_dict = dict(topic_types)
         if topic_dict != self._topic_dict:
             self._topic_dict = topic_dict
             self.topic_combo_box.clear()
