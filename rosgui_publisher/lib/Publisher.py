@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import inspect, os, sys, threading
+import os, threading
 import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
@@ -162,6 +162,8 @@ class Publisher(QDockWidget):
             topic_text = topic_name
         else:
             topic_text = topic_name.split('/')[-1]
+            if '[' in topic_text:
+                topic_text = topic_text[topic_text.index('['):]
         item = QTreeWidgetItem(parent)
         item.setText(self._column_index['topic'], topic_text)
         item.setText(self._column_index['type'], type_name)
@@ -223,7 +225,7 @@ class Publisher(QDockWidget):
             return
         # lock has been acquired
         column_name = self._column_names[column]
-        new_value = str(item.text(column))
+        new_value = str(item.text(column)).strip()
         #qDebug('Publisher.on_treePublishers_itemChanged(): %s : %s' % (column_name, new_value))
         if not hasattr(item, 'publisher_id'):
             qDebug('Publisher.on_treePublishers_itemChanged(): no publisher_id found in: %s' % (item))
@@ -281,39 +283,43 @@ class Publisher(QDockWidget):
 
             elif column_name == 'expression':
                 topic_name = str(item.data(0, Qt.UserRole))
-                publisher_info['expressions'][topic_name] = new_value
-                qDebug('Publisher.on_treePublishers_itemChanged(): %s expression: %s' % (topic_name, new_value))
+                if len(new_value) == 0:
+                    if topic_name in publisher_info['expressions']:
+                        del publisher_info['expressions'][topic_name]
+                        qDebug('Publisher.on_treePublishers_itemChanged(): removed expression for: %s' % (topic_name))
+                else:
+                    publisher_info['expressions'][topic_name] = new_value
+                    qDebug('Publisher.on_treePublishers_itemChanged(): %s expression: %s' % (topic_name, new_value))
 
         # release lock
         self._publishers_tree_widget_lock.release()
 
 
-    def fill_message_slots(self, message, topic_name, expressions, counter):
-        if not hasattr(message, '__slots__'):
-            return
-        for slot_name in message.__slots__:
-            slot_key = topic_name + '/' + slot_name
+    def _fill_message_slots(self, message, topic_name, expressions, counter):
+        if topic_name in expressions and len(expressions[topic_name]) > 0:
 
-            # if no expression exists for this slot_key, continue with it's child slots
-            if slot_key not in expressions:
-                self.fill_message_slots(getattr(message, slot_name), slot_key, expressions, counter)
-                continue
-
-            expression = expressions[slot_key]
-            if len(expression) == 0:
-                continue
-
-            # get slot type
-            slot = getattr(message, slot_name)
-            if hasattr(slot, '_type'):
-                slot_type = slot._type
+            # get type
+            if hasattr(message, '_type'):
+                message_type = message._type
             else:
-                slot_type = type(slot)
+                message_type = type(message)
 
             self._eval_locals['i'] = counter
-            value = self._evaluate_expression(expression, slot_type)
-            if value is not None:
-                setattr(message, slot_name, value)
+            value = self._evaluate_expression(expressions[topic_name], message_type)
+            return value
+
+        # if no expression exists for this topic_name, continue with it's child slots
+        elif hasattr(message, '__slots__'):
+            for slot_name in message.__slots__:
+                value = self._fill_message_slots(getattr(message, slot_name), topic_name + '/' + slot_name, expressions, counter)
+                if value is not None:
+                    setattr(message, slot_name, value)
+
+        elif type(message) in (list, tuple) and (len(message) > 0) and hasattr(message[0], '__slots__'):
+            for index, slot in enumerate(message):
+                self._fill_message_slots(slot, topic_name + '[%d]' % index, expressions, counter)
+
+        return None
 
 
     def _evaluate_expression(self, expression, slot_type):
@@ -337,9 +343,9 @@ class Publisher(QDockWidget):
         if successful_conversion:
             return value
         elif successful_eval:
-            qWarning('Publisher.fill_message_slots(): can not convert expression to slot type: %s -> %s' % (type(value), slot_type))
+            qWarning('Publisher._evaluate_expression(): can not convert expression to slot type: %s -> %s' % (type(value), slot_type))
         else:
-            qWarning('Publisher.fill_message_slots(): failed to evaluate expression: %s' % (expression))
+            qWarning('Publisher._evaluate_expression(): failed to evaluate expression: %s' % (expression))
 
         return None
 
@@ -348,7 +354,7 @@ class Publisher(QDockWidget):
     def publish_once(self, publisher_id):
         publisher_info = self._publishers[publisher_id]
         publisher_info['counter'] += 1
-        self.fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
+        self._fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
         publisher_info['publisher'].publish(publisher_info['message_instance'])
 
 

@@ -49,10 +49,10 @@ class TopicWidget(QDockWidget):
             self.topics_tree_widget.clear()
             new_topic_infos = {}
 
-            for topic_name, message_type in topic_list:
+            for topic_name, message_type in sorted(topic_list):
                 # if topic is new
                 if topic_name not in self._topic_infos:
-                    # create new Topicinfo
+                    # create new TopicInfo
                     topic_info = TopicInfo.TopicInfo(topic_name)
                     # if successful add it to the dict
                     if topic_info._topic_name:
@@ -122,7 +122,11 @@ class TopicWidget(QDockWidget):
 
         elif type(message) in (list, tuple) and (len(message) > 0) and hasattr(message[0], '__slots__'):
             for index, slot in enumerate(message):
-                self.update_value(topic_name + '[%d]' % index, slot)
+                if topic_name + '[%d]' % index in self._tree_items:
+                    self.update_value(topic_name + '[%d]' % index, slot)
+                else:
+                    base_type_str, _ = self._extract_array_info(self._tree_items[topic_name].text(self._column_index['type']))
+                    self._recursive_create_widget_items(self._tree_items[topic_name], topic_name + '[%d]' % index, base_type_str, slot)
 
         else:
             if topic_name in self._tree_items:
@@ -148,6 +152,8 @@ class TopicWidget(QDockWidget):
             topic_text = topic_name
         else:
             topic_text = topic_name.split('/')[-1]
+            if '[' in topic_text:
+                topic_text = topic_text[topic_text.index('['):]
         item = QTreeWidgetItem(parent)
         item.setText(self._column_index['topic'], topic_text)
         item.setText(self._column_index['type'], type_name)
@@ -165,7 +171,7 @@ class TopicWidget(QDockWidget):
                 base_instance = None
             if array_size is not None and hasattr(base_instance, '__slots__'):
                 for index in range(array_size):
-                    self._recursive_create_widget_items(item, topic_name + '[%d]' % index, type_name, base_instance)
+                    self._recursive_create_widget_items(item, topic_name + '[%d]' % index, base_type_str, base_instance)
 
 
     @Slot('QPoint')
