@@ -3,7 +3,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
-from QtGui import QDockWidget
+from QtGui import QAction, QDockWidget, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_pose_view')
@@ -12,8 +12,8 @@ from rostopic import get_topic_class
 
 from math3D import toMatrixQ
 from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
-import PyGLWidget
-reload(PyGLWidget) # force reload to update on changes during runtime
+import GLWidget
+reload(GLWidget) # force reload to update on changes during runtime
 
 # main class inherits from the ui window class
 class PoseViewWidget(QDockWidget):
@@ -30,12 +30,16 @@ class PoseViewWidget(QDockWidget):
         self._subscriber = None
 
         # create GL view         
-        self._gl_view = PyGLWidget.PyGLWidget()
+        self._gl_view = GLWidget.GLWidget()
         self._gl_view.setAcceptDrops(True)
 
         # backup and replace original paint method
         self._gl_view.paintGL_original = self._gl_view.paintGL
-        self._gl_view.paintGL = self.paintGL
+        self._gl_view.paintGL = self._gl_view_paintGL
+
+        # backup and replace original mouse release method
+        self._gl_view.mouseReleaseEvent_original = self._gl_view.mouseReleaseEvent
+        self._gl_view.mouseReleaseEvent = self._gl_view_mouseReleaseEvent
 
         # add GL view to widget layout        
         self.dockWidgetContents.layout().addWidget(self._gl_view)
@@ -52,22 +56,24 @@ class PoseViewWidget(QDockWidget):
 
 
     def restore_settings(self, global_settings, perspective_settings):
-        #view_matrix_string = perspective_settings.value('view_matrix')
+        view_matrix_string = perspective_settings.value('view_matrix')
         try:
-            # TODO: re-enable only after resetting camera is possible
-            #view_matrix = eval(view_matrix_string)
-            raise Exception
+            view_matrix = eval(view_matrix_string)
         except Exception:
             view_matrix = None
 
-        if view_matrix is None:
-            self._gl_view.makeCurrent()
-            self._gl_view.reset_view()
-            self._gl_view.reset_rotation()
-            self._gl_view.rotate((1, 0, 0), 270)
-            self._gl_view.translate((-1, -4, -10))
-        else:
+        if view_matrix is not None:
             self._gl_view.set_view_matrix(view_matrix)
+        else:
+            self._set_default_view()
+
+
+    def _set_default_view(self):
+        self._gl_view.makeCurrent()
+        self._gl_view.reset_view()
+        self._gl_view.rotate((0, 0, 1), 45)
+        self._gl_view.rotate((1, 0, 0), -45)
+        self._gl_view.translate((0, -3, -15))
 
 
     def message_callback(self, message):
@@ -81,14 +87,14 @@ class PoseViewWidget(QDockWidget):
         self._gl_view.updateGL()
 
 
-    def paintGL(self):
+    def _gl_view_paintGL(self):
         self._gl_view.paintGL_original()
-        self.paintGLGrid()
-        self.paintGLCoorsystem()
-        self.paintGLBox()
+        self._paintGLGrid()
+        self._paintGLCoorsystem()
+        self._paintGLBox()
 
 
-    def paintGLBox(self):
+    def _paintGLBox(self):
         #glTranslatef(*self._position)     # Move Box
         glTranslatef(2.0, 2.0, 2.0)       # Move Box
         matrix = toMatrixQ(self._orientation) # convert quaternion to rotation matrix
@@ -134,7 +140,7 @@ class PoseViewWidget(QDockWidget):
         glEnd()                           # Done Drawing The Quad
 
 
-    def paintGLGrid(self):
+    def _paintGLGrid(self):
         resolutionMillimeters = 1
         griddedAreaSize = 100
 
@@ -165,7 +171,7 @@ class PoseViewWidget(QDockWidget):
         glEnd()
 
 
-    def paintGLCoorsystem(self):
+    def _paintGLCoorsystem(self):
         glLineWidth(10.0)
 
         glBegin(GL_LINES)
@@ -183,6 +189,15 @@ class PoseViewWidget(QDockWidget):
         glVertex3f(0.0, 0.0, 1.0)
 
         glEnd()
+
+
+    def _gl_view_mouseReleaseEvent(self, event):
+        if event.button() == Qt.RightButton:
+            menu = QMenu(self._gl_view)
+            action = QAction(self._gl_view.tr("Reset view"), self._gl_view)
+            menu.addAction(action)
+            action.triggered.connect(self._set_default_view)
+            menu.exec_(self._gl_view.mapToGlobal(event.pos()))
 
 
     @Slot('QDragEnterEvent*')
