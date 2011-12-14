@@ -13,6 +13,7 @@
   <depend package="rosgui_rospy"/>
   <depend package="rostopic"/>
   <depend package="geometry_msgs"/>
+  <depend package="tf"/>
 
   <export>
     <rosgui plugin="${prefix}/pose_view_plugin.xml"/>

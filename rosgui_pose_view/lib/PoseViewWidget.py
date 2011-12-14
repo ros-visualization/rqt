@@ -39,8 +39,8 @@ import roslib
 roslib.load_manifest('rosgui_pose_view')
 import rospy
 from rostopic import get_topic_class
+from tf.transformations import quaternion_matrix, quaternion_about_axis
 
-from math3D import toMatrixQ
 from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
 import GLWidget
 reload(GLWidget) # force reload to update on changes during runtime
@@ -54,8 +54,8 @@ class PoseViewWidget(QDockWidget):
         loadUi(ui_file, self)
         self._plugin = plugin
 
-        self._position = [0.0, 0.0, 0.0]
-        self._orientation = [1.0, 0.0, 0.0, 0.0]
+        self._position = (0.0, 0.0, 0.0)
+        self._orientation = quaternion_about_axis(0.0, (1.0, 0.0, 0.0))
         self._topic_name = None
         self._subscriber = None
 
@@ -107,9 +107,8 @@ class PoseViewWidget(QDockWidget):
 
 
     def message_callback(self, message):
-        self._position = [message.position.x, message.position.y, message.position.z]
-        self._orientation = [message.orientation.x, message.orientation.y, message.orientation.z, message.orientation.w]
-        #print 'received:', self._orientation
+        self._position = (message.position.x, message.position.y, message.position.z)
+        self._orientation = (message.orientation.x, message.orientation.y, message.orientation.z, message.orientation.w)
 
 
     def update_timeout(self):
@@ -125,9 +124,10 @@ class PoseViewWidget(QDockWidget):
 
 
     def _paintGLBox(self):
-        #glTranslatef(*self._position)     # Move Box
-        glTranslatef(2.0, 2.0, 2.0)       # Move Box
-        matrix = toMatrixQ(self._orientation) # convert quaternion to rotation matrix
+        self._position = (2.0, 2.0, 2.0)    # Set fixed translation for now
+        glTranslatef(*self._position)     # Translate Box
+
+        matrix = quaternion_matrix(self._orientation) # convert quaternion to translation matrix
         glMultMatrixf(matrix)             # Rotate Box 
 
         glBegin(GL_QUADS)                 # Start Drawing The Box
