@@ -32,8 +32,8 @@ from __future__ import division
 import os
 
 from rosgui.QtBindingHelper import loadUi
-from QtCore import QEvent, QObject, Qt, QTimer, Slot
-from QtGui import QDockWidget, QShortcut
+from QtCore import QObject, Qt, QTimer, Slot
+from QtGui import QShortcut, QWidget
 
 import roslib
 roslib.load_manifest('rosgui_robot_steering')
@@ -43,23 +43,19 @@ from geometry_msgs.msg import Twist
 
 class RobotSteering(QObject):
 
-    def __init__(self, parent, plugin_context):
-        super(RobotSteering, self).__init__(parent)
+    def __init__(self, context):
+        super(RobotSteering, self).__init__(context)
         self.setObjectName('RobotSteering')
 
         self._publisher = None
-        main_window = plugin_context.main_window()
-        self._widget = QDockWidget(main_window)
 
+        self._widget = QWidget()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RobotSteering.ui')
         loadUi(ui_file, self._widget)
         self._widget.setObjectName('RobotSteeringUi')
-        if plugin_context.serial_number() > 1:
-            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
-        main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
-
-        # trigger deleteLater for plugin when _widget is closed
-        self._widget.installEventFilter(self)
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget, Qt.RightDockWidgetArea)
 
         self._widget.topic_line_edit.textChanged.connect(self._on_topic_changed)
 
@@ -161,18 +157,8 @@ class RobotSteering(QObject):
             self._publisher.unregister()
             self._publisher = None
 
-    def eventFilter(self, obj, event):
-        if obj is self._widget and event.type() == QEvent.Close:
-            # TODO: ignore() should not be necessary when returning True
-            event.ignore()
-            self.deleteLater()
-            return True
-        return QObject.eventFilter(self, obj, event)
-
-    def close_plugin(self):
+    def shutdown_plugin(self):
         self._unregisterPublisher()
-        self._widget.close()
-        self._widget.deleteLater()
 
     def save_settings(self, global_settings, perspective_settings):
         topic = self._widget.topic_line_edit.text()

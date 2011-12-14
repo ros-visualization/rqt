@@ -74,7 +74,7 @@ class RosPluginProvider(PluginProvider):
         if class_ref.__init__.func_code.co_argcount == 1 and plugin_context is None:
             return class_ref()
         # create plugin instance
-        return class_ref(self, plugin_context)
+        return class_ref(plugin_context)
 
     def unload(self, plugin_instance):
         pass

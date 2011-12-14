@@ -46,6 +46,7 @@ class DockWidgetTitleBar(QWidget):
             'settings': self.settings_button,
             'reload': self.reload_button,
             'help': self.help_button,
+            'close': self.close_button,
         }
 
         self.settings_button.setIcon(QIcon.fromTheme('emblem-system'))
@@ -60,7 +61,6 @@ class DockWidgetTitleBar(QWidget):
 
         self.float_button.clicked.connect(self.toggle_floating)
         self.dockable_button.clicked.connect(self.toggle_dockable)
-        self.close_button.clicked.connect(dock_widget.close)
 
         dock_widget.featuresChanged.connect(self.features_changed)
         self.features_changed(0)
@@ -137,8 +137,7 @@ class DockWidgetTitleBar(QWidget):
 
 if __name__ == '__main__':
     import sys
-    from QtCore import Qt
-    from QtGui import QApplication, QMainWindow, QDockWidget
+    from QtGui import QApplication, QMainWindow
 
     app = QApplication(sys.argv)
 

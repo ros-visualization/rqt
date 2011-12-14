@@ -33,13 +33,13 @@ from QtCore import QObject
 
 class Plugin(QObject):
 
-    def __init__(self, plugin_context):
-        super(Plugin, self).__init__()
+    def __init__(self, context):
+        super(Plugin, self).__init__(context)
         self.setObjectName('Plugin')
 
-    def close_plugin(self):
-        '''Close the plugin'''
-        raise NotImplementedError('override method in subclass')
+    def shutdown_plugin(self):
+        '''Shutdown the plugin'''
+        pass
 
     def save_settings(self, global_settings, perspective_settings):
         '''Save intrinsic configuration to settings'''

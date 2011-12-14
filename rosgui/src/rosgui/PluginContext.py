@@ -29,37 +29,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import QtBindingHelper #@UnusedImport
-from QtCore import QObject, Slot
+from QtCore import QObject
 
 class PluginContext(QObject):
 
-    def __init__(self, parent=None):
-        super(PluginContext, self).__init__(parent)
+    def __init__(self, handler):
+        super(PluginContext, self).__init__(handler)
         self.setObjectName('PluginContext')
 
-        self._main_window = None
-        self._serial_number = 0
-        self._dict = {}
+        self._handler = handler
 
-    @Slot(result=object)
-    def main_window(self):
-        return self._main_window
-
-    def set_main_window(self, main_window):
-        self._main_window = main_window
-
-    @Slot(result=int)
     def serial_number(self):
-        return self._serial_number
+        '''Return the serial number of the plugin'''
+        return self._handler.serial_number()
 
-    def set_serial_number(self, serial_number):
-        self._serial_number = serial_number
+    def add_widget(self, widget, area=None):
+        '''Add a widget to the UI'''
+        self._handler.add_widget(widget, area)
 
-    def attributes(self):
-        return self._dict
+    def remove_widget(self, widget):
+        '''Remove a widget from the UI'''
+        self._handler.remove_widget(widget)
 
-    def attribute(self, key):
-        return self._dict.get(key, None)
-
-    def set_attribute(self, key, value):
-        self._dict[key] = value
+    def close_plugin(self):
+        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
+        self._handler.close_plugin()
