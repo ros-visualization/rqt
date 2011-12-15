@@ -68,6 +68,7 @@ class Publisher(QDockWidget):
         self.add_publisher_button.setIcon(QIcon.fromTheme('add'))
         self.remove_publisher_button.setIcon(QIcon.fromTheme('remove'))
         self.clear_button.setIcon(QIcon.fromTheme('edit-clear'))
+        self.publishers_tree_widget.sortByColumn(0, Qt.AscendingOrder)
 
         if plugin_context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))

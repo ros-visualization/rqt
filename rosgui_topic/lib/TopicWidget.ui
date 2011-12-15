@@ -29,6 +29,9 @@
       <property name="dragDropMode">
        <enum>QAbstractItemView::DragOnly</enum>
       </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
       <column>
        <property name="text">
         <string>Topic</string>

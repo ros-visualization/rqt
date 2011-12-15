@@ -35,7 +35,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, Slot
-from QtGui import QDockWidget, QIcon, QMenu, QTreeWidgetItem
+from QtGui import QDockWidget, QHeaderView, QIcon, QMenu, QTreeWidgetItem
 
 import roslib
 roslib.load_manifest('rosgui_topic')
@@ -53,6 +53,11 @@ class TopicWidget(QDockWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'TopicWidget.ui')
         loadUi(ui_file, self)
         self._plugin = plugin
+        self.topics_tree_widget.sortByColumn(0, Qt.AscendingOrder)
+        header = self.topics_tree_widget.header()
+        header.setResizeMode(QHeaderView.ResizeToContents)
+        header.customContextMenuRequested.connect(self.handle_header_view_customContextMenuRequested)
+        header.setContextMenuPolicy(Qt.CustomContextMenu)
 
         self._current_topic_list = []
         self._topic_infos = {}
@@ -135,11 +140,6 @@ class TopicWidget(QDockWidget):
             self._tree_items[topic_info._topic_name].setText(self._column_index['bandwidth'], bandwidth_text)
             self._tree_items[topic_info._topic_name].setText(self._column_index['value'], value_text)
 
-
-        # resize columns
-        for i in range(self.topics_tree_widget.columnCount()):
-            self.topics_tree_widget.resizeColumnToContents(i)
-
         # limit width of value column
         current_width = self.topics_tree_widget.columnWidth(self._column_index['value'])
         self.topics_tree_widget.setColumnWidth(self._column_index['value'], min(150, current_width))
@@ -205,6 +205,23 @@ class TopicWidget(QDockWidget):
 
 
     @Slot('QPoint')
+    def handle_header_view_customContextMenuRequested(self, pos):
+        header = self.topics_tree_widget.header()
+
+        # show context menu
+        menu = QMenu(self)
+        action_toggle_auto_resize = menu.addAction('Toggle Auto-Resize')
+        action = menu.exec_(header.mapToGlobal(pos))
+
+        # evaluate user action
+        if action is action_toggle_auto_resize:
+            if header.resizeMode(0) == QHeaderView.ResizeToContents:
+                header.setResizeMode(QHeaderView.Interactive)
+            else:
+                header.setResizeMode(QHeaderView.ResizeToContents)
+
+
+    @Slot('QPoint')
     def on_topics_tree_widget_customContextMenuRequested(self, pos):
         item = self.topics_tree_widget.itemAt(pos)
         if item is None:
@@ -212,13 +229,13 @@ class TopicWidget(QDockWidget):
 
         # show context menu
         menu = QMenu(self)
-        actionToggleMonitoring = menu.addAction(QIcon.fromTheme('search'), "Toggle Monitoring")
-        action_item_expand = menu.addAction(QIcon.fromTheme('zoom-in'), "Expand All Children")
-        action_item_collapse = menu.addAction(QIcon.fromTheme('zoom-out'), "Collapse All Children")
+        action_moggle_monitoring = menu.addAction(QIcon.fromTheme('search'), 'Toggle Monitoring')
+        action_item_expand = menu.addAction(QIcon.fromTheme('zoom-in'), 'Expand All Children')
+        action_item_collapse = menu.addAction(QIcon.fromTheme('zoom-out'), 'Collapse All Children')
         action = menu.exec_(self.topics_tree_widget.mapToGlobal(pos))
 
         # evaluate user action
-        if action is actionToggleMonitoring:
+        if action is action_moggle_monitoring:
             root_item = item
             while root_item.parent() is not None:
                 root_item = root_item.parent()
