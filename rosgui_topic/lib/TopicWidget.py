@@ -60,7 +60,7 @@ class TopicWidget(QDockWidget):
         header.setContextMenuPolicy(Qt.CustomContextMenu)
 
         self._current_topic_list = []
-        self._topic_infos = {}
+        self._topics = {}
         self._tree_items = {}
         self._column_index = {}
         for column_name in self._column_names:
@@ -75,42 +75,48 @@ class TopicWidget(QDockWidget):
 
     @Slot()
     def refresh_topics(self):
-        # fill tree view
+        # refresh tree view items
         topic_list = rospy.get_published_topics()
         if self._current_topic_list != topic_list:
             self._current_topic_list = topic_list
 
             # start new topic dict
-            self.topics_tree_widget.clear()
-            new_topic_infos = {}
+            new_topics = {}
 
-            for topic_name, message_type in sorted(topic_list):
-                # if topic is new
-                if topic_name not in self._topic_infos:
+            for topic_name, topic_type in topic_list:
+                # if topic is new or has changed its type
+                if topic_name not in self._topics or self._topics[topic_name]['type'] != topic_type:
                     # create new TopicInfo
                     topic_info = TopicInfo.TopicInfo(topic_name)
-                    # if successful add it to the dict
+                    # if successful, add it to the dict and tree view
                     if topic_info._topic_name:
-                        new_topic_infos[topic_name] = topic_info
+                        topic_item = self._recursive_create_widget_items(self.topics_tree_widget, topic_name, topic_type, topic_info.message_class())
+                        new_topics[topic_name] = {
+                           'item': topic_item,
+                           'info': topic_info,
+                           'type': topic_type,
+                        }
                 else:
-                    # if topic has been seen before, copy it to new dict and remove it form the old one
-                    new_topic_infos[topic_name] = self._topic_infos[topic_name]
-                    del self._topic_infos[topic_name]
+                    # if topic has been seen before, copy it to new dict and remove it from the old one
+                    new_topics[topic_name] = self._topics[topic_name]
+                    del self._topics[topic_name]
 
-                # if TopicInfo exist for topic, add it to tree view
-                if topic_name in new_topic_infos:
-                    self._recursive_create_widget_items(self.topics_tree_widget, topic_name, message_type, new_topic_infos[topic_name].message_class())
+            # clean up old topics
+            for topic_name in self._topics.keys():
+                self._topics[topic_name]['info'].stop_monitoring()
+                index = self.topics_tree_widget.indexOfTopLevelItem(self._topics[topic_name]['item'])
+                self.topics_tree_widget.takeTopLevelItem(index)
+                del self._topics[topic_name]
 
-            # stop monitoring and delete non existing topics
-            for topic_info in self._topic_infos.values():
-                topic_info.stop_monitoring()
-                del topic_info
+            # switch to new topic dict
+            self._topics = new_topics
 
-            # change to new topic dict
-            self._topic_infos = new_topic_infos
+        self._update_topics_data()
 
 
-        for topic_info in self._topic_infos.values():
+    def _update_topics_data(self):
+        for topic in self._topics.values():
+            topic_info = topic['info']
             if topic_info.monitoring:
                 # update rate
                 rate, _, _, _ = topic_info.get_hz()
@@ -139,10 +145,6 @@ class TopicWidget(QDockWidget):
             self._tree_items[topic_info._topic_name].setText(self._column_index['rate'], rate_text)
             self._tree_items[topic_info._topic_name].setText(self._column_index['bandwidth'], bandwidth_text)
             self._tree_items[topic_info._topic_name].setText(self._column_index['value'], value_text)
-
-        # limit width of value column
-        current_width = self.topics_tree_widget.columnWidth(self._column_index['value'])
-        self.topics_tree_widget.setColumnWidth(self._column_index['value'], min(150, current_width))
 
 
     def update_value(self, topic_name, message):
@@ -202,6 +204,7 @@ class TopicWidget(QDockWidget):
             if array_size is not None and hasattr(base_instance, '__slots__'):
                 for index in range(array_size):
                     self._recursive_create_widget_items(item, topic_name + '[%d]' % index, base_type_str, base_instance)
+        return item
 
 
     @Slot('QPoint')
@@ -240,7 +243,7 @@ class TopicWidget(QDockWidget):
             while root_item.parent() is not None:
                 root_item = root_item.parent()
             root_topic_name = root_item.data(0, Qt.UserRole)
-            self._topic_infos[root_topic_name].toggle_monitoring()
+            self._topics[root_topic_name]['info'].toggle_monitoring()
 
         elif action in (action_item_expand, action_item_collapse):
             expanded = (action is action_item_expand)
@@ -253,8 +256,8 @@ class TopicWidget(QDockWidget):
 
     # override Qt's closeEvent() method to trigger _plugin unloading
     def closeEvent(self, event):
-        for topic_info in self._topic_infos.values():
-            topic_info.stop_monitoring()
+        for topic in self._topics.values():
+            topic['info'].stop_monitoring()
         self._timer_refresh_topics.stop()
         event.ignore()
         self._plugin.deleteLater()
