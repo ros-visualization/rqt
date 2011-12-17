@@ -38,7 +38,7 @@ import pydot
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal
-from QtGui import QDockWidget, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter
+from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
 from QtSvg import QSvgGenerator
 
 import roslib
@@ -62,21 +62,20 @@ class RosGraph(QObject):
 
     _deferred_fit_in_view = Signal()
 
-    def __init__(self, parent, plugin_context):
-        super(RosGraph, self).__init__(parent)
+    def __init__(self, context):
+        super(RosGraph, self).__init__(context)
         self.setObjectName('RosGraph')
 
         self._graph = None
         self._current_dotcode = None
 
-        main_window = plugin_context.main_window()
-        self._widget = QDockWidget(main_window)
+        self._widget = QWidget()
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosGraphUi')
-        if plugin_context.serial_number() > 1:
-            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
 
         self._scene = QGraphicsScene()
         self._widget.graphics_view.setScene(self._scene)
@@ -110,9 +109,7 @@ class RosGraph(QObject):
         self._deferred_fit_in_view.connect(self._fit_in_view, Qt.QueuedConnection)
         self._deferred_fit_in_view.emit()
 
-        # trigger deleteLater for plugin when _widget is closed
-        self._widget.installEventFilter(self)
-        main_window.addDockWidget(Qt.RightDockWidgetArea, self._widget)
+        context.add_widget(self._widget, Qt.RightDockWidgetArea)
 
     def save_settings(self, global_settings, perspective_settings):
         perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
@@ -333,15 +330,3 @@ class RosGraph(QObject):
         self._scene.render(painter)
         painter.end()
         img.save(file_name)
-
-    def eventFilter(self, obj, event):
-        if obj is self._widget and event.type() == QEvent.Close:
-            # TODO: ignore() should not be necessary when returning True
-            event.ignore()
-            self.deleteLater()
-            return True
-        return QObject.eventFilter(self, obj, event)
-
-    def close_plugin(self):
-        self._widget.close()
-        self._widget.deleteLater()

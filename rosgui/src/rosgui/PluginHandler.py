@@ -201,7 +201,12 @@ class PluginHandler(QObject):
     def remove_widget(self, widget):
         dock_widget = self._widgets[widget]
         self._remove_dock_widget_from_main_window(dock_widget)
-        del self._widgets[widget]
+        if widget != self._plugin:
+            del self._widgets[widget]
+        else:
+            # if the plugin acts as a widget the parent dock widget can not yet be deleted
+            widget.setParent(None)
+            del self._widgets[widget]
 
     def _remove_dock_widget_from_main_window(self, dock_widget):
         if self._main_window is not None:

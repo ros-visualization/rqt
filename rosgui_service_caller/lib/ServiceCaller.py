@@ -36,7 +36,7 @@ import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
-from QtGui import QDockWidget, QIcon, QTreeWidgetItem, QMenu
+from QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
 roslib.load_manifest('rosgui_service_caller')
@@ -44,12 +44,12 @@ import rospy, rosservice
 from ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
-class ServiceCaller(QDockWidget):
+class ServiceCaller(QWidget):
     column_names = ['service', 'type', 'expression']
 
 
-    def __init__(self, parent, plugin_context):
-        super(ServiceCaller, self).__init__(plugin_context.main_window())
+    def __init__(self, context):
+        super(ServiceCaller, self).__init__()
         self.setObjectName('ServiceCaller')
 
         # create context for the expression eval statement
@@ -65,8 +65,8 @@ class ServiceCaller(QDockWidget):
         self.refresh_services_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.call_service_button.setIcon(QIcon.fromTheme('call-start'))
 
-        if plugin_context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+        if context.serial_number() > 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self._column_index = {}
         for column_name in self.column_names:
@@ -78,7 +78,7 @@ class ServiceCaller(QDockWidget):
         self.request_tree_widget.itemChanged.connect(self.request_tree_widget_itemChanged)
 
         # add our self to the main window
-        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
+        context.add_widget(self, Qt.RightDockWidgetArea)
 
 
     @Slot()
@@ -276,25 +276,3 @@ class ServiceCaller(QDockWidget):
                 for index in range(item.childCount()):
                     recursive_set_expanded(item.child(index))
             recursive_set_expanded(item)
-
-
-    def save_settings(self, global_settings, perspective_settings):
-        pass
-
-
-    def restore_settings(self, global_settings, perspective_settings):
-        pass
-
-
-    def set_name(self, name):
-        self.setWindowTitle(name)
-
-
-    # override Qt's closeEvent() method to trigger plugin unloading
-    def closeEvent(self, event):
-        event.ignore()
-        self.deleteLater()
-
-
-    def close_plugin(self):
-        QDockWidget.close(self)

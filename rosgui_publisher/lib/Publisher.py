@@ -36,7 +36,7 @@ import math, random, time # used for the expression eval context
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
-from QtGui import QDockWidget, QIcon, QTreeWidgetItem, QMenu
+from QtGui import QWidget, QIcon, QTreeWidgetItem, QMenu
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
@@ -45,12 +45,12 @@ from roslib.msgs import load_package, REGISTERED_TYPES
 from ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
-class Publisher(QDockWidget):
+class Publisher(QWidget):
     _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
 
 
-    def __init__(self, parent, plugin_context):
-        super(Publisher, self).__init__(plugin_context.main_window())
+    def __init__(self, context):
+        super(Publisher, self).__init__()
         self.setObjectName('Publisher')
 
         # create context for the expression eval statement
@@ -70,8 +70,8 @@ class Publisher(QDockWidget):
         self.clear_button.setIcon(QIcon.fromTheme('edit-clear'))
         self.publishers_tree_widget.sortByColumn(0, Qt.AscendingOrder)
 
-        if plugin_context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+        if context.serial_number() > 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self._column_index = {}
         for column_name in self._column_names:
@@ -90,7 +90,7 @@ class Publisher(QDockWidget):
         self.refresh_combo_boxes()
 
         # add our self to the main window
-        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
+        context.add_widget(self, Qt.RightDockWidgetArea)
 
 
     @Slot()
@@ -479,16 +479,5 @@ class Publisher(QDockWidget):
         self._publishers = {}
 
 
-    def set_name(self, name):
-        self.setWindowTitle(name)
-
-
-    # override Qt's closeEvent() method to trigger plugin unloading
-    def closeEvent(self, event):
-        event.ignore()
-        self.deleteLater()
-
-
-    def close_plugin(self):
+    def shutdown_plugin(self):
         self.clean_up_publishers()
-        QDockWidget.close(self)

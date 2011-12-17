@@ -33,7 +33,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
-from QtGui import QAction, QDockWidget, QMenu
+from QtGui import QAction, QMenu, QWidget
 
 import roslib
 roslib.load_manifest('rosgui_pose_view')
@@ -46,10 +46,10 @@ import GLWidget
 reload(GLWidget) # force reload to update on changes during runtime
 
 # main class inherits from the ui window class
-class PoseViewWidget(QDockWidget):
+class PoseViewWidget(QWidget):
 
-    def __init__(self, plugin, plugin_context):
-        super(PoseViewWidget, self).__init__(plugin_context.main_window())
+    def __init__(self, plugin):
+        super(PoseViewWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PoseViewWidget.ui')
         loadUi(ui_file, self)
         self._plugin = plugin
@@ -72,9 +72,9 @@ class PoseViewWidget(QDockWidget):
         self._gl_view.mouseReleaseEvent = self._gl_view_mouseReleaseEvent
 
         # add GL view to widget layout        
-        self.dockWidgetContents.layout().addWidget(self._gl_view)
+        self.layout().addWidget(self._gl_view)
 
-        # init and start update timer at 40Hz (25fps)
+        # init and start update timer with 40ms (25fps)
         self._update_timer = QTimer(self)
         self._update_timer.timeout.connect(self.update_timeout)
         self._update_timer.start(40)
@@ -268,8 +268,5 @@ class PoseViewWidget(QDockWidget):
         self._subscriber = rospy.Subscriber(self._topic_name, msg_class, self.message_callback)
 
 
-    # override Qt's closeEvent() method to trigger _plugin unloading
-    def closeEvent(self, event):
+    def shutdown_plugin(self):
         self.unregister_topic()
-        event.ignore()
-        self._plugin.deleteLater()

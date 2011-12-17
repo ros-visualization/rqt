@@ -35,7 +35,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, Slot
-from QtGui import QDockWidget, QHeaderView, QIcon, QMenu, QTreeWidgetItem
+from QtGui import QHeaderView, QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
 roslib.load_manifest('rosgui_topic')
@@ -45,11 +45,11 @@ reload(TopicInfo) # force reload to update on changes during runtime
 
 
 # main class inherits from the ui window class
-class TopicWidget(QDockWidget):
+class TopicWidget(QWidget):
     _column_names = ['topic', 'type', 'bandwidth', 'rate', 'value']
 
-    def __init__(self, plugin, plugin_context):
-        super(TopicWidget, self).__init__(plugin_context.main_window())
+    def __init__(self, plugin):
+        super(TopicWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'TopicWidget.ui')
         loadUi(ui_file, self)
         self._plugin = plugin
@@ -254,10 +254,7 @@ class TopicWidget(QDockWidget):
             recursive_set_expanded(item)
 
 
-    # override Qt's closeEvent() method to trigger _plugin unloading
-    def closeEvent(self, event):
+    def shutdown_plugin(self):
         for topic in self._topics.values():
             topic['info'].stop_monitoring()
         self._timer_refresh_topics.stop()
-        event.ignore()
-        self._plugin.deleteLater()

@@ -34,7 +34,7 @@ import os
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
-from QtGui import QDockWidget
+from QtGui import QWidget
 
 import roslib
 roslib.load_manifest('rosgui_plot')
@@ -47,17 +47,17 @@ reload(DataPlot)
 from TopicCompleter import TopicCompleter
 
 # main class inherits from the ui window class
-class Plot(QDockWidget):
+class Plot(QWidget):
 
-    def __init__(self, parent, plugin_context):
-        super(Plot, self).__init__(plugin_context.main_window())
+    def __init__(self, context):
+        super(Plot, self).__init__()
         self.setObjectName('Plot')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
         loadUi(ui_file, self, {'DataPlot': DataPlot.DataPlot})
 
-        if plugin_context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % plugin_context.serial_number()))
+        if context.serial_number() > 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self.subscribe_topic_button.setEnabled(False)
 
@@ -76,7 +76,7 @@ class Plot(QDockWidget):
         self.pause_button.clicked[bool].connect(self.data_plot.togglePause)
 
         # add our self to the main window
-        plugin_context.main_window().addDockWidget(Qt.RightDockWidgetArea, self)
+        context.add_widget(self, Qt.RightDockWidgetArea)
 
         # init and start update timer for plot
         self._update_plot_timer = QTimer(self)
@@ -199,16 +199,5 @@ class Plot(QDockWidget):
         pass
 
 
-    def set_name(self, name):
-        self.setWindowTitle(name)
-
-
-    # override Qt's closeEvent() method to trigger plugin unloading
-    def closeEvent(self, event):
-        event.ignore()
-        self.deleteLater()
-
-
-    def close_plugin(self):
+    def shutdown_plugin(self):
         self.clean_up_subscribers()
-        QDockWidget.close(self)
