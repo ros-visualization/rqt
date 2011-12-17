@@ -111,7 +111,7 @@ class RosPluginProvider(PluginProvider):
                 # generate unique identifier
                 plugin_id = plugin_name
                 if 'class_name' in attributes:
-                    plugin_id = plugin_id + ' ' + attributes['class_name']
+                    plugin_id = plugin_id + '/' + attributes['class_name']
                 attributes['plugin_id'] = plugin_id
 
                 # check if plugin is available

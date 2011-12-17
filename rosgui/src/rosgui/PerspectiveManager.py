@@ -36,6 +36,7 @@ from QtCore import QByteArray, qDebug, QObject, QSignalMapper, Signal, Slot
 from QtGui import QAction, QFileDialog, QIcon, QInputDialog, QMessageBox, QValidator
 
 from MenuManager import MenuManager
+from PerspectiveManagerDBusInterface import PerspectiveManagerDBusInterface
 from Settings import Settings
 from SettingsProxy import SettingsProxy
 
@@ -47,7 +48,7 @@ class PerspectiveManager(QObject):
 
     HIDDEN_PREFIX = '@'
 
-    def __init__(self, settings, menu):
+    def __init__(self, settings, menu, application_context):
         super(PerspectiveManager, self).__init__()
         self.setObjectName('PerspectiveManager')
 
@@ -56,9 +57,10 @@ class PerspectiveManager(QObject):
         self._perspective_settings = None
         self._create_perspective_dialog = None
 
-        self._menu_manager = MenuManager(menu)
-        self._perspective_mapper = QSignalMapper(menu)
-        self._perspective_mapper.mapped[str].connect(self.switch_perspective)
+        self._menu_manager = MenuManager(menu) if menu is not None else None
+        self._perspective_mapper = QSignalMapper(menu) if menu is not None else None
+        if self._perspective_mapper is not None:
+            self._perspective_mapper.mapped[str].connect(self.switch_perspective)
 
         # get perspective list from settings
         self.perspectives = self._settings_proxy.value('', 'perspectives', [])
@@ -68,7 +70,11 @@ class PerspectiveManager(QObject):
         self._current_perspective = None
         self._remove_action = None
 
-        self._generate_menu()
+        if self._menu_manager is not None:
+            self._generate_menu()
+
+        if application_context.dbus_unique_bus_name is not None:
+            self._dbus_server = PerspectiveManagerDBusInterface(self, application_context)
 
 
     def set_perspective(self, name, hide_perspective=False):
@@ -87,10 +93,10 @@ class PerspectiveManager(QObject):
             self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
         # convert from unicode
-        name = str(name)
+        name = str(name.replace('/', '_'))
 
         qDebug('PerspectiveManager.switch_perspective() switching to perspective "%s"' % name)
-        if self._current_perspective is not None:
+        if self._current_perspective is not None and self._menu_manager is not None:
             self._menu_manager.set_item_checked(self._current_perspective, False)
             self._menu_manager.set_item_disabled(self._current_perspective, False)
 
@@ -100,8 +106,9 @@ class PerspectiveManager(QObject):
 
         # update current perspective
         self._current_perspective = name
-        self._menu_manager.set_item_checked(self._current_perspective, True)
-        self._menu_manager.set_item_disabled(self._current_perspective, True)
+        if self._menu_manager is not None:
+            self._menu_manager.set_item_checked(self._current_perspective, True)
+            self._menu_manager.set_item_disabled(self._current_perspective, True)
         if not self._current_perspective.startswith(self.HIDDEN_PREFIX):
             self._settings_proxy.set_value('', 'current-perspective', self._current_perspective)
         self._perspective_settings = self._get_perspective_settings(self._current_perspective)
@@ -221,17 +228,18 @@ class PerspectiveManager(QObject):
 
 
     def _add_perspective_action(self, name):
-        # create action
-        action = QAction(name, self._menu_manager.menu)
-        action.setCheckable(True)
-        self._perspective_mapper.setMapping(action, name)
-        action.triggered.connect(self._perspective_mapper.map)
+        if self._menu_manager is not None:
+            # create action
+            action = QAction(name, self._menu_manager.menu)
+            action.setCheckable(True)
+            self._perspective_mapper.setMapping(action, name)
+            action.triggered.connect(self._perspective_mapper.map)
 
-        # add action to menu
-        self._menu_manager.add_item(action)
-        # enable remove-action
-        if self._menu_manager.count_items() > 1:
-            self._remove_action.setEnabled(True)
+            # add action to menu
+            self._menu_manager.add_item(action)
+            # enable remove-action
+            if self._menu_manager.count_items() > 1:
+                self._remove_action.setEnabled(True)
 
 
     def _on_remove_perspective(self):

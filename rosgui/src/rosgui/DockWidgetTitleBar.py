@@ -36,9 +36,8 @@ from QtGui import QDockWidget, QIcon, QWidget
 
 class DockWidgetTitleBar(QWidget):
 
-    def __init__(self, dock_widget, hide_close_button=False):
+    def __init__(self, dock_widget):
         super(DockWidgetTitleBar, self).__init__(dock_widget)
-        self._hide_close_button_flag = hide_close_button
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DockWidgetTitleBar.ui')
         loadUi(ui_file, self)
@@ -63,7 +62,7 @@ class DockWidgetTitleBar(QWidget):
         self.dockable_button.clicked.connect(self.toggle_dockable)
 
         dock_widget.featuresChanged.connect(self.features_changed)
-        self.features_changed(0)
+        self.features_changed()
 
         self.update_title()
 
@@ -120,9 +119,10 @@ class DockWidgetTitleBar(QWidget):
         dock_widget.setFloating(not dock_widget.isFloating())
 
 
-    def features_changed(self, _features):
-        features = self.parentWidget().features()
-        self.close_button.setVisible((not self._hide_close_button_flag) and bool(features & QDockWidget.DockWidgetClosable))
+    def features_changed(self, features=None):
+        if features is None:
+            features = self.parentWidget().features()
+        self.close_button.setVisible(bool(features & QDockWidget.DockWidgetClosable))
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
 
 

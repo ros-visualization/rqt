@@ -29,32 +29,30 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import QtBindingHelper #@UnusedImport
-from QtCore import QObject
+from QtCore import qDebug
 
-class PluginContext(QObject):
+from dbus.service import BusName, Object
+import dbus
 
-    def __init__(self, handler):
-        super(PluginContext, self).__init__(handler)
-        self.setObjectName('PluginContext')
+class PluginManagerDBusInterface(Object):
 
-        self._handler = handler
+    def __init__(self, plugin_manager , application_context):
+        bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
+        super(PluginManagerDBusInterface, self).__init__(bus_name, '/PluginManager')
+        self._plugin_manager = plugin_manager
 
-    def serial_number(self):
-        '''Return the serial number of the plugin'''
-        return self._handler.serial_number()
-
-    def add_widget(self, widget, area=None):
-        '''Add a widget to the UI'''
-        self._handler.add_widget(widget, area)
-
-    def update_widget_title(self, widget):
-        '''Update the window title of the surrounding dock widget based on the window title of the widget'''
-        self._handler.update_widget_title(widget)
-
-    def remove_widget(self, widget):
-        '''Remove a widget from the UI'''
-        self._handler.remove_widget(widget)
-
-    def close_plugin(self):
-        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
-        self._handler.close_plugin()
+    @dbus.service.method('org.ros.rosgui.PluginManager', in_signature='s', out_signature='is')
+    def start_plugin(self, plugin_name):
+        qDebug('PluginManagerDBusInterface.start_plugin(%s)' % plugin_name)
+        plugins = self._plugin_manager.find_plugins_by_name(plugin_name)
+        if len(plugins) == 0:
+            msg = 'PluginManagerDBusInterface.start_plugin() found no plugin matching "%s"' % plugin_name
+            print msg
+            return (1, msg)
+        elif len(plugins) > 1:
+            msg = 'PluginManagerDBusInterface.start_plugin() found multiple plugins matching "%s"\n%s' % (plugin_name, '\n'.join(plugins.values()))
+            print msg
+            return (1, msg)
+        plugin_id = plugins.keys()[0]
+        self._plugin_manager.load_plugin(plugin_id)
+        return (0, plugin_id)

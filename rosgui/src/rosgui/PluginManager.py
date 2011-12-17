@@ -36,6 +36,8 @@ from QtGui import QAction, QIcon, QMenu
 
 from MenuManager import MenuManager
 from PluginHandler import PluginHandler
+from PluginHandlerXEmbed import PluginHandlerXEmbed
+from PluginManagerDBusInterface import PluginManagerDBusInterface
 
 class PluginManager(QObject):
 
@@ -44,35 +46,42 @@ class PluginManager(QObject):
     plugin_help_signal = Signal(object)
     _deferred_reload_plugin_signal = Signal(str, int)
 
-    def __init__(self, main_window, plugin_menu, running_menu, plugin_provider, hide_close_button=False):
+    def __init__(self, main_window, plugin_provider, application_context):
         super(PluginManager, self).__init__()
         self.setObjectName('PluginManager')
+
+        self._main_window = main_window
+        self._plugin_provider = plugin_provider
+        self._application_context = application_context
+
+        if self._main_window is not None:
+            menu_bar = self._main_window.menuBar()
+            plugin_menu = menu_bar.addMenu(menu_bar.tr('Plugins'))
+            running_menu = menu_bar.addMenu(menu_bar.tr('Running'))
+            self._plugin_menu_manager = MenuManager(plugin_menu)
+            self._plugin_mapper = QSignalMapper(plugin_menu)
+            self._plugin_mapper.mapped[str].connect(self.load_plugin)
+            self._running_menu_manager = MenuManager(running_menu)
+            self._running_mapper = QSignalMapper(running_menu)
+            self._running_mapper.mapped[str].connect(self.unload_plugin)
+        else:
+            self._plugin_menu_manager = None
+            self._plugin_mapper = None
+            self._running_menu_manager = None
+            self._running_mapper = None
 
         self._global_settings = None
         self._perspective_settings = None
         self._plugin_descriptors = {}
         self._running_plugins = {}
-        self._hide_close_button_flag = hide_close_button
 
-        self._main_window = main_window
-        self._plugin_menu_manager = MenuManager(plugin_menu)
-        self._running_menu_manager = MenuManager(running_menu)
-        self._plugin_provider = plugin_provider
-
-        self._plugin_mapper = QSignalMapper(plugin_menu)
-        self._plugin_mapper.mapped[str].connect(self.load_plugin)
-
-        self._running_mapper = QSignalMapper(running_menu)
-        self._running_mapper.mapped[str].connect(self.unload_plugin)
-
+        # register discovered plugins
         plugin_descriptors = self._plugin_provider.discover()
-
-        # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
-        self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
-
-        # register plugins
         for plugin_descriptor in plugin_descriptors:
             self._plugin_descriptors[plugin_descriptor.plugin_id()] = plugin_descriptor
+
+            if self._plugin_menu_manager is None:
+                continue
 
             base_path = plugin_descriptor.attributes().get('plugin_path')
 
@@ -96,13 +105,19 @@ class PluginManager(QObject):
             self._plugin_mapper.setMapping(action, plugin_descriptor.plugin_id())
             action.triggered.connect(self._plugin_mapper.map)
 
-            not_available = plugin_descriptor.attributes().get('not_available', '')
+            not_available = plugin_descriptor.attributes().get('not_available')
             if not_available:
                 action.setEnabled(False)
                 action.setStatusTip(self.tr('Plugin is not available (%s) - may be it must be build?') % not_available)
 
             # add action to menu
             menu_manager.add_item(action)
+
+        # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
+        self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
+
+        if application_context.dbus_unique_bus_name is not None:
+            self._dbus_server = PluginManagerDBusInterface(self, self._application_context)
 
 
     def find_plugins_by_name(self, lookup_name):
@@ -192,7 +207,10 @@ class PluginManager(QObject):
         if instance_id in self._running_plugins:
             raise Exception('PluginManager._load_plugin(%s, %d) instance already loaded' % (plugin_id, serial_number))
 
-        handler = PluginHandler(self._main_window, instance_id, plugin_id, serial_number, self._hide_close_button_flag)
+        if not self._application_context.options.multi_process and not self._application_context.options.embed_plugin:
+            handler = PluginHandler(self._main_window, instance_id, plugin_id, serial_number, self._application_context)
+        else:
+            handler = PluginHandlerXEmbed(self._main_window, instance_id, plugin_id, serial_number, self._application_context)
         handler.close_signal.connect(self.unload_plugin)
         handler.reload_signal.connect(self.reload_plugin)
         handler.help_signal.connect(self._relay_plugin_help_signal)
@@ -200,10 +218,14 @@ class PluginManager(QObject):
         try:
             loaded = handler.load(self._plugin_provider)
             if not loaded:
-                raise Exception('PluginProvider "%s" returned None', type(self._plugin_provider))
+                qCritical('PluginManager._load_plugin() could not load plugin "%s"' % plugin_id)
+                return
 
         except Exception:
             qCritical('PluginManager._load_plugin(%s) failed:\n%s' % (plugin_id, traceback.format_exc()))
+            # quit embed application in case of exceptions
+            if self._application_context.options.embed_plugin:
+                exit(-1)
 
         else:
             qDebug('PluginManager._load_plugin(%s, %d) successful' % (plugin_id, serial_number))
@@ -214,28 +236,32 @@ class PluginManager(QObject):
 
 
     def _add_running_plugin(self, plugin_id, serial_number, handler):
-        plugin_descriptor = self._plugin_descriptors[plugin_id]
-        action_attributes = plugin_descriptor.action_attributes()
-        # create action
-        label = self.tr('Close:') + ' ' + action_attributes['label']
-        if serial_number != 1:
-            label = label + ' (%s)' % str(serial_number)
-        action = QAction(label, self._running_menu_manager.menu)
-        base_path = plugin_descriptor.attributes().get('plugin_path')
-        self._enrich_action(action, action_attributes, base_path)
-
-        instance_id = self._build_instance_id(plugin_id, serial_number)
-        self._running_mapper.setMapping(action, instance_id)
-        action.triggered.connect(self._running_mapper.map)
-
-        self._running_menu_manager.add_item(action)
-
         info = {
             'plugin_id': plugin_id,
             'serial_number': serial_number,
             'handler': handler,
-            'action': action,
+            'action': None,
         }
+
+        instance_id = self._build_instance_id(plugin_id, serial_number)
+
+        if self._running_menu_manager is not None:
+            plugin_descriptor = self._plugin_descriptors[plugin_id]
+            action_attributes = plugin_descriptor.action_attributes()
+            # create action
+            label = self.tr('Close:') + ' ' + action_attributes['label']
+            if serial_number != 1:
+                label = label + ' (%s)' % str(serial_number)
+            action = QAction(label, self._running_menu_manager.menu)
+            base_path = plugin_descriptor.attributes().get('plugin_path')
+            self._enrich_action(action, action_attributes, base_path)
+
+            self._running_mapper.setMapping(action, instance_id)
+            action.triggered.connect(self._running_mapper.map)
+
+            self._running_menu_manager.add_item(action)
+            info['action'] = action
+
         self._running_plugins[instance_id] = info
 
 
@@ -248,8 +274,10 @@ class PluginManager(QObject):
 
         # garbage references
         info = self._running_plugins[instance_id]
-        self._running_mapper.removeMappings(info['action'])
-        self._running_menu_manager.remove_item(info['action'])
+        if self._running_mapper is not None:
+            self._running_mapper.removeMappings(info['action'])
+        if self._running_menu_manager is not None:
+            self._running_menu_manager.remove_item(info['action'])
         self._running_plugins.pop(instance_id)
 
         # shutdown and unload plugin

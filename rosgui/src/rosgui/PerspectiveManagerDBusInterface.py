@@ -29,32 +29,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import QtBindingHelper #@UnusedImport
-from QtCore import QObject
+from QtCore import qDebug
 
-class PluginContext(QObject):
+from dbus.service import BusName, Object
+import dbus
 
-    def __init__(self, handler):
-        super(PluginContext, self).__init__(handler)
-        self.setObjectName('PluginContext')
+class PerspectiveManagerDBusInterface(Object):
 
-        self._handler = handler
+    def __init__(self, perspective_manager, application_context):
+        bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
+        super(PerspectiveManagerDBusInterface, self).__init__(bus_name, '/PerspectiveManager')
+        #super(PerspectiveManagerDBusInterface, self).__init__(dbus.SessionBus(), '/PerspectiveManager', application_context.dbus_unique_bus_name)
+        self._perspective_manager = perspective_manager
 
-    def serial_number(self):
-        '''Return the serial number of the plugin'''
-        return self._handler.serial_number()
-
-    def add_widget(self, widget, area=None):
-        '''Add a widget to the UI'''
-        self._handler.add_widget(widget, area)
-
-    def update_widget_title(self, widget):
-        '''Update the window title of the surrounding dock widget based on the window title of the widget'''
-        self._handler.update_widget_title(widget)
-
-    def remove_widget(self, widget):
-        '''Remove a widget from the UI'''
-        self._handler.remove_widget(widget)
-
-    def close_plugin(self):
-        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
-        self._handler.close_plugin()
+    @dbus.service.method('org.ros.rosgui.PerspectiveManager', in_signature='s', out_signature='')
+    def switch_perspective(self, perspective):
+        qDebug('PerspectiveManagerDBusInterface.switch_perspective(%s)' % perspective)
+        self._perspective_manager.switch_perspective(perspective)

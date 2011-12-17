@@ -28,33 +28,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import QtBindingHelper #@UnusedImport
-from QtCore import QObject
+from PluginHandlerXEmbedClient import PluginHandlerXEmbedClient
+from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
 
-class PluginContext(QObject):
+class PluginHandlerXEmbed():
 
-    def __init__(self, handler):
-        super(PluginContext, self).__init__(handler)
-        self.setObjectName('PluginContext')
+    def __init__(self, main_window, instance_id, plugin_id, serial_number, application_context):
+        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.replace('/', '__').replace('#', '/')
+        if application_context.options.embed_plugin is None:
+            self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, plugin_id, serial_number, application_context, dbus_object_path)
+        else:
+            self._handler = PluginHandlerXEmbedClient(main_window, instance_id, plugin_id, serial_number, application_context, dbus_object_path)
 
-        self._handler = handler
-
-    def serial_number(self):
-        '''Return the serial number of the plugin'''
-        return self._handler.serial_number()
-
-    def add_widget(self, widget, area=None):
-        '''Add a widget to the UI'''
-        self._handler.add_widget(widget, area)
-
-    def update_widget_title(self, widget):
-        '''Update the window title of the surrounding dock widget based on the window title of the widget'''
-        self._handler.update_widget_title(widget)
-
-    def remove_widget(self, widget):
-        '''Remove a widget from the UI'''
-        self._handler.remove_widget(widget)
-
-    def close_plugin(self):
-        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
-        self._handler.close_plugin()
+    def __getattr__(self, name):
+        return getattr(self._handler, name)

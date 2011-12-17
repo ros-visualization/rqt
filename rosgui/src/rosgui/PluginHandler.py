@@ -43,7 +43,7 @@ class PluginHandler(QObject):
     reload_signal = Signal(str)
     help_signal = Signal(str)
 
-    def __init__(self, main_window, instance_id, plugin_id, serial_number, hide_close_button_flag):
+    def __init__(self, main_window, instance_id, plugin_id, serial_number, application_context):
         super(PluginHandler, self).__init__()
         self.setObjectName('PluginHandler')
 
@@ -51,7 +51,7 @@ class PluginHandler(QObject):
         self._instance_id = instance_id
         self._plugin_id = plugin_id
         self._serial_number = serial_number
-        self._hide_close_button_flag = hide_close_button_flag
+        self._application_context = application_context
 
         self._plugin_provider = None
         self._context = None
@@ -60,18 +60,23 @@ class PluginHandler(QObject):
         # mapping from added widgets to dock widgets
         self._widgets = {}
 
+    def __del__(self):
+        print 'PluginHandler.__del__()'
 
-    def set_plugin(self, plugin):
-        self._plugin = plugin
 
     def load(self, plugin_provider):
         self._plugin_provider = plugin_provider
         self._context = PluginContext(self)
-        self._plugin = plugin_provider.load(self._plugin_id, self._context)
-        if self._plugin is not None:
+        self._plugin = self._load()
+        if self._plugin is None:
+            return None
+        if self._plugin != True:
             # emit close_signal when deferred delete event for plugin is received
             self._plugin.installEventFilter(self)
-        return self._plugin is not None
+        return self
+
+    def _load(self):
+        return self._plugin_provider.load(self._plugin_id, self._context)
 
     def eventFilter(self, watched, event):
         if event.type() == QEvent.DeferredDelete:
@@ -82,12 +87,17 @@ class PluginHandler(QObject):
         return QObject.eventFilter(self, watched, event)
 
     def shutdown_plugin(self):
-        self._plugin.removeEventFilter(self)
-        if hasattr(self._plugin, 'shutdown_plugin'):
-            self._plugin.shutdown_plugin()
+        if self._plugin != True:
+            self._plugin.removeEventFilter(self)
+        self._shutdown_plugin()
         for widget in self._widgets.keys():
             self.remove_widget(widget)
-        self._plugin.deleteLater()
+        if self._plugin != True:
+            self._plugin.deleteLater()
+
+    def _shutdown_plugin(self):
+        if hasattr(self._plugin, 'shutdown_plugin'):
+            self._plugin.shutdown_plugin()
 
     def unload(self):
         self._plugin_provider.unload(self._plugin)
@@ -129,16 +139,20 @@ class PluginHandler(QObject):
         dock_widget = self._create_dock_widget()
         dock_widget.setWidget(widget)
         self._add_dock_widget(dock_widget, area)
+        self.update_widget_title(widget)
 
     def _create_dock_widget(self):
         dock_widget = QDockWidget(self._main_window)
+        if self._application_context.options.standalone_plugin is not None:
+            features = dock_widget.features()
+            dock_widget.setFeatures(features ^ QDockWidget.DockWidgetClosable)
         self._update_title_bar(dock_widget)
         return dock_widget
 
     def _update_title_bar(self, dock_widget):
         title_bar = dock_widget.titleBarWidget()
         if title_bar is None:
-            title_bar = DockWidgetTitleBar(dock_widget, self._hide_close_button_flag)
+            title_bar = DockWidgetTitleBar(dock_widget)
             dock_widget.setTitleBarWidget(title_bar)
 
             # connect extra buttons
@@ -165,20 +179,33 @@ class PluginHandler(QObject):
     def _add_dock_widget(self, dock_widget, area):
         if area is None:
             area = Qt.BottomDockWidgetArea
-        # find and remove possible remaining dock_widget with this object name
-        old_dock_widget = self._main_window.findChild(QDockWidget, self._instance_id)
-        if old_dock_widget is not None:
-            qWarning('PluginHandler._add_dock_widget() duplicate object name "%s", removing old dock widget!')
-            self._main_window.removeDockWidget(old_dock_widget)
-        dock_widget.setObjectName(self._instance_id)
-        # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
-        self._main_window.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
+        self._add_dock_widget_to_main_window(dock_widget, area)
         self._widgets[dock_widget.widget()] = dock_widget
+
+    def _add_dock_widget_to_main_window(self, dock_widget, area):
+        if self._main_window is not None:
+            # find and remove possible remaining dock_widget with this object name
+            old_dock_widget = self._main_window.findChild(QDockWidget, self._instance_id)
+            if old_dock_widget is not None:
+                qWarning('PluginHandler._add_dock_widget() duplicate object name "%s", removing old dock widget!')
+                self._main_window.removeDockWidget(old_dock_widget)
+        dock_widget.setObjectName(self._instance_id)
+        if self._main_window is not None:
+            # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
+            self._main_window.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
+
+    def update_widget_title(self, widget):
+        dock_widget = self._widgets[widget]
+        dock_widget.setWindowTitle(widget.windowTitle())
 
     def remove_widget(self, widget):
         dock_widget = self._widgets[widget]
-        self._main_window.removeDockWidget(dock_widget)
+        self._remove_dock_widget_from_main_window(dock_widget)
         del self._widgets[widget]
+
+    def _remove_dock_widget_from_main_window(self, dock_widget):
+        if self._main_window is not None:
+            self._main_window.removeDockWidget(dock_widget)
 
     def close_plugin(self):
         self.close_signal.emit(self._instance_id)

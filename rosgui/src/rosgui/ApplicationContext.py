@@ -28,33 +28,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import QtBindingHelper #@UnusedImport
-from QtCore import QObject
+class ApplicationContext():
 
-class PluginContext(QObject):
-
-    def __init__(self, handler):
-        super(PluginContext, self).__init__(handler)
-        self.setObjectName('PluginContext')
-
-        self._handler = handler
-
-    def serial_number(self):
-        '''Return the serial number of the plugin'''
-        return self._handler.serial_number()
-
-    def add_widget(self, widget, area=None):
-        '''Add a widget to the UI'''
-        self._handler.add_widget(widget, area)
-
-    def update_widget_title(self, widget):
-        '''Update the window title of the surrounding dock widget based on the window title of the widget'''
-        self._handler.update_widget_title(widget)
-
-    def remove_widget(self, widget):
-        '''Remove a widget from the UI'''
-        self._handler.remove_widget(widget)
-
-    def close_plugin(self):
-        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
-        self._handler.close_plugin()
+    def __init__(self):
+        # the bus name of an other application to communicate with
+        self.dbus_host_bus_name = None
+        # the unique bus name of this application
+        self.dbus_unique_bus_name = None
+        # the pid of an other application to communicate with
+        self.host_pid = None
+        # the parsed command line options
+        self.options = None
