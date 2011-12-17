@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>904</width>
+    <width>689</width>
     <height>359</height>
    </rect>
   </property>
@@ -47,11 +47,20 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Topic name to publish on</string>
        </property>
        <property name="editable">
         <bool>true</bool>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
        </property>
        <item>
         <property name="text">
@@ -75,18 +84,27 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Message type to publish</string>
        </property>
        <property name="editable">
         <bool>true</bool>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Frequency</string>
+        <string>Freq.</string>
        </property>
       </widget>
      </item>
@@ -94,7 +112,7 @@
       <widget class="QComboBox" name="frequency_combo_box">
        <property name="minimumSize">
         <size>
-         <width>70</width>
+         <width>60</width>
          <height>0</height>
         </size>
        </property>
@@ -155,9 +173,6 @@
       <widget class="QPushButton" name="clear_button">
        <property name="toolTip">
         <string>Clear all publishers</string>
-       </property>
-       <property name="text">
-        <string>Clear</string>
        </property>
       </widget>
      </item>
