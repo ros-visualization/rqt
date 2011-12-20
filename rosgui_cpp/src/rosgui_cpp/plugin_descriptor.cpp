@@ -50,6 +50,11 @@ const QMap<QString, QString>& PluginDescriptor::attributes() const
   return attributes_;
 }
 
+QMap<QString, QString>& PluginDescriptor::attributes()
+{
+  return attributes_;
+}
+
 const QMap<QString, QString>& PluginDescriptor::actionAttributes() const
 {
   return action_attributes_;

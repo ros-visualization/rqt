@@ -72,9 +72,21 @@ class PluginManager(QObject):
 
         self._global_settings = None
         self._perspective_settings = None
-        self._plugin_descriptors = {}
+        self._plugin_descriptors = None
         self._running_plugins = {}
 
+        # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
+        self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
+
+        if application_context.dbus_unique_bus_name is not None:
+            self._dbus_server = PluginManagerDBusInterface(self, self._application_context)
+
+
+    def discover(self):
+        # skip discover if called multiple times
+        if self._plugin_descriptors is not None:
+            return
+        self._plugin_descriptors = {}
         # register discovered plugins
         plugin_descriptors = self._plugin_provider.discover()
         for plugin_descriptor in plugin_descriptors:
@@ -108,16 +120,10 @@ class PluginManager(QObject):
             not_available = plugin_descriptor.attributes().get('not_available')
             if not_available:
                 action.setEnabled(False)
-                action.setStatusTip(self.tr('Plugin is not available (%s) - may be it must be build?') % not_available)
+                action.setStatusTip(self.tr('Plugin is not available: %s') % not_available)
 
             # add action to menu
             menu_manager.add_item(action)
-
-        # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
-        self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
-
-        if application_context.dbus_unique_bus_name is not None:
-            self._dbus_server = PluginManagerDBusInterface(self, self._application_context)
 
 
     def find_plugins_by_name(self, lookup_name):
@@ -129,6 +135,8 @@ class PluginManager(QObject):
 
 
     def get_plugins(self):
+        if self._plugin_descriptors is None:
+            self.discover()
         plugins = {}
         for plugin_id, plugin_descriptor in self._plugin_descriptors.items():
             plugin_name_parts = []

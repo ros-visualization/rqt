@@ -76,18 +76,31 @@ QList<rosgui_cpp::PluginDescriptor*> RosCppPluginProvider::discover_descriptors(
   std::string name = "rosgui_roscpp_node";
   ros::init(argc, argv, name, ros::init_options::NoSigintHandler);
 
-  if (!ros::master::check())
+  bool master_found = ros::master::check();
+  if (master_found)
   {
-    throw std::runtime_error("ROS master not found");
+    ros::start();
+
+    callback_manager_ = new nodelet::detail::CallbackQueueManager();
+
+    ros::NodeHandle nh(manager_name_);
+  }
+  else
+  {
+    qWarning("RosCppPluginProvider::discover_descriptors() could not find ROS master, all roscpp-based plugins are disabled");
   }
 
-  ros::start();
+  QList<rosgui_cpp::PluginDescriptor*> descriptors = rosgui_cpp::CompositePluginProvider::discover_descriptors();
 
-  callback_manager_ = new nodelet::detail::CallbackQueueManager();
+  if (!master_found)
+  {
+    for (QList<rosgui_cpp::PluginDescriptor*>::iterator it = descriptors.begin(); it != descriptors.end(); it++)
+    {
+      (*it)->attributes()["not_available"] = "no ROS master found (start roscore before?)";
+    }
+  }
 
-  ros::NodeHandle nh(manager_name_);
-
-  return rosgui_cpp::CompositePluginProvider::discover_descriptors();
+  return descriptors;
 }
 
 }

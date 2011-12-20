@@ -51,6 +51,8 @@ public:
 
   const QMap<QString, QString>& attributes() const;
 
+  QMap<QString, QString>& attributes();
+
   const QMap<QString, QString>& actionAttributes() const;
 
   void setActionAttributes(const QString& label, const QString& statustip = QString(), const QString& icon = QString(), const QString& icontype = QString());

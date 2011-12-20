@@ -306,6 +306,8 @@ def rosgui_main():
 
     qDebug('QtBindingHelper using %s' % QT_BINDING)
 
+    plugin_manager.discover()
+
     if plugin is not None:
         perspective_manager.set_perspective(plugin, True)
         if not plugin_manager.is_plugin_running(plugin, plugin_serial):

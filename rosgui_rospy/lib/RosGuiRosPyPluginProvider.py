@@ -34,6 +34,9 @@ import rospy
 
 from rosgui.CompositePluginProvider import CompositePluginProvider
 
+import rosgui.QtBindingHelper #@UnusedImport
+from QtCore import qWarning
+
 try:
     from rosgui.RospkgPluginProvider import RospkgPluginProvider
     ActualRosPluginProvider = RospkgPluginProvider
@@ -48,7 +51,21 @@ class RosGuiRosPyPluginProvider(CompositePluginProvider):
         self.setObjectName('RosGuiRosPyPluginProvider')
 
     def discover(self):
-        # initialize ROS node
-        rospy.init_node('rosgui_rospy_node', argv=None, anonymous=True, log_level=rospy.INFO, disable_rostime=False, disable_rosout=False, disable_signals=True)
+        master = None
+        try:
+            # check if master is available
+            master = rospy.get_master().getSystemState()
+        except Exception:
+            qWarning('RosGuiRosPyPluginProvider.discover() could not find ROS master, all rospy-based plugins are disabled')
+        else:
+            # initialize ROS node
+            rospy.init_node('rosgui_rospy_node', anonymous=True, disable_signals=True)
 
-        return CompositePluginProvider.discover(self)
+        descriptors = super(RosGuiRosPyPluginProvider, self).discover()
+
+        if master is None:
+            # mark all plugins as "not_available"
+            for descriptor in descriptors:
+                descriptor.attributes()['not_available'] = 'no ROS master found (start roscore before?)'
+
+        return descriptors
