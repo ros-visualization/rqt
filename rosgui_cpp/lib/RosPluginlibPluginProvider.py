@@ -59,16 +59,12 @@ class RosPluginlibPluginProvider(PluginProvider):
         if rosgui_cpp is None:
             return None
         cpp_plugin_context = None
-        main_window = rosgui_cpp.MainWindowInterface(plugin_context.main_window())
         if plugin_context is not None:
-            cpp_plugin_context = rosgui_cpp.PluginContext(main_window, plugin_context.serial_number())
-            for key, value in plugin_context.attributes().items():
-                cpp_plugin_context.set_attribute(key, value)
+            cpp_plugin_context = rosgui_cpp.PluginContext(plugin_context._handler, plugin_context.serial_number())
         bridge = rosgui_cpp.PluginBridge()
         loaded = bridge.load_plugin(self._plugin_provider, plugin_id, cpp_plugin_context)
         if not loaded:
             return None
-        main_window.set_plugin_instance(bridge)
         return bridge
 
     def unload(self, bridge):

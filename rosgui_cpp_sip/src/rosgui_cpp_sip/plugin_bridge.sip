@@ -16,11 +16,9 @@ public:
 
   virtual void unload_plugin();
 
-  virtual void plugin_defered_delete();
-
 public slots:
 
-  virtual void close_plugin();
+  virtual void shutdown_plugin();
 
   virtual void save_settings(QObject* global_settings, QObject* perspective_settings);
 

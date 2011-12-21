@@ -7,7 +7,6 @@
 
 %Include composite_plugin_provider.sip
 %Include generic_proxy.sip
-%Include main_window_interface.sip
 %Include plugin.sip
 %Include plugin_bridge.sip
 %Include plugin_context.sip

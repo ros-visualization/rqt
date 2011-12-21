@@ -32,40 +32,47 @@
 
 #include <rosgui_cpp/plugin_context.h>
 
+#include <stdexcept>
+
 namespace rosgui_cpp {
 
-PluginContext::PluginContext(MainWindowInterface* main_window, int serial_number)
-  : main_window_(main_window)
-  , serial_number_(serial_number)
+PluginContext::PluginContext(QObject* obj, int serial_number)
+  : QObject(obj)
+  , proxy_(obj)
 {}
 
-MainWindowInterface* PluginContext::main_window()
-{
-  return main_window_;
-}
+PluginContext::PluginContext(const PluginContext& other)
+  : QObject(other.parent())
+  , proxy_(other.parent())
+{}
 
 int PluginContext::serial_number()
 {
   return serial_number_;
 }
 
-const QMap<QString, QVariant>& PluginContext::attributes() const
+void PluginContext::add_widget(QWidget* widget, Qt::DockWidgetArea area)
 {
-  return attributes_;
+  bool rc = proxy_.invokeMethod("add_widget", Q_ARG(QWidget*, widget), Q_ARG(int, area));
+  if (!rc) throw std::runtime_error("PluginContext::add_widget() invoke method failed");
 }
 
-QVariant PluginContext::attribute(const QString& key) const
+void PluginContext::update_widget_title(QWidget* widget)
 {
-  if (attributes_.contains(key))
-  {
-    return attributes_[key];
-  }
-  return QVariant();
+  bool rc = proxy_.invokeMethod("update_widget_title", Q_ARG(QWidget*, widget));
+  if (!rc) throw std::runtime_error("PluginContext::update_widget_title() invoke method failed");
 }
 
-void PluginContext::set_attribute(const QString& key, const QVariant& value)
+void PluginContext::remove_widget(QWidget* widget)
 {
-  attributes_[key] = value;
+  bool rc = proxy_.invokeMethod("remove_widget", Q_ARG(QWidget*, widget));
+  if (!rc) throw std::runtime_error("PluginContext::remove_widget() invoke method failed");
+}
+
+void PluginContext::close_plugin()
+{
+  bool rc = proxy_.invokeMethod("close_plugin");
+  if (!rc) throw std::runtime_error("PluginContext::close_plugin() invoke method failed");
 }
 
 } // namespace

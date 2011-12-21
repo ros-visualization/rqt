@@ -31,7 +31,7 @@
 import traceback
 
 import QtBindingHelper #@UnusedImport
-from QtCore import qCritical, QEvent, QObject, Qt, qWarning, Signal
+from QtCore import qCritical, QEvent, QObject, Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget
 
 from DockWidgetTitleBar import DockWidgetTitleBar
@@ -135,6 +135,8 @@ class PluginHandler(QObject):
     def serial_number(self):
         return self._serial_number
 
+    # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
+    @Slot('QWidget*', int)
     def add_widget(self, widget, area):
         dock_widget = self._create_dock_widget()
         dock_widget.setWidget(widget)
@@ -194,10 +196,14 @@ class PluginHandler(QObject):
             # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
             self._main_window.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
 
+    # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
+    @Slot('QWidget*')
     def update_widget_title(self, widget):
         dock_widget = self._widgets[widget]
         dock_widget.setWindowTitle(widget.windowTitle())
 
+    # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
+    @Slot('QWidget*')
     def remove_widget(self, widget):
         dock_widget = self._widgets[widget]
         self._remove_dock_widget_from_main_window(dock_widget)
@@ -212,5 +218,6 @@ class PluginHandler(QObject):
         if self._main_window is not None:
             self._main_window.removeDockWidget(dock_widget)
 
+    @Slot()
     def close_plugin(self):
         self.close_signal.emit(self._instance_id)

@@ -55,9 +55,6 @@ public:
   virtual void initPlugin(rosgui_cpp::PluginContext& /*context*/)
   {}
 
-  virtual void closePlugin()
-  {}
-
   virtual void saveSettings(rosgui_cpp::Settings& /*global_settings*/, rosgui_cpp::Settings& /*perspective_settings*/)
   {}
 

@@ -55,7 +55,7 @@ public:
   virtual void initPlugin(PluginContext& /*context*/)
   {}
 
-  virtual void closePlugin()
+  virtual void shutdownPlugin()
   {}
 
   virtual void saveSettings(Settings& /*global_settings*/, Settings& /*perspective_settings*/)
@@ -63,33 +63,6 @@ public:
 
   virtual void restoreSettings(Settings& /*global_settings*/, Settings& /*perspective_settings*/)
   {}
-
-protected:
-
-  virtual void deletePluginLater()
-  {
-    QVariant p = property("PluginBridge");
-    if (p.isValid())
-    {
-      QObject* obj = qVariantValue<QObject*>(p);
-      if (!obj)
-      {
-        qWarning("Plugin::delete_plugin_later() property not a QObject");
-      }
-      else
-      {
-        PluginBridge* bridge = qobject_cast<PluginBridge*>(obj);
-        if (!bridge)
-        {
-          qWarning("Plugin::delete_plugin_later() property not a PluginBridge");
-        }
-        else
-        {
-          bridge->plugin_defered_delete();
-        }
-      }
-    }
-  }
 
 };
 

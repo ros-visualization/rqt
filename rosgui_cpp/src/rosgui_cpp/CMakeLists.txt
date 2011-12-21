@@ -7,7 +7,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 set(rosgui_cpp_SRCS
   composite_plugin_provider.cpp
   generic_proxy.cpp
-  main_window_interface.cpp
   plugin_bridge.cpp
   plugin_context.cpp
   plugin_descriptor.cpp

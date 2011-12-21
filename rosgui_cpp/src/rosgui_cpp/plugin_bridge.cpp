@@ -50,34 +50,28 @@ PluginBridge::PluginBridge()
 
 bool PluginBridge::load_plugin(PluginProvider* provider, const QString& plugin_id, PluginContext* plugin_context)
 {
+  qDebug("PluginBridge::load_plugin() %s", plugin_id.toStdString().c_str());
   provider_ = provider;
   plugin_ = provider_->load_plugin(plugin_id, plugin_context);
   if (plugin_)
   {
-    QVariant variant;
-    QObject* obj = this;
-    qVariantSetValue(variant, obj);
-    plugin_->setProperty("PluginBridge", variant);
+    plugin_->installEventFilter(this);
   }
   return plugin_ != 0;
 }
 
 void PluginBridge::unload_plugin()
 {
+  qDebug("PluginBridge::unload_plugin()");
   provider_->unload_plugin(plugin_);
 }
 
-void PluginBridge::plugin_defered_delete()
-{
-  plugin_->setProperty("PluginBridge", QVariant());
-  deleteLater();
-}
-
-void PluginBridge::close_plugin()
+void PluginBridge::shutdown_plugin()
 {
   if (plugin_)
   {
-    plugin_->closePlugin();
+    plugin_->removeEventFilter(this);
+    plugin_->shutdownPlugin();
     plugin_->deleteLater();
   }
 }

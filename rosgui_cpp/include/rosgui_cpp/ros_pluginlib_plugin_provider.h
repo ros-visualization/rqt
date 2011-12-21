@@ -121,7 +121,7 @@ public:
 #ifdef USE_PATCHED_PLUGINLIB
       std::string library_path = class_loader_->getClassLibraryPath(lookup_name);
       library_path.append(Poco::SharedLibrary::suffix());
-      attributes["not_available"] = !std::ifstream(library_path.c_str()) ? lookup_name.c_str() : "";
+      attributes["not_available"] = !std::ifstream(library_path.c_str()) ? QString("library ").append(lookup_name.c_str()).append(" not found (may be it must be built?)") : "";
 #else
       attributes["not_available"] = "";
 #endif

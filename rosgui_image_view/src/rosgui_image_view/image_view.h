@@ -40,11 +40,11 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
 
-#include <QDockWidget>
 #include <QImage>
 #include <QList>
 #include <QString>
 #include <QSize>
+#include <QWidget>
 
 namespace rosgui_image_view {
 
@@ -62,7 +62,7 @@ public:
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 
-  virtual void closePlugin();
+  virtual void shutdownPlugin();
 
   virtual void saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings);
 
@@ -88,9 +88,9 @@ protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
 
-  Ui::ImageViewDockWidget ui_;
+  Ui::ImageViewWidget ui_;
 
-  QDockWidget* widget_;
+  QWidget* widget_;
 
   image_transport::Subscriber subscriber_;
 

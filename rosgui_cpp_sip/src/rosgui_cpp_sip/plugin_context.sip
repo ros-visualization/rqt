@@ -9,17 +9,19 @@ class PluginContext
 
 public:
 
-  PluginContext(rosgui_cpp::MainWindowInterface* main_window, int serial_number);
+  PluginContext(QObject* obj, int serial_number);
 
-  rosgui_cpp::MainWindowInterface* main_window();
+  PluginContext(const rosgui_cpp::PluginContext& other);
 
   int serial_number();
 
-  const QMap<QString, QVariant>& attributes() const;
+  void add_widget(QWidget* widget, Qt::DockWidgetArea area);
 
-  QVariant attribute(const QString& key) const;
+  void update_widget_title(QWidget* widget);
 
-  void set_attribute(const QString& key, const QVariant& value);
+  void remove_widget(QWidget* widget);
+
+  void close_plugin();
 
 };
 

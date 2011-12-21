@@ -38,7 +38,6 @@
 
 #include <cv_bridge/cv_bridge.h>
 
-#include <QCloseEvent>
 #include <QPainter>
 
 namespace rosgui_image_view {
@@ -52,17 +51,14 @@ ImageView::ImageView()
 
 void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
 {
-  widget_ = new QDockWidget(context.main_window());
+  widget_ = new QWidget();
   ui_.setupUi(widget_);
 
   if (context.serial_number() > 1)
   {
     widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serial_number()) + ")");
   }
-  context.main_window()->addDockWidget(Qt::RightDockWidgetArea, widget_);
-
-  // trigger deleteLater for plugin when widget is closed
-  widget_->installEventFilter(this);
+  context.add_widget(widget_, Qt::RightDockWidgetArea);
 
   ui_.image_frame->installEventFilter(this);
 
@@ -79,13 +75,7 @@ void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
 
 bool ImageView::eventFilter(QObject* watched, QEvent* event)
 {
-  if (watched == widget_ && event->type() == QEvent::Close)
-  {
-    event->ignore();
-    deletePluginLater();
-    return true;
-  }
-  else if (watched == ui_.image_frame && event->type() == QEvent::Paint)
+  if (watched == ui_.image_frame && event->type() == QEvent::Paint)
   {
     if (!qimage_.isNull())
     {
@@ -102,11 +92,9 @@ bool ImageView::eventFilter(QObject* watched, QEvent* event)
   return QObject::eventFilter(watched, event);
 }
 
-void ImageView::closePlugin()
+void ImageView::shutdownPlugin()
 {
   subscriber_.shutdown();
-  widget_->close();
-  widget_->deleteLater();
 }
 
 void ImageView::saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)

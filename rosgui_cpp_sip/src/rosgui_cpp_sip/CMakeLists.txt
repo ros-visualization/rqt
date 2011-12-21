@@ -7,7 +7,6 @@ set(SIP_SRC_DIR ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_sip)
 set(rosgui_cpp_sip_SIPS
   composite_plugin_provider.sip
   generic_proxy.sip
-  main_window_interface.sip
   plugin.sip
   plugin_bridge.sip
   plugin_context.sip
@@ -23,7 +22,6 @@ set(rosgui_cpp_sip_SIPS
 set(rosgui_cpp_HDRS
   ${rosgui_cpp_HDRS_DIR}/composite_plugin_provider.h
   ${rosgui_cpp_HDRS_DIR}/generic_proxy.h
-  ${rosgui_cpp_HDRS_DIR}/main_window_interface.h
   ${rosgui_cpp_HDRS_DIR}/plugin.h
   ${rosgui_cpp_HDRS_DIR}/plugin_bridge.h
   ${rosgui_cpp_HDRS_DIR}/plugin_context.h

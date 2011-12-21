@@ -12,7 +12,6 @@
 
 #include <rosgui_cpp/composite_plugin_provider.h>
 #include <rosgui_cpp/generic_proxy.h>
-#include <rosgui_cpp/main_window_interface.h>
 #include <rosgui_cpp/plugin.h>
 #include <rosgui_cpp/plugin_bridge.h>
 #include <rosgui_cpp/plugin_context.h>

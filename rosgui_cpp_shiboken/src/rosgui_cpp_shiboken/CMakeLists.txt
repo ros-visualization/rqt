@@ -9,7 +9,6 @@ SET(rosgui_cpp_shiboken_SRCS
   librosgui_cpp_shiboken/librosgui_cpp_shiboken_module_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_compositepluginprovider_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_genericproxy_wrapper.cpp
-  librosgui_cpp_shiboken/rosgui_cpp_mainwindowinterface_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_plugin_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_pluginbridge_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_plugincontext_wrapper.cpp
@@ -27,7 +26,6 @@ string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp/include)(;[^;]*)*$" "\\2" rosg
 SET(rosgui_cpp_HDRS
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/composite_plugin_provider.h
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/generic_proxy.h
-  ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/main_window_interface.h
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin.h
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_bridge.h
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/plugin_context.h
