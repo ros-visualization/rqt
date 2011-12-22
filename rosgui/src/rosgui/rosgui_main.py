@@ -296,6 +296,11 @@ def rosgui_main():
     if main_window is not None:
         main_window.resize(600, 450)
 
+    # ensure that rosgui/src is in sys.path
+    src_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
+    if src_path not in sys.path:
+        sys.path.append(src_path)
+
     # load specific plugin
     plugin = None
     plugin_serial = None
