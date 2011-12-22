@@ -48,7 +48,7 @@ class PerspectiveManager(QObject):
 
     HIDDEN_PREFIX = '@'
 
-    def __init__(self, settings, menu, application_context):
+    def __init__(self, settings, application_context):
         super(PerspectiveManager, self).__init__()
         self.setObjectName('PerspectiveManager')
 
@@ -57,10 +57,8 @@ class PerspectiveManager(QObject):
         self._perspective_settings = None
         self._create_perspective_dialog = None
 
-        self._menu_manager = MenuManager(menu) if menu is not None else None
-        self._perspective_mapper = QSignalMapper(menu) if menu is not None else None
-        if self._perspective_mapper is not None:
-            self._perspective_mapper.mapped[str].connect(self.switch_perspective)
+        self._menu_manager = None
+        self._perspective_mapper = None
 
         # get perspective list from settings
         self.perspectives = self._settings_proxy.value('', 'perspectives', [])
@@ -70,11 +68,43 @@ class PerspectiveManager(QObject):
         self._current_perspective = None
         self._remove_action = None
 
-        if self._menu_manager is not None:
-            self._generate_menu()
-
         if application_context.dbus_unique_bus_name is not None:
             self._dbus_server = PerspectiveManagerDBusInterface(self, application_context)
+
+
+    def set_menu(self, menu):
+        self._menu_manager = MenuManager(menu)
+        self._perspective_mapper = QSignalMapper(menu)
+        self._perspective_mapper.mapped[str].connect(self.switch_perspective)
+
+        # generate menu
+        create_action = QAction('Create perspective...', self._menu_manager.menu)
+        create_action.setIcon(QIcon.fromTheme('list-add'))
+        create_action.triggered.connect(self._on_create_perspective)
+        self._menu_manager.add_suffix(create_action)
+
+        self._remove_action = QAction('Remove perspective...', self._menu_manager.menu)
+        self._remove_action.setEnabled(False)
+        self._remove_action.setIcon(QIcon.fromTheme('list-remove'))
+        self._remove_action.triggered.connect(self._on_remove_perspective)
+        self._menu_manager.add_suffix(self._remove_action)
+
+        self._menu_manager.add_suffix(None)
+
+        import_action = QAction('Import...', self._menu_manager.menu)
+        import_action.setIcon(QIcon.fromTheme('document-open'))
+        import_action.triggered.connect(self._on_import_perspective)
+        self._menu_manager.add_suffix(import_action)
+
+        export_action = QAction('Export...', self._menu_manager.menu)
+        export_action.setIcon(QIcon.fromTheme('document-save-as'))
+        export_action.triggered.connect(self._on_export_perspective)
+        self._menu_manager.add_suffix(export_action)
+
+        # add perspectives to menu
+        for name in self.perspectives:
+            if not name.startswith(self.HIDDEN_PREFIX):
+                self._add_perspective_action(name)
 
 
     def set_perspective(self, name, hide_perspective=False):
@@ -121,36 +151,6 @@ class PerspectiveManager(QObject):
 
     def _get_perspective_settings(self, perspective_name):
         return Settings(self._settings_proxy, 'perspective/%s' % perspective_name)
-
-
-    def _generate_menu(self):
-        create_action = QAction('Create perspective...', self._menu_manager.menu)
-        create_action.setIcon(QIcon.fromTheme('list-add'))
-        create_action.triggered.connect(self._on_create_perspective)
-        self._menu_manager.add_suffix(create_action)
-
-        self._remove_action = QAction('Remove perspective...', self._menu_manager.menu)
-        self._remove_action.setEnabled(False)
-        self._remove_action.setIcon(QIcon.fromTheme('list-remove'))
-        self._remove_action.triggered.connect(self._on_remove_perspective)
-        self._menu_manager.add_suffix(self._remove_action)
-
-        self._menu_manager.add_suffix(None)
-
-        import_action = QAction('Import...', self._menu_manager.menu)
-        import_action.setIcon(QIcon.fromTheme('document-open'))
-        import_action.triggered.connect(self._on_import_perspective)
-        self._menu_manager.add_suffix(import_action)
-
-        export_action = QAction('Export...', self._menu_manager.menu)
-        export_action.setIcon(QIcon.fromTheme('document-save-as'))
-        export_action.triggered.connect(self._on_export_perspective)
-        self._menu_manager.add_suffix(export_action)
-
-        # add perspectives to menu
-        for name in self.perspectives:
-            if not name.startswith(self.HIDDEN_PREFIX):
-                self._add_perspective_action(name)
 
 
     def _on_create_perspective(self):

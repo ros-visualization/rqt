@@ -217,6 +217,7 @@ class PluginHandler(QObject):
     def _remove_dock_widget_from_main_window(self, dock_widget):
         if self._main_window is not None:
             self._main_window.removeDockWidget(dock_widget)
+            dock_widget.deleteLater()
 
     @Slot()
     def close_plugin(self):

@@ -198,9 +198,9 @@ def rosgui_main():
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
 
-    settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', 'rosgui')
-
     if len(embed_options_set) == 0:
+        settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', 'rosgui')
+
         main_window = MainWindow()
         main_window.setDockNestingEnabled(True)
         main_window.statusBar()
@@ -226,6 +226,7 @@ def rosgui_main():
         file_menu.addAction(action)
 
     else:
+        settings = None
         main_window = None
         menu_bar = None
 
@@ -235,7 +236,7 @@ def rosgui_main():
         RecursivePluginProvider(ActualRosPluginProvider('rosgui', 'rosgui_py::PluginProvider')),
     ]
     plugin_provider = CompositePluginProvider(plugin_providers)
-    plugin_manager = PluginManager(main_window, plugin_provider, context)
+    plugin_manager = PluginManager(plugin_provider, context)
 
     if options.list_plugins:
         # output available plugins
@@ -246,26 +247,36 @@ def rosgui_main():
     plugin_manager.plugin_help_signal.connect(help_provider.plugin_help_request)
 
     # setup perspective manager
-    perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives')) if menu_bar is not None else None
-    perspective_manager = PerspectiveManager(settings, perspective_menu, context)
+    if settings is not None:
+        perspective_manager = PerspectiveManager(settings, context)
 
-    if options.list_perspectives:
-        # output available perspectives
-        print '\n'.join(sorted(perspective_manager.perspectives))
-        return 0
+        if options.list_perspectives:
+            # output available perspectives
+            print '\n'.join(sorted(perspective_manager.perspectives))
+            return 0
+    else:
+        perspective_manager = None
+
+    if main_window is not None:
+        plugin_manager.set_main_window(main_window)
+
+    if settings is not None and menu_bar is not None:
+        perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives'))
+        perspective_manager.set_menu(perspective_menu)
 
     # connect various signals and slots
-    if main_window is not None:
+    if perspective_manager is not None and main_window is not None:
         # signal changed perspective to update window title
         perspective_manager.perspective_changed_signal.connect(main_window.perspective_changed)
         # signal new settings due to changed perspective
         perspective_manager.save_settings_signal.connect(main_window.save_settings)
         perspective_manager.restore_settings_signal.connect(main_window.restore_settings)
 
-    perspective_manager.save_settings_signal.connect(plugin_manager.save_settings)
-    perspective_manager.restore_settings_signal.connect(plugin_manager.restore_settings)
+    if perspective_manager is not None and plugin_manager is not None:
+        perspective_manager.save_settings_signal.connect(plugin_manager.save_settings)
+        perspective_manager.restore_settings_signal.connect(plugin_manager.restore_settings)
 
-    if main_window is not None:
+    if plugin_manager is not None and main_window is not None:
         # signal before changing plugins to save window state
         plugin_manager.plugins_about_to_change_signal.connect(main_window.save_setup)
         # signal changed plugins to restore window state
@@ -273,7 +284,7 @@ def rosgui_main():
         # signal save settings to store plugin setup on close
         main_window.save_settings_signal.connect(plugin_manager.save_settings)
 
-    if menu_bar is not None:
+    if main_window is not None and menu_bar is not None:
         about_handler = AboutHandler(main_window)
         help_menu = menu_bar.addMenu(menu_bar.tr('Help'))
         action = QAction(file_menu.tr('About'), help_menu)
@@ -281,8 +292,8 @@ def rosgui_main():
         action.triggered.connect(about_handler.show)
         help_menu.addAction(action)
 
+    # set initial size - only used without saved configuration
     if main_window is not None:
-        # set initial size - only used without configuration
         main_window.resize(600, 450)
 
     # load specific plugin
@@ -321,7 +332,8 @@ def rosgui_main():
     exit_code = app.exec_()
 
     # explicitly sync settings to file before exiting
-    settings.sync()
+    if settings is not None:
+        settings.sync()
 
     return exit_code
 

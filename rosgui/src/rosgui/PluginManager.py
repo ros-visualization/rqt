@@ -46,29 +46,18 @@ class PluginManager(QObject):
     plugin_help_signal = Signal(object)
     _deferred_reload_plugin_signal = Signal(str, int)
 
-    def __init__(self, main_window, plugin_provider, application_context):
+    def __init__(self, plugin_provider, application_context):
         super(PluginManager, self).__init__()
         self.setObjectName('PluginManager')
 
-        self._main_window = main_window
         self._plugin_provider = plugin_provider
         self._application_context = application_context
 
-        if self._main_window is not None:
-            menu_bar = self._main_window.menuBar()
-            plugin_menu = menu_bar.addMenu(menu_bar.tr('Plugins'))
-            running_menu = menu_bar.addMenu(menu_bar.tr('Running'))
-            self._plugin_menu_manager = MenuManager(plugin_menu)
-            self._plugin_mapper = QSignalMapper(plugin_menu)
-            self._plugin_mapper.mapped[str].connect(self.load_plugin)
-            self._running_menu_manager = MenuManager(running_menu)
-            self._running_mapper = QSignalMapper(running_menu)
-            self._running_mapper.mapped[str].connect(self.unload_plugin)
-        else:
-            self._plugin_menu_manager = None
-            self._plugin_mapper = None
-            self._running_menu_manager = None
-            self._running_mapper = None
+        self._main_window = None
+        self._plugin_menu_manager = None
+        self._plugin_mapper = None
+        self._running_menu_manager = None
+        self._running_mapper = None
 
         self._global_settings = None
         self._perspective_settings = None
@@ -80,6 +69,19 @@ class PluginManager(QObject):
 
         if application_context.dbus_unique_bus_name is not None:
             self._dbus_server = PluginManagerDBusInterface(self, self._application_context)
+
+
+    def set_main_window(self, main_window):
+        self._main_window = main_window
+        menu_bar = self._main_window.menuBar()
+        plugin_menu = menu_bar.addMenu(menu_bar.tr('Plugins'))
+        running_menu = menu_bar.addMenu(menu_bar.tr('Running'))
+        self._plugin_menu_manager = MenuManager(plugin_menu)
+        self._plugin_mapper = QSignalMapper(plugin_menu)
+        self._plugin_mapper.mapped[str].connect(self.load_plugin)
+        self._running_menu_manager = MenuManager(running_menu)
+        self._running_mapper = QSignalMapper(running_menu)
+        self._running_mapper.mapped[str].connect(self.unload_plugin)
 
 
     def discover(self):
