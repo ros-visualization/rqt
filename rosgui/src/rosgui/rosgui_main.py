@@ -324,13 +324,16 @@ def rosgui_main():
 
     plugin_manager.discover()
 
+    # switch perspective
     if perspective_manager is not None:
         if plugin is not None:
             perspective_manager.set_perspective(plugin, True)
-            if not plugin_manager.is_plugin_running(plugin, plugin_serial):
-                plugin_manager.load_plugin(plugin, plugin_serial)
         else:
             perspective_manager.set_perspective(options.perspective)
+    # load specific plugin
+    if plugin is not None:
+        if not plugin_manager.is_plugin_running(plugin, plugin_serial):
+            plugin_manager.load_plugin(plugin, plugin_serial)
 
     if main_window is not None:
         main_window.show()

@@ -400,7 +400,7 @@ class PluginManager(QObject):
 
 
     def _call_method_on_running_plugin(self, instance_id, method_name):
-        if instance_id in self._running_plugins:
+        if instance_id in self._running_plugins and self._global_settings is not None and self._perspective_settings is not None:
             info = self._running_plugins[instance_id]
             global_settings = self._global_settings.get_settings('plugin ' + instance_id)
             perspective_settings = self._perspective_settings.get_settings('plugin ' + instance_id)
