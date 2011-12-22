@@ -39,11 +39,13 @@ namespace rosgui_cpp {
 PluginContext::PluginContext(QObject* obj, int serial_number)
   : QObject(obj)
   , proxy_(obj)
+  , serial_number_(serial_number)
 {}
 
 PluginContext::PluginContext(const PluginContext& other)
   : QObject(other.parent())
   , proxy_(other.parent())
+  , serial_number_(other.serial_number_)
 {}
 
 int PluginContext::serial_number()
