@@ -67,13 +67,15 @@ QList<PluginDescriptor*> CompositePluginProvider::discover_descriptors()
     }
     catch (std::runtime_error e)
     {
-      qCritical("CompositePluginProvider::discover() could not discover plugins from provider - runtime_error");
-      return descriptors;
+      // TODO: add name of plugin provider to error message
+      qCritical("CompositePluginProvider::discover() could not discover plugins from provider - runtime_error:\n%s", e.what());
+      continue;
     }
     catch (...)
     {
+      // TODO: add name of plugin provider to error message
       qCritical("CompositePluginProvider::discover() could not discover plugins from provider");
-      return descriptors;
+      continue;
     }
 
     QSet<QString> plugin_ids;

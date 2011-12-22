@@ -28,6 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import roslib
 roslib.load_manifest('rosgui_rospy')
 import rospy
@@ -59,13 +60,13 @@ class RosGuiRosPyPluginProvider(CompositePluginProvider):
             qWarning('RosGuiRosPyPluginProvider.discover() could not find ROS master, all rospy-based plugins are disabled')
         else:
             # initialize ROS node
-            rospy.init_node('rosgui_rospy_node', anonymous=True, disable_signals=True)
+            rospy.init_node('rosgui_rospy_node_%d' % os.getpid(), disable_signals=True)
 
         descriptors = super(RosGuiRosPyPluginProvider, self).discover()
 
         if master is None:
             # mark all plugins as "not_available"
             for descriptor in descriptors:
-                descriptor.attributes()['not_available'] = 'no ROS master found (start roscore before?)'
+                descriptor.attributes()['not_available'] = 'no ROS master found (roscore needs to be started before rosgui)'
 
         return descriptors

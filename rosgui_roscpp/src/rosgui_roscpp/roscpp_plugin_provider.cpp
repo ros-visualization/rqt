@@ -42,6 +42,9 @@
 #include <ros/ros.h>
 
 #include <stdexcept>
+#include <sys/types.h>
+#include <unistd.h>
+#include <iostream>
 
 namespace rosgui_roscpp {
 
@@ -73,8 +76,10 @@ QList<rosgui_cpp::PluginDescriptor*> RosCppPluginProvider::discover_descriptors(
   // initialize ROS nodelet manager
   int argc = 0;
   char** argv = 0;
-  std::string name = "rosgui_roscpp_node";
-  ros::init(argc, argv, name, ros::init_options::NoSigintHandler);
+  std::stringstream name;
+  name << "rosgui_roscpp_node_";
+  name << getpid();
+  ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
 
   bool master_found = ros::master::check();
   if (master_found)
@@ -96,7 +101,7 @@ QList<rosgui_cpp::PluginDescriptor*> RosCppPluginProvider::discover_descriptors(
   {
     for (QList<rosgui_cpp::PluginDescriptor*>::iterator it = descriptors.begin(); it != descriptors.end(); it++)
     {
-      (*it)->attributes()["not_available"] = "no ROS master found (start roscore before?)";
+      (*it)->attributes()["not_available"] = "no ROS master found (roscore needs to be started before rosgui)";
     }
   }
 

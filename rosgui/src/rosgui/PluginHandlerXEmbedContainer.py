@@ -55,9 +55,9 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._process.readyReadStandardError.connect(self._print_process_error)
         # start python with unbuffered stdout/stderr so that the order of the output is retained
         cmd = sys.executable + ' -u'
+        cmd += ' %s' % rosgui_main_filename()
         if self._application_context.options.qt_binding is not None:
             cmd += ' --qt-binding=%s' % self._application_context.options.qt_binding
-        cmd += ' %s' % rosgui_main_filename()
         cmd += ' --embed-plugin=%s --embed-plugin-pid=%d --embed-plugin-serial=%s' % (self._plugin_id, os.getpid() , self._serial_number)
         #qDebug('PluginHandlerXEmbedContainer._load() starting command: %s' % cmd)
         self._process.start(cmd)
