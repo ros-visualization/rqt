@@ -67,6 +67,8 @@ def _edge_to_dot(e, is_topic=False):
 
 def _generate_node_dotcode(node, g, quiet):
     if node in g.bad_nodes:
+        if quiet:
+            return ''
         bn = g.bad_nodes[node]
         if bn.type == rosgraph.impl.graph.BadNode.DEAD:
             return '  %s [color="red", shape="doublecircle", label="%s", URL="node:%s"];' % (

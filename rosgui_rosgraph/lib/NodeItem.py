@@ -36,10 +36,10 @@ from RosGraphItem import RosGraphItem
 
 class NodeItem(RosGraphItem):
 
-    def __init__(self, highlight_level, bounding_box, label, shape='ellipse', parent=None):
+    def __init__(self, highlight_level, bounding_box, label, shape, color=None, parent=None):
         super(NodeItem, self).__init__(highlight_level, parent)
 
-        self._default_color = self._COLOR_BLACK
+        self._default_color = self._COLOR_BLACK if color is None else color
         self._brush = QBrush(self._default_color)
         self._label_pen = QPen()
         self._label_pen.setColor(self._default_color)

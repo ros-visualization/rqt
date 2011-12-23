@@ -38,7 +38,7 @@ import pydot
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal
-from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
+from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
 from QtSvg import QSvgGenerator
 
 import roslib
@@ -121,7 +121,7 @@ class RosGraph(QObject):
     def restore_settings(self, global_settings, perspective_settings):
         self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
         self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', '/'))
-        self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', False) in [True, 'true'])
+        self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
         self._refresh_rosgraph()
@@ -221,7 +221,8 @@ class RosGraph(QObject):
             bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
             pos = node.attr['pos'].split(',')
             bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
-            node_item = NodeItem(highlight_level, bounding_box, node.attr['label'], node.attr.get('shape', 'ellipse'))
+            color = QColor(node.attr['color']) if 'color' in node.attr else None
+            node_item = NodeItem(highlight_level, bounding_box, node.attr['label'], node.attr.get('shape', 'ellipse'), color)
             node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
 
             # let pydot imitate pygraphviz api
@@ -253,7 +254,7 @@ class RosGraph(QObject):
             edge_item = EdgeItem(highlight_level, edge.attr['pos'], label_center, label, nodes[source_node], nodes[destination_node])
             # symmetrically add all sibling edges with same label
             if label is not None:
-                if not edges.has_key(label):
+                if label not in edges:
                     edges[label] = []
                 for sibling in edges[label]:
                     edge_item.add_sibling_edge(sibling)
