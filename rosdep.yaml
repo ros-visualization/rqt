@@ -53,13 +53,19 @@ python-qwt5-qt4:
   ubuntu: python-qwt5-qt4
   osxbrew:
     homebrew:
-      packages: [ qwt ]
+      packages: [ pyqwt ]
 
 python-sip-dev:
   ubuntu: python-sip-dev
   osxbrew:
     homebrew:
       packages: [ sip ]
+
+python-opengl:
+   ubuntu: python-opengl
+   osxbrew:
+     pip:
+       packages: [ PyOpenGL ]
 
 shiboken:
   ubuntu: shiboken

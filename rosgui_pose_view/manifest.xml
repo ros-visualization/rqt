@@ -15,6 +15,8 @@
   <depend package="geometry_msgs"/>
   <depend package="tf"/>
 
+  <rosdep name="python-opengl"/>
+
   <export>
     <rosgui plugin="${prefix}/pose_view_plugin.xml"/>
   </export>
