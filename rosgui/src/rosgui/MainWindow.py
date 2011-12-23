@@ -87,7 +87,14 @@ class MainWindow(QMainWindow):
 
     def _save_geometry_to_perspective(self):
         if self._settings is not None:
+            # unmaximizing widget before saveGeometry works around bug to restore dock-widgets
+            # still the non-maximized size can not correctly be restored
+            maximized = self.isMaximized()
+            if maximized:
+                self.showNormal()
             self._settings.set_value('geometry', self.saveGeometry())
+            if maximized:
+                self.showMaximized()
 
     def _restore_geometry_from_perspective(self):
         if self._settings.contains('geometry'):
