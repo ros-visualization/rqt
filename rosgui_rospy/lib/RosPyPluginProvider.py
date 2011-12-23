@@ -36,7 +36,7 @@ import rospy
 from rosgui.CompositePluginProvider import CompositePluginProvider
 
 import rosgui.QtBindingHelper #@UnusedImport
-from QtCore import qWarning
+from QtCore import qDebug, qWarning
 
 try:
     from rosgui.RospkgPluginProvider import RospkgPluginProvider
@@ -45,28 +45,39 @@ except ImportError:
     from rosgui.RoslibPluginProvider import RoslibPluginProvider
     ActualRosPluginProvider = RoslibPluginProvider
 
-class RosGuiRosPyPluginProvider(CompositePluginProvider):
+class RosPyPluginProvider(CompositePluginProvider):
 
     def __init__(self):
-        super(RosGuiRosPyPluginProvider, self).__init__([ActualRosPluginProvider('rosgui', 'rosgui_rospy::Plugin')])
-        self.setObjectName('RosGuiRosPyPluginProvider')
+        super(RosPyPluginProvider, self).__init__([ActualRosPluginProvider('rosgui', 'rosgui_rospy::Plugin')])
+        self.setObjectName('RosPyPluginProvider')
+        self._node_initialized = False
 
     def discover(self):
-        master = None
-        try:
-            # check if master is available
-            master = rospy.get_master().getSystemState()
-        except Exception:
-            qWarning('RosGuiRosPyPluginProvider.discover() could not find ROS master, all rospy-based plugins are disabled')
-        else:
-            # initialize ROS node
-            rospy.init_node('rosgui_rospy_node_%d' % os.getpid(), disable_signals=True)
+        descriptors = super(RosPyPluginProvider, self).discover()
 
-        descriptors = super(RosGuiRosPyPluginProvider, self).discover()
-
-        if master is None:
+        if not self._master_found():
+            qWarning('RosPyPluginProvider.discover() could not find ROS master, all rospy-based plugins are disabled')
             # mark all plugins as "not_available"
             for descriptor in descriptors:
                 descriptor.attributes()['not_available'] = 'no ROS master found (roscore needs to be started before rosgui)'
 
         return descriptors
+
+    def load(self, plugin_id, plugin_context):
+        self._init_node()
+        return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)
+
+    def _master_found(self):
+        try:
+            rospy.get_master().getSystemState()
+            return True
+        except Exception:
+            return False
+
+    def _init_node(self):
+        # initialize node once
+        if not self._node_initialized:
+            name = 'rosgui_rospy_node_%d' % os.getpid()
+            qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
+            rospy.init_node(name, disable_signals=True)
+            self._node_initialized = True

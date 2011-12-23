@@ -52,6 +52,7 @@ RosCppPluginProvider::RosCppPluginProvider()
   : rosgui_cpp::CompositePluginProvider()
   , manager_name_("rosgui_roscpp_node")
   , callback_manager_(0)
+  , node_initialized_(false)
 {
   QList<PluginProvider*> plugin_providers;
   plugin_providers.append(new NodeletPluginProvider("rosgui", "rosgui_roscpp::Plugin", this));
@@ -71,41 +72,39 @@ RosCppPluginProvider::~RosCppPluginProvider()
   }
 }
 
-QList<rosgui_cpp::PluginDescriptor*> RosCppPluginProvider::discover_descriptors()
+void* RosCppPluginProvider::load(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context)
 {
-  // initialize ROS nodelet manager
-  int argc = 0;
-  char** argv = 0;
-  std::stringstream name;
-  name << "rosgui_roscpp_node_";
-  name << getpid();
-  ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
+  init_node();
+  return rosgui_cpp::CompositePluginProvider::load(plugin_id, plugin_context);
+}
 
-  bool master_found = ros::master::check();
-  if (master_found)
+rosgui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context)
+{
+  init_node();
+  return rosgui_cpp::CompositePluginProvider::load_plugin(plugin_id, plugin_context);
+}
+
+void RosCppPluginProvider::init_node()
+{
+  // initialize ROS nodelet manager once
+  if (!node_initialized_)
   {
-    ros::start();
-
-    callback_manager_ = new nodelet::detail::CallbackQueueManager();
-
-    ros::NodeHandle nh(manager_name_);
-  }
-  else
-  {
-    qWarning("RosCppPluginProvider::discover_descriptors() could not find ROS master, all roscpp-based plugins are disabled");
-  }
-
-  QList<rosgui_cpp::PluginDescriptor*> descriptors = rosgui_cpp::CompositePluginProvider::discover_descriptors();
-
-  if (!master_found)
-  {
-    for (QList<rosgui_cpp::PluginDescriptor*>::iterator it = descriptors.begin(); it != descriptors.end(); it++)
+    int argc = 0;
+    char** argv = 0;
+    std::stringstream name;
+    name << "rosgui_roscpp_node_";
+    name << getpid();
+    qDebug("RosCppPluginProvider::init_node() initialize ROS node '%s'", name.str().c_str());
+    ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
+    if (!ros::master::check())
     {
-      (*it)->attributes()["not_available"] = "no ROS master found (roscore needs to be started before rosgui)";
+      throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
     }
+    ros::start();
+    callback_manager_ = new nodelet::detail::CallbackQueueManager();
+    ros::NodeHandle nh(manager_name_);
+    node_initialized_ = true;
   }
-
-  return descriptors;
 }
 
 }

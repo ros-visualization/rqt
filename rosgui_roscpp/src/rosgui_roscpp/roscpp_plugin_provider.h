@@ -51,11 +51,19 @@ public:
 
   virtual ~RosCppPluginProvider();
 
-  virtual QList<rosgui_cpp::PluginDescriptor*> discover_descriptors();
+  virtual void* load(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context);
+
+  virtual rosgui_cpp::Plugin* load_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context);
 
   std::string manager_name_;
 
   nodelet::detail::CallbackQueueManager* callback_manager_;
+
+protected:
+
+  void init_node();
+
+  bool node_initialized_;
 
 };
 
