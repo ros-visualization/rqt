@@ -98,9 +98,17 @@ void* CompositePluginProvider::load(const QString& plugin_id, PluginContext* plu
     if (it.value().contains(plugin_id))
     {
       PluginProvider* plugin_provider = it.key();
-      void* instance = plugin_provider->load(plugin_id, plugin_context);
-      running_plugins_[instance] = plugin_provider;
-      return instance;
+      try
+      {
+        void* instance = plugin_provider->load(plugin_id, plugin_context);
+        running_plugins_[instance] = plugin_provider;
+        return instance;
+      }
+      catch (std::exception& e)
+      {
+        qWarning("CompositePluginProvider::load(%s) failed loading plugin (%s)", plugin_id.toStdString().c_str(), e.what());
+        return 0;
+      }
     }
   }
   return 0;
@@ -114,9 +122,17 @@ Plugin* CompositePluginProvider::load_plugin(const QString& plugin_id, PluginCon
     if (it.value().contains(plugin_id))
     {
       PluginProvider* plugin_provider = it.key();
-      Plugin* instance = plugin_provider->load_plugin(plugin_id, plugin_context);
-      running_plugins_[instance] = plugin_provider;
-      return instance;
+      try
+      {
+        Plugin* instance = plugin_provider->load_plugin(plugin_id, plugin_context);
+        running_plugins_[instance] = plugin_provider;
+        return instance;
+      }
+      catch (std::exception& e)
+      {
+        qWarning("CompositePluginProvider::load_plugin(%s) failed loading plugin (%s)", plugin_id.toStdString().c_str(), e.what());
+        return 0;
+      }
     }
   }
   return 0;
