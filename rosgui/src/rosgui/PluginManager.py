@@ -229,6 +229,9 @@ class PluginManager(QObject):
             loaded = handler.load(self._plugin_provider)
             if not loaded:
                 qCritical('PluginManager._load_plugin() could not load plugin "%s"' % plugin_id)
+                # quit embed application in case of exceptions
+                if self._application_context.options.embed_plugin:
+                    exit(-1)
                 return
 
         except Exception:

@@ -53,6 +53,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._process.setProcessChannelMode(QProcess.SeparateChannels)
         self._process.readyReadStandardOutput.connect(self._print_process_output)
         self._process.readyReadStandardError.connect(self._print_process_error)
+        self._process.finished.connect(self.close_plugin)
         # start python with unbuffered stdout/stderr so that the order of the output is retained
         cmd = sys.executable + ' -u'
         cmd += ' %s' % rosgui_main_filename()
@@ -95,6 +96,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         return embed_container.winId()
 
     def _shutdown_plugin(self):
+        self._process.finished.disconnect(self.close_plugin)
         self._process.close()
 
     def unload(self):
