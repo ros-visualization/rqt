@@ -44,7 +44,7 @@ class PluginHandlerXEmbedClient(PluginHandler):
         self._remote_object = None
         self._remote_interface = None
         self._plugin = None
-        self._embed_widget = None
+        self._embedded_widgets = {}
 
     def _load(self):
         self._remote_object = SessionBus().get_object(self._application_context.dbus_host_bus_name, self._dbus_object_path)
@@ -53,15 +53,31 @@ class PluginHandlerXEmbedClient(PluginHandler):
         return self._plugin
 
     def add_widget(self, widget, area):
-        self._embed_widget = QX11EmbedWidget()
+        embed_widget = QX11EmbedWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(widget)
-        self._embed_widget.setLayout(layout)
+        embed_widget.setLayout(layout)
 
         # close embed widget when container is closed
-        self._embed_widget.containerClosed.connect(self._embed_widget.close)
+        embed_widget.containerClosed.connect(embed_widget.close)
 
-        embed_container_window_id = self._remote_interface.add_embed_dock_widget(os.getpid(), area)
-        self._embed_widget.embedInto(embed_container_window_id)
-        self._embed_widget.show()
+        embed_container_window_id = self._remote_interface.embed_widget(os.getpid(), widget.objectName(), area)
+        embed_widget.embedInto(embed_container_window_id)
+
+        self._embedded_widgets[widget] = embed_widget
+        self.update_widget_title(widget)
+
+        embed_widget.show()
+
+    def _update_widget_title(self, widget, title):
+        self._remote_interface.update_embedded_widget_title(widget.objectName(), title)
+
+    def remove_widget(self, widget):
+        self._remote_interface.unembed_widget(widget.objectName())
+        # do not delete the widget, only the embed widget
+        widget.setParent(None)
+        del self._embedded_widgets[widget]
+
+    def close_plugin(self):
+        self._remote_interface.close_plugin()

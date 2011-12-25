@@ -295,6 +295,7 @@ class PluginManager(QObject):
 
         # shutdown and unload plugin
         handler = info['handler']
+        handler.close_signal.disconnect(self.unload_plugin)
         handler.shutdown_plugin()
         handler.unload()
         qDebug('PluginManager._unload_plugin(%s) successful' % instance_id)

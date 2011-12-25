@@ -38,6 +38,18 @@ class PluginHandlerDBusInterface(Object):
         super(PluginHandlerDBusInterface, self).__init__(bus_name, object_path)
         self._plugin_handler = plugin_handler
 
-    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='ii', out_signature='i')
-    def add_embed_dock_widget(self, pid, dock_area):
-        return self._plugin_handler.add_embed_dock_widget(pid, dock_area)
+    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='isi', out_signature='i')
+    def embed_widget(self, pid, widget_object_name, area):
+        return self._plugin_handler.embed_widget(pid, widget_object_name, area)
+
+    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='ss', out_signature='')
+    def update_embedded_widget_title(self, widget_object_name, title):
+        self._plugin_handler.update_embedded_widget_title(widget_object_name, title)
+
+    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='s', out_signature='')
+    def unembed_widget(self, widget_object_name):
+        self._plugin_handler.unembed_widget(widget_object_name)
+
+    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='', out_signature='')
+    def close_plugin(self):
+        self._plugin_handler.close_plugin()

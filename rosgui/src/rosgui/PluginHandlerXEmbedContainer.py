@@ -46,6 +46,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._dbus_server = None
         self._process = None
         self._pid = None
+        self._embedded = {}
 
     def _load(self):
         self._dbus_server = PluginHandlerDBusInterface(self, self._application_context, self._dbus_object_path)
@@ -86,14 +87,25 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         for line in lines:
             method('    %d %s' % (self._pid, line))
 
-    def add_embed_dock_widget(self, pid, area):
+    def embed_widget(self, pid, widget_object_name, area):
         dock_widget = self._create_dock_widget()
         embed_container = QX11EmbedContainer(dock_widget)
-        embed_container.clientClosed.connect(self._emit_close_signal)
         dock_widget.setWidget(embed_container)
-        self._add_dock_widget(dock_widget, area)
-        self.update_widget_title(embed_container)
+        dock_widget.setObjectName(self._instance_id + '__' + widget_object_name)
+        #embed_container.clientClosed.connect(self._emit_close_signal)
+        self._add_dock_widget(dock_widget, embed_container, area)
+        # update widget title is triggered by client after embedding
+        self._embedded[widget_object_name] = embed_container
         return embed_container.winId()
+
+    def update_embedded_widget_title(self, widget_object_name, title):
+        embed_container = self._embedded[widget_object_name]
+        self._update_widget_title(embed_container, title)
+
+    def unembed_widget(self, widget_object_name):
+        embed_container = self._embedded[widget_object_name]
+        self.remove_widget(embed_container)
+        del self._embedded[widget_object_name]
 
     def _shutdown_plugin(self):
         self._process.finished.disconnect(self.close_plugin)
@@ -105,3 +117,9 @@ class PluginHandlerXEmbedContainer(PluginHandler):
             self._process.kill()
         self._process = None
         self._dbus_server.remove_from_connection()
+
+    def _save_settings(self, global_settings, perspective_settings):
+        pass
+
+    def _restore_settings(self, global_settings, perspective_settings):
+        pass

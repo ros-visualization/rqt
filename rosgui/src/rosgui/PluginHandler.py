@@ -92,6 +92,9 @@ class PluginHandler(QObject):
         self._shutdown_plugin()
         for widget in self._widgets.keys():
             self.remove_widget(widget)
+            # only delete widgets which are not at the same time the plugin
+            if widget != self._plugin:
+                del widget
         if self._plugin != True:
             self._plugin.deleteLater()
 
@@ -104,20 +107,26 @@ class PluginHandler(QObject):
 
 
     def save_settings(self, global_settings, perspective_settings):
+        self._save_settings(global_settings, perspective_settings)
+        # call after plugin method since the plugin may spawn additional dock widgets depending on current settings
+        self._call_method_on_all_dock_widgets('save_settings', perspective_settings)
+
+    def _save_settings(self, global_settings, perspective_settings):
         if hasattr(self._plugin, 'save_settings'):
             global_settings_plugin = global_settings.get_settings('plugin')
             perspective_settings_plugin = perspective_settings.get_settings('plugin')
             self._plugin.save_settings(global_settings_plugin, perspective_settings_plugin)
-        # call after plugin method since the plugin may spawn additional dock widgets depending on current settings
-        self._call_method_on_all_dock_widgets('save_settings', perspective_settings)
 
     def restore_settings(self, global_settings, perspective_settings):
+        self._restore_settings(global_settings, perspective_settings)
+        # call after plugin method since the plugin may spawn additional dock widgets depending on current settings
+        self._call_method_on_all_dock_widgets('restore_settings', perspective_settings)
+
+    def _restore_settings(self, global_settings, perspective_settings):
         if hasattr(self._plugin, 'restore_settings'):
             global_settings_plugin = global_settings.get_settings('plugin')
             perspective_settings_plugin = perspective_settings.get_settings('plugin')
             self._plugin.restore_settings(global_settings_plugin, perspective_settings_plugin)
-        # call after plugin method since the plugin may spawn additional dock widgets depending on current settings
-        self._call_method_on_all_dock_widgets('restore_settings', perspective_settings)
 
     def _call_method_on_all_dock_widgets(self, method_name, perspective_settings):
         for dock_widget in self._widgets.values():
@@ -140,11 +149,12 @@ class PluginHandler(QObject):
     def add_widget(self, widget, area):
         dock_widget = self._create_dock_widget()
         dock_widget.setWidget(widget)
-        self._add_dock_widget(dock_widget, area)
+        dock_widget.setObjectName(self._instance_id + '__' + widget.objectName())
+        self._add_dock_widget(dock_widget, widget, area)
         self.update_widget_title(widget)
 
     def _create_dock_widget(self):
-        dock_widget = QDockWidget(self._main_window)
+        dock_widget = QDockWidget()
         if self._application_context.options.standalone_plugin is not None:
             features = dock_widget.features()
             dock_widget.setFeatures(features ^ QDockWidget.DockWidgetClosable)
@@ -178,45 +188,47 @@ class PluginHandler(QObject):
     def _emit_reload_signal(self):
         self.reload_signal.emit(self._instance_id)
 
-    def _add_dock_widget(self, dock_widget, area):
+    def _add_dock_widget(self, dock_widget, widget, area):
         if area is None:
             area = Qt.BottomDockWidgetArea
         self._add_dock_widget_to_main_window(dock_widget, area)
-        self._widgets[dock_widget.widget()] = dock_widget
+        self._widgets[widget] = dock_widget
 
     def _add_dock_widget_to_main_window(self, dock_widget, area):
         if self._main_window is not None:
             # find and remove possible remaining dock_widget with this object name
-            old_dock_widget = self._main_window.findChild(QDockWidget, self._instance_id)
+            old_dock_widget = self._main_window.findChild(QDockWidget, dock_widget.objectName())
             if old_dock_widget is not None:
-                qWarning('PluginHandler._add_dock_widget() duplicate object name "%s", removing old dock widget!')
+                qWarning('PluginHandler._add_dock_widget_to_main_window() duplicate object name "%s", removing old dock widget!' % dock_widget.objectName())
                 self._main_window.removeDockWidget(old_dock_widget)
-        dock_widget.setObjectName(self._instance_id)
-        if self._main_window is not None:
             # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
             self._main_window.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def update_widget_title(self, widget):
+        self._update_widget_title(widget, widget.windowTitle())
+
+    def _update_widget_title(self, widget, title):
         dock_widget = self._widgets[widget]
-        dock_widget.setWindowTitle(widget.windowTitle())
+        dock_widget.setWindowTitle(title)
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def remove_widget(self, widget):
         dock_widget = self._widgets[widget]
         self._remove_dock_widget_from_main_window(dock_widget)
-        if widget != self._plugin:
-            del self._widgets[widget]
-        else:
-            # if the plugin acts as a widget the parent dock widget can not yet be deleted
-            widget.setParent(None)
-            del self._widgets[widget]
+        # do not delete the widget, only the dock widget
+        widget.setParent(None)
+        del self._widgets[widget]
+        # close plugin when last widget is removed
+        if len(self._widgets) == 0:
+            self.close_plugin()
 
     def _remove_dock_widget_from_main_window(self, dock_widget):
         if self._main_window is not None:
             self._main_window.removeDockWidget(dock_widget)
+            dock_widget.setParent(None)
             dock_widget.deleteLater()
 
     @Slot()
