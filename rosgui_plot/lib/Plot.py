@@ -76,7 +76,7 @@ class Plot(QWidget):
         self.pause_button.clicked[bool].connect(self.data_plot.togglePause)
 
         # add our self to the main window
-        context.add_widget(self, Qt.RightDockWidgetArea)
+        context.add_widget(self)
 
         # init and start update timer for plot
         self._update_plot_timer = QTimer(self)

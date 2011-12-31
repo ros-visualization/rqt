@@ -43,9 +43,9 @@ class PluginContext(QObject):
         '''Return the serial number of the plugin'''
         return self._handler.serial_number()
 
-    def add_widget(self, widget, area=None):
+    def add_widget(self, widget):
         '''Add a widget to the UI'''
-        self._handler.add_widget(widget, area)
+        self._handler.add_widget(widget)
 
     def update_widget_title(self, widget):
         '''Update the window title of the surrounding dock widget based on the window title of the widget'''

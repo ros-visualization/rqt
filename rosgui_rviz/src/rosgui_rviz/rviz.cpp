@@ -62,7 +62,7 @@ void RViz::initPlugin(rosgui_cpp::PluginContext& context)
   {
     widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serial_number()) + ")");
   }
-  context.add_widget(widget_, Qt::RightDockWidgetArea);
+  context.add_widget(widget_);
 
   // trigger deleteLater for plugin when widget or frame is closed
   widget_->installEventFilter(this);

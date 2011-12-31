@@ -53,9 +53,9 @@ int PluginContext::serial_number()
   return serial_number_;
 }
 
-void PluginContext::add_widget(QWidget* widget, Qt::DockWidgetArea area)
+void PluginContext::add_widget(QWidget* widget)
 {
-  bool rc = proxy_.invokeMethod("add_widget", Q_ARG(QWidget*, widget), Q_ARG(int, area));
+  bool rc = proxy_.invokeMethod("add_widget", Q_ARG(QWidget*, widget));
   if (!rc) throw std::runtime_error("PluginContext::add_widget() invoke method failed");
 }
 

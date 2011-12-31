@@ -109,7 +109,7 @@ class RosGraph(QObject):
         self._deferred_fit_in_view.connect(self._fit_in_view, Qt.QueuedConnection)
         self._deferred_fit_in_view.emit()
 
-        context.add_widget(self._widget, Qt.RightDockWidgetArea)
+        context.add_widget(self._widget)
 
     def save_settings(self, global_settings, perspective_settings):
         perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())

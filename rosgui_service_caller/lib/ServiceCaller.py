@@ -78,7 +78,7 @@ class ServiceCaller(QWidget):
         self.request_tree_widget.itemChanged.connect(self.request_tree_widget_itemChanged)
 
         # add our self to the main window
-        context.add_widget(self, Qt.RightDockWidgetArea)
+        context.add_widget(self)
 
 
     @Slot()

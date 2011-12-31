@@ -67,7 +67,7 @@ class PluginManager(QObject):
         # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
         self._deferred_reload_plugin_signal.connect(self._load_and_restore_plugin, type=Qt.QueuedConnection)
 
-        if application_context.dbus_unique_bus_name is not None:
+        if self._application_context.provide_app_dbus_interfaces:
             self._dbus_server = PluginManagerDBusInterface(self, self._application_context)
 
 

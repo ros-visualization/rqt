@@ -70,9 +70,8 @@ class PluginHandler(QObject):
         self._plugin = self._load()
         if self._plugin is None:
             return None
-        if self._plugin != True:
-            # emit close_signal when deferred delete event for plugin is received
-            self._plugin.installEventFilter(self)
+        # emit close_signal when deferred delete event for plugin is received
+        self._plugin.installEventFilter(self)
         return self
 
     def _load(self):
@@ -87,16 +86,14 @@ class PluginHandler(QObject):
         return QObject.eventFilter(self, watched, event)
 
     def shutdown_plugin(self):
-        if self._plugin != True:
-            self._plugin.removeEventFilter(self)
+        self._plugin.removeEventFilter(self)
         self._shutdown_plugin()
         for widget in self._widgets.keys():
             self.remove_widget(widget)
             # only delete widgets which are not at the same time the plugin
             if widget != self._plugin:
                 del widget
-        if self._plugin != True:
-            self._plugin.deleteLater()
+        self._plugin.deleteLater()
 
     def _shutdown_plugin(self):
         if hasattr(self._plugin, 'shutdown_plugin'):
@@ -145,17 +142,18 @@ class PluginHandler(QObject):
         return self._serial_number
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
-    @Slot('QWidget*', int)
-    def add_widget(self, widget, area):
+    @Slot('QWidget*')
+    def add_widget(self, widget):
         dock_widget = self._create_dock_widget()
         dock_widget.setWidget(widget)
         dock_widget.setObjectName(self._instance_id + '__' + widget.objectName())
-        self._add_dock_widget(dock_widget, widget, area)
+        self._add_dock_widget(dock_widget, widget)
         self.update_widget_title(widget)
 
     def _create_dock_widget(self):
         dock_widget = QDockWidget()
         if self._application_context.options.standalone_plugin is not None:
+            # standalone plugins are not closable
             features = dock_widget.features()
             dock_widget.setFeatures(features ^ QDockWidget.DockWidgetClosable)
         self._update_title_bar(dock_widget)
@@ -168,7 +166,7 @@ class PluginHandler(QObject):
             dock_widget.setTitleBarWidget(title_bar)
 
             # connect extra buttons
-            title_bar.connect_button('close', self._emit_close_signal)
+            title_bar.connect_close_button(self._close_dock_widget)
             title_bar.connect_button('help', self._emit_help_signal)
             title_bar.connect_button('reload', self._emit_reload_signal)
 
@@ -179,30 +177,24 @@ class PluginHandler(QObject):
             else:
                 title_bar.hide_button('settings')
 
-    def _emit_close_signal(self):
-        self.close_signal.emit(self._instance_id)
-
     def _emit_help_signal(self):
         self.help_signal.emit(self._instance_id)
 
     def _emit_reload_signal(self):
         self.reload_signal.emit(self._instance_id)
 
-    def _add_dock_widget(self, dock_widget, widget, area):
-        if area is None:
-            area = Qt.BottomDockWidgetArea
-        self._add_dock_widget_to_main_window(dock_widget, area)
+    def _add_dock_widget(self, dock_widget, widget):
+        self._add_dock_widget_to_main_window(dock_widget)
         self._widgets[widget] = dock_widget
 
-    def _add_dock_widget_to_main_window(self, dock_widget, area):
+    def _add_dock_widget_to_main_window(self, dock_widget):
         if self._main_window is not None:
             # find and remove possible remaining dock_widget with this object name
             old_dock_widget = self._main_window.findChild(QDockWidget, dock_widget.objectName())
             if old_dock_widget is not None:
                 qWarning('PluginHandler._add_dock_widget_to_main_window() duplicate object name "%s", removing old dock widget!' % dock_widget.objectName())
                 self._main_window.removeDockWidget(old_dock_widget)
-            # add new dock_widget, area must be casted for PySide to work (at least with 1.0.1)
-            self._main_window.addDockWidget(Qt.DockWidgetArea(area), dock_widget)
+            self._main_window.addDockWidget(Qt.BottomDockWidgetArea, dock_widget)
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
@@ -231,6 +223,13 @@ class PluginHandler(QObject):
             dock_widget.setParent(None)
             dock_widget.deleteLater()
 
+    def _close_dock_widget(self, dock_widget):
+        widget = [key for key, value in self._widgets.iteritems() if value == dock_widget][0]
+        self.remove_widget(widget)
+
+
     @Slot()
     def close_plugin(self):
-        self.close_signal.emit(self._instance_id)
+        # only non-standalone plugins are closable
+        if self._application_context.options.standalone_plugin is None:
+            self.close_signal.emit(self._instance_id)

@@ -68,7 +68,7 @@ class PerspectiveManager(QObject):
         self._current_perspective = None
         self._remove_action = None
 
-        if application_context.dbus_unique_bus_name is not None:
+        if application_context.provide_app_dbus_interfaces:
             self._dbus_server = PerspectiveManagerDBusInterface(self, application_context)
 
 

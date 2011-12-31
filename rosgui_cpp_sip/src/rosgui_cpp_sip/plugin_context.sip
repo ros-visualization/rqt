@@ -15,7 +15,7 @@ public:
 
   int serial_number();
 
-  void add_widget(QWidget* widget, Qt::DockWidgetArea area);
+  void add_widget(QWidget* widget);
 
   void update_widget_title(QWidget* widget);
 

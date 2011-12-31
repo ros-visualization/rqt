@@ -57,6 +57,7 @@ class DockWidgetTitleBar(QWidget):
 
         self.close_button.setIcon(QIcon.fromTheme('window-close'))
         self.close_button.setText("")
+        self.close_button.clicked.connect(self._close_clicked)
 
         self.float_button.clicked.connect(self.toggle_floating)
         self.dockable_button.clicked.connect(self.toggle_dockable)
@@ -66,6 +67,7 @@ class DockWidgetTitleBar(QWidget):
 
         self.update_title()
 
+        self._close_callbacks = []
         self._event_callbacks = {
             QEvent.WindowTitleChange: self.update_title,
         }
@@ -78,6 +80,15 @@ class DockWidgetTitleBar(QWidget):
             qDebug('DockWidgetTitleBar.connect_button(): unknown button_id: %s' % button_id)
             return
         button.clicked.connect(callback)
+
+
+    def connect_close_button(self, callback):
+        self._close_callbacks.append(callback)
+
+
+    def _close_clicked(self):
+        for callback in self._close_callbacks:
+            callback(self.parent())
 
 
     def show_button(self, button_id, visibility=True):

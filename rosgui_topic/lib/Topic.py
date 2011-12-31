@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rosgui.QtBindingHelper #@UnusedImport
-from QtCore import QObject, Qt
+from QtCore import QObject
 
 import roslib
 roslib.load_manifest('rosgui_topic')
@@ -48,7 +48,7 @@ class Topic(QObject):
         self._widget = TopicWidget.TopicWidget(self)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
-        context.add_widget(self._widget, Qt.RightDockWidgetArea)
+        context.add_widget(self._widget)
 
     def shutdown_plugin(self):
         self._widget.shutdown_plugin()

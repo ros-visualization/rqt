@@ -90,7 +90,7 @@ class Publisher(QWidget):
         self.refresh_combo_boxes()
 
         # add our self to the main window
-        context.add_widget(self, Qt.RightDockWidgetArea)
+        context.add_widget(self)
 
 
     @Slot()

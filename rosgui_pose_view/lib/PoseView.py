@@ -29,7 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rosgui.QtBindingHelper #@UnusedImport
-from QtCore import QObject, Qt
+from QtCore import QObject
 from QtGui import QDockWidget
 
 import roslib
@@ -47,7 +47,7 @@ class PoseView(QObject):
         self._widget = PoseViewWidget.PoseViewWidget(self)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
-        context.add_widget(self._widget, Qt.RightDockWidgetArea)
+        context.add_widget(self._widget)
 
     def save_settings(self, global_settings, perspective_settings):
         self._widget.save_settings(global_settings, perspective_settings)

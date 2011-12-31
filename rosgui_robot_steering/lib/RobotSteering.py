@@ -55,7 +55,7 @@ class RobotSteering(QObject):
         self._widget.setObjectName('RobotSteeringUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
-        context.add_widget(self._widget, Qt.RightDockWidgetArea)
+        context.add_widget(self._widget)
 
         self._widget.topic_line_edit.textChanged.connect(self._on_topic_changed)
 

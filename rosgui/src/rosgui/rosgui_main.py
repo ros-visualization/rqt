@@ -119,55 +119,56 @@ def rosgui_main():
     # create application context containing various relevant information
     from ApplicationContext import ApplicationContext
     context = ApplicationContext()
+    # non-special applications provide various dbus interfaces
+    context.provide_app_dbus_interfaces = len(groups_set) == 0
+    context.dbus_base_bus_name = 'org.ros.rosgui'
+    if context.provide_app_dbus_interfaces:
+        context.dbus_unique_bus_name = context.dbus_base_bus_name + '.pid%d' % os.getpid()
     context.options = options
 
-    base_bus_name = 'org.ros.rosgui'
-    # non-special applications provide their pid via dbus
-    if len(groups_set) == 0:
-        context.dbus_unique_bus_name = base_bus_name + ('.pid%d' % os.getpid())
+    if context.provide_app_dbus_interfaces:
+        # provide pid of application via dbus
         from ApplicationDBusInterface import ApplicationDBusInterface
-        _dbus_server = ApplicationDBusInterface(base_bus_name)
+        _dbus_server = ApplicationDBusInterface(context.dbus_base_bus_name)
 
-    # determine host bus name, either based on given pid or via dbus application interface if available
-    elif len(command_options_set) > 0 or len(embed_options_set) > 0:
+    # determine host bus name, either based on pid given on command line or via dbus application interface if any other instance is available
+    if len(command_options_set) > 0 or len(embed_options_set) > 0:
+        host_pid = None
         if options.command_pid is not None:
-            context.host_pid = options.command_pid
+            host_pid = options.command_pid
         elif options.embed_plugin_pid is not None:
-            context.host_pid = options.embed_plugin_pid
+            host_pid = options.embed_plugin_pid
         else:
             try:
-                remote_object = SessionBus().get_object(base_bus_name, '/Application')
+                remote_object = SessionBus().get_object(context.dbus_base_bus_name, '/Application')
             except DBusException:
                 pass
             else:
                 remote_interface = Interface(remote_object, 'org.ros.rosgui.Application')
-                context.host_pid = remote_interface.get_pid()
-        if context.host_pid is not None:
-            context.dbus_host_bus_name = base_bus_name + ('.pid%d' % context.host_pid)
+                host_pid = remote_interface.get_pid()
+        if host_pid is not None:
+            context.dbus_host_bus_name = context.dbus_base_bus_name + '.pid%d' % host_pid
 
-    # execute command
+    # execute command on host application instance
     if len(command_options_set) > 0:
         if options.command_start_plugin is not None:
             try:
                 remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PluginManager')
             except DBusException:
-                if context.host_pid is None:
-                    (rc, msg) = (1, 'unable to find ROS GUI instance')
-                else:
-                    (rc, msg) = (1, 'unable to communicate with ROS GUI instance #%d' % context.host_pid)
+                (rc, msg) = (1, 'unable to communicate with ROS GUI instance "%s"' % context.dbus_host_bus_name)
             else:
                 remote_interface = Interface(remote_object, 'org.ros.rosgui.PluginManager')
                 (rc, msg) = remote_interface.start_plugin(options.command_start_plugin)
             if rc == 0:
-                print 'rosgui_main() started plugin "%s" in ROS GUI #%d' % (msg, context.host_pid)
+                print 'rosgui_main() started plugin "%s" in ROS GUI "%s"' % (msg, context.dbus_host_bus_name)
             else:
-                print 'rosgui_main() could not start plugin "%s" in ROS GUI #%d: %s' % (options.command_start_plugin, context.host_pid, msg)
+                print 'rosgui_main() could not start plugin "%s" in ROS GUI "%s": %s' % (options.command_start_plugin, context.dbus_host_bus_name, msg)
             return rc
         elif options.command_switch_perspective is not None:
-            remote_object = SessionBus().get_object(context.dbus_bus_name, '/PerspectiveManager')
+            remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PerspectiveManager')
             remote_interface = Interface(remote_object, 'org.ros.rosgui.PerspectiveManager')
             remote_interface.switch_perspective(options.command_switch_perspective)
-            print 'rosgui_main() switched to perspective "%s" in ROS GUI #%d' % (options.command_switch_perspective, options.command_pid)
+            print 'rosgui_main() switched to perspective "%s" in ROS GUI "%s"' % (options.command_switch_perspective, context.dbus_host_bus_name)
             return 0
         print 'unknown command'
         return 1
@@ -226,6 +227,8 @@ def rosgui_main():
         file_menu.addAction(action)
 
     else:
+        app.setQuitOnLastWindowClosed(False)
+
         settings = None
         main_window = None
         menu_bar = None

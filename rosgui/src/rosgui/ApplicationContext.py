@@ -31,11 +31,15 @@
 class ApplicationContext():
 
     def __init__(self):
-        # the bus name of an other application to communicate with
-        self.dbus_host_bus_name = None
-        # the unique bus name of this application
+        # the flag if the application should listen to commands on dbus
+        self.provide_app_dbus_interfaces = False
+        # the named bus name of the ROS GUI application
+        self.dbus_base_bus_name = None
+        # the unique bus name of the ROS GUI application
         self.dbus_unique_bus_name = None
-        # the pid of an other application to communicate with
-        self.host_pid = None
+
+        # the unique bus name of an other application to communicate with
+        self.dbus_host_bus_name = None
+
         # the parsed command line options
         self.options = None
