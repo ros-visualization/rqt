@@ -73,8 +73,17 @@ class Settings(QObject):
 
     @Slot(str, 'QVariant')
     def set_value(self, key, value):
+        # work around for PySide (at least with 1.0.6) passing NoneType values via dbus
+        if value is None:
+            value = '__NoneType__'
         self._settings_proxy.set_value(self._group, key, value)
 
     @Slot(str, 'QVariant', result='QVariant')
     def value(self, key, default_value=None):
-        return self._settings_proxy.value(self._group, key, default_value)
+        # work around for PySide (at least with 1.0.6) passing NoneType default_values/values via dbus
+        if default_value is None:
+            default_value = '__NoneType__'
+        value = self._settings_proxy.value(self._group, key, default_value)
+        if value == '__NoneType__':
+            value = None
+        return value
