@@ -102,7 +102,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="settings_button">
+    <widget class="QPushButton" name="configuration_button">
      <property name="minimumSize">
       <size>
        <width>16</width>
@@ -116,10 +116,10 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Settings</string>
+      <string>Configuration</string>
      </property>
      <property name="text">
-      <string>S</string>
+      <string>C</string>
      </property>
      <property name="flat">
       <bool>true</bool>

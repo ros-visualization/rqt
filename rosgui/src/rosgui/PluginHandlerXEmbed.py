@@ -33,12 +33,12 @@ from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
 
 class PluginHandlerXEmbed():
 
-    def __init__(self, main_window, instance_id, plugin_id, serial_number, application_context):
-        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.replace('/', '__').replace('#', '/')
+    def __init__(self, main_window, instance_id, application_context):
+        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + str(instance_id).replace('/', '__').replace('#', '/')
         if application_context.options.embed_plugin is None:
-            self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, plugin_id, serial_number, application_context, dbus_object_path)
+            self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, application_context, dbus_object_path)
         else:
-            self._handler = PluginHandlerXEmbedClient(main_window, instance_id, plugin_id, serial_number, application_context, dbus_object_path)
+            self._handler = PluginHandlerXEmbedClient(main_window, instance_id, application_context, dbus_object_path)
 
     def __getattr__(self, name):
         return getattr(self._handler, name)

@@ -28,50 +28,77 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, sys
+import sys
 
+from dbus.server import Server
 from PluginHandler import PluginHandler
-from PluginHandlerDBusInterface import PluginHandlerDBusInterface
+from PluginHandlerDBusService import PluginHandlerDBusService
+from QtBindingHelper import QT_BINDING
 from QtCore import qDebug, QProcess, qWarning
 from QtGui import QX11EmbedContainer
 from rosgui_main import rosgui_main_filename
+from SettingsProxyDBusService import SettingsProxyDBusService
 
 class PluginHandlerXEmbedContainer(PluginHandler):
 
-    def __init__(self, main_window, instance_id, plugin_id, serial_number, application_context, dbus_object_path):
-        super(PluginHandlerXEmbedContainer, self).__init__(main_window, instance_id, plugin_id, serial_number, application_context)
+    _serial_number = 0
+
+    def __init__(self, main_window, instance_id, application_context, dbus_object_path):
+        super(PluginHandlerXEmbedContainer, self).__init__(main_window, instance_id, application_context)
         self.setObjectName('PluginHandlerXEmbedContainer')
 
         self._dbus_object_path = dbus_object_path
         self._dbus_server = None
+        self._dbus_container_service = None
+        self._dbus_global_settings_service = None
+        self._dbus_perspective_settings_service = None
+
         self._process = None
         self._pid = None
-        self._embedded = {}
+        self._embed_containers = {}
+
+        self._objects_and_paths = []
 
     def _load(self):
-        self._dbus_server = PluginHandlerDBusInterface(self, self._application_context, self._dbus_object_path)
+        self._dbus_server = Server('tcp:bind=*')
+        self._dbus_server.on_connection_added.append(self._add_dbus_connection)
+        self._dbus_container_service = PluginHandlerDBusService(self, self._dbus_object_path)
+        self._dbus_global_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/global')
+        self._dbus_perspective_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/perspective')
+
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.SeparateChannels)
         self._process.readyReadStandardOutput.connect(self._print_process_output)
         self._process.readyReadStandardError.connect(self._print_process_error)
-        self._process.finished.connect(self.close_plugin)
+        self._process.finished.connect(self._emit_close_plugin)
         # start python with unbuffered stdout/stderr so that the order of the output is retained
         cmd = sys.executable + ' -u'
         cmd += ' %s' % rosgui_main_filename()
-        if self._application_context.options.qt_binding is not None:
-            cmd += ' --qt-binding=%s' % self._application_context.options.qt_binding
-        cmd += ' --embed-plugin=%s --embed-plugin-pid=%d --embed-plugin-serial=%s' % (self._plugin_id, os.getpid() , self._serial_number)
+        cmd += ' --qt-binding=%s' % QT_BINDING
+        cmd += ' --embed-plugin=%s --embed-plugin-serial=%s --embed-plugin-address=%s' % (self.instance_id().plugin_id , self.instance_id().serial_number, self._dbus_server.address)
         #qDebug('PluginHandlerXEmbedContainer._load() starting command: %s' % cmd)
         self._process.start(cmd)
-        started = self._process.waitForStarted(5000)
+        started = self._process.waitForStarted(3000)
         if not started:
-            self._dbus_server.remove_from_connection()
-            return None
+            self._dbus_container_service.remove_from_connection()
+            self._dbus_global_settings_service.remove_from_connection()
+            self._dbus_perspective_settings_service.remove_from_connection()
+            raise RuntimeError('PluginHandlerXEmbedContainer._load() could not start subprocess in reasonable time')
         # QProcess.pid() has been added to PySide in 1.0.5
         if hasattr(self._process, 'pid'):
             self._pid = self._process.pid()
-        qDebug('PluginHandlerXEmbedContainer._load() started subprocess%s for plugin "%s"' % (' (#%d)' % self._pid if self._pid is not None else '', self._instance_id))
-        return True
+        else:
+            # use serial number as a replacement for pid if not available
+            self.__class__._serial_number = self._serial_number + 1
+            self._pid = self._serial_number
+
+        qDebug('PluginHandlerXEmbedContainer._load() started subprocess (#%s) for plugin "%s"' % (self._pid, str(self._instance_id)))
+        # self._emit_load_completed is called asynchronous when client signals finished loading via dbus
+
+    def _add_dbus_connection(self, conn):
+        self._dbus_container_service.add_to_connection(conn, self._dbus_object_path)
+        self._dbus_global_settings_service.add_to_connection(conn, self._dbus_object_path + '/global')
+        self._dbus_perspective_settings_service.add_to_connection(conn, self._dbus_object_path + '/perspective')
 
     def _print_process_output(self):
         self._print_process(self._process.readAllStandardOutput(), qDebug)
@@ -87,39 +114,79 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         for line in lines:
             method('    %d %s' % (self._pid, line))
 
-    def embed_widget(self, pid, widget_object_name, area):
-        dock_widget = self._create_dock_widget()
-        embed_container = QX11EmbedContainer(dock_widget)
-        dock_widget.setWidget(embed_container)
-        dock_widget.setObjectName(self._instance_id + '__' + widget_object_name)
-        #embed_container.clientClosed.connect(self._emit_close_signal)
-        self._add_dock_widget(dock_widget, embed_container, area)
-        # update widget title is triggered by client after embedding
-        self._embedded[widget_object_name] = embed_container
-        return embed_container.winId()
+    def load_completed(self, loaded, has_configuration):
+        # TODO timer to detect no response
+        exception = None if loaded else True
+        self._plugin_has_configuration = has_configuration
+        self._update_title_bars()
+        self._emit_load_completed(exception)
 
-    def update_embedded_widget_title(self, widget_object_name, title):
-        embed_container = self._embedded[widget_object_name]
-        self._update_widget_title(embed_container, title)
-
-    def unembed_widget(self, widget_object_name):
-        embed_container = self._embedded[widget_object_name]
-        self.remove_widget(embed_container)
-        del self._embedded[widget_object_name]
 
     def _shutdown_plugin(self):
-        self._process.finished.disconnect(self.close_plugin)
-        self._process.close()
+        #qDebug('PluginHandlerXEmbedContainer._shutdown_plugin()')
+        self._process.finished.disconnect(self._emit_close_plugin)
+        self._dbus_container_service.shutdown_plugin()
 
-    def unload(self):
+    def emit_shutdown_plugin_completed(self):
+        self._dbus_container_service.remove_from_connection()
+        self._dbus_global_settings_service.remove_from_connection()
+        self._dbus_perspective_settings_service.remove_from_connection()
+        super(PluginHandlerXEmbedContainer, self).emit_shutdown_plugin_completed()
+
+
+    def _unload(self):
+        #qDebug('PluginHandlerXEmbedContainer._unload()')
+        self._process.close()
         self._process.waitForFinished(5000)
         if self._process.state() != QProcess.NotRunning:
             self._process.kill()
         self._process = None
-        self._dbus_server.remove_from_connection()
+        self._emit_unload_completed()
 
     def _save_settings(self, global_settings, perspective_settings):
-        pass
+        #qDebug('PluginHandlerXEmbedContainer._save_settings()')
+        self._dbus_global_settings_service.set_settings(global_settings)
+        self._dbus_perspective_settings_service.set_settings(perspective_settings)
+        self._dbus_container_service.save_settings()
+
+    def emit_save_settings_completed(self):
+        self._dbus_global_settings_service.set_settings(None)
+        self._dbus_perspective_settings_service.set_settings(None)
+        super(PluginHandlerXEmbedContainer, self).emit_save_settings_completed()
 
     def _restore_settings(self, global_settings, perspective_settings):
-        pass
+        #qDebug('PluginHandlerXEmbedContainer._restore_settings()')
+        self._dbus_global_settings_service.set_settings(global_settings)
+        self._dbus_perspective_settings_service.set_settings(perspective_settings)
+        self._dbus_container_service.restore_settings()
+
+    def emit_restore_settings_completed(self):
+        self._dbus_global_settings_service.set_settings(None)
+        self._dbus_perspective_settings_service.set_settings(None)
+        super(PluginHandlerXEmbedContainer, self).emit_restore_settings_completed()
+
+
+    def _trigger_configuration(self):
+        self._dbus_container_service.trigger_configuration()
+
+
+    def embed_widget(self, pid, widget_object_name):
+        dock_widget = self._create_dock_widget()
+        embed_container = QX11EmbedContainer(dock_widget)
+        dock_widget.setWidget(embed_container)
+        # every dock widget needs a unique name for save/restore geometry/state to work
+        dock_widget.setObjectName(self._instance_id.tidy_str() + '__' + widget_object_name)
+        #embed_container.clientClosed.connect(self._emit_close_signal)
+        self._add_dock_widget(dock_widget, embed_container)
+        # update widget title is triggered by client after embedding
+        self._embed_containers[widget_object_name] = embed_container
+        return embed_container.winId()
+
+    def update_embedded_widget_title(self, widget_object_name, title):
+        embed_container = self._embed_containers[widget_object_name]
+        self._update_widget_title(embed_container, title)
+
+    def unembed_widget(self, widget_object_name):
+        embed_container = self._embed_containers[widget_object_name]
+        self.remove_widget(embed_container)
+        del self._embed_containers[widget_object_name]

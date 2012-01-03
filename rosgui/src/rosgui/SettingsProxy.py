@@ -31,8 +31,6 @@
 import QtBindingHelper #@UnusedImport
 from QtCore import QMutex, QMutexLocker, QObject
 
-from Settings import Settings
-
 class SettingsProxy(QObject):
 
     def __init__(self, qsettings):
@@ -41,9 +39,6 @@ class SettingsProxy(QObject):
 
         self._qsettings = qsettings
         self._mutex = QMutex(QMutex.Recursive)
-
-    def get_settings(self, group):
-        return Settings(self, group)
 
     def all_keys(self, group):
         locker = QMutexLocker(self._mutex) #@UnusedVariable
@@ -93,9 +88,9 @@ class SettingsProxy(QObject):
         self._qsettings.setValue(key, value)
         self._qsettings.endGroup()
 
-    def value(self, group, key, defaultValue=None):
+    def value(self, group, key, default_value=None):
         locker = QMutexLocker(self._mutex) #@UnusedVariable
         self._qsettings.beginGroup(group)
-        v = self._qsettings.value(key, defaultValue)
+        v = self._qsettings.value(key, default_value)
         self._qsettings.endGroup()
         return v

@@ -41,7 +41,7 @@ class PluginContext(QObject):
 
     def serial_number(self):
         '''Return the serial number of the plugin'''
-        return self._handler.serial_number()
+        return self._handler.instance_id().serial_number
 
     def add_widget(self, widget):
         '''Add a widget to the UI'''

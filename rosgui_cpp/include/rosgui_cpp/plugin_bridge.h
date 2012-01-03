@@ -56,6 +56,10 @@ public:
 
   virtual void unload_plugin();
 
+  virtual bool has_configuration() const;
+
+  virtual void trigger_configuration();
+
 public slots:
 
   virtual void shutdown_plugin();

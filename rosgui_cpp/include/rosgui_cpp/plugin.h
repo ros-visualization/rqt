@@ -64,6 +64,14 @@ public:
   virtual void restoreSettings(Settings& /*global_settings*/, Settings& /*perspective_settings*/)
   {}
 
+  virtual bool hasConfiguration() const
+  {
+    return false;
+  }
+
+  virtual void triggerConfiguration()
+  {}
+
 };
 
 } // namespace

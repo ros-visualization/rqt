@@ -33,7 +33,10 @@
 import os, signal, sys
 from optparse import OptionGroup, OptionParser
 
-def rosgui_main():
+def rosgui_main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
     parser = OptionParser('usage: %prog [options]')
 
     parser.add_option('-b', '--qt-binding', dest='qt_binding', type='str', metavar='BINDING',
@@ -58,24 +61,24 @@ def rosgui_main():
     group = OptionGroup(parser, 'Options to operate on a running ROS GUI instance',
                         'These options can be used to perform actions on a running ROS GUI instance.')
     group.add_option('--command-pid', dest='command_pid', type='int', metavar='PID',
-                     help='pid of ROS GUI instance to operate on')
+                     help='pid of ROS GUI instance to operate on, defaults to oldest running ROS GUI instance')
     group.add_option('--command-start-plugin', dest='command_start_plugin', type='str', metavar='PLUGIN',
-                     help='start plugin (requires --command-pid)')
+                     help='start plugin')
     group.add_option('--command-switch-perspective', dest='command_switch_perspective', type='str', metavar='PERSPECTIVE',
-                     help='switch perspective (requires --command-pid)')
+                     help='switch perspective')
     parser.add_option_group(group)
 
     group = OptionGroup(parser, 'Special options for embedding widgets from separate processes',
                         'These options should never be used on the CLI but only from the ROS GUI code itself.')
     group.add_option('--embed-plugin', dest='embed_plugin', type='str', metavar='PLUGIN',
                      help='embed a plugin into an already running ROS GUI instance (requires all other --embed-* options)')
-    group.add_option('--embed-plugin-pid', dest='embed_plugin_pid', type='int', metavar='PID',
-                     help='pid of ROS GUI instance to embed plugin into (requires all other --embed-* options)')
     group.add_option('--embed-plugin-serial', dest='embed_plugin_serial', type='int', metavar='SERIAL',
                      help='serial number of plugin to be embedded (requires all other --embed-* options)')
+    group.add_option('--embed-plugin-address', dest='embed_plugin_address', type='str', metavar='ADDRESS',
+                     help='dbus server address of ROS GUI instance to embed plugin into (requires all other --embed-* options)')
     parser.add_option_group(group)
 
-    options, _ = parser.parse_args()
+    options, _ = parser.parse_args(argv[1:])
 
     # check option dependencies
     try:
@@ -87,11 +90,11 @@ def rosgui_main():
         command_options = (options.command_start_plugin, options.command_switch_perspective)
         command_options_set = [opt for opt in command_options if opt is not None]
         if len(command_options_set) > 1:
-            raise RuntimeError, 'Only one --command-* option can be used at a time (except --command-pid which must be given for every command)'
+            raise RuntimeError, 'Only one --command-* option can be used at a time (except --command-pid which is optional)'
         if len(command_options_set) == 0 and options.command_pid is not None:
             raise RuntimeError, 'Option --command_pid can only be used together with an other -command-* option'
 
-        embed_options = (options.embed_plugin, options.embed_plugin_pid, options.embed_plugin_serial)
+        embed_options = (options.embed_plugin, options.embed_plugin_serial, options.embed_plugin_address)
         embed_options_set = [opt for opt in embed_options if opt is not None]
         if len(embed_options_set) > 0 and len(embed_options_set) < len(embed_options):
             raise RuntimeError, 'Missing option(s) - all \'--embed-*\' options must be set'
@@ -136,8 +139,6 @@ def rosgui_main():
         host_pid = None
         if options.command_pid is not None:
             host_pid = options.command_pid
-        elif options.embed_plugin_pid is not None:
-            host_pid = options.embed_plugin_pid
         else:
             try:
                 remote_object = SessionBus().get_object(context.dbus_base_bus_name, '/Application')
@@ -196,7 +197,7 @@ def rosgui_main():
         from RoslibPluginProvider import RoslibPluginProvider
         ActualRosPluginProvider = RoslibPluginProvider
 
-    app = QApplication(sys.argv)
+    app = QApplication(argv)
     app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
 
     if len(embed_options_set) == 0:
@@ -261,7 +262,7 @@ def rosgui_main():
         perspective_manager = None
 
     if main_window is not None:
-        plugin_manager.set_main_window(main_window)
+        plugin_manager.set_main_window(main_window, menu_bar)
 
     if settings is not None and menu_bar is not None:
         perspective_menu = menu_bar.addMenu(menu_bar.tr('Perspectives'))
@@ -277,6 +278,7 @@ def rosgui_main():
 
     if perspective_manager is not None and plugin_manager is not None:
         perspective_manager.save_settings_signal.connect(plugin_manager.save_settings)
+        plugin_manager.save_settings_completed_signal.connect(perspective_manager.save_settings_completed)
         perspective_manager.restore_settings_signal.connect(plugin_manager.restore_settings)
 
     if plugin_manager is not None and main_window is not None:
@@ -285,7 +287,9 @@ def rosgui_main():
         # signal changed plugins to restore window state
         plugin_manager.plugins_changed_signal.connect(main_window.restore_state)
         # signal save settings to store plugin setup on close
-        main_window.save_settings_signal.connect(plugin_manager.save_settings)
+        main_window.save_settings_before_close_signal.connect(plugin_manager.save_settings_before_close)
+        # signal plugin setup saved to trigger closing main window again
+        plugin_manager.save_settings_before_close_completed_signal.connect(main_window.close, type=Qt.QueuedConnection)
 
     if main_window is not None and menu_bar is not None:
         about_handler = AboutHandler(main_window)

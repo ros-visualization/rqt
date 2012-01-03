@@ -28,28 +28,22 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from dbus.service import BusName, Object
-import dbus
+class PluginInstanceId():
 
-class PluginHandlerDBusInterface(Object):
+    def __init__(self, plugin_id=None, serial_number=None, instance_id=None):
+        if instance_id is not None:
+            # convert from unicode
+            instance_id = str(instance_id)
+            parts = instance_id.rsplit('#', 1)
+            self.plugin_id = parts[0]
+            self.serial_number = int(parts[1])
+        else:
+            # convert from unicode
+            self.plugin_id = str(plugin_id)
+            self.serial_number = int(serial_number) if serial_number is not None else None
 
-    def __init__(self, plugin_handler, application_context, object_path):
-        bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
-        super(PluginHandlerDBusInterface, self).__init__(bus_name, object_path)
-        self._plugin_handler = plugin_handler
+    def __str__(self):
+        return self.plugin_id + '#' + str(self.serial_number)
 
-    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='isi', out_signature='i')
-    def embed_widget(self, pid, widget_object_name, area):
-        return self._plugin_handler.embed_widget(pid, widget_object_name, area)
-
-    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='ss', out_signature='')
-    def update_embedded_widget_title(self, widget_object_name, title):
-        self._plugin_handler.update_embedded_widget_title(widget_object_name, title)
-
-    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='s', out_signature='')
-    def unembed_widget(self, widget_object_name):
-        self._plugin_handler.unembed_widget(widget_object_name)
-
-    @dbus.service.method('org.ros.rosgui.PluginHandlerXEmbed', in_signature='', out_signature='')
-    def close_plugin(self):
-        self._plugin_handler.close_plugin()
+    def tidy_str(self):
+        return self.plugin_id.replace('/', '__') + '__' + str(self.serial_number)

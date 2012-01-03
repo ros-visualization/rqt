@@ -36,22 +36,27 @@ from Settings import Settings
 
 class MainWindow(QMainWindow):
 
-    save_settings_signal = Signal(Settings, Settings)
+    save_settings_before_close_signal = Signal(Settings, Settings)
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setObjectName('MainWindow')
 
+        self._save_on_close_signaled = False
         self._global_settings = None
         self._perspective_settings = None
         self._settings = None
 
     def closeEvent(self, event):
         qDebug('MainWindow.closeEvent()')
-        self._save_geometry_to_perspective()
-        self._save_state_to_perspective()
-        self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
-        event.accept()
+        if not self._save_on_close_signaled:
+            self._save_geometry_to_perspective()
+            self._save_state_to_perspective()
+            self._save_on_close_signaled = True
+            self.save_settings_before_close_signal.emit(self._global_settings, self._perspective_settings)
+            event.ignore()
+        else:
+            event.accept()
 
     def save_settings(self, global_settings, perspective_settings):
         qDebug('MainWindow.save_settings()')

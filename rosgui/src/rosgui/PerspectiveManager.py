@@ -68,6 +68,9 @@ class PerspectiveManager(QObject):
         self._current_perspective = None
         self._remove_action = None
 
+        self._callback = None
+        self._callback_args = []
+
         if application_context.provide_app_dbus_interfaces:
             self._dbus_server = PerspectiveManagerDBusInterface(self, application_context)
 
@@ -120,10 +123,15 @@ class PerspectiveManager(QObject):
     @Slot(str, bool, bool)
     def switch_perspective(self, name, settings_changed=True, save_before=True):
         if save_before and self._global_settings is not None and self._perspective_settings is not None:
+            self._callback = self._switch_perspective
+            self._callback_args = [name, settings_changed, save_before]
             self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
+        else:
+            self._switch_perspective(name, settings_changed, save_before)
 
+    def _switch_perspective(self, name, settings_changed, save_before):
         # convert from unicode
-        name = str(name.replace('/', '_'))
+        name = str(name.replace('/', '__'))
 
         qDebug('PerspectiveManager.switch_perspective() switching to perspective "%s"' % name)
         if self._current_perspective is not None and self._menu_manager is not None:
@@ -147,6 +155,15 @@ class PerspectiveManager(QObject):
         self.perspective_changed_signal.emit(self._current_perspective.lstrip(self.HIDDEN_PREFIX))
         if settings_changed:
             self.restore_settings_signal.emit(self._global_settings, self._perspective_settings)
+
+
+    def save_settings_completed(self):
+        if self._callback is not None:
+            callback = self._callback
+            callback_args = self._callback_args
+            self._callback = None
+            self._callback_args = []
+            callback(*callback_args)
 
 
     def _get_perspective_settings(self, perspective_name):
@@ -213,8 +230,13 @@ class PerspectiveManager(QObject):
 
         # save current settings
         if self._global_settings is not None and self._perspective_settings is not None:
+            self._callback = self._create_perspective_continued
+            self._callback_args = [name, clone_perspective]
             self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
+        else:
+            self._create_perspective_continued(name, clone_perspective)
 
+    def _create_perspective_continued(self, name, clone_perspective):
         # clone settings
         if clone_perspective:
             new_settings = self._get_perspective_settings(name)
@@ -294,9 +316,18 @@ class PerspectiveManager(QObject):
         self._convert_values(data, self._import_value)
 
         new_settings = self._get_perspective_settings(perspective_name)
-        new_settings.from_dict(data)
+        self._set_dict_on_settings(data, new_settings)
 
         self.switch_perspective(perspective_name, settings_changed=True, save_before=True)
+
+    def _set_dict_on_settings(self, data, settings):
+        keys = data.get('keys', {})
+        for key in keys:
+            settings.set_value(key, keys[key])
+        groups = data.get('groups', {})
+        for group in groups:
+            sub = settings.get_settings(group)
+            self._set_dict_on_settings(groups[group], sub)
 
 
     def _on_export_perspective(self):
@@ -305,10 +336,13 @@ class PerspectiveManager(QObject):
             return
 
         # trigger save of perspective before export
+        self._callback = self._on_export_perspective_continued
+        self._callback_args = [file_name]
         self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
+    def _on_export_perspective_continued(self, file_name):
         # convert every value and add pretty print
-        data = self._perspective_settings.to_dict()
+        data = self._get_dict_from_settings(self._perspective_settings)
         self._convert_values(data, self._export_value)
 
         # write perspective data to file
@@ -316,6 +350,16 @@ class PerspectiveManager(QObject):
         #file_handle.write(pformat(data))
         file_handle.write(json.dumps(data, indent=2))
         file_handle.close()
+
+    def _get_dict_from_settings(self, settings):
+        keys = {}
+        for key in settings.child_keys():
+            keys[str(key)] = settings.value(key)
+        groups = {}
+        for group in settings.child_groups():
+            sub = settings.get_settings(group)
+            groups[str(group)] = self._get_dict_from_settings(sub)
+        return {'keys': keys, 'groups': groups}
 
 
     def _convert_values(self, data, convert_function):

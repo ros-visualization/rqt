@@ -42,14 +42,14 @@ class DockWidgetTitleBar(QWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'DockWidgetTitleBar.ui')
         loadUi(ui_file, self)
         self._extra_buttons = {
-            'settings': self.settings_button,
+            'configuration': self.configuration_button,
             'reload': self.reload_button,
             'help': self.help_button,
             'close': self.close_button,
         }
 
-        self.settings_button.setIcon(QIcon.fromTheme('emblem-system'))
-        self.settings_button.setText("")
+        self.configuration_button.setIcon(QIcon.fromTheme('emblem-system'))
+        self.configuration_button.setText("")
         self.reload_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.reload_button.setText("")
         self.help_button.setIcon(QIcon.fromTheme('help-browser'))

@@ -66,6 +66,23 @@ void PluginBridge::unload_plugin()
   provider_->unload_plugin(plugin_);
 }
 
+bool PluginBridge::has_configuration() const
+{
+  if (plugin_)
+  {
+    return plugin_->hasConfiguration();
+  }
+  return false;
+}
+
+void PluginBridge::trigger_configuration()
+{
+  if (plugin_)
+  {
+    plugin_->triggerConfiguration();
+  }
+}
+
 void PluginBridge::shutdown_plugin()
 {
   if (plugin_)
