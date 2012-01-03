@@ -32,6 +32,9 @@ import imp, os, traceback
 
 from xml.etree import ElementTree
 
+import QtBindingHelper #@UnusedImport
+from QtCore import qCritical
+
 from PluginDescriptor import PluginDescriptor
 from PluginProvider import PluginProvider
 
@@ -63,10 +66,10 @@ class RosPluginProvider(PluginProvider):
         try:
             module = imp.load_source(attributes['library_name'], module_path)
         except NotImplementedError, e:
-            print 'RosPluginProvider.load(%s):\n%s' % (plugin_id, e)
+            qCritical('RosPluginProvider.load(%s): raised an exception:\n%s' % (plugin_id, e))
             return None
         except:
-            print 'RosPluginProvider.load(%s) exception raised in imp.load_source(%s, %s):\n%s' % (plugin_id, attributes['library_name'], module_path, traceback.format_exc())
+            qCritical('RosPluginProvider.load(%s) exception raised in imp.load_source(%s, %s):\n%s' % (plugin_id, attributes['library_name'], module_path, traceback.format_exc()))
             raise
         class_ref = getattr(module, attributes['class_type'])
 
@@ -80,13 +83,17 @@ class RosPluginProvider(PluginProvider):
         pass
 
     def _find_rosgui_plugins(self):
-        raise NotImplementedError('override method in subclass')
+        raise NotImplementedError
 
     def _parse_plugin_xml(self, plugin_name, xml_file_name):
         plugin_descriptors = []
         plugin_path = os.path.dirname(os.path.abspath(xml_file_name))
 
-        root = ElementTree.parse(xml_file_name)
+        try:
+            root = ElementTree.parse(xml_file_name)
+        except Exception:
+            qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" of plugin "%s"' % (xml_file_name, plugin_name))
+            return plugin_descriptors
         for library_el in root.getiterator('library'):
             library_path, library_name = os.path.split(library_el.attrib['path'])
 
