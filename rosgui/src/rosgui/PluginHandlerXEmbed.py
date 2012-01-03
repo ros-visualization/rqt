@@ -34,7 +34,7 @@ from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
 class PluginHandlerXEmbed():
 
     def __init__(self, main_window, instance_id, application_context):
-        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + str(instance_id).replace('/', '__').replace('#', '/')
+        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.tidy_str()
         if application_context.options.embed_plugin is None:
             self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, application_context, dbus_object_path)
         else:

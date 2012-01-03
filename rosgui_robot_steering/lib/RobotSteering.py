@@ -106,7 +106,7 @@ class RobotSteering(QObject):
     @Slot(str)
     def _on_topic_changed(self, topic):
         topic = str(topic)
-        self._unregisterPublisher()
+        self._unregister_publisher()
         self._publisher = rospy.Publisher(topic, Twist)
 
     def _on_parameter_changed(self):
@@ -152,13 +152,13 @@ class RobotSteering(QObject):
         self._widget.x_linear_slider.setValue(0)
         self._widget.z_angular_slider.setValue(0)
 
-    def _unregisterPublisher(self):
+    def _unregister_publisher(self):
         if self._publisher is not None:
             self._publisher.unregister()
             self._publisher = None
 
     def shutdown_plugin(self):
-        self._unregisterPublisher()
+        self._unregister_publisher()
 
     def save_settings(self, global_settings, perspective_settings):
         topic = self._widget.topic_line_edit.text()
