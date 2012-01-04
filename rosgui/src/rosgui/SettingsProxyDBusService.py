@@ -69,8 +69,23 @@ class SettingsProxyDBusService(dbus.service.Object):
 
     @dbus.service.method('org.ros.rosgui.Settings', in_signature='ssv', out_signature='')
     def set_value(self, group, key, value):
+        value = self._sanitize_value(value)
         self._settings_proxy.set_value(self._group + '/' + group, key, value)
 
     @dbus.service.method('org.ros.rosgui.Settings', in_signature='ssv', out_signature='v')
     def value(self, group, key, default_value=None):
         return self._settings_proxy.value(self._group + '/' + group, key, default_value)
+
+    def _sanitize_value(self, value):
+        # transform DBus types to Python types to work with Pickle
+        if isinstance(value, dbus.Boolean):
+            value = bool(value)
+        elif isinstance(value, (dbus.Byte, dbus.Int16, dbus.Int32, dbus.Int64, dbus.UInt16, dbus.UInt32, dbus.UInt64)):
+            value = int(value)
+        elif isinstance(value, dbus.Double):
+            value = float(value)
+        elif isinstance(value, dbus.String):
+            value = str(value)
+        elif isinstance(value, dbus.UTF8String):
+            value = unicode(value)
+        return value
