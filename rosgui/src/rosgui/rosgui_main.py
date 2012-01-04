@@ -41,6 +41,8 @@ def rosgui_main(argv=None):
 
     parser.add_option('-b', '--qt-binding', dest='qt_binding', type='str', metavar='BINDING',
                       help='choose Qt bindings to be used [pyqt|pyside]')
+    parser.add_option('--clear-config', dest='clear_config', action="store_true",
+                      help='clear the configuration (including all perspectives and plugin settings)')
     parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action="store_true",
                       help='lock the GUI to the used perspective (hide menu bar and close buttons of plugins)')
     parser.add_option('-m', '--multi-process', dest='multi_process', default=False, action="store_true",
@@ -92,12 +94,15 @@ def rosgui_main(argv=None):
         if len(command_options_set) > 1:
             raise RuntimeError, 'Only one --command-* option can be used at a time (except --command-pid which is optional)'
         if len(command_options_set) == 0 and options.command_pid is not None:
-            raise RuntimeError, 'Option --command_pid can only be used together with an other -command-* option'
+            raise RuntimeError, 'Option --command_pid can only be used together with an other --command-* option'
 
         embed_options = (options.embed_plugin, options.embed_plugin_serial, options.embed_plugin_address)
         embed_options_set = [opt for opt in embed_options if opt is not None]
         if len(embed_options_set) > 0 and len(embed_options_set) < len(embed_options):
             raise RuntimeError, 'Missing option(s) - all \'--embed-*\' options must be set'
+
+        if len(embed_options_set) > 0 and options.clear_config:
+            raise RuntimeError, 'Option --clear-config can only be used without any --embed-* option'
 
         groups = (list_options_set, command_options_set, embed_options_set)
         groups_set = [opt for opt in groups if len(opt) > 0]
@@ -202,6 +207,8 @@ def rosgui_main(argv=None):
 
     if len(embed_options_set) == 0:
         settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', 'rosgui')
+        if options.clear_config:
+            settings.clear()
 
         main_window = MainWindow()
         main_window.setDockNestingEnabled(True)
