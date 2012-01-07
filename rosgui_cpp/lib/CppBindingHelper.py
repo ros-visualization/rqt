@@ -28,7 +28,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, sys, traceback
+import os
+import sys
+import traceback
 
 from rosgui.QtBindingHelper import QT_BINDING
 from QtCore import qWarning

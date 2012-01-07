@@ -38,6 +38,8 @@ from MenuManager import MenuManager
 
 class PluginMenu(QObject):
 
+    """Menu of available plugins to load and running plugin instances to unload."""
+
     load_plugin_signal = Signal(str)
     unload_plugin_signal = Signal(str)
 

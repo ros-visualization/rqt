@@ -36,6 +36,8 @@ import dbus
 
 class PerspectiveManagerDBusInterface(Object):
 
+    """DBus service of the `PerspectiveManager` available on the unique bus name."""
+
     def __init__(self, perspective_manager, application_context):
         bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
         super(PerspectiveManagerDBusInterface, self).__init__(bus_name, '/PerspectiveManager')

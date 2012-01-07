@@ -33,18 +33,26 @@ from QtCore import QObject
 
 class PluginProvider(QObject):
 
+    """Interface for discovering, loading and unloading of plugins."""
+
     def __init__(self):
         super(PluginProvider, self).__init__()
         self.setObjectName('PluginProvider')
 
     def discover(self):
-        '''Discover the plugins; returns a dictionary'''
+        """
+        Discover the plugins.
+        @return: Dictionary of plugin ids to `PluginDescriptor`s
+        """
         raise NotImplementedError
 
     def load(self, plugin_id, plugin_context):
-        '''Load a plugin; returns an identifier of the instance'''
+        """
+        Load a plugin and pass the `PluginContext`.
+        @return: The created plugin instance
+        """
         raise NotImplementedError
 
     def unload(self, plugin_instance):
-        '''Unload a plugin'''
+        """Unload a plugin."""
         raise NotImplementedError

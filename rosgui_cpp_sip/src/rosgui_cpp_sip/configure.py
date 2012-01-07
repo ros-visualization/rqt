@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import roslib
 import sipconfig
 from PyQt4 import pyqtconfig

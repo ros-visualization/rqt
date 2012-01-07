@@ -33,6 +33,11 @@ from QtCore import QObject
 
 class PluginContext(QObject):
 
+    """
+    Plugin context providing information to the plugin and exposing methods for the plugin to interact with the framework.
+    It relays all methods to the corresponding `PluginHandler`.
+    """
+
     def __init__(self, handler):
         super(PluginContext, self).__init__(handler)
         self.setObjectName('PluginContext')
@@ -40,21 +45,24 @@ class PluginContext(QObject):
         self._handler = handler
 
     def serial_number(self):
-        '''Return the serial number of the plugin'''
+        """Return the serial number of the plugin."""
         return self._handler.instance_id().serial_number
 
     def add_widget(self, widget):
-        '''Add a widget to the UI'''
+        """Add a widget to the UI."""
         self._handler.add_widget(widget)
 
     def update_widget_title(self, widget):
-        '''Update the window title of the surrounding dock widget based on the window title of the widget'''
+        """Update the window title of the surrounding dock widget based on the window title of the previously added widget."""
         self._handler.update_widget_title(widget)
 
     def remove_widget(self, widget):
-        '''Remove a widget from the UI'''
+        """Remove a widget from the UI."""
         self._handler.remove_widget(widget)
 
     def close_plugin(self):
-        '''Close the plugin. The framework will call shutdown_plugin on the plugin and delete it afterwards.'''
+        """
+        Close the plugin.
+        The framework will call `Plugin.shutdown_plugin()` and unload it afterwards.
+        """
         self._handler.close_plugin()

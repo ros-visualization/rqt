@@ -28,7 +28,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import imp, os, traceback
+import imp
+import os
+import traceback
 
 from xml.etree import ElementTree
 
@@ -40,6 +42,8 @@ from PluginProvider import PluginProvider
 
 class RosPluginProvider(PluginProvider):
 
+    """Base class for providing plugins based on the ROS package system."""
+
     def __init__(self, export_tag, base_class_type):
         super(RosPluginProvider, self).__init__()
         self.setObjectName('RosPluginProvider')
@@ -49,6 +53,10 @@ class RosPluginProvider(PluginProvider):
         self._plugin_descriptors = {}
 
     def discover(self):
+        """
+        Discover the plugins.
+        The information of the `PluginDescriptor`s are extracted from the plugin manifests.
+        """
         # search for plugins
         plugin_descriptors = []
         plugin_file_list = self._find_rosgui_plugins()

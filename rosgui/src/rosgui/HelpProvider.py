@@ -35,6 +35,8 @@ from QtCore import QObject, Slot
 
 class HelpProvider(QObject):
 
+    """Handler for the help action in the title bar of dock widgets."""
+
     def __init__(self):
         super(HelpProvider, self).__init__()
 

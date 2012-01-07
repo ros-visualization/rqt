@@ -33,6 +33,11 @@ from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
 
 class PluginHandlerXEmbed():
 
+    """
+    Handler for forwarding invocations between the framework and one `Plugin` instance via a peer-to-peer DBus connection.
+    The both DBus endpoints are realized by the `PluginHandlerXEmbedContainer` and the `PluginHandlerXEmbedClient`.
+    """
+
     def __init__(self, main_window, instance_id, application_context):
         dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.tidy_str()
         if application_context.options.embed_plugin is None:

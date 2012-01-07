@@ -38,6 +38,11 @@ from DockWidgetTitleBar import DockWidgetTitleBar
 
 class PluginHandler(QObject):
 
+    """
+    Base class for the bidirectional exchange between the framework and one `Plugin` instance.
+    It utilizes a `PluginProvider` to load/unload the plugin and provides callbacks for the `PluginContext`.
+    """
+
     close_signal = Signal(str)
     reload_signal = Signal(str)
     help_signal = Signal(str)
@@ -56,7 +61,7 @@ class PluginHandler(QObject):
 
         self._plugin_has_configuration = False
 
-        # mapping from added widgets to dock widgets
+        # mapping of added widgets to their parent dock widget
         self._widgets = {}
 
     def instance_id(self):
@@ -64,7 +69,10 @@ class PluginHandler(QObject):
 
 
     def load(self, plugin_provider, callback=None):
-        '''Load plugin. Completion is signaled asynchronously.'''
+        """
+        Load plugin.
+        Completion is signaled asynchronously if a callback is passed.
+        """
         self._plugin_provider = plugin_provider
         self.__callback = callback
         try:
@@ -91,6 +99,10 @@ class PluginHandler(QObject):
 
 
     def shutdown_plugin(self, callback):
+        """
+        Shutdown plugin (`Plugin.shutdown_settings()`) and remove all added widgets.
+        Completion is signaled asynchronously if a callback is passed.
+        """
         self.__callback = callback
         try:
             self._shutdown_plugin()
@@ -115,7 +127,10 @@ class PluginHandler(QObject):
 
 
     def unload(self, callback=None):
-        '''Unload plugin. Completion is signaled asynchronously.'''
+        """
+        Unload plugin.
+        Completion is signaled asynchronously if a callback is passed.
+        """
         self.__callback = callback
         try:
             self._unload()
@@ -134,7 +149,10 @@ class PluginHandler(QObject):
 
 
     def save_settings(self, global_settings, perspective_settings, callback=None):
-        '''Save settings. Completion is signaled asynchronously.'''
+        """
+        Save settings of the plugin (`Plugin.save_settings()`) and all dock widget title bars.
+        Completion is signaled asynchronously if a callback is passed.
+        """
         #qDebug('PluginHandler.save_settings()')
         self.__perspective_settings = perspective_settings
         self.__callback = callback
@@ -170,7 +188,10 @@ class PluginHandler(QObject):
 
 
     def restore_settings(self, global_settings, perspective_settings, callback=None):
-        '''Restore settings. Completion is signaled asynchronously.'''
+        """
+        Restore settings of the plugin (`Plugin.restore_settings()`) and all dock widget title bars.
+        Completion is signaled asynchronously if a callback is passed.
+        """
         #qDebug('PluginHandler.restore_settings()')
         self.__perspective_settings = perspective_settings
         self.__callback = callback

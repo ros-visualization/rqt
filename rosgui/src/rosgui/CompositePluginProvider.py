@@ -37,6 +37,8 @@ from PluginProvider import PluginProvider
 
 class CompositePluginProvider(PluginProvider):
 
+    """Composite of multiple `PluginProvider`s."""
+
     def __init__(self, plugin_providers=None):
         super(CompositePluginProvider, self).__init__()
         self.setObjectName('CompositePluginProvider')

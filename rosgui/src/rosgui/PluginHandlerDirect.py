@@ -38,6 +38,8 @@ from PluginHandler import PluginHandler
 
 class PluginHandlerDirect(PluginHandler):
 
+    """Handler for directly passing invocations between the framework and one `Plugin` instance."""
+
     def __init__(self, main_window, instance_id, application_context):
         super(PluginHandlerDirect, self).__init__(main_window, instance_id, application_context)
         self.setObjectName('PluginHandlerDirect')

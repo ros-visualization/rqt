@@ -41,6 +41,11 @@ from PluginMenu import PluginMenu
 
 class PluginManager(QObject):
 
+    """
+    Manager of plugin life cycle.
+    It creates a specific `PluginHandler` for each plugin instance and maintains the perspective specific set of running plugins 
+    """
+
     plugins_about_to_change_signal = Signal()
     plugins_changed_signal = Signal()
     plugin_help_signal = Signal(object)

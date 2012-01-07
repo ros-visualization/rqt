@@ -41,6 +41,11 @@ from SettingsProxyDBusService import SettingsProxyDBusService
 
 class PluginHandlerXEmbedContainer(PluginHandler):
 
+    """
+    Server part of the `PluginHandlerXEmbed`.
+    It starts the plugin in a subprocess and provides the `PluginHandlerDBusService` through a peer-to-peer DBus connection.
+    """
+
     _serial_number = 0
 
     def __init__(self, main_window, instance_id, application_context, dbus_object_path):

@@ -30,16 +30,20 @@
 
 class ApplicationContext():
 
+    """Application wide context containing variables used in various places."""
+
     def __init__(self):
-        # the flag if the application should listen to commands on dbus
         self.provide_app_dbus_interfaces = False
-        # the named bus name of the ROS GUI application
+        """The flag if the application should listen to commands on DBus."""
+
         self.dbus_base_bus_name = None
-        # the unique bus name of the ROS GUI application
+        """The named DBus bus name of the application."""
+
         self.dbus_unique_bus_name = None
+        """The unique DBus bus name of the application."""
 
-        # the unique bus name of an other application to communicate with
         self.dbus_host_bus_name = None
+        """The unique DBus bus name of another application to communicate with."""
 
-        # the parsed command line options
         self.options = None
+        """The parsed command line options."""

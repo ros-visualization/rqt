@@ -32,6 +32,8 @@ import dbus
 
 class SettingsProxyDBusService(dbus.service.Object):
 
+    """DBus service of a 'Settings' instance."""
+
     def __init__(self, object_path):
         super(SettingsProxyDBusService, self).__init__(object_path)
         self._settings_proxy = None

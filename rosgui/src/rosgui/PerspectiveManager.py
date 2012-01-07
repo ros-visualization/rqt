@@ -28,7 +28,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import json, os, re
+import json
+import os
+import re
 from pprint import pformat
 
 from QtBindingHelper import loadUi
@@ -41,6 +43,8 @@ from Settings import Settings
 from SettingsProxy import SettingsProxy
 
 class PerspectiveManager(QObject):
+
+    """Manager for perspectives associated with specific sets of `Settings`."""
 
     perspective_changed_signal = Signal(basestring)
     save_settings_signal = Signal(Settings, Settings)
@@ -321,6 +325,7 @@ class PerspectiveManager(QObject):
         self.switch_perspective(perspective_name, settings_changed=True, save_before=True)
 
     def _set_dict_on_settings(self, data, settings):
+        """Set dictionary key-value pairs on Settings instance."""
         keys = data.get('keys', {})
         for key in keys:
             settings.set_value(key, keys[key])
@@ -341,7 +346,7 @@ class PerspectiveManager(QObject):
         self.save_settings_signal.emit(self._global_settings, self._perspective_settings)
 
     def _on_export_perspective_continued(self, file_name):
-        # convert every value and add pretty print
+        # convert every value
         data = self._get_dict_from_settings(self._perspective_settings)
         self._convert_values(data, self._export_value)
 
@@ -352,6 +357,7 @@ class PerspectiveManager(QObject):
         file_handle.close()
 
     def _get_dict_from_settings(self, settings):
+        """Convert data of Settings instance to dictionary."""
         keys = {}
         for key in settings.child_keys():
             keys[str(key)] = settings.value(key)
@@ -387,6 +393,7 @@ class PerspectiveManager(QObject):
             data['repr(QByteArray.hex)'] = self._strip_qt_binding_prefix(hex_value, repr(hex_value))
             data['type'] = 'repr(QByteArray.hex)'
 
+            # add pretty print for better readability
             characters = ''
             for i in range(1, value.size(), 2):
                 character = value.at(i)
@@ -410,17 +417,9 @@ class PerspectiveManager(QObject):
 
 
     def _strip_qt_binding_prefix(self, obj, data):
+        """Strip binding specific prefix from type string."""
         parts = obj.__class__.__module__.split('.')
         if len(parts) > 1 and parts[1] == 'QtCore':
             prefix = '.'.join(parts[:2])
             data = data.replace(prefix, 'QtCore', 1)
         return data
-
-
-    def _pretty_print(self, obj):
-        value = pformat(obj, 2)
-        value = self._strip_qt_binding_prefix(obj, value)
-        if isinstance(obj, QByteArray):
-            value = value.replace('\\x00', '')
-            value = re.sub('\\\\x[0-9a-f]{2}', ' ', value)
-        return value

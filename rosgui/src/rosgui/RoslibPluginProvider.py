@@ -34,6 +34,8 @@ from RosPluginProvider import RosPluginProvider
 
 class RoslibPluginProvider(RosPluginProvider):
 
+    """`RosPluginProvider` using roslib."""
+
     def __init__(self, export_tag, base_class_type):
         super(RoslibPluginProvider, self).__init__(export_tag, base_class_type)
         self.setObjectName('RoslibPluginProvider')

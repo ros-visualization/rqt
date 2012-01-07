@@ -36,6 +36,8 @@ from Settings import Settings
 
 class MainWindow(QMainWindow):
 
+    """Main window of the application managing the geometry and state of all top-level widgets."""
+
     save_settings_before_close_signal = Signal(Settings, Settings)
 
     def __init__(self):

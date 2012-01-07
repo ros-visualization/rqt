@@ -33,6 +33,8 @@ from QtCore import QMutex, QMutexLocker, QObject
 
 class SettingsProxy(QObject):
 
+    """Wrapper of a QSettings instance simplifying access of grouped data."""
+
     def __init__(self, qsettings):
         super(SettingsProxy, self).__init__()
         self.setObjectName('SettingsProxy')

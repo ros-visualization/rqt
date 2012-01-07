@@ -33,18 +33,31 @@ from QtCore import QObject
 
 class Plugin(QObject):
 
+    """
+    Interface for plugins.
+    User-defined plugins may either subclass `Plugin` or according to duck typing implement only the needed methods.
+    """
+
     def __init__(self, context):
+        """Instantiate the plugin and pass the `PluginContext`."""
         super(Plugin, self).__init__(context)
         self.setObjectName('Plugin')
 
     def shutdown_plugin(self):
-        '''Shutdown the plugin'''
+        """Shutdown and clean up the plugin before unloading."""
         pass
 
     def save_settings(self, global_settings, perspective_settings):
-        '''Save intrinsic configuration to settings'''
+        """Save the intrinsic state of the plugin to the global or perspective `Settings`."""
         pass
 
     def restore_settings(self, global_settings, perspective_settings):
-        '''Restore intrinsic configuration from settings'''
+        """Restore the intrinsic state of the plugin from the global or perspective `Settings`."""
         pass
+
+    #def trigger_configuration(self):
+        #"""
+        #Trigger a configuration request from the title bar of one of the dock widgets.
+        #If this method is available the `DockWidgetTitleBar` will show the configuration action.
+        #"""
+        #pass

@@ -35,6 +35,12 @@ import dbus
 
 class ApplicationDBusInterface(Object):
 
+    """
+    Application DBus service available on the named bus name.
+    The PID of the application instance is used to identify the unique bus name where further services are provided
+    i.e. `PerspectiveManagerDBusInterface`, `PluginManagerDBusInterface`.
+    """
+
     def __init__(self, named_bus_name):
         bus_name = BusName(named_bus_name, dbus.SessionBus())
         super(ApplicationDBusInterface, self).__init__(bus_name, '/Application')

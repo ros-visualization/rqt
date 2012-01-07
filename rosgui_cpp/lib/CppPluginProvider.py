@@ -28,7 +28,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, sys
+import os
+import sys
 
 from rosgui.CompositePluginProvider import CompositePluginProvider
 

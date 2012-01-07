@@ -36,6 +36,8 @@ import dbus
 
 class PluginManagerDBusInterface(Object):
 
+    """DBus service of the `PluginManager` available on the unique bus name."""
+
     def __init__(self, plugin_manager , application_context):
         bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
         super(PluginManagerDBusInterface, self).__init__(bus_name, '/PluginManager')

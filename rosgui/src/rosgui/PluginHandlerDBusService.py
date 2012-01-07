@@ -33,6 +33,8 @@ import dbus
 
 class PluginHandlerDBusService(Object):
 
+    """DBus service for an indirect plugin handler, i.e. `PluginHandlerXEmbedContainer`."""
+
     def __init__(self, plugin_handler, object_path):
         super(PluginHandlerDBusService, self).__init__(object_path)
         self._plugin_handler = plugin_handler

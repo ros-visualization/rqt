@@ -30,7 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, signal, sys
+import os
+import signal
+import sys
 from optparse import OptionGroup, OptionParser
 
 def rosgui_main(argv=None):
@@ -87,27 +89,27 @@ def rosgui_main(argv=None):
         list_options = (options.list_perspectives, options.list_plugins)
         list_options_set = [opt for opt in list_options if opt is not None]
         if len(list_options_set) > 1:
-            raise RuntimeError, 'Only one --list-* option can be used at a time'
+            raise RuntimeError('Only one --list-* option can be used at a time')
 
         command_options = (options.command_start_plugin, options.command_switch_perspective)
         command_options_set = [opt for opt in command_options if opt is not None]
         if len(command_options_set) > 1:
-            raise RuntimeError, 'Only one --command-* option can be used at a time (except --command-pid which is optional)'
+            raise RuntimeError('Only one --command-* option can be used at a time (except --command-pid which is optional)')
         if len(command_options_set) == 0 and options.command_pid is not None:
-            raise RuntimeError, 'Option --command_pid can only be used together with an other --command-* option'
+            raise RuntimeError('Option --command_pid can only be used together with an other --command-* option')
 
         embed_options = (options.embed_plugin, options.embed_plugin_serial, options.embed_plugin_address)
         embed_options_set = [opt for opt in embed_options if opt is not None]
         if len(embed_options_set) > 0 and len(embed_options_set) < len(embed_options):
-            raise RuntimeError, 'Missing option(s) - all \'--embed-*\' options must be set'
+            raise RuntimeError('Missing option(s) - all \'--embed-*\' options must be set')
 
         if len(embed_options_set) > 0 and options.clear_config:
-            raise RuntimeError, 'Option --clear-config can only be used without any --embed-* option'
+            raise RuntimeError('Option --clear-config can only be used without any --embed-* option')
 
         groups = (list_options_set, command_options_set, embed_options_set)
         groups_set = [opt for opt in groups if len(opt) > 0]
         if len(groups_set) > 1:
-            raise RuntimeError, 'Options from different groups (--list, --command, --embed) can not be used together'
+            raise RuntimeError('Options from different groups (--list, --command, --embed) can not be used together')
 
     except RuntimeError, e:
         print e

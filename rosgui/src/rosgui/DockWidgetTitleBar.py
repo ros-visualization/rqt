@@ -36,6 +36,8 @@ from QtGui import QDockWidget, QIcon, QWidget
 
 class DockWidgetTitleBar(QWidget):
 
+    """Title bar for dock widgets providing custom actions."""
+
     def __init__(self, dock_widget):
         super(DockWidgetTitleBar, self).__init__(dock_widget)
 
@@ -59,17 +61,17 @@ class DockWidgetTitleBar(QWidget):
         self.close_button.setText("")
         self.close_button.clicked.connect(self._close_clicked)
 
-        self.float_button.clicked.connect(self.toggle_floating)
-        self.dockable_button.clicked.connect(self.toggle_dockable)
+        self.float_button.clicked.connect(self._toggle_floating)
+        self.dockable_button.clicked.connect(self._toggle_dockable)
 
-        dock_widget.featuresChanged.connect(self.features_changed)
-        self.features_changed()
+        dock_widget.featuresChanged.connect(self._features_changed)
+        self._features_changed()
 
-        self.update_title()
+        self._update_title()
 
         self._close_callbacks = []
         self._event_callbacks = {
-            QEvent.WindowTitleChange: self.update_title,
+            QEvent.WindowTitleChange: self._update_title,
         }
         dock_widget.installEventFilter(self)
 
@@ -111,12 +113,11 @@ class DockWidgetTitleBar(QWidget):
         return QObject.eventFilter(self, obj, event)
 
 
-    def update_title(self, *args):
+    def _update_title(self, *args):
         self.title_label.setText(self.parentWidget().windowTitle())
 
 
-    @Slot(bool)
-    def toggle_dockable(self, enabled):
+    def _toggle_dockable(self, enabled):
         dock_widget = self.parentWidget()
         if enabled:
             dock_widget.setAllowedAreas(Qt.AllDockWidgetAreas)
@@ -124,13 +125,12 @@ class DockWidgetTitleBar(QWidget):
             dock_widget.setAllowedAreas(Qt.NoDockWidgetArea)
 
 
-    @Slot()
-    def toggle_floating(self):
+    def _toggle_floating(self):
         dock_widget = self.parentWidget()
         dock_widget.setFloating(not dock_widget.isFloating())
 
 
-    def features_changed(self, features=None):
+    def _features_changed(self, features=None):
         if features is None:
             features = self.parentWidget().features()
         self.close_button.setVisible(bool(features & QDockWidget.DockWidgetClosable))
@@ -143,7 +143,7 @@ class DockWidgetTitleBar(QWidget):
 
     def restore_settings(self, perspective_settings):
         self.dockable_button.setChecked(perspective_settings.value('dockable', True) in [True, 'true'])
-        self.toggle_dockable(self.dockable_button.isChecked())
+        self._toggle_dockable(self.dockable_button.isChecked())
 
 
 if __name__ == '__main__':

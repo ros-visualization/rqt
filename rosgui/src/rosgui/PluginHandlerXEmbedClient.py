@@ -28,7 +28,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, traceback
+import os
+import traceback
 
 from dbus import Interface
 from dbus.connection import Connection
@@ -38,6 +39,11 @@ from QtGui import QVBoxLayout, QX11EmbedWidget
 from Settings import Settings
 
 class PluginHandlerXEmbedClient(PluginHandlerDirect):
+
+    """
+    Client part of the `PluginHandlerXEmbed`.
+    It utilizes the `PluginHandlerDBusService` of the `PluginHandlerXEmbedContainer` through a peer-to-peer DBus connection.
+    """
 
     def __init__(self, main_window, instance_id, application_context, dbus_object_path):
         super(PluginHandlerXEmbedClient, self).__init__(main_window, instance_id, application_context)

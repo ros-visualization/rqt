@@ -34,6 +34,8 @@ from RosPluginProvider import RosPluginProvider
 
 class RospkgPluginProvider(RosPluginProvider):
 
+    """`RosPluginProvider` using rospkg."""
+
     def __init__(self, export_tag, base_class_type):
         super(RospkgPluginProvider, self).__init__(export_tag, base_class_type)
         self.setObjectName('RospkgPluginProvider')

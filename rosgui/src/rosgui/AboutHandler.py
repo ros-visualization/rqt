@@ -28,7 +28,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os, platform, sys
+import os
+import platform
+import sys
 
 from QtBindingHelper import QT_BINDING, QT_BINDING_VERSION
 from QtCore import QObject, qVersion
@@ -37,6 +39,8 @@ from QtGui import QMessageBox
 from RosPackageHelper import get_package_path
 
 class AboutHandler(QObject):
+
+    """Handler for the about action in the menu bar showing a message box with details on the used libraries and their versions."""
 
     def __init__(self, parent=None):
         super(AboutHandler, self).__init__(parent)
