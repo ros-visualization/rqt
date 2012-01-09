@@ -28,22 +28,26 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PluginHandlerXEmbedClient import PluginHandlerXEmbedClient
-from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
+import QtBindingHelper #@UnusedImport
+from QtGui import QMainWindow
 
-class PluginHandlerXEmbed():
+from DockWidget import DockWidget
 
-    """
-    Handler for forwarding invocations between the framework and one `Plugin` instance via a peer-to-peer DBus connection.
-    The both DBus endpoints are realized by the `PluginHandlerXEmbedContainer` and the `PluginHandlerXEmbedClient`.
-    """
+class DockWidgetContainer(DockWidget):
 
-    def __init__(self, main_window, instance_id, application_context, container_manager):
-        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.tidy_str()
-        if application_context.options.embed_plugin is None:
-            self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, application_context, container_manager, dbus_object_path)
-        else:
-            self._handler = PluginHandlerXEmbedClient(main_window, instance_id, application_context, container_manager, dbus_object_path)
+    """`DockWidget` containing a main window acting as a container for other dock widgets."""
 
-    def __getattr__(self, name):
-        return getattr(self._handler, name)
+    def __init__(self, container_manager, serial_number):
+        super(DockWidgetContainer, self).__init__(container_manager)
+        self._serial_number = serial_number
+
+        self.main_window = QMainWindow()
+        self.main_window.setDockNestingEnabled(True)
+        self.setWidget(self.main_window)
+
+    def serial_number(self):
+        return self._serial_number
+
+    def setObjectName(self, name):
+        super(DockWidget, self).setObjectName(name)
+        self.main_window.setObjectName(name + '__MainWindow')

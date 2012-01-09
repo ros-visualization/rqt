@@ -48,8 +48,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
     _serial_number = 0
 
-    def __init__(self, main_window, instance_id, application_context, dbus_object_path):
-        super(PluginHandlerXEmbedContainer, self).__init__(main_window, instance_id, application_context)
+    def __init__(self, main_window, instance_id, application_context, container_manager, dbus_object_path):
+        super(PluginHandlerXEmbedContainer, self).__init__(main_window, instance_id, application_context, container_manager)
         self.setObjectName('PluginHandlerXEmbedContainer')
 
         self._dbus_object_path = dbus_object_path

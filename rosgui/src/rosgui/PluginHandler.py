@@ -31,9 +31,10 @@
 import traceback
 
 import QtBindingHelper #@UnusedImport
-from QtCore import qCritical, qDebug, QEvent, QObject, Qt, qWarning, Signal, Slot
+from QtCore import qCritical, QObject, Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget
 
+from DockWidget import DockWidget
 from DockWidgetTitleBar import DockWidgetTitleBar
 
 class PluginHandler(QObject):
@@ -47,13 +48,14 @@ class PluginHandler(QObject):
     reload_signal = Signal(str)
     help_signal = Signal(str)
 
-    def __init__(self, main_window, instance_id, application_context):
+    def __init__(self, main_window, instance_id, application_context, container_manager):
         super(PluginHandler, self).__init__()
         self.setObjectName('PluginHandler')
 
         self._main_window = main_window
         self._instance_id = instance_id
         self._application_context = application_context
+        self._container_manager = container_manager
 
         self._plugin_provider = None
         self.__callback = None
@@ -178,13 +180,11 @@ class PluginHandler(QObject):
         for dock_widget in self._widgets.values():
             name = 'dock_widget' + dock_widget.objectName().replace(self._instance_id.tidy_str(), '', 1)
             settings = perspective_settings.get_settings(name)
-            title_bar = dock_widget.titleBarWidget()
-            if hasattr(title_bar, method_name):
-                method = getattr(title_bar, method_name)
-                try:
-                    method(settings)
-                except Exception:
-                    qCritical('PluginHandler._call_method_on_all_dock_widgets(%s) call on DockWidgetTitleBar failed:\n%s' % (method_name, traceback.format_exc()))
+            method = getattr(dock_widget, method_name)
+            try:
+                method(settings)
+            except Exception:
+                qCritical('PluginHandler._call_method_on_all_dock_widgets(%s) failed:\n%s' % (method_name, traceback.format_exc()))
 
 
     def restore_settings(self, global_settings, perspective_settings, callback=None):
@@ -216,7 +216,7 @@ class PluginHandler(QObject):
 
 
     def _create_dock_widget(self):
-        dock_widget = QDockWidget()
+        dock_widget = DockWidget(self._container_manager)
         if self._application_context.options.lock_perspective is not None or self._application_context.options.standalone_plugin is not None:
             # plugins are not closable when perspective is locked or plugins is running standalone
             features = dock_widget.features()
@@ -224,7 +224,7 @@ class PluginHandler(QObject):
         self._update_title_bar(dock_widget)
         return dock_widget
 
-    def _update_title_bar(self, dock_widget):
+    def _update_title_bar(self, dock_widget, hide_help=False, hide_reload=False):
         title_bar = dock_widget.titleBarWidget()
         if title_bar is None:
             title_bar = DockWidgetTitleBar(dock_widget)
@@ -233,7 +233,11 @@ class PluginHandler(QObject):
             # connect extra buttons
             title_bar.connect_close_button(self._close_dock_widget)
             title_bar.connect_button('help', self._emit_help_signal)
+            if hide_help:
+                title_bar.hide_button('help')
             title_bar.connect_button('reload', self._emit_reload_signal)
+            if hide_reload:
+                title_bar.hide_button('reload')
             title_bar.connect_button('configuration', self._trigger_configuration)
             # hide configuration button until existence of feature has been confirmed
             title_bar.hide_button('configuration')
@@ -258,7 +262,7 @@ class PluginHandler(QObject):
     def _add_dock_widget_to_main_window(self, dock_widget):
         if self._main_window is not None:
             # find and remove possible remaining dock_widget with this object name
-            old_dock_widget = self._main_window.findChild(QDockWidget, dock_widget.objectName())
+            old_dock_widget = self._main_window.findChild(DockWidget, dock_widget.objectName())
             if old_dock_widget is not None:
                 qWarning('PluginHandler._add_dock_widget_to_main_window() duplicate object name "%s", removing old dock widget!' % dock_widget.objectName())
                 self._main_window.removeDockWidget(old_dock_widget)
@@ -274,7 +278,7 @@ class PluginHandler(QObject):
     @Slot('QWidget*')
     def remove_widget(self, widget):
         dock_widget = self._widgets[widget]
-        self._remove_dock_widget_from_main_window(dock_widget)
+        self._remove_dock_widget_from_parent(dock_widget)
         # do not delete the widget, only the dock widget
         widget.setParent(None)
         del self._widgets[widget]
@@ -282,9 +286,9 @@ class PluginHandler(QObject):
         if len(self._widgets) == 0:
             self._emit_close_plugin()
 
-    def _remove_dock_widget_from_main_window(self, dock_widget):
+    def _remove_dock_widget_from_parent(self, dock_widget):
         if self._main_window is not None:
-            self._main_window.removeDockWidget(dock_widget)
+            dock_widget.parent().removeDockWidget(dock_widget)
             dock_widget.setParent(None)
             dock_widget.deleteLater()
 

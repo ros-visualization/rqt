@@ -28,22 +28,16 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PluginHandlerXEmbedClient import PluginHandlerXEmbedClient
-from PluginHandlerXEmbedContainer import PluginHandlerXEmbedContainer
+import QtBindingHelper #@UnusedImport
+from QtCore import QEvent
 
-class PluginHandlerXEmbed():
+class ReparentEvent(QEvent):
 
-    """
-    Handler for forwarding invocations between the framework and one `Plugin` instance via a peer-to-peer DBus connection.
-    The both DBus endpoints are realized by the `PluginHandlerXEmbedContainer` and the `PluginHandlerXEmbedClient`.
-    """
+    """Event for reparenting dock widgets to other main windows."""
 
-    def __init__(self, main_window, instance_id, application_context, container_manager):
-        dbus_object_path = '/PluginHandlerXEmbed/plugin/' + instance_id.tidy_str()
-        if application_context.options.embed_plugin is None:
-            self._handler = PluginHandlerXEmbedContainer(main_window, instance_id, application_context, container_manager, dbus_object_path)
-        else:
-            self._handler = PluginHandlerXEmbedClient(main_window, instance_id, application_context, container_manager, dbus_object_path)
+    reparent_event_type = QEvent.registerEventType()
 
-    def __getattr__(self, name):
-        return getattr(self._handler, name)
+    def __init__(self, dock_widget, new_parent):
+        super(ReparentEvent, self).__init__(ReparentEvent.reparent_event_type)
+        self.dock_widget = dock_widget
+        self.new_parent = new_parent

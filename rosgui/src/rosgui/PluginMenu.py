@@ -91,6 +91,15 @@ class PluginMenu(QObject):
         menu_manager.add_item(action)
 
 
+    def add_plugin_prefix(self, plugin_descriptor):
+        action_attributes = plugin_descriptor.action_attributes()
+        action = QAction(action_attributes['label'], self._plugin_menu_manager.menu)
+        self._enrich_action(action, action_attributes)
+        self._plugin_mapper.setMapping(action, plugin_descriptor.plugin_id())
+        action.triggered.connect(self._plugin_mapper.map)
+        self._plugin_menu_manager.add_prefix(action)
+
+
     def add_instance(self, plugin_descriptor, instance_id):
         action_attributes = plugin_descriptor.action_attributes()
         # create action

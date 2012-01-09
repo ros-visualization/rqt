@@ -33,6 +33,8 @@ import traceback
 import QtBindingHelper #@UnusedImport
 from QtCore import qCritical, qDebug, QObject, Qt, Signal, Slot
 
+from ContainerManager import ContainerManager
+from PluginHandlerContainer import PluginHandlerContainer
 from PluginHandlerDirect import PluginHandlerDirect
 from PluginHandlerXEmbed import PluginHandlerXEmbed
 from PluginInstanceId import PluginInstanceId
@@ -61,6 +63,7 @@ class PluginManager(QObject):
         self._application_context = application_context
 
         self._main_window = None
+        self._container_manager = None
         self._plugin_menu = None
 
         self._global_settings = None
@@ -78,6 +81,7 @@ class PluginManager(QObject):
 
     def set_main_window(self, main_window, menu_bar):
         self._main_window = main_window
+        self._container_manager = ContainerManager(self)
         if menu_bar is not None:
             self._plugin_menu = PluginMenu(menu_bar, self)
             self._plugin_menu.load_plugin_signal.connect(self.load_plugin)
@@ -95,6 +99,12 @@ class PluginManager(QObject):
 
             if self._plugin_menu is not None:
                 self._plugin_menu.add_plugin(plugin_descriptor)
+
+        if self._container_manager is not None:
+            descriptor = self._container_manager.get_container_descriptor()
+            self._plugin_descriptors[descriptor.plugin_id()] = descriptor
+            if self._plugin_menu is not None:
+                self._container_manager.add_to_plugin_menu(self._plugin_menu)
 
     def find_plugins_by_name(self, lookup_name):
         plugins = {}
@@ -152,10 +162,12 @@ class PluginManager(QObject):
         if str(instance_id) in self._running_plugins:
             raise Exception('PluginManager._load_plugin(%s) instance already loaded' % str(instance_id))
 
-        if not self._application_context.options.multi_process and not self._application_context.options.embed_plugin:
-            handler = PluginHandlerDirect(self._main_window, instance_id, self._application_context)
+        if self._container_manager is not None and instance_id.plugin_id == self._container_manager.get_container_descriptor().plugin_id():
+            handler = PluginHandlerContainer(self._main_window, instance_id, self._application_context, self._container_manager)
+        elif not self._application_context.options.multi_process and not self._application_context.options.embed_plugin:
+            handler = PluginHandlerDirect(self._main_window, instance_id, self._application_context, self._container_manager)
         else:
-            handler = PluginHandlerXEmbed(self._main_window, instance_id, self._application_context)
+            handler = PluginHandlerXEmbed(self._main_window, instance_id, self._application_context, self._container_manager)
 
         handler.load(self._plugin_provider, callback)
 
