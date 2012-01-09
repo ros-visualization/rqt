@@ -296,9 +296,9 @@ def rosgui_main(argv=None):
         # signal changed plugins to restore window state
         plugin_manager.plugins_changed_signal.connect(main_window.restore_state)
         # signal save settings to store plugin setup on close
-        main_window.save_settings_before_close_signal.connect(plugin_manager.save_settings_before_close)
-        # signal plugin setup saved to trigger closing main window again
-        plugin_manager.save_settings_before_close_completed_signal.connect(main_window.close, type=Qt.QueuedConnection)
+        main_window.save_settings_before_close_signal.connect(plugin_manager.close_application)
+        # signal save and shitdown called for all plugins, trigger closing main window again
+        plugin_manager.close_application_signal.connect(main_window.close, type=Qt.QueuedConnection)
 
     if main_window is not None and menu_bar is not None:
         about_handler = AboutHandler(main_window)

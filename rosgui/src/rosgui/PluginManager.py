@@ -52,7 +52,7 @@ class PluginManager(QObject):
     plugins_changed_signal = Signal()
     plugin_help_signal = Signal(object)
     save_settings_completed_signal = Signal()
-    save_settings_before_close_completed_signal = Signal()
+    close_application_signal = Signal()
     _deferred_reload_plugin_signal = Signal(str)
 
     def __init__(self, plugin_provider, application_context):
@@ -232,7 +232,7 @@ class PluginManager(QObject):
     def unload_plugin(self, instance_id_str):
         # unloading a plugin with locked perspective or running standalone triggers close of application
         if self._application_context.options.lock_perspective is not None or self._application_context.options.standalone_plugin is not None:
-            self.save_settings_before_close_completed_signal.emit()
+            self.close_application_signal.emit()
             return
         instance_id = PluginInstanceId(instance_id=instance_id_str)
         #qDebug('PluginManager.unload_plugin(%s)' % str(instance_id))
@@ -358,13 +358,30 @@ class PluginManager(QObject):
             self.save_settings_completed_signal.emit()
 
 
-    def save_settings_before_close(self, global_settings, perspective_settings):
-        self._save_settings(global_settings, perspective_settings, self._save_settings_before_close_callback)
+    def close_application(self, global_settings, perspective_settings):
+        self._save_settings(global_settings, perspective_settings, self._close_application_save_callback)
 
-    def _save_settings_before_close_callback(self, instance_id=None):
+    def _close_application_save_callback(self, instance_id=None):
         self._save_settings_callback(instance_id)
         if self._number_of_ongoing_calls is None:
-            self.save_settings_before_close_completed_signal.emit()
+            self._close_application_shutdown_plugins()
+
+    def _close_application_shutdown_plugins(self):
+        # trigger async call on all running plugins
+        self._number_of_ongoing_calls = len(self._running_plugins)
+        if self._number_of_ongoing_calls > 0:
+            for info in self._running_plugins.values():
+                self._shutdown_plugin(info['instance_id'], self._close_application_shutdown_callback)
+        else:
+            self._close_application_shutdown_callback()
+
+    def _close_application_shutdown_callback(self, instance_id=None):
+        if instance_id is not None:
+            self._number_of_ongoing_calls = self._number_of_ongoing_calls - 1
+        if self._number_of_ongoing_calls == 0:
+            qDebug('PluginManager.close_application() completed')
+            self._number_of_ongoing_calls = None
+            self.close_application_signal.emit()
 
 
     def restore_settings(self, global_settings, perspective_settings):

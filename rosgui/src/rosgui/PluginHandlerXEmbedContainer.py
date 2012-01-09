@@ -128,7 +128,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
 
     def _shutdown_plugin(self):
-        #qDebug('PluginHandlerXEmbedContainer._shutdown_plugin()')
+        qDebug('PluginHandlerXEmbedContainer._shutdown_plugin()')
         self._process.finished.disconnect(self._emit_close_plugin)
         self._dbus_container_service.shutdown_plugin()
 
@@ -136,16 +136,18 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._dbus_container_service.remove_from_connection()
         self._dbus_global_settings_service.remove_from_connection()
         self._dbus_perspective_settings_service.remove_from_connection()
-        super(PluginHandlerXEmbedContainer, self).emit_shutdown_plugin_completed()
 
-
-    def _unload(self):
-        #qDebug('PluginHandlerXEmbedContainer._unload()')
         self._process.close()
         self._process.waitForFinished(5000)
         if self._process.state() != QProcess.NotRunning:
             self._process.kill()
         self._process = None
+
+        super(PluginHandlerXEmbedContainer, self).emit_shutdown_plugin_completed()
+
+
+    def _unload(self):
+        #qDebug('PluginHandlerXEmbedContainer._unload()')
         self._emit_unload_completed()
 
     def _save_settings(self, global_settings, perspective_settings):
