@@ -169,7 +169,19 @@ class PluginManager(QObject):
         else:
             handler = PluginHandlerXEmbed(self._main_window, instance_id, self._application_context, self._container_manager)
 
+        self._add_running_plugin(instance_id, handler)
         handler.load(self._plugin_provider, callback)
+
+    def _add_running_plugin(self, instance_id, handler):
+        if self._plugin_menu is not None:
+            plugin_descriptor = self._plugin_descriptors[instance_id.plugin_id]
+            self._plugin_menu.add_instance(plugin_descriptor, instance_id)
+
+        info = {
+            'handler': handler,
+            'instance_id': instance_id
+        }
+        self._running_plugins[str(instance_id)] = info
 
     def _load_plugin_restore(self, handler, exception):
         #qDebug('PluginManager._load_plugin_restore()')
@@ -182,6 +194,7 @@ class PluginManager(QObject):
         instance_id = handler.instance_id()
         if exception is not None:
             qCritical('PluginManager._load_plugin() could not load plugin "%s"%s' % (instance_id.plugin_id, (':\n%s' % traceback.format_exc() if exception != True else '')))
+            self._remove_running_plugin(instance_id)
             # quit embed application
             if self._application_context.options.embed_plugin:
                 exit(-1)
@@ -193,24 +206,10 @@ class PluginManager(QObject):
         handler.reload_signal.connect(self.reload_plugin)
         handler.help_signal.connect(self._emit_plugin_help_signal)
 
-        # set plugin instance for custom titlebar callbacks
-        self._add_running_plugin(instance_id, handler)
-
     def _emit_plugin_help_signal(self, instance_id_str):
         instance_id = PluginInstanceId(instance_id=instance_id_str)
         plugin_descriptor = self._plugin_descriptors[instance_id.plugin_id]
         self.plugin_help_signal.emit(plugin_descriptor)
-
-    def _add_running_plugin(self, instance_id, handler):
-        if self._plugin_menu is not None:
-            plugin_descriptor = self._plugin_descriptors[instance_id.plugin_id]
-            self._plugin_menu.add_instance(plugin_descriptor, instance_id)
-
-        info = {
-            'handler': handler,
-            'instance_id': instance_id
-        }
-        self._running_plugins[str(instance_id)] = info
 
     def _restore_plugin_settings(self, instance_id, callback):
         if self._global_settings is not None and self._perspective_settings is not None:

@@ -354,13 +354,7 @@ def rosgui_main(argv=None):
     if main_window is not None:
         main_window.show()
 
-    exit_code = app.exec_()
-
-    # explicitly sync settings to file before exiting
-    if settings is not None:
-        settings.sync()
-
-    return exit_code
+    return app.exec_()
 
 
 def rosgui_main_filename():

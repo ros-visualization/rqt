@@ -61,7 +61,6 @@ class PluginHandlerContainer(PluginHandler):
 
 
     def _unload(self):
-        self._container.parent().removeDockWidget(self._container)
         self._container.deleteLater()
         self._container = None
         self._emit_unload_completed()

@@ -102,7 +102,7 @@ class DockWidget(QDockWidget):
         serial_number = perspective_settings.value('parent', None)
         if serial_number is not None:
             serial_number = int(serial_number)
-        if self._parent_container_serial_number() != serial_number:
+        if self._parent_container_serial_number() != serial_number and self._container_manager is not None:
             new_parent = self._container_manager.get_container(serial_number)
             area = self.parent().dockWidgetArea(self)
             if new_parent is not None:
