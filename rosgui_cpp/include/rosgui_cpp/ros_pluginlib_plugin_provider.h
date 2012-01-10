@@ -52,7 +52,7 @@
 #include <string>
 #include <vector>
 
-//#define USE_PATCHED_PLUGINLIB
+#define USE_PATCHED_PLUGINLIB
 
 namespace rosgui_cpp
 {
