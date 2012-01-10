@@ -11,6 +11,9 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui</url>
 
+  <depend package="rosgui_pyqt"/>
+  <depend package="rosgui_pyside"/>
+
 </package>
 
 
