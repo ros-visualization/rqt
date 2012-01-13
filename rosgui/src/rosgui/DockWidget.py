@@ -108,7 +108,7 @@ class DockWidget(QDockWidget):
             if new_parent is not None:
                 new_parent.main_window.addDockWidget(area, self)
             else:
-                self._main_window.addDockWidget(area, self)
+                self._container_manager.get_root_main_window.addDockWidget(area, self)
 
         title_bar = self.titleBarWidget()
         title_bar.restore_settings(perspective_settings)

@@ -55,7 +55,7 @@ class PluginHandlerContainer(PluginHandler):
 
 
     def _shutdown_plugin(self):
-        self._container_manager.reparent_dock_widget_children(self._container.main_window, self._container.parent())
+        self._container_manager.move_container_children_to_parent(self._container)
         self._container_manager.remove_container(self._container)
         self.emit_shutdown_plugin_completed()
 
