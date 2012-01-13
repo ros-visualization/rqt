@@ -48,13 +48,13 @@ class DockWidget(QDockWidget):
     def _event(self, e):
         if not self._dragging and e.type() == QEvent.Move and QApplication.mouseButtons() & Qt.LeftButton:
             if QApplication.widgetAt(e.pos()) is not None:
-                #print 'DockWidget.event()', 'start drag', self.windowTitle(), e.pos()
+                #print 'DockWidget._event()', 'start drag', self.windowTitle(), e.pos()
                 self._dragging = True
                 # ignore further mouse events so that the widget behind this dock widget can be determined easily
                 self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
         if self._dragging and e.type() == QEvent.MouseButtonRelease and e.button() == Qt.LeftButton:
-            #print 'DockWidget.event()', 'stop drag', self.windowTitle(), e.globalPos()
+            #print 'DockWidget._event()', 'stop drag', self.windowTitle(), e.globalPos()
             self._dragging = False
             self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
 
@@ -65,7 +65,7 @@ class DockWidget(QDockWidget):
                 if isinstance(widget, QMainWindow):
                     break
                 widget = widget.parent()
-            child = self.main_window if hasattr(self, 'main_window') else None
+            child = getattr(self, 'main_window', None)
             if widget is not None and widget != self.parent() and (child is None or widget != child):
                 # while moving over an other main window
                 #print 'DockWidget._event()', 'MouseMove', 'reparent while dragging'
@@ -104,11 +104,10 @@ class DockWidget(QDockWidget):
             serial_number = int(serial_number)
         if self._parent_container_serial_number() != serial_number and self._container_manager is not None:
             new_parent = self._container_manager.get_container(serial_number)
+            if new_parent is None:
+                new_parent = self._container_manager.get_root_main_window()
             area = self.parent().dockWidgetArea(self)
-            if new_parent is not None:
-                new_parent.main_window.addDockWidget(area, self)
-            else:
-                self._container_manager.get_root_main_window.addDockWidget(area, self)
+            new_parent.main_window.addDockWidget(area, self)
 
         title_bar = self.titleBarWidget()
         title_bar.restore_settings(perspective_settings)
