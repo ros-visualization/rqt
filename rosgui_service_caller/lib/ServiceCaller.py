@@ -86,8 +86,11 @@ class ServiceCaller(QWidget):
         service_names = rosservice.get_service_list()
         self._services = {}
         for service_name in service_names:
-            self._services[service_name] = rosservice.get_service_class_by_name(service_name)
-            #qDebug('ServiceCaller.on_refresh_services_button_clicked(): found service %s using class %s' % (service_name, self._services[service_name]))
+            try:
+                self._services[service_name] = rosservice.get_service_class_by_name(service_name)
+                #qDebug('ServiceCaller.on_refresh_services_button_clicked(): found service %s using class %s' % (service_name, self._services[service_name]))
+            except (rosservice.ROSServiceException, rosservice.ROSServiceIOException), e:
+                qWarning('ServiceCaller.on_refresh_services_button_clicked(): could not get class of service %s:\n%s' % (service_name, e))
 
         self.service_combo_box.clear()
         self.service_combo_box.addItems(sorted(service_names))
