@@ -1,7 +1,7 @@
 <package>
   <description brief="Plugin for plotting numeric values">
 
-     rosgui_plot provides a rosgui plugin for visualizing numeric values in a 2D plot.
+     rosgui_plot provides a rosgui plugin for visualizing numeric values in a 2D plot using PyQwt5.
 
   </description>
   <author>Dorian Scholz</author>
