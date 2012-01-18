@@ -61,7 +61,7 @@ def select_qt_binding(binding_name=None):
 
 def pyqt():
     # set enviroment variable QT_API for matplotlib
-    os.environ.set('QT_API', 'pyqt')
+    os.environ['QT_API'] = 'pyqt'
 
     # select PyQt4 API, see http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/incompatible_apis.html
     import sip
