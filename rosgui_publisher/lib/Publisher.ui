@@ -182,12 +182,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </item>
    <item>
-    <widget class="QTreeWidget" name="publishers_tree_widget">
+    <widget class="PublisherTreeWidget" name="publisher_tree_widget">
      <property name="contextMenuPolicy">
       <enum>Qt::CustomContextMenu</enum>
      </property>
      <property name="toolTip">
-      <string>Right click on item for more options.</string>
+      <string>Right click on item or selection for more options.</string>
      </property>
      <property name="dragEnabled">
       <bool>true</bool>
@@ -201,31 +201,6 @@
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Topic</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Type</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Hz</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Enabled</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Expression</string>
-      </property>
-     </column>
     </widget>
    </item>
   </layout>
@@ -235,6 +210,11 @@
    <class>ExtendedComboBox</class>
    <extends>QComboBox</extends>
    <header>ExtendedComboBox</header>
+  </customwidget>
+  <customwidget>
+   <class>PublisherTreeWidget</class>
+   <extends>QTreeView</extends>
+   <header>PublisherTreeWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

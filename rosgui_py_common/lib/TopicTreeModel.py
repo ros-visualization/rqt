@@ -44,7 +44,3 @@ class TopicTreeModel(MessageTreeModel.MessageTreeModel):
             topic_name = topic_path.strip('/')
             message_instance = roslib.message.get_message_class(topic_type)()
             self.add_message(message_instance, topic_name, topic_type, topic_path)
-
-
-    def _get_data_for_path(self, slot_name, slot_type, slot_path):
-        return (slot_name, slot_type, slot_path)
