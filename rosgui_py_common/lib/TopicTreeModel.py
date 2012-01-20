@@ -39,6 +39,11 @@ class TopicTreeModel(MessageTreeModel.MessageTreeModel):
 
     def __init__(self, parent=None):
         super(TopicTreeModel, self).__init__(parent, ['Slot', 'Type', 'Path'])
+        self.refresh()
+
+
+    def refresh(self):
+        self.clear()
         topic_list = rospy.get_published_topics()
         for topic_path, topic_type in topic_list:
             topic_name = topic_path.strip('/')

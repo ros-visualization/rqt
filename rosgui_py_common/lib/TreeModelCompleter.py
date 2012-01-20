@@ -47,10 +47,4 @@ class TreeModelCompleter(QCompleter):
 
 
     def pathFromIndex(self, index):
-        item = self.model().nodeFromIndex(index)
-        path_list = []
-        while item.parent() is not None:
-            path_list.insert(0, item.data(0))
-            item = item.parent()
-        path = self.separator + self.separator.join(path_list)
-        return path
+        return self.model().itemFromIndex(index)._path

@@ -39,11 +39,11 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
     def __init__(self, parent=None):
         super(TopicCompleter, self).__init__(parent)
-        self.update_topics()
+        self.setModel(TopicTreeModel.TopicTreeModel())
 
 
     def update_topics(self):
-        self.setModel(TopicTreeModel.TopicTreeModel())
+        self.model().refresh()
 
 
 if __name__ == '__main__':
