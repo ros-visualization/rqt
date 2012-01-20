@@ -97,7 +97,21 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
         self._item_change_lock.release()
 
 
-    def add_publisher(self, publisher_info):
+    def remove_publisher(self, publisher_id):
+        for top_level_row_number in range(self.rowCount()):
+            item = self.item(top_level_row_number)
+            if item is not None and item._user_data['publisher_id'] == publisher_id:
+                self.removeRow(top_level_row_number)
+                return top_level_row_number
+        return None
+
+
+    def update_publisher(self, publisher_info):
+        top_level_row_number = self.remove_publisher(publisher_info['publisher_id'])
+        self.add_publisher(publisher_info, top_level_row_number)
+
+
+    def add_publisher(self, publisher_info, top_level_row_number=None):
         # recursively create widget items for the message's slots
         parent = self
         slot = publisher_info['message_instance']
@@ -105,7 +119,12 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
         slot_type_name = publisher_info['message_instance']._type
         slot_path = publisher_info['topic_name']
         user_data = {'publisher_id': publisher_info['publisher_id']}
-        top_level_row = self._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, user_data=user_data, expressions=publisher_info['expressions'])
+        kwargs = {
+            'user_data': user_data,
+            'top_level_row_number': top_level_row_number,
+            'expressions': publisher_info['expressions'],
+        }
+        top_level_row = self._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, **kwargs)
 
         # fill tree widget columns of top level item
         top_level_row[self._column_index['enabled']].setText(str(publisher_info['enabled']))
@@ -116,8 +135,8 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
         return (slot_name, slot_type_name, '', '', '')
 
 
-    def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, user_data={}, expressions={}):
-        row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, user_data=user_data, expressions=expressions)
+    def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, expressions={}, **kwargs):
+        row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, expressions=expressions, **kwargs)
         if is_leaf_node:
             expression_text = expressions.get(slot_path, repr(slot))
             row[self._column_index['expression']].setText(expression_text)

@@ -155,7 +155,7 @@ class Publisher(QObject):
             parent_slot._slot_types[slot_index] = type_name
             setattr(parent_slot, slot_name, slot_value)
 
-            self._widget.publisher_tree_widget.model().add_publisher(publisher_info)
+            self._widget.publisher_tree_widget.model().update_publisher(publisher_info)
 
 
     def _change_publisher_rate(self, publisher_info, topic_name, new_value):

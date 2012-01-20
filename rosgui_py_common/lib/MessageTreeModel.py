@@ -7,8 +7,9 @@ class MessageTreeModel(QStandardItemModel):
     def __init__(self, parent=None):
         qDebug('MessageTreeModel: %s' % MessageTreeModel)
         qDebug('self: %s' % self)
-        QStandardItemModel.__init__(self, parent)
+        # FIXME: why is this not working? should be the same as the following line...
         #super(MessageTreeModel, self).__init__(parent)
+        QStandardItemModel.__init__(self, parent)
 
 
     def add_message(self, message_instance, message_name='', message_type='', message_path=''):
@@ -46,5 +47,9 @@ class MessageTreeModel(QStandardItemModel):
         else:
             is_leaf_node = True
 
-        parent.appendRow(row)
+        if parent is self and kwargs.get('top_level_row_number', None) is not None:
+            parent.insertRow(kwargs['top_level_row_number'], row)
+        else:
+            parent.appendRow(row)
+
         return (row, is_leaf_node)
