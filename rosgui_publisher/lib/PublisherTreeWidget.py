@@ -57,15 +57,6 @@ class PublisherTreeWidget(QTreeView):
         self.customContextMenuRequested.connect(self.handle_customContextMenuRequested)
 
 
-    def add_publisher(self, publisher_info):
-        # recursively create widget items for the message's slots 
-        top_level_items = self.model()._recursive_create_items(None, publisher_info['topic_name'], publisher_info['message_instance']._type, publisher_info['message_instance'], publisher_info['publisher_id'], publisher_info['expressions'])
-
-        # fill tree widget columns of top level item
-        top_level_items['enabled'].setText(str(publisher_info['enabled']))
-        top_level_items['rate'].setText(str(publisher_info['rate']))
-
-
     @Slot()
     def remove_selected_publishers(self):
         publisher_ids = self.model().get_publisher_ids(self.selectedIndexes())
@@ -79,14 +70,15 @@ class PublisherTreeWidget(QTreeView):
         if not index.isValid():
             return
 
-        topic_name = self.model().data(index, self.model().topic_name_role)
-        if topic_name is None:
-            qDebug('PublisherTreeWidget.startDrag(): no topic_name set')
+        item = self.model().itemFromIndex(index)
+        path = getattr(item, '_path', None)
+        if path is None:
+            qDebug('PublisherTreeWidget.startDrag(): no _path set on item %s' % item)
             return
-        #qDebug('PublisherTreeWidget.startDrag(): %s' % topic_name)
+        #qDebug('PublisherTreeWidget.startDrag(): %s' % item._path)
 
         data = QMimeData()
-        data.setText(topic_name)
+        data.setText(item._path)
 
         drag = QDrag(self)
         drag.setMimeData(data)

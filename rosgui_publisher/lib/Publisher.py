@@ -110,7 +110,7 @@ class Publisher(QObject):
         if publisher_info['enabled'] and publisher_info['rate'] > 0:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
 
-        self._widget.publisher_tree_widget.add_publisher(publisher_info)
+        self._widget.publisher_tree_widget.model().add_publisher(publisher_info)
 
 
     @Slot(int, str, str, str, object)
@@ -155,7 +155,7 @@ class Publisher(QObject):
             parent_slot._slot_types[slot_index] = type_name
             setattr(parent_slot, slot_name, slot_value)
 
-            self._widget.publisher_tree_widget.add_publisher(publisher_info)
+            self._widget.publisher_tree_widget.model().add_publisher(publisher_info)
 
 
     def _change_publisher_rate(self, publisher_info, topic_name, new_value):
@@ -271,18 +271,20 @@ class Publisher(QObject):
 
     @Slot(int)
     def publish_once(self, publisher_id):
-        publisher_info = self._publishers[publisher_id]
-        publisher_info['counter'] += 1
-        self._fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
-        publisher_info['publisher'].publish(publisher_info['message_instance'])
+        publisher_info = self._publishers.get(publisher_id, None)
+        if publisher_info is not None:
+            publisher_info['counter'] += 1
+            self._fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
+            publisher_info['publisher'].publish(publisher_info['message_instance'])
 
 
     @Slot(int)
     def remove_publisher(self, publisher_id):
-        publisher_info = self._publishers[publisher_id]
-        publisher_info['timer'].stop()
-        publisher_info['publisher'].unregister()
-        del self._publishers[publisher_id]
+        publisher_info = self._publishers.get(publisher_id, None)
+        if publisher_info is not None:
+            publisher_info['timer'].stop()
+            publisher_info['publisher'].unregister()
+            del self._publishers[publisher_id]
 
 
     def save_settings(self, global_settings, perspective_settings):

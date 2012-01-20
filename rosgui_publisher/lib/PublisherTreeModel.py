@@ -45,7 +45,6 @@ reload(MessageTreeModel) # force reload to update on changes during runtime
 class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
     _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
     item_value_changed = Signal(int, str, str, str, object)
-    topic_name_role = Qt.UserRole
 
     def __init__(self, parent=None):
         super(PublisherTreeModel, self).__init__(parent, self._column_names)
@@ -74,7 +73,7 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
 
 
     def get_publisher_ids(self, index_list):
-        return [item.publisher_id for item in self._get_toplevel_items(index_list)]
+        return [item._user_data['publisher_id'] for item in self._get_toplevel_items(index_list)]
 
 
     def remove_items_with_parents(self, index_list):
@@ -87,49 +86,39 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
             #qDebug('PublisherTreeModel.handle_item_changed(): could not acquire lock')
             return
         # lock has been acquired
-        topic_name = item.data(self.topic_name_role)
+        topic_name = item._path
         column_name = self._column_names[item.column()]
         new_value = item.text().strip()
         #qDebug('PublisherTreeModel.handle_item_changed(): %s, %s, %s' % (topic_name, column_name, new_value))
 
-        self.item_value_changed.emit(item.publisher_id, topic_name, column_name, new_value, item.setText)
+        self.item_value_changed.emit(item._user_data['publisher_id'], topic_name, column_name, new_value, item.setText)
 
         # release lock
         self._item_change_lock.release()
 
 
-    def _recursive_create_items(self, parent, topic_name, type_name, message, publisher_id, expressions):
-        if parent is None:
-            parent = self
-            # show full topic name with preceding namespace on toplevel item
-            topic_text = topic_name
-        else:
-            topic_text = topic_name.split('/')[-1]
-            if '[' in topic_text:
-                topic_text = topic_text[topic_text.index('['):]
+    def add_publisher(self, publisher_info):
+        # recursively create widget items for the message's slots
+        parent = self
+        slot = publisher_info['message_instance']
+        slot_name = publisher_info['topic_name']
+        slot_type_name = publisher_info['message_instance']._type
+        slot_path = publisher_info['topic_name']
+        user_data = {'publisher_id': publisher_info['publisher_id']}
+        top_level_row = self._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, user_data=user_data, expressions=publisher_info['expressions'])
 
-        items = dict((name, QStandardItem()) for name in self._column_names)
-        for item in items.values():
-            item.publisher_id = publisher_id
-            item.setData(topic_name, self.topic_name_role)
+        # fill tree widget columns of top level item
+        top_level_row[self._column_index['enabled']].setText(str(publisher_info['enabled']))
+        top_level_row[self._column_index['rate']].setText(str(publisher_info['rate']))
 
-        items['topic'].setText(topic_text)
-        items['type'].setText(type_name)
 
-        if hasattr(message, '__slots__') and hasattr(message, '_slot_types'):
-            for slot_name, type_name in zip(message.__slots__, message._slot_types):
-                self._recursive_create_items(items['topic'], topic_name + '/' + slot_name, type_name, getattr(message, slot_name), publisher_id, expressions)
+    def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
+        return (slot_name, slot_type_name, '', '', '')
 
-        elif type(message) in (list, tuple) and (len(message) > 0) and hasattr(message[0], '__slots__'):
-            type_name = type_name.split('[', 1)[0]
-            for index, slot in enumerate(message):
-                self._recursive_create_items(items['topic'], topic_name + '[%d]' % index, type_name, slot, publisher_id, expressions)
 
-        else:
-            if topic_name in expressions:
-                items['expression'].setText(expressions[topic_name])
-            elif not hasattr(message, '__slots__'):
-                items['expression'].setText(repr(message))
-
-        parent.appendRow([items[name] for name in self._column_names])
-        return items
+    def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, user_data={}, expressions={}):
+        row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, user_data=user_data, expressions=expressions)
+        if is_leaf_node:
+            expression_text = expressions.get(slot_path, repr(slot))
+            row[self._column_index['expression']].setText(expression_text)
+        return row
