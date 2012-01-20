@@ -38,7 +38,7 @@ reload(MessageTreeModel) # force reload to update on changes during runtime
 class TopicTreeModel(MessageTreeModel.MessageTreeModel):
 
     def __init__(self, parent=None):
-        super(TopicTreeModel, self).__init__(parent, ['Slot', 'Type', 'Path'])
+        super(TopicTreeModel, self).__init__(parent)
         self.refresh()
 
 

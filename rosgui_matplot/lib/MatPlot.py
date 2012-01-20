@@ -44,7 +44,8 @@ from rostopic import get_topic_type
 
 import MatDataPlot
 reload(MatDataPlot)
-from TopicCompleter import TopicCompleter
+import TopicCompleter
+reload(TopicCompleter)
 
 # main class inherits from the ui window class
 class MatPlot(QWidget):
@@ -61,7 +62,7 @@ class MatPlot(QWidget):
 
         self.subscribe_topic_button.setEnabled(False)
 
-        self._topic_completer = TopicCompleter(self.topic_edit)
+        self._topic_completer = TopicCompleter.TopicCompleter(self.topic_edit)
         self.topic_edit.setCompleter(self._topic_completer)
 
         self._start_time = rospy.get_time()

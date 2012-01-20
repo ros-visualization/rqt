@@ -47,7 +47,7 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
     item_value_changed = Signal(int, str, str, str, object)
 
     def __init__(self, parent=None):
-        super(PublisherTreeModel, self).__init__(parent, self._column_names)
+        super(PublisherTreeModel, self).__init__(parent)
         self._column_index = {}
         for column_name in self._column_names:
             self._column_index[column_name] = len(self._column_index)

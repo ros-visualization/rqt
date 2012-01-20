@@ -263,7 +263,7 @@ class PoseViewWidget(QWidget):
 
 
     def subscribe_topic(self, topic_name):
-        print 'subscribing:', topic_name
+        qDebug('subscribing: %s' % topic_name)
         msg_class, self._topic_name, _ = get_topic_class(topic_name)
         self._subscriber = rospy.Subscriber(self._topic_name, msg_class, self.message_callback)
 

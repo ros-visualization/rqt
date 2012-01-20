@@ -1,11 +1,14 @@
 import rosgui.QtBindingHelper #@UnusedImport
+from QtCore import qDebug
 from QtGui import QStandardItem, QStandardItemModel
 
 class MessageTreeModel(QStandardItemModel):
 
-    def __init__(self, parent=None, column_names=None):
-        super(MessageTreeModel, self).__init__(parent)
-        self._column_names = column_names or []
+    def __init__(self, parent=None):
+        qDebug('MessageTreeModel: %s' % MessageTreeModel)
+        qDebug('self: %s' % self)
+        QStandardItemModel.__init__(self, parent)
+        #super(MessageTreeModel, self).__init__(parent)
 
 
     def add_message(self, message_instance, message_name='', message_type='', message_path=''):
