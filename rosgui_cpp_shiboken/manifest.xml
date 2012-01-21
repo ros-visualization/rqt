@@ -9,6 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_cpp_shiboken</url>
 
+  <depend package="python_qt_binding"/>
   <depend package="rosgui_pyside"/>
   <depend package="rosgui_cpp"/>
 

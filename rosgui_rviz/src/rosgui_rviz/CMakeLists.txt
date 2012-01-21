@@ -17,7 +17,7 @@ set(rosgui_rviz_INCLUDE_DIRECTORIES
 qt4_wrap_cpp(rosgui_rviz_MOCS ${rosgui_rviz_HDRS})
 
 string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp)/include(;[^;]*)*$" "\\2" rosgui_cpp_SOURCE_DIR "${rosgui_rviz_INCLUDE_DIRS}")
-include(${rosgui_cpp_SOURCE_DIR}/hide_plugin_symbols.cmake)
+include(${rosgui_cpp_SOURCE_DIR}/cmake/hide_plugin_symbols.cmake)
 rosgui_cpp__hide_plugin_symbols(rosgui_rviz RViz)
 
 include_directories(${PROJECT_NAME} ${rosgui_rviz_INCLUDE_DIRECTORIES})
