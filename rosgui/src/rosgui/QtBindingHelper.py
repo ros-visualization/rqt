@@ -30,21 +30,4 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import python_qt_binding.QtBindingHelper
-_helper = python_qt_binding.QtBindingHelper
-
-def select_qt_binding(binding_name=None):
-    _helper.select_qt_binding(binding_name)
-
-def pyqt():
-    return _helper.pyqt()
-
-def pyside():
-    return _helper.pyside()
-
-def loadUi(uifile, baseinstance=None, custom_widgets=None):
-    return _helper.loadUi(uifile, baseinstance, custom_widgets)
-
-QT_BINDING = _helper.QT_BINDING
-QT_BINDING_VERSION = _helper.QT_BINDING_VERSION
-
+from python_qt_binding.QtBindingHelper import loadUi, QT_BINDING, QT_BINDING_VERSION
