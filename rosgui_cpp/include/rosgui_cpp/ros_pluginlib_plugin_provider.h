@@ -191,7 +191,7 @@ public:
     T* instance = 0;
     try
     {
-      instance = class_loader_->createClassInstance(lookup_name);
+      instance = create_plugin(lookup_name, plugin_context);
     }
     catch (pluginlib::PluginlibException& e)
     {
@@ -243,6 +243,11 @@ public:
   }
 
 protected:
+
+  virtual T* create_plugin(const std::string& lookup_name, PluginContext* plugin_context = 0)
+  {
+    return class_loader_->createClassInstance(lookup_name);
+  }
 
   virtual void init_plugin(const QString& /*plugin_id*/, PluginContext* plugin_context, Plugin* plugin)
   {

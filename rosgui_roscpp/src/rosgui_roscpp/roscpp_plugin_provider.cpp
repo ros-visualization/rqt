@@ -50,22 +50,15 @@ namespace rosgui_roscpp {
 
 RosCppPluginProvider::RosCppPluginProvider()
   : rosgui_cpp::CompositePluginProvider()
-  , manager_name_("rosgui_roscpp_node")
-  , callback_manager_(0)
   , node_initialized_(false)
 {
   QList<PluginProvider*> plugin_providers;
-  plugin_providers.append(new NodeletPluginProvider("rosgui", "rosgui_roscpp::Plugin", this));
+  plugin_providers.append(new NodeletPluginProvider("rosgui", "rosgui_roscpp::Plugin"));
   set_plugin_providers(plugin_providers);
 }
 
 RosCppPluginProvider::~RosCppPluginProvider()
 {
-  if (callback_manager_)
-  {
-    delete callback_manager_;
-  }
-
   if (ros::isStarted())
   {
     ros::shutdown();
@@ -86,7 +79,7 @@ rosgui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, 
 
 void RosCppPluginProvider::init_node()
 {
-  // initialize ROS nodelet manager once
+  // initialize ROS node once
   if (!node_initialized_)
   {
     int argc = 0;
@@ -101,8 +94,6 @@ void RosCppPluginProvider::init_node()
       throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
     }
     ros::start();
-    callback_manager_ = new nodelet::detail::CallbackQueueManager();
-    ros::NodeHandle nh(manager_name_);
     node_initialized_ = true;
   }
 }

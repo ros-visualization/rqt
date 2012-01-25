@@ -34,16 +34,77 @@
 
 #include "roscpp_plugin_provider.h"
 
-#include <nodelet/nodelet.h>
-
 #include <stdexcept>
 
 namespace rosgui_roscpp {
 
-NodeletPluginProvider::NodeletPluginProvider(const QString& export_tag, const QString& base_class_type, RosCppPluginProvider* manager)
+NodeletPluginProvider::NodeletPluginProvider(const QString& export_tag, const QString& base_class_type)
   : rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>(export_tag, base_class_type)
-  , manager_(manager)
+  , loader_(0)
 {}
+
+NodeletPluginProvider::~NodeletPluginProvider()
+{
+  if (loader_)
+  {
+    delete loader_;
+  }
+}
+
+void NodeletPluginProvider::unload(void* instance)
+{
+  //qDebug("NodeletPluginProvider::unload()");
+  if (!instances_.contains(instance))
+  {
+    qCritical("NodeletPluginProvider::unload() instance not found");
+    return;
+  }
+
+  QString bond_id = instances_[instance];
+  bool unloaded = loader_->unload(bond_id.toStdString());
+  if (!unloaded)
+  {
+    qCritical("NodeletPluginProvider::unload() '%s' failed", bond_id.toStdString().c_str());
+  }
+
+  rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>::unload(instance);
+}
+
+void NodeletPluginProvider::init_loader()
+{
+  // initialize nodelet Loader once
+  if (loader_ == 0)
+  {
+    loader_ = new nodelet::Loader(boost::bind(&NodeletPluginProvider::create_instance, this, _1));
+  }
+}
+
+Plugin* NodeletPluginProvider::create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context)
+{
+  init_loader();
+
+  nodelet::M_string remappings;
+  nodelet::V_string my_argv;
+  std::string bond_id = lookup_name + "_" + QString::number(plugin_context->serial_number()).toStdString();
+  boost::shared_ptr<bond::Bond> bond(new bond::Bond("rosgui_roscpp_node/bond", bond_id));
+  instance_ = 0;
+  //qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
+  bool loaded = loader_->load(bond_id, lookup_name, remappings, my_argv, bond);
+  if (loaded)
+  {
+    //qDebug("NodeletPluginProvider::create_plugin() loaded");
+    instances_[instance_] = bond_id.c_str();
+  }
+  rosgui_roscpp::Plugin* instance = instance_;
+  instance_ = 0;
+  return instance;
+}
+
+nodelet::Nodelet* NodeletPluginProvider::create_instance(const std::string& lookup_name)
+{
+  instance_ = rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>::create_plugin(lookup_name);
+  return instance_;
+}
 
 void NodeletPluginProvider::init_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context, rosgui_cpp::Plugin* plugin)
 {
@@ -54,12 +115,6 @@ void NodeletPluginProvider::init_plugin(const QString& plugin_id, rosgui_cpp::Pl
   {
     throw std::runtime_error("plugin is not a nodelet");
   }
-
-  nodelet::M_string remappings;
-  nodelet::V_string my_argv;
-  std::string bond_id = plugin_id.toStdString() + "_" + QString::number(plugin_context->serial_number()).toStdString();
-  boost::shared_ptr<bond::Bond> bond(new bond::Bond(manager_->manager_name_ + "/bond", bond_id));
-  nodelet->init(bond_id, remappings, my_argv, manager_->callback_manager_, bond);
 
   rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>::init_plugin(plugin_id, plugin_context, plugin);
 }

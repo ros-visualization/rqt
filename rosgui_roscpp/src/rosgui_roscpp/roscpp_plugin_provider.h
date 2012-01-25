@@ -35,8 +35,6 @@
 
 #include <rosgui_cpp/composite_plugin_provider.h>
 
-#include <nodelet/detail/callback_queue_manager.h>
-
 #include <string>
 
 namespace rosgui_roscpp {
@@ -54,10 +52,6 @@ public:
   virtual void* load(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context);
 
   virtual rosgui_cpp::Plugin* load_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context);
-
-  std::string manager_name_;
-
-  nodelet::detail::CallbackQueueManager* callback_manager_;
 
 protected:
 

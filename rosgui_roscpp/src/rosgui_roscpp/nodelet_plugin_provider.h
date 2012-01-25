@@ -37,6 +37,9 @@
 
 #include <rosgui_roscpp/plugin.h>
 
+#include <nodelet/loader.h>
+#include <nodelet/nodelet.h>
+
 #include <string>
 
 namespace rosgui_roscpp {
@@ -49,13 +52,27 @@ class NodeletPluginProvider
 
 public:
 
-  NodeletPluginProvider(const QString& export_tag, const QString& base_class_type, RosCppPluginProvider* manager);
+  NodeletPluginProvider(const QString& export_tag, const QString& base_class_type);
+
+  virtual ~NodeletPluginProvider();
+
+  virtual void unload(void* instance);
 
 protected:
 
+  void init_loader();
+
+  virtual Plugin* create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context);
+
+  virtual nodelet::Nodelet* create_instance(const std::string& lookup_name);
+
   virtual void init_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context, rosgui_cpp::Plugin* plugin);
 
-  RosCppPluginProvider* manager_;
+  nodelet::Loader* loader_;
+
+  rosgui_roscpp::Plugin* instance_;
+
+  QMap<void*, QString> instances_;
 
 };
 
