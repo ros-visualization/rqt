@@ -35,6 +35,7 @@
 #include "roscpp_plugin_provider.h"
 
 #include <stdexcept>
+#include <boost/bind.hpp>
 
 namespace rosgui_roscpp {
 
@@ -60,11 +61,11 @@ void NodeletPluginProvider::unload(void* instance)
     return;
   }
 
-  QString bond_id = instances_[instance];
-  bool unloaded = loader_->unload(bond_id.toStdString());
+  QString nodelet_name = instances_[instance];
+  bool unloaded = loader_->unload(nodelet_name.toStdString());
   if (!unloaded)
   {
-    qCritical("NodeletPluginProvider::unload() '%s' failed", bond_id.toStdString().c_str());
+    qCritical("NodeletPluginProvider::unload() '%s' failed", nodelet_name.toStdString().c_str());
   }
 
   rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>::unload(instance);
@@ -85,15 +86,14 @@ Plugin* NodeletPluginProvider::create_plugin(const std::string& lookup_name, ros
 
   nodelet::M_string remappings;
   nodelet::V_string my_argv;
-  std::string bond_id = lookup_name + "_" + QString::number(plugin_context->serial_number()).toStdString();
-  boost::shared_ptr<bond::Bond> bond(new bond::Bond("rosgui_roscpp_node/bond", bond_id));
+  std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serial_number()).toStdString();
   instance_ = 0;
   //qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
-  bool loaded = loader_->load(bond_id, lookup_name, remappings, my_argv, bond);
+  bool loaded = loader_->load(nodelet_name, lookup_name, remappings, my_argv);
   if (loaded)
   {
     //qDebug("NodeletPluginProvider::create_plugin() loaded");
-    instances_[instance_] = bond_id.c_str();
+    instances_[instance_] = nodelet_name.c_str();
   }
   rosgui_roscpp::Plugin* instance = instance_;
   instance_ = 0;
