@@ -77,13 +77,13 @@ class Publisher(QObject):
         context.add_widget(self._widget)
 
 
-    @Slot(dict)
+    @Slot(str, str, float, bool)
     def add_publisher(self, topic_name, type_name, rate, enabled):
         publisher_info = {
-            'topic_name': topic_name,
-            'type_name': type_name,
-            'rate': rate,
-            'enabled': enabled
+            'topic_name': str(topic_name),
+            'type_name': str(type_name),
+            'rate': float(rate),
+            'enabled': bool(enabled),
         }
         self._add_publisher(publisher_info)
 
@@ -165,7 +165,7 @@ class Publisher(QObject):
             qDebug('Publisher._change_publisher_rate(): could not parse rate value: %s' % (new_value))
         else:
             publisher_info['rate'] = rate
-            qDebug('Publisher._change_publisher_rate(): %s rate changed: %s' % (publisher_info['topic_name'], publisher_info['rate']))
+            qDebug('Publisher._change_publisher_rate(): %s rate changed: %fHz' % (publisher_info['topic_name'], publisher_info['rate']))
             publisher_info['timer'].stop()
             if publisher_info['enabled'] and publisher_info['rate'] > 0:
                 publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
