@@ -38,6 +38,8 @@
 #include "plugin_descriptor.h"
 #include "plugin_provider.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <pluginlib/class_loader.h>
 #include <pluginlib/boost_fs_wrapper.h>
 
@@ -178,20 +180,15 @@ public:
       return 0;
     }
 
+    boost::shared_ptr<T> instance;
     try
     {
-      class_loader_->loadLibraryForClass(lookup_name);
+      instance = create_plugin(lookup_name, plugin_context);
     }
     catch (pluginlib::LibraryLoadException& e)
     {
       qWarning("RosPluginlibPluginProvider::load_explicit_type(%s) could not load library (%s)", lookup_name.c_str(), e.what());
       return 0;
-    }
-
-    T* instance = 0;
-    try
-    {
-      instance = create_plugin(lookup_name, plugin_context);
     }
     catch (pluginlib::PluginlibException& e)
     {
@@ -206,7 +203,7 @@ public:
     }
 
     // pass context to plugin
-    Plugin* plugin = dynamic_cast<Plugin*>(instance);
+    Plugin* plugin = dynamic_cast<Plugin*>(&*instance);
     if (plugin)
     {
       try
@@ -222,9 +219,9 @@ public:
     }
 
     //qDebug("RosPluginlibPluginProvider::load_explicit_type(%s) succeeded", lookup_name.c_str());
-    instances_[instance] = plugin_id;
+    instances_[&*instance] = instance;
 
-    return instance;
+    return &*instance;
   }
 
   virtual void unload(void* instance)
@@ -235,18 +232,17 @@ public:
       return;
     }
 
-    QString lookup_name = instances_.take(instance);
-    //qDebug("RosPluginlibPluginProvider::unload() instance '%s'", lookup_name.toStdString().c_str());
-    libraries_to_unload_.append(lookup_name);
+    boost::shared_ptr<T> pointer = instances_.take(instance);
+    libraries_to_unload_.append(pointer);
 
     QCoreApplication::postEvent(this, new QEvent(static_cast<QEvent::Type>(unload_libraries_event_)));
   }
 
 protected:
 
-  virtual T* create_plugin(const std::string& lookup_name, PluginContext* plugin_context = 0)
+  virtual boost::shared_ptr<T> create_plugin(const std::string& lookup_name, PluginContext* plugin_context = 0)
   {
-    return class_loader_->createClassInstance(lookup_name);
+    return class_loader_->createInstance(lookup_name);
   }
 
   virtual void init_plugin(const QString& /*plugin_id*/, PluginContext* plugin_context, Plugin* plugin)
@@ -260,7 +256,7 @@ private slots:
   {
     if (e->type() == unload_libraries_event_)
     {
-      unload_pending_libraries();
+      libraries_to_unload_.clear();
       return true;
     }
     return QObject::event(e);
@@ -366,16 +362,6 @@ private:
 
   void unload_pending_libraries()
   {
-    while (!libraries_to_unload_.empty())
-    {
-      QString lookup_name = libraries_to_unload_.takeFirst();
-      //qDebug("RosPluginlibPluginProvider::unload_pending_libraries() unloadLibraryForClass(%s)", lookup_name.toStdString().c_str());
-#ifdef USE_PATCHED_PLUGINLIB
-      class_loader_->unloadLibraryForClass(lookup_name.toStdString());
-#else
-      qWarning("RosPluginlibPluginProvider::unload_pending_libraries() not supported in the used ROS version");
-#endif
-    }
   }
 
   QString export_tag_;
@@ -386,9 +372,9 @@ private:
 
   pluginlib::ClassLoader<T>* class_loader_;
 
-  QMap<void*, QString> instances_;
+  QMap<void*, boost::shared_ptr<T> > instances_;
 
-  QList<QString> libraries_to_unload_;
+  QList<boost::shared_ptr<T> > libraries_to_unload_;
 
 };
 

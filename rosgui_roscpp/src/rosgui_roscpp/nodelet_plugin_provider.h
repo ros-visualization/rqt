@@ -62,15 +62,15 @@ protected:
 
   void init_loader();
 
-  virtual Plugin* create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context);
+  virtual boost::shared_ptr<Plugin> create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context);
 
-  virtual nodelet::Nodelet* create_instance(const std::string& lookup_name);
+  boost::shared_ptr<nodelet::Nodelet> create_instance(const std::string& lookup_name);
 
   virtual void init_plugin(const QString& plugin_id, rosgui_cpp::PluginContext* plugin_context, rosgui_cpp::Plugin* plugin);
 
   nodelet::Loader* loader_;
 
-  rosgui_roscpp::Plugin* instance_;
+  boost::shared_ptr<rosgui_roscpp::Plugin> instance_;
 
   QMap<void*, QString> instances_;
 
