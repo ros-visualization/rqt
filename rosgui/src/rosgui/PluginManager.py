@@ -36,9 +36,7 @@ from QtCore import qCritical, qDebug, QObject, Qt, Signal, Slot
 from ContainerManager import ContainerManager
 from PluginHandlerContainer import PluginHandlerContainer
 from PluginHandlerDirect import PluginHandlerDirect
-from PluginHandlerXEmbed import PluginHandlerXEmbed
 from PluginInstanceId import PluginInstanceId
-from PluginManagerDBusInterface import PluginManagerDBusInterface
 from PluginMenu import PluginMenu
 
 class PluginManager(QObject):
@@ -73,10 +71,18 @@ class PluginManager(QObject):
 
         self._number_of_ongoing_calls = None
 
+        if self._application_context.options.multi_process or self._application_context.options.embed_plugin:
+            try:
+                from PluginHandlerXEmbed import PluginHandlerXEmbed #@UnusedImport
+            except ImportError:
+                qCritical('PluginManager.__init__() multiprocess-mode only available under linux')
+                exit(-1)
+
         # force connection type to queued, to delay the 'reloading' giving the 'unloading' time to finish
         self._deferred_reload_plugin_signal.connect(self._reload_plugin_load, type=Qt.QueuedConnection)
 
         if self._application_context.provide_app_dbus_interfaces:
+            from PluginManagerDBusInterface import PluginManagerDBusInterface
             self._dbus_service = PluginManagerDBusInterface(self, self._application_context)
 
     def set_main_window(self, main_window, menu_bar):
@@ -162,12 +168,22 @@ class PluginManager(QObject):
         if str(instance_id) in self._running_plugins:
             raise Exception('PluginManager._load_plugin(%s) instance already loaded' % str(instance_id))
 
+        # containers are pseudo-plugins and handled by a special handler
         if self._container_manager is not None and instance_id.plugin_id == self._container_manager.get_container_descriptor().plugin_id():
             handler = PluginHandlerContainer(self._main_window, instance_id, self._application_context, self._container_manager)
-        elif not self._application_context.options.multi_process and not self._application_context.options.embed_plugin:
-            handler = PluginHandlerDirect(self._main_window, instance_id, self._application_context, self._container_manager)
+
+        # use platform specific handler for multiprocess-mode if available
+        elif self._application_context.options.multi_process or self._application_context.options.embed_plugin:
+            try:
+                from PluginHandlerXEmbed import PluginHandlerXEmbed
+                handler = PluginHandlerXEmbed(self._main_window, instance_id, self._application_context, self._container_manager)
+            except ImportError:
+                qCritical('PluginManager._load_plugin() could not load plugin in a separate process')
+                return
+
+        # use direct handler for in-process plugins
         else:
-            handler = PluginHandlerXEmbed(self._main_window, instance_id, self._application_context, self._container_manager)
+            handler = PluginHandlerDirect(self._main_window, instance_id, self._application_context, self._container_manager)
 
         self._add_running_plugin(instance_id, handler)
         handler.load(self._plugin_provider, callback)
