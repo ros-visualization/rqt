@@ -1,15 +1,13 @@
 <package>
-  <description brief="PySide dependencies">
+  <description brief="PySide startup script">
 
-     rosgui_pyside only specifies the PySide dependencies for rosgui.
+     rosgui_pyside only contains the PySide specific startup script for rosgui.
 
   </description>
   <author>Dirk Thomas</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_pyside</url>
-
-  <rosdep name="python-pyside"/>
 
 </package>
 
