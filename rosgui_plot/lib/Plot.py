@@ -156,10 +156,15 @@ class Plot(QWidget):
             self._topic_completer.update_topics()
 
         # check for numeric field type
-        field_type = self._get_field_type(topic_name)
+        topic_base = topic_name.rsplit('[', 1)[0]
+        field_type = self._get_field_type(topic_base)
+
         if field_type in (int, float):
             self.subscribe_topic_button.setEnabled(True)
             self.subscribe_topic_button.setToolTip('topic "%s" is numeric: %s' % (topic_name, field_type))
+        elif field_type in (tuple, list) and topic_name.endswith(']'):
+            self.subscribe_topic_button.setEnabled(True)
+            self.subscribe_topic_button.setToolTip('topic "%s" is a list, hoping for a valid index...' % (topic_name))
         else:
             self.subscribe_topic_button.setEnabled(False)
             self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
