@@ -36,7 +36,7 @@ string(REGEX REPLACE "^([^;]*;)*([^;]+/python_qt_binding)/include(;[^;]*)*$" "\\
 set(rosgui_cpp_sip_INCLUDE_DIRS ${rosgui_cpp_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
 set(rosgui_cpp_sip_LIBRARIES ${rosgui_cpp_LIBRARIES} ${PROJECT_NAME})
 set(rosgui_cpp_sip_LIBRARY_DIRS ${rosgui_cpp_LIBRARY_DIRS} ${CMAKE_SOURCE_DIR}/lib)
-set(rosgui_cpp_sip_LDFLAGS_OTHER ${rosgui_cpp_LDFLAGS_OTHER})
+set(rosgui_cpp_sip_LDFLAGS_OTHER ${rosgui_cpp_LDFLAGS_OTHER} -Wl,-rpath,${CMAKE_SOURCE_DIR}/lib)
 
 rosbuild_include(python_qt_binding sip_helper)
 
