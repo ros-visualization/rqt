@@ -38,7 +38,6 @@ from QtCore import QByteArray, qDebug, QObject, QSignalMapper, Signal, Slot
 from QtGui import QAction, QFileDialog, QIcon, QInputDialog, QMessageBox, QValidator
 
 from MenuManager import MenuManager
-from PerspectiveManagerDBusInterface import PerspectiveManagerDBusInterface
 from Settings import Settings
 from SettingsProxy import SettingsProxy
 
@@ -76,6 +75,7 @@ class PerspectiveManager(QObject):
         self._callback_args = []
 
         if application_context.provide_app_dbus_interfaces:
+            from PerspectiveManagerDBusInterface import PerspectiveManagerDBusInterface
             self._dbus_server = PerspectiveManagerDBusInterface(self, application_context)
 
 

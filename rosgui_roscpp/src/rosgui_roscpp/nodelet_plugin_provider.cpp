@@ -80,27 +80,27 @@ void NodeletPluginProvider::init_loader()
   }
 }
 
-Plugin* NodeletPluginProvider::create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context)
+boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string& lookup_name, rosgui_cpp::PluginContext* plugin_context)
 {
   init_loader();
 
   nodelet::M_string remappings;
   nodelet::V_string my_argv;
   std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serial_number()).toStdString();
-  instance_ = 0;
+  instance_.reset();
   //qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
   bool loaded = loader_->load(nodelet_name, lookup_name, remappings, my_argv);
   if (loaded)
   {
     //qDebug("NodeletPluginProvider::create_plugin() loaded");
-    instances_[instance_] = nodelet_name.c_str();
+    instances_[&*instance_] = nodelet_name.c_str();
   }
-  rosgui_roscpp::Plugin* instance = instance_;
-  instance_ = 0;
+  boost::shared_ptr<rosgui_roscpp::Plugin> instance = instance_;
+  instance_.reset();
   return instance;
 }
 
-nodelet::Nodelet* NodeletPluginProvider::create_instance(const std::string& lookup_name)
+boost::shared_ptr<nodelet::Nodelet> NodeletPluginProvider::create_instance(const std::string& lookup_name)
 {
   instance_ = rosgui_cpp::RosPluginlibPluginProvider<rosgui_roscpp::Plugin>::create_plugin(lookup_name);
   return instance_;

@@ -33,9 +33,18 @@
 import os
 import signal
 import sys
-from optparse import OptionGroup, OptionParser
+from optparse import OptionGroup, OptionParser, SUPPRESS_HELP
 
 def rosgui_main(argv=None):
+    # check if DBus is available
+    try:
+        import dbus
+        del dbus
+    except ImportError:
+        dbus_available = False
+    else:
+        dbus_available = True
+
     if argv is None:
         argv = sys.argv
 
@@ -48,7 +57,7 @@ def rosgui_main(argv=None):
     parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action="store_true",
                       help='lock the GUI to the used perspective (hide menu bar and close buttons of plugins)')
     parser.add_option('-m', '--multi-process', dest='multi_process', default=False, action="store_true",
-                      help='use separate processes for each plugin instance')
+                      help='use separate processes for each plugin instance (currently only supported under X11)')
     parser.add_option('-p', '--perspective', dest='perspective', type='str', metavar='PERSPECTIVE',
                       help='start with this perspective')
     parser.add_option('-s', '--stand-alone', dest='standalone_plugin', type='str', metavar='PLUGIN',
@@ -70,6 +79,10 @@ def rosgui_main(argv=None):
                      help='start plugin')
     group.add_option('--command-switch-perspective', dest='command_switch_perspective', type='str', metavar='PERSPECTIVE',
                      help='switch perspective')
+    if not dbus_available:
+        group.description = 'These options are not available since the DBus module is not found!'
+        for o in group.option_list:
+            o.help = SUPPRESS_HELP
     parser.add_option_group(group)
 
     group = OptionGroup(parser, 'Special options for embedding widgets from separate processes',
@@ -80,6 +93,8 @@ def rosgui_main(argv=None):
                      help='serial number of plugin to be embedded (requires all other --embed-* options)')
     group.add_option('--embed-plugin-address', dest='embed_plugin_address', type='str', metavar='ADDRESS',
                      help='dbus server address of ROS GUI instance to embed plugin into (requires all other --embed-* options)')
+    for o in group.option_list:
+        o.help = SUPPRESS_HELP
     parser.add_option_group(group)
 
     options, _ = parser.parse_args(argv[1:])
@@ -93,6 +108,8 @@ def rosgui_main(argv=None):
 
         command_options = (options.command_start_plugin, options.command_switch_perspective)
         command_options_set = [opt for opt in command_options if opt is not None]
+        if len(command_options_set) > 0 and not dbus_available:
+            raise RuntimeError('Without DBus support the --command-* options are not available')
         if len(command_options_set) > 1:
             raise RuntimeError('Only one --command-* option can be used at a time (except --command-pid which is optional)')
         if len(command_options_set) == 0 and options.command_pid is not None:
@@ -100,6 +117,8 @@ def rosgui_main(argv=None):
 
         embed_options = (options.embed_plugin, options.embed_plugin_serial, options.embed_plugin_address)
         embed_options_set = [opt for opt in embed_options if opt is not None]
+        if len(command_options_set) > 0 and not dbus_available:
+            raise RuntimeError('Without DBus support the --embed-* options are not available')
         if len(embed_options_set) > 0 and len(embed_options_set) < len(embed_options):
             raise RuntimeError('Missing option(s) - all \'--embed-*\' options must be set')
 
@@ -122,24 +141,27 @@ def rosgui_main(argv=None):
         options.lock_perspective = True
 
     # use qt/glib mainloop integration to get dbus mainloop working
-    from dbus.mainloop.glib import DBusGMainLoop
-    from dbus import DBusException, Interface, SessionBus
-    DBusGMainLoop(set_as_default=True)
+    if dbus_available:
+        from dbus.mainloop.glib import DBusGMainLoop
+        from dbus import DBusException, Interface, SessionBus
+        DBusGMainLoop(set_as_default=True)
 
     # create application context containing various relevant information
     from ApplicationContext import ApplicationContext
     context = ApplicationContext()
-    # non-special applications provide various dbus interfaces
-    context.provide_app_dbus_interfaces = len(groups_set) == 0
-    context.dbus_base_bus_name = 'org.ros.rosgui'
-    if context.provide_app_dbus_interfaces:
-        context.dbus_unique_bus_name = context.dbus_base_bus_name + '.pid%d' % os.getpid()
     context.options = options
 
-    if context.provide_app_dbus_interfaces:
-        # provide pid of application via dbus
-        from ApplicationDBusInterface import ApplicationDBusInterface
-        _dbus_server = ApplicationDBusInterface(context.dbus_base_bus_name)
+    # non-special applications provide various dbus interfaces
+    if dbus_available:
+        context.provide_app_dbus_interfaces = len(groups_set) == 0
+        context.dbus_base_bus_name = 'org.ros.rosgui'
+        if context.provide_app_dbus_interfaces:
+            context.dbus_unique_bus_name = context.dbus_base_bus_name + '.pid%d' % os.getpid()
+
+        if context.provide_app_dbus_interfaces:
+            # provide pid of application via dbus
+            from ApplicationDBusInterface import ApplicationDBusInterface
+            _dbus_server = ApplicationDBusInterface(context.dbus_base_bus_name)
 
     # determine host bus name, either based on pid given on command line or via dbus application interface if any other instance is available
     if len(command_options_set) > 0 or len(embed_options_set) > 0:

@@ -28,26 +28,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import sys
 import traceback
 
 from rosgui.QtBindingHelper import QT_BINDING
 from QtCore import qWarning
-from rosgui.RosPackageHelper import get_package_path
 
 try:
     if QT_BINDING == 'pyside':
-        # append "rosgui_cpp_shiboken/lib" folder to module search path
-        shiboken_path = get_package_path('rosgui_cpp_shiboken')
-        sys.path.append(os.path.join(shiboken_path, 'lib'))
         import librosgui_cpp_shiboken
         rosgui_cpp = librosgui_cpp_shiboken.rosgui_cpp
 
     elif QT_BINDING == 'pyqt':
-        # append "rosgui_cpp_sip/lib" folder to module search path
-        sip_path = get_package_path('rosgui_cpp_sip')
-        sys.path.append(os.path.join(sip_path, 'lib'))
         import librosgui_cpp_sip
         rosgui_cpp = librosgui_cpp_sip.rosgui_cpp
 

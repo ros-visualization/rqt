@@ -64,6 +64,7 @@ void PluginBridge::unload_plugin()
 {
   qDebug("PluginBridge::unload_plugin()");
   provider_->unload_plugin(plugin_);
+  plugin_ = 0;
 }
 
 bool PluginBridge::has_configuration() const
@@ -89,7 +90,6 @@ void PluginBridge::shutdown_plugin()
   {
     plugin_->removeEventFilter(this);
     plugin_->shutdownPlugin();
-    plugin_->deleteLater();
   }
 }
 

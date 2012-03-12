@@ -12,8 +12,8 @@
   <url>http://ros.org/wiki/rosgui</url>
 
   <depend package="python_qt_binding"/>
-  <depend package="rosgui_pyqt"/>
-  <depend package="rosgui_pyside"/>
+
+  <rosdep name="python-qt-bindings"/>
 
 </package>
 

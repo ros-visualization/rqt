@@ -12,6 +12,4 @@
   <depend package="rosgui"/>
   <depend package="rostopic"/>
 
-  <rosdep name="python-qt4"/>
-
 </package>

@@ -1,7 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_cpp_sip provides SIP C++-bindings for rosgui.
-The code API of rosgui_cpp_sip must not be used in other tools.
-*/

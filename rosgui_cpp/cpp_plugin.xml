@@ -1,7 +1,7 @@
 <library path="lib/CppPluginProvider">
   <class name="CppPluginProvider" type="CppPluginProvider" base_class_type="rosgui_py::PluginProvider">
     <description>
-      A plugin provider for ROS GUI integrating C++ plugins using PySide bindings.
+      A plugin provider for ROS GUI integrating C++ plugins using Python Qt bindings.
     </description>
   </class>
 </library>

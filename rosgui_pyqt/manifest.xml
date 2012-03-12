@@ -1,15 +1,13 @@
 <package>
-  <description brief="PyQt dependencies">
+  <description brief="PyQt startup script">
 
-     rosgui_pyqt only specifies the PyQt dependencies for rosgui.
+     rosgui_pyqt only contains the PyQt specific startup script for rosgui.
 
   </description>
   <author>Dirk Thomas</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rosgui_pyqt</url>
-
-  <rosdep name="python-qt4-gl"/>
 
 </package>
 

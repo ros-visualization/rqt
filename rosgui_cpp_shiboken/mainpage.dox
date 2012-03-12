@@ -1,7 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_cpp_shiboken provides Shiboken C++-bindings for rosgui.
-The code API of rosgui_cpp_shiboken must not be used in other tools.
-*/

@@ -5,9 +5,6 @@ set(rosgui_cpp_shiboken_QT_COMPONENTS
   QtGui
 )
 
-string(REGEX REPLACE "^([^;]*;)*([^;]+/python_qt_binding)/include(;[^;]*)*$" "\\2" python_qt_binding_SOURCE_DIR "${rosgui_cpp_shiboken_INCLUDE_DIRS}")
-include(${python_qt_binding_SOURCE_DIR}/cmake/shiboken_helper.cmake)
-
 set(rosgui_cpp_shiboken_SRCS
   librosgui_cpp_shiboken/librosgui_cpp_shiboken_module_wrapper.cpp
   librosgui_cpp_shiboken/rosgui_cpp_compositepluginprovider_wrapper.cpp
@@ -24,8 +21,7 @@ set(rosgui_cpp_shiboken_SRCS
   librosgui_cpp_shiboken/rosgui_cpp_wrapper.cpp
 )
 
-string(REGEX REPLACE "^([^;]*;)*([^;]+/rosgui_cpp/include)(;[^;]*)*$" "\\2" rosgui_cpp_INCLUDE_PATH "${rosgui_cpp_shiboken_INCLUDE_DIRS}")
-
+set(rosgui_cpp_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/include)
 set(rosgui_cpp_HDRS
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/composite_plugin_provider.h
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/generic_proxy.h
@@ -41,10 +37,17 @@ set(rosgui_cpp_HDRS
   ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp/settings.h
 )
 
-shiboken_generator(librosgui_cpp global.h typesystem.xml ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken "${rosgui_cpp_shiboken_SRCS}" "${rosgui_cpp_HDRS}" "${rosgui_cpp_INCLUDE_PATH}" "${PROJECT_SOURCE_DIR}/build/src/rosgui_cpp_shiboken")
+rosbuild_include(python_qt_binding shiboken_helper)
 
-include_directories(${PROJECT_NAME} ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp)
-shiboken_include_directories(${PROJECT_NAME} "${rosgui_cpp_shiboken_QT_COMPONENTS}")
-rosbuild_add_library(${PROJECT_NAME} ${rosgui_cpp_shiboken_SRCS})
-shiboken_target_link_libraries(${PROJECT_NAME} "${rosgui_cpp_shiboken_QT_COMPONENTS}")
+if(shiboken_helper_FOUND)
+  list(APPEND rosgui_cpp_BINDINGS "shiboken")
+  set(rosgui_cpp_BINDINGS "${rosgui_cpp_BINDINGS}" PARENT_SCOPE)
 
+  shiboken_generator(librosgui_cpp global.h typesystem.xml ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_shiboken "${rosgui_cpp_shiboken_SRCS}" "${rosgui_cpp_HDRS}" "${rosgui_cpp_INCLUDE_PATH}" "${PROJECT_SOURCE_DIR}/build/src/rosgui_cpp_shiboken")
+
+  include_directories(rosgui_cpp_shiboken ${rosgui_cpp_INCLUDE_PATH}/rosgui_cpp)
+  shiboken_include_directories(rosgui_cpp_shiboken "${rosgui_cpp_shiboken_QT_COMPONENTS}")
+  rosbuild_add_library(rosgui_cpp_shiboken ${rosgui_cpp_shiboken_SRCS})
+  target_link_libraries(rosgui_cpp_shiboken ${PROJECT_NAME})
+  shiboken_target_link_libraries(rosgui_cpp_shiboken "${rosgui_cpp_shiboken_QT_COMPONENTS}")
+endif()
