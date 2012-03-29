@@ -1,4 +1,5 @@
-set(rosgui_cpp_sip_DEPENDENT_SIPS
+set(rosgui_cpp_HDRS_DIR ${CMAKE_SOURCE_DIR}/include/rosgui_cpp)
+set(rosgui_cpp_sip_DEPENDENT_FILES
   composite_plugin_provider.sip
   generic_proxy.sip
   plugin.sip
@@ -11,10 +12,6 @@ set(rosgui_cpp_sip_DEPENDENT_SIPS
   ros_pluginlib_plugin_provider_for_plugin_providers.sip
   ros_pluginlib_plugin_provider_for_plugins.sip
   settings.sip
-)
-
-set(rosgui_cpp_HDRS_DIR ${CMAKE_SOURCE_DIR}/include/rosgui_cpp)
-set(rosgui_cpp_HDRS
   ${rosgui_cpp_HDRS_DIR}/composite_plugin_provider.h
   ${rosgui_cpp_HDRS_DIR}/generic_proxy.h
   ${rosgui_cpp_HDRS_DIR}/plugin.h
@@ -44,5 +41,10 @@ if(sip_helper_FOUND)
   list(APPEND rosgui_cpp_BINDINGS "sip")
   set(rosgui_cpp_BINDINGS "${rosgui_cpp_BINDINGS}" PARENT_SCOPE)
 
-  build_sip_binding(rosgui_cpp_sip ${python_qt_binding_SOURCE_DIR}/cmake/sip_configure.py rosgui_cpp.sip "${rosgui_cpp_sip_DEPENDENT_SIPS}" "${rosgui_cpp_HDRS}" ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_sip ${PROJECT_SOURCE_DIR}/lib ${PROJECT_BINARY_DIR})
+  build_sip_binding(rosgui_cpp_sip rosgui_cpp.sip
+    SIP_CONFIGURE ${python_qt_binding_SOURCE_DIR}/cmake/sip_configure.py
+    SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/rosgui_cpp_sip
+    DEPENDS ${rosgui_cpp_sip_DEPENDENT_FILES}
+    DEPENDENCIES rosgui_cpp
+  )
 endif()
