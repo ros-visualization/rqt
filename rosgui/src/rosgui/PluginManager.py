@@ -87,7 +87,7 @@ class PluginManager(QObject):
 
     def set_main_window(self, main_window, menu_bar):
         self._main_window = main_window
-        self._container_manager = ContainerManager(self, self._main_window)
+        self._container_manager = ContainerManager(self._main_window, self)
         self.plugins_changed_signal.connect(self._container_manager.restore_state_of_containers)
         if menu_bar is not None:
             self._plugin_menu = PluginMenu(menu_bar, self)
