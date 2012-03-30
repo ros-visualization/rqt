@@ -79,6 +79,11 @@ class ContainerManager(QObject):
                     child.setFloating(floating)
 
 
+    def restore_state_of_containers(self):
+        for container in self._containers.values():
+            container.restore_state()
+
+
     def event(self, e):
         if e.type() == ReparentEvent.reparent_event_type:
             #print 'ContainerManager.event()', 'reparent event', 'new parent:', e.new_parent.objectName()

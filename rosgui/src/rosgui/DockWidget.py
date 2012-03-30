@@ -103,11 +103,16 @@ class DockWidget(QDockWidget):
         if serial_number is not None:
             serial_number = int(serial_number)
         if self._parent_container_serial_number() != serial_number and self._container_manager is not None:
-            new_parent = self._container_manager.get_container(serial_number)
-            if new_parent is None:
+            floating = self.isFloating()
+            new_container = self._container_manager.get_container(serial_number)
+            if new_container is not None:
+                new_parent = new_container.main_window
+            else:
                 new_parent = self._container_manager.get_root_main_window()
             area = self.parent().dockWidgetArea(self)
-            new_parent.main_window.addDockWidget(area, self)
+            new_parent.addDockWidget(area, self)
+            if floating:
+                self.setFloating(floating)
 
         title_bar = self.titleBarWidget()
         title_bar.restore_settings(perspective_settings)

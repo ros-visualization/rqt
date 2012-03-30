@@ -67,10 +67,13 @@ class PluginHandlerContainer(PluginHandler):
 
 
     def _save_settings(self, global_settings, perspective_settings):
+        self._container.save_settings(perspective_settings)
         self.emit_save_settings_completed()
 
 
     def _restore_settings(self, global_settings, perspective_settings):
+        print 'PluginHandlerContainer._restore_settings()'
+        self._container.restore_settings(perspective_settings)
         self.emit_restore_settings_completed()
 
 

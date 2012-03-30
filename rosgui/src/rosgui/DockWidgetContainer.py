@@ -40,6 +40,7 @@ class DockWidgetContainer(DockWidget):
     def __init__(self, container_manager, serial_number):
         super(DockWidgetContainer, self).__init__(container_manager)
         self._serial_number = serial_number
+        self._settings = None
 
         self.main_window = QMainWindow()
         self.main_window.setDockNestingEnabled(True)
@@ -51,3 +52,42 @@ class DockWidgetContainer(DockWidget):
     def setObjectName(self, name):
         super(DockWidget, self).setObjectName(name)
         self.main_window.setObjectName(name + '__MainWindow')
+
+
+    def save_settings(self, settings):
+        settings = settings.get_settings('mainwindow')
+        self._save_geometry(settings)
+        self._save_state(settings)
+        super(DockWidgetContainer, self).save_settings(settings)
+
+    def _save_geometry(self, settings):
+        # unmaximizing widget before saveGeometry works around bug to restore dock-widgets
+        # still the non-maximized size can not correctly be restored
+        maximized = self.isMaximized()
+        if maximized:
+            self.showNormal()
+        settings.set_value('geometry', self.main_window.saveGeometry())
+        if maximized:
+            self.showMaximized()
+
+    def _save_state(self, settings):
+        if self._settings is not None:
+            self._settings.set_value('state', self.main_window.saveState())
+
+
+    def restore_settings(self, settings):
+        print 'DockWidgetContainer.restore_settings()'
+        super(DockWidgetContainer, self).restore_settings(settings)
+        settings = settings.get_settings('mainwindow')
+        self._settings = settings
+        # only restore geometry, restoring state is triggered after PluginManager has been updated
+        self._restore_geometry(settings)
+
+    def _restore_geometry(self, settings):
+        if settings.contains('geometry'):
+            self.main_window.restoreGeometry(settings.value('geometry'))
+
+    def restore_state(self):
+        print 'DockWidgetContainer.restore_state()'
+        if self._settings.contains('state'):
+            self.main_window.restoreState(self._settings.value('state'))
