@@ -55,9 +55,9 @@ class DockWidgetContainer(DockWidget):
 
 
     def save_settings(self, settings):
-        settings = settings.get_settings('mainwindow')
-        self._save_geometry(settings)
-        self._save_state(settings)
+        mw_settings = settings.get_settings('mainwindow')
+        self._save_geometry(mw_settings)
+        self._save_state(mw_settings)
         super(DockWidgetContainer, self).save_settings(settings)
 
     def _save_geometry(self, settings):
@@ -78,10 +78,10 @@ class DockWidgetContainer(DockWidget):
     def restore_settings(self, settings):
         print 'DockWidgetContainer.restore_settings()'
         super(DockWidgetContainer, self).restore_settings(settings)
-        settings = settings.get_settings('mainwindow')
-        self._settings = settings
+        mw_settings = settings.get_settings('mainwindow')
+        self._settings = mw_settings
         # only restore geometry, restoring state is triggered after PluginManager has been updated
-        self._restore_geometry(settings)
+        self._restore_geometry(mw_settings)
 
     def _restore_geometry(self, settings):
         if settings.contains('geometry'):
