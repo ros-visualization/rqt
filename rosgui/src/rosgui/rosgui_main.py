@@ -249,6 +249,7 @@ def rosgui_main(argv=None):
 
         # create own menu bar to share one menu bar on Mac
         menu_bar = QMenuBar()
+        menu_bar.setNativeMenuBar(False)
         if not options.lock_perspective:
             main_window.setMenuBar(menu_bar)
 
@@ -333,6 +334,7 @@ def rosgui_main(argv=None):
     # set initial size - only used without saved configuration
     if main_window is not None:
         main_window.resize(600, 450)
+        main_window.move(100, 100)
 
     # ensure that rosgui/src is in sys.path
     src_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
