@@ -440,7 +440,8 @@ class PluginManager(QObject):
             self._number_of_ongoing_calls = self._number_of_ongoing_calls - 1
             self._remove_running_plugin(instance_id)
         if self._number_of_ongoing_calls == 0:
-            qDebug('PluginManager.restore_settings() all obsolete plugins unloaded')
+            if instance_id is not None:
+                qDebug('PluginManager.restore_settings() all obsolete plugins unloaded')
             self._number_of_ongoing_calls = None
             self._restore_settings_load_missing()
 
@@ -464,7 +465,8 @@ class PluginManager(QObject):
             self._number_of_ongoing_calls = self._number_of_ongoing_calls - 1
             self._load_plugin_completed(handler, exception)
         if self._number_of_ongoing_calls == 0:
-            qDebug('PluginManager.restore_settings() all missing plugins loaded')
+            if handler is not None:
+                qDebug('PluginManager.restore_settings() all missing plugins loaded')
             self._number_of_ongoing_calls = None
             self._restore_settings_restore()
 
@@ -481,7 +483,8 @@ class PluginManager(QObject):
         if instance_id is not None:
             self._number_of_ongoing_calls = self._number_of_ongoing_calls - 1
         if self._number_of_ongoing_calls == 0:
-            qDebug('PluginManager.restore_settings() all plugin settings restored')
+            if instance_id is not None:
+                qDebug('PluginManager.restore_settings() all plugin settings restored')
             self._number_of_ongoing_calls = None
             # restore state of top-level widgets
             self.plugins_changed_signal.emit()
