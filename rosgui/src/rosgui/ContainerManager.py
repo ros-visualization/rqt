@@ -68,6 +68,9 @@ class ContainerManager(QObject):
             return self._containers[serial_number]
         return None
 
+    def get_containers(self):
+        return self._containers.values()
+
 
     def move_container_children_to_parent(self, container):
         floating = container.isFloating()
@@ -86,8 +89,13 @@ class ContainerManager(QObject):
 
     def event(self, e):
         if e.type() == ReparentEvent.reparent_event_type:
-            #print 'ContainerManager.event()', 'reparent event', 'new parent:', e.new_parent.objectName()
+            print 'ContainerManager.event()', 'reparent event', 'new parent:', e.new_parent.objectName()
+            floating = e.dock_widget.isFloating()
+            pos = e.dock_widget.pos()
             e.new_parent.addDockWidget(Qt.BottomDockWidgetArea, e.dock_widget)
+            if floating:
+                e.dock_widget.setFloating(floating)
+                e.dock_widget.move(pos)
             e.accept()
             return True
         return super(ContainerManager, self).event(e)
