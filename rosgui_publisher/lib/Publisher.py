@@ -38,8 +38,7 @@ from QtCore import Slot, qDebug, QObject, QSignalMapper, Qt, QTimer, qWarning
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
-import rosmsg, rospy
-import genpy
+import rospy
 import PublisherWidget
 reload(PublisherWidget)
 
@@ -198,7 +197,7 @@ class Publisher(QObject):
     def _create_message_instance(self, type_str):
         base_type_str, array_size = self._extract_array_info(type_str)
 
-        base_message_type = genpy.message.get_message_class(base_type_str)
+        base_message_type = roslib.message.get_message_class(base_type_str)
         if array_size is not None:
             message = []
             for _ in range(array_size):

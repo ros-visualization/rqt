@@ -39,10 +39,8 @@ from QtGui import QIcon, QWidget
 
 import roslib
 roslib.load_manifest('rosgui_publisher')
-from rosmsg import iterate_packages, _list_types
-import rospkg
-import rospy
-import genpy
+import rospkg, rosmsg, rospy
+
 from ExtendedComboBox import ExtendedComboBox
 import PublisherTreeWidget
 reload(PublisherTreeWidget)
@@ -94,14 +92,19 @@ class PublisherWidget(QWidget):
 
     def _update_type_combo_box(self):
         message_type_names = []
-        rospack = rospkg.RosPack()
-        packs = sorted([x for x in iterate_packages(rospack, '.msg')])
-        for (p, direc) in packs:
-            for filename in _list_types(direc, 'msg', '.msg'):
-                base_type_str = '%s/%s' % (p, filename)
-                message_class = genpy.message.get_message_class(base_type_str)
+        try:
+            # this only works on fuerte and up
+            rospack = rospkg.RosPack()
+            packages = sorted([pkg_tuple[0] for pkg_tuple in rosmsg.iterate_packages(rospack, rosmsg.MODE_MSG)])
+        except:
+            # this works up to electric
+            packages = sorted(rosmsg.list_packages())
+        for package in packages:
+            for base_type_str in rosmsg.list_msgs(package):
+                message_class = roslib.message.get_message_class(base_type_str)
                 if message_class is not None:
                     message_type_names.append(base_type_str)
+
         self.type_combo_box.clear()
         self.type_combo_box.addItems(sorted(message_type_names))
 
