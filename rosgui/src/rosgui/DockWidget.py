@@ -201,6 +201,7 @@ class DockWidget(QDockWidget):
                         #print '- found multiple main windows - could not determine which one is on top'
                         pass
                 # TODO any more heuristic possible?
+                # if all remaining docked main windows have a most common ancestor use the order of children() to determine topmost
         return widget
 
     def _widget_contains(self, widget, point):
@@ -233,12 +234,18 @@ class DockWidget(QDockWidget):
         title_bar = self.titleBarWidget()
         title_bar.restore_settings(perspective_settings)
 
-    def _parent_container_serial_number(self):
+    def _parent_container(self, dock_widget):
         from DockWidgetContainer import DockWidgetContainer
-        serial_number = None
-        parent = self.parent()
+        parent = dock_widget.parent()
         if parent is not None:
             parent = parent.parent()
             if isinstance(parent, DockWidgetContainer):
-                serial_number = parent.serial_number()
+                return parent
+        return None
+
+    def _parent_container_serial_number(self):
+        serial_number = None
+        parent = self._parent_container(self)
+        if parent is not None:
+            serial_number = parent.serial_number()
         return serial_number
