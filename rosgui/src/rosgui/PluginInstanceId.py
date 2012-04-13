@@ -49,3 +49,6 @@ class PluginInstanceId():
 
     def tidy_str(self):
         return self.plugin_id.replace('/', '__') + '__' + str(self.serial_number)
+
+    def tidy_plugin_str(self):
+        return self.plugin_id.replace('/', '__')
