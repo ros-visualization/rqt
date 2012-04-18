@@ -36,7 +36,7 @@ from RosGraphItem import RosGraphItem
 
 class NodeItem(RosGraphItem):
 
-    def __init__(self, highlight_level, bounding_box, label, shape, color=None, parent=None):
+    def __init__(self, highlight_level, bounding_box, label, shape, color=None, parent=None, label_pos=None):
         super(NodeItem, self).__init__(highlight_level, parent)
 
         self._default_color = self._COLOR_BLACK if color is None else color
@@ -58,7 +58,10 @@ class NodeItem(RosGraphItem):
 
         self._label = QGraphicsSimpleTextItem(label)
         label_rect = self._label.boundingRect()
-        label_rect.moveCenter(bounding_box.center())
+        if label_pos is None:
+            label_rect.moveCenter(bounding_box.center())
+        else:
+            label_rect.moveCenter(label_pos)
         self._label.setPos(label_rect.x(), label_rect.y())
         self.addToGroup(self._label)
 
