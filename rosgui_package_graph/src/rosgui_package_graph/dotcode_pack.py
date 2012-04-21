@@ -32,31 +32,33 @@
 
 from __future__ import with_statement, print_function
 
-import rospkg
-import pydot
 import sys
 
-def get_graph():
-    graph = pydot.Dot('graphname', graph_type='digraph', rank = 'same', simplify = True)
-    graph.set_ranksep(2.0);
-    graph.set_compound(True)
-    return graph
+import rospkg
+
+
+
+
 
 
                 
 class Generator:
     
     def __init__(self,
+                 dotcode_factory,
                  selected_names = [],
                  excludes = [],
                  depth = 1,
                  with_stacks = False,
+                 descendants = True,
+                 ancestors = False,
                  hide_transitives = True,
                  interstack_edges = True):
         """
         
         :param hide_transitives: if true, then dependency of children to grandchildren will be hidden if parent has same dependency
         """
+        self.dotcode_factory = dotcode_factory
         self.rospack = rospkg.RosPack()
         self.rosstack = rospkg.RosStack()
         self.stacks = {}
@@ -73,45 +75,40 @@ class Generator:
                 continue
             namefound = False
             if name in self.rospack.list():
-                self.add_package_recursively(name)
                 namefound = True
+                if descendants:
+                    self.add_package_descendants_recursively(name)
+                if ancestors:
+                    self.add_package_ancestors_recursively(name)
             if name in self.rosstack.list():
                 namefound = True
-                for package_name in self.rosstack.packages_of(name):
-                    self.add_package_recursively(package_name)
+                if descendants:
+                    for package_name in self.rosstack.packages_of(name):
+                        self.add_package_descendants_recursively(package_name)
 
-    def node_for_package(self, package_name):
-        node = pydot.Node(package_name)
-        node.set_shape('box')
-        node.set_label(package_name)
-        if package_name in self.selected_names:
-            node.set_color('red')
-        return node
-    
-    def graph_for_stack(self, stackname):
-        if stackname is None:
-            return None
-        g = pydot.Cluster("cluster_%s"%stackname, rank = 'same', simplify = True)
-        g.set_style('bold')
-        g.set_label(stackname)
-        if stackname in self.selected_names:
-            g.set_color('red')
-        return g
+
 
     def generate(self):
-        graph = get_graph()
+        graph = self.dotcode_factory.get_graph()
         if self.with_stacks:
             for stackname in self.stacks:
-                g = self.graph_for_stack(stackname)
+                color = None
+                if stackname in self.selected_names:
+                    color = 'red'
+                g = self.dotcode_factory.add_subgraph_to_graph(graph, stackname, color = color)
                 for package_name in self.stacks[stackname]['packages']:
-                    g.add_node(self.node_for_package(package_name))
-                graph.add_subgraph(g)
+                    color = None
+                    if package_name in self.selected_names:
+                        color = 'red'
+                    self.dotcode_factory.add_node_to_graph(g, package_name, color = color)
         else:
             for package_name in self.packages:
-                graph.add_node(self.node_for_package(package_name))
+                color = None
+                if package_name in self.selected_names:
+                    color = 'red'
+                self.dotcode_factory.add_node_to_graph(graph, package_name, color = color)
         for edge_tupel in self.edges:
-            edge = pydot.Edge(edge_tupel[0], edge_tupel[1])
-            graph.add_edge(edge)
+            self.dotcode_factory.add_edge_to_graph(graph, edge_tupel[0], edge_tupel[1])
         return graph
         
     def _add_stack(self, stackname):
@@ -133,9 +130,11 @@ class Generator:
     
     def _add_edge(self, name1, name2, attributes = None):
         self.edges.append((name1, name2, attributes))
-        
 
-    def add_package_recursively(self, package_name, expanded = None, depth = None):
+    def add_package_ancestors_recursively(self, package_name, expanded = None, depth = None):
+        pass
+
+    def add_package_descendants_recursively(self, package_name, expanded = None, depth = None):
         if package_name in self.excludes:
             return False
         if (depth == 0):
@@ -156,26 +155,35 @@ class Generator:
                     self._add_package(dep_name)
                     expanded.append(dep_name)
             for dep_name in new_nodes:
-                self.add_package_recursively(package_name = dep_name, 
+                self.add_package_descendants_recursively(package_name = dep_name, 
                                              expanded = expanded,
                                              depth = depth-1)
 
-def generate_dotcode(selected_names = [],
+def generate_dotcode(dotcode_factory,
+                     selected_names = [],
                      excludes = [],
                      depth = 3,
                      with_stacks = True,
+                     descendants = True,
+                     ancestors = False,
                      hide_transitives = True,
-                     interstack_edges = True):
+                     interstack_edges = True,
+                     rank = 'same',
+                     ranksep = 0.2,
+                     simplify = True,
+                     compound = True):
     if depth is None:
         depth = -1
-    gen = Generator(selected_names = selected_names,
+    gen = Generator(dotcode_factory,
+                    selected_names = selected_names,
                     excludes = excludes,
                     depth = depth,
                     with_stacks = with_stacks,
+                    descendants = descendants,
+                    ancestors = ancestors,
                     hide_transitives = hide_transitives,
                     interstack_edges = interstack_edges)
-    
+
     graph = gen.generate()
-    dot = graph.create_dot()
-    # sadly pydot generates line wraps cutting between numbers
-    return dot.replace("\\\n", "")
+    return dotcode_factory.create_dot(graph)
+

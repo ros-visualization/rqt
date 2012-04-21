@@ -8,6 +8,7 @@ import re
 # pydot requires some hacks
 import pydot
 
+
 import rospkg
 
 from rosgui.QtBindingHelper import loadUi
@@ -19,9 +20,10 @@ import roslib
 roslib.load_manifest('rosgui_package_graph')
 import rosgraph.impl.graph
 
-import dotcode_pack
-reload(dotcode_pack)
-from dotcode_pack import generate_dotcode
+import rosgui_package_graph.dotcode_pack
+reload(rosgui_package_graph.dotcode_pack)
+from rosgui_package_graph.dotcode_pack import generate_dotcode
+import rosgui_package_graph.pydotfactory
 
 import EdgeItem
 reload(EdgeItem)
@@ -168,7 +170,9 @@ class RosPackGraph(QObject):
         self._current_dotcode = None
 
         self._widget = QWidget()
-
+        
+        self.dotcode_factory = rosgui_package_graph.pydotfactory.PydotFactory()
+        
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
@@ -262,7 +266,8 @@ class RosPackGraph(QObject):
         
         depth = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         # orientation = 'LR'
-        return generate_dotcode(selected_names = includes,
+        return generate_dotcode(self.dotcode_factory,
+                                selected_names = includes,
                                 excludes = excludes,
                                 depth = depth,
                                 with_stacks = self._widget.with_stacks.isChecked(),
