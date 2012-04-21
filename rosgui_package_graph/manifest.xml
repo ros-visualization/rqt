@@ -1,0 +1,24 @@
+<package>
+  <description brief="rosgui_package_graph">
+
+     rosgui_package_graph
+
+  </description>
+  <author>Thibault Kruse</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui_package_graph</url>
+  <depend package="rosgui"/>
+  <depend package="rosgui_rosgraph"/>
+
+  <rosdep name="python-pydot"/>
+  <rosdep name="rospkg"/>
+
+  <export>
+    <rosgui plugin="${prefix}/rospackage_graph_plugin.xml"/>
+  </export>
+
+
+</package>
+
+
