@@ -21,23 +21,14 @@ roslib.load_manifest('rosgui_package_graph')
 import rosgraph.impl.graph
 
 import rosgui_package_graph.dotcode_pack
-reload(rosgui_package_graph.dotcode_pack)
 from rosgui_package_graph.dotcode_pack import generate_dotcode
-import rosgui_package_graph.pydotfactory
-
-import EdgeItem
-reload(EdgeItem)
-from EdgeItem import EdgeItem
+from rosgui_package_graph.pydotfactory import PydotFactory
+from rosgui_package_graph.dot_to_qt import DotToQtGenerator
 
 import InteractiveGraphicsView
 reload(InteractiveGraphicsView)
 from InteractiveGraphicsView import InteractiveGraphicsView
 
-import NodeItem
-reload(NodeItem)
-from NodeItem import NodeItem
-
-POINTS_PER_INCH = 72
 
 class RepeatedWordCompleter(QCompleter):
     """A completer that completes multiple times from a list"""
@@ -70,93 +61,7 @@ class StackageCompletionModel(QAbstractListModel):
             return self.allnames[index.row()]
         return None
 
-# hack required by pydot
-def get_unquoted(item, name):
-    value = item.get(name)
-    return value.strip('"\n"')
 
-def getNodeItemForStack(subgraph, highlight_level):
-    # let pydot imitate pygraphviz api
-    attr = {}
-    for name in subgraph.get_attributes().iterkeys():
-        value = get_unquoted(node, name)
-        attr[name] = value
-    obj_dic = subgraph.__getattribute__("obj_dict")
-    for name in obj_dic:
-        if name not in ['nodes', 'attributes', 'parent_graph'] and obj_dic[name] is not None:
-            attr[name] = obj_dic[name]
-        elif name == 'nodes':
-            for key in obj_dic['nodes']['graph'][0]['attributes']:
-                attr[key] = obj_dic['nodes']['graph'][0]['attributes'][key]
-    subgraph.attr = attr
-
-    bb = subgraph.attr['bb'].strip('"').split(',')
-    bounding_box = QRectF(0,0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
-    label_pos = subgraph.attr['lp'].strip('"').split(',')
-    bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2))
-    name = subgraph.attr['label']
-    stacknodeitem = NodeItem(highlight_level, bounding_box, name, 'box', color=None, label_pos=QPointF(float(label_pos[0]), -float(label_pos[1])))
-    bounding_box = QRectF(bounding_box)
-    bounding_box.setHeight(30)
-    stacknodeitem.set_hovershape(bounding_box)
-    return stacknodeitem
-
-def getNodeItemForNode(node, highlight_level):
-# let pydot imitate pygraphviz api
-    attr = {}
-    for name in node.get_attributes().iterkeys():
-        value = get_unquoted(node, name)
-        attr[name] = value
-    obj_dic = node.__getattribute__("obj_dict")
-    for name in obj_dic:
-        if name not in ['attributes', 'parent_graph'] and obj_dic[name] is not None:
-            attr[name] = obj_dic[name]
-    node.attr = attr
-    
-    # decrease rect by one so that edges do not reach inside
-    bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
-    pos = node.attr['pos'].split(',')
-    bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
-    color = QColor(node.attr['color']) if 'color' in node.attr else None
-    name = node.attr['label']
-    if name is None:
-        # happens on Lucid version
-        print("Error, label is None for node %s, pygraphviz version may be too old."%node)
-    node_item = NodeItem(highlight_level, bounding_box, name, node.attr.get('shape', 'ellipse'), color)
-    #node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
-    return node_item
-
-def getEdgeItem(edge, nodes, edges, highlight_level):
-    # let pydot imitate pygraphviz api
-    attr = {}
-    for name in edge.get_attributes().iterkeys():
-        value = get_unquoted(edge, name)
-        attr[name] = value
-    edge.attr = attr
-
-    label = edge.attr.get('label', None)
-    label_pos = edge.attr.get('lp', None)
-    label_center = None
-    if label_pos is not None:
-        label_pos = label_pos.split(',')
-        label_center = QPointF(float(label_pos[0]), -float(label_pos[1]))
-
-    # try pydot, fallback for pygraphviz
-    source_node = edge.get_source() if hasattr(edge, 'get_source') else edge[0]
-    destination_node = edge.get_destination() if hasattr(edge, 'get_destination') else edge[1]
-
-    # create edge with from-node and to-node
-    edge_item = EdgeItem(highlight_level, edge.attr['pos'], label_center, label, nodes[source_node], nodes[destination_node])
-
-    # symmetrically add all sibling edges with same label
-    if label is not None:
-        if label not in edges:
-            edges[label] = []
-        for sibling in edges[label]:
-            edge_item.add_sibling_edge(sibling)
-            sibling.add_sibling_edge(edge_item)
-        edges[label].append(edge_item)
-    return edge_item
 
 
 class RosPackGraph(QObject):
@@ -171,7 +76,8 @@ class RosPackGraph(QObject):
 
         self._widget = QWidget()
         
-        self.dotcode_factory = rosgui_package_graph.pydotfactory.PydotFactory()
+        self.dotcode_factory = PydotFactory()
+        self.dot_to_qt = DotToQtGenerator()
         
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
@@ -309,47 +215,13 @@ class RosPackGraph(QObject):
         else:
             highlight_level = 1
 
-        # layout graph
-        graph = pydot.graph_from_dot_data(self._current_dotcode.encode("ascii","ignore"))
-
-        #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)
-        #graph.layout(prog='dot')
-
-
-        # let pydot imitate pygraphviz api
-        graph.nodes_iter = graph.get_node_list
-        graph.edges_iter = graph.get_edge_list
-        graph.subgraphs_iter = graph.get_subgraph_list
-
-        nodes = {}
-        for subgraph in graph.subgraphs_iter():
-            stacknodeitem = getNodeItemForStack(subgraph, highlight_level)
-            subgraph.nodes_iter = subgraph.get_node_list
-
-            nodes[subgraph.get_name()] = stacknodeitem
-            for node in subgraph.nodes_iter():
-                # hack required by pydot
-                if node.get_name() in ('graph', 'node', 'empty'):
-                    continue
-                nodes[node.get_name()] = getNodeItemForNode(node, highlight_level)
-        for node in graph.nodes_iter():
-            # hack required by pydot
-            if node.get_name() in ('graph', 'node', 'empty'):
-                continue
-            nodes[node.get_name()] = getNodeItemForNode(node, highlight_level)
-
-        edges = {} # is irrelevant?
-        for subgraph in graph.subgraphs_iter():
-            subgraph.edges_iter = subgraph.get_edge_list
-            for edge in subgraph.edges_iter():
-                edge_item = getEdgeItem(edge, nodes, edges, highlight_level)
-                edge_item.add_to_scene(self._scene)
-        for edge in graph.edges_iter():
-            edge_item = getEdgeItem(edge, nodes, edges, highlight_level)
-            edge_item.add_to_scene(self._scene)
+        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(self._current_dotcode, highlight_level)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)
+        for edge_items in edges.itervalues():
+            for edge_item in edge_items:
+                edge_item.add_to_scene(self._scene)
 
         self._scene.setSceneRect(self._scene.itemsBoundingRect())
         if self._widget.auto_fit_graph_check_box.isChecked():
