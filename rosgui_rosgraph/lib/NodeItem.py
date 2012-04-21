@@ -29,8 +29,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rosgui.QtBindingHelper #@UnusedImport
-from QtCore import Qt
-from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen
+from QtCore import Qt, QRectF
+from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen, QPainterPath
 
 from RosGraphItem import RosGraphItem
 
@@ -69,6 +69,19 @@ class NodeItem(RosGraphItem):
 
         self.setAcceptHoverEvents(True)
 
+        self.hovershape = None
+
+    def set_hovershape(self, newhovershape):
+        self.hovershape = newhovershape
+        
+    def shape(self):
+        if self.hovershape is not None:
+            path = QPainterPath()
+            path.addRect(self.hovershape);
+            return path
+        else:
+            return super(self.__class__, self).shape()
+        
     def add_incoming_edge(self, edge):
         self._incoming_edges.add(edge)
 
