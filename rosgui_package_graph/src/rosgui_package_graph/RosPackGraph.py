@@ -21,7 +21,7 @@ roslib.load_manifest('rosgui_package_graph')
 import rosgraph.impl.graph
 
 import rosgui_package_graph.dotcode_pack
-from rosgui_package_graph.dotcode_pack import generate_dotcode
+from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 from rosgui_package_graph.pydotfactory import PydotFactory
 from rosgui_package_graph.dot_to_qt import DotToQtGenerator
 
@@ -70,13 +70,19 @@ class RosPackGraph(QObject):
 
     def __init__(self, context):
         super(RosPackGraph, self).__init__(context)
+        self.initialized = False
+        
         self.setObjectName('RosPackGraph')
 
         self._current_dotcode = None
 
         self._widget = QWidget()
-        
+
+        # factory builds generict dotcode items
         self.dotcode_factory = PydotFactory()
+        # generator builds rosgraph
+        self.dotcode_generator = RosPackageGraphDotcodeGenerator()
+        # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
         
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
@@ -126,7 +132,6 @@ class RosPackGraph(QObject):
         self._widget.save_as_image_push_button.setIcon(QIcon.fromTheme('image'))
         self._widget.save_as_image_push_button.pressed.connect(self._save_image)
 
-        self._update_rospackgraph()
         self._deferred_fit_in_view.connect(self._fit_in_view, Qt.QueuedConnection)
         self._deferred_fit_in_view.emit()
 
@@ -147,7 +152,9 @@ class RosPackGraph(QObject):
         self._widget.transitives.setChecked(perspective_settings.value('transitives_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
+        self.initialized = True
         self._refresh_rospackgraph()
+
 
     def _update_rospackgraph(self):
         # re-enable controls customizing fetched ROS graph
@@ -156,29 +163,33 @@ class RosPackGraph(QObject):
         self._widget.with_stacks.setEnabled(True)
         self._widget.transitives.setEnabled(True)
 
-        # self._graph = rospackgraph.impl.graph.Graph()
-        # self._graph.set_master_stale(5.0)
-        # self._graph.set_node_stale(5.0)
-        # self._graph.update()
         self._refresh_rospackgraph()
 
     def _refresh_rospackgraph(self):
+        if not self.initialized:
+            return
         self._update_graph_view(self._generate_dotcode())
 
     def _generate_dotcode(self):
         names = self._widget.filter_line_edit.text().split(',')
-        includes = [x.strip() for x in names if not x.startswith('-')]
-        excludes = [x.strip().lstrip('-') for x in names if x.startswith('-')]
-        
+        if names == [u'None']:
+            names = []
+        includes = []
+        excludes = []
+        for name in names:
+            if name.strip().startswith('-'):
+                excludes.append(name.strip()[1:])
+            else:
+                includes.append(name)
         depth = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         # orientation = 'LR'
-        return generate_dotcode(self.dotcode_factory,
-                                selected_names = includes,
-                                excludes = excludes,
-                                depth = depth,
-                                with_stacks = self._widget.with_stacks.isChecked(),
-                                hide_transitives = self._widget.transitives.isChecked(),
-                                interstack_edges = True)
+        return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
+                                                       selected_names = includes,
+                                                       excludes = excludes,
+                                                       depth = depth,
+                                                       with_stacks = self._widget.with_stacks.isChecked(),
+                                                       hide_transitives = self._widget.transitives.isChecked(),
+                                                       interstack_edges = True)
         #return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
 
     def _update_graph_view(self, dotcode):

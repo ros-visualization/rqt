@@ -86,6 +86,10 @@ class DotToQtGenerator():
                                      color=None,
                                      label_pos=QPointF(float(label_pos[0]), -float(label_pos[1])))
         bounding_box = QRectF(bounding_box)
+        # With clusters we have the problem that mouse hovers cannot
+        # decide whether to be over the cluster or a subnode. Using
+        # just the "title area" solves this. TODO: Maybe using a
+        # border region would be even better (multiple RectF)
         bounding_box.setHeight(30)
         subgraph_nodeitem.set_hovershape(bounding_box)
         return subgraph_nodeitem
@@ -153,7 +157,7 @@ class DotToQtGenerator():
     def dotcode_to_qt_items(self, dotcode, highlight_level):
         """
         takes dotcode, runs layout, and creates qt items based on the dot layout.
-        returns two dicts, one mapping node names to node items, one mapping edge names to edge items
+        returns two dicts, one mapping node names to Node_Item, one mapping edge names to lists of Edge_Item
         """
         # layout graph
         graph = pydot.graph_from_dot_data(dotcode.encode("ascii","ignore"))
