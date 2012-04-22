@@ -29,7 +29,7 @@
      <item>
       <widget class="QLineEdit" name="filter_line_edit">
        <property name="toolTip">
-        <string>Comma separated filter by regex patterns, leading dash creates exclusion pattern</string>
+        <string>Comma separated regex patterns / names, leading dash creates exclusion pattern. Example: gazebo, -test.*</string>
        </property>
        <property name="text">
         <string notr="true"/>
