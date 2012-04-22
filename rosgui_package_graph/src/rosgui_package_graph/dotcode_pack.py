@@ -38,6 +38,7 @@ import rospkg
 
 import re
 
+MAX_EDGES=1500
 
 def matches_any(name, patternlist):
     for pattern in patternlist:
@@ -64,6 +65,10 @@ class RosPackageGraphDotcodeGenerator:
         self.last_graph = None
         self.graph = None
         self.dotcode = None
+        self.rank = None
+        self.ranksep = None
+        self.simplify = None
+        self.compound = None
         
         
     def generate_dotcode(self,
@@ -76,10 +81,10 @@ class RosPackageGraphDotcodeGenerator:
                          ancestors = False,
                          hide_transitives = True,
                          interstack_edges = True,
-                         rank = 'same',
-                         ranksep = 0.2,
-                         simplify = True,
-                         compound = True,
+                         rank = 'source', # None, same, min, max, source, sink
+                         ranksep = 0.2, # vertical distance between layers
+                         simplify = True, # remove double edges
+                         compound = True, # allow edges bewteen subgraphs
                          force_refresh = False):
         """
         
@@ -112,6 +117,7 @@ class RosPackageGraphDotcodeGenerator:
         if self.hide_transitives != hide_transitives:
             selection_changed = True
             self.hide_transitives = hide_transitives
+            print(self.hide_transitives)
 
         if self.selected_names != selected_names:
             selection_changed = True
@@ -142,25 +148,51 @@ class RosPackageGraphDotcodeGenerator:
                         if ancestors:
                             self.add_package_ancestors_recursively(package_name)
 
+        display_changed = False
+        if self.rank != rank:
+            display_changed = True
+            self.rank = rank
+        if self.ranksep != ranksep:
+            display_changed = True
+            self.ranksep = ranksep
+        if self.simplify != simplify:
+            display_changed = True
+            self.simplify = simplify
+        if self.compound != compound:
+            display_changed = True
+            self.compound = compound
+        if self.dotcode_factory != dotcode_factory:
+            display_changed = True
+            self.dotcode_factory = dotcode_factory
+
+                            
         graph_changed = False
         #generate new dotcode
-        if force_refresh or selection_changed or self.dotcode_factory != dotcode_factory:
+        if force_refresh or selection_changed or display_changed:
             graph_changed = True
             self.graph = self.generate(self.dotcode_factory)
         if graph_changed:
             self.dotcode = dotcode_factory.create_dot(self.graph)
-        
         return self.dotcode
 
     def generate(self, dotcode_factory):
-        graph = dotcode_factory.get_graph()
+        graph = dotcode_factory.get_graph(rank = self.rank,
+                                          ranksep = self.ranksep,
+                                          simplify = self.simplify,
+                                          compound = self.compound)
         # print("In generate", self.with_stacks, len(self.stacks), len(self.packages), len(self.edges))
         if self.with_stacks:
             for stackname in self.stacks:
                 color = None
                 if not '.*' in self.selected_names and matches_any(stackname, self.selected_names):
                     color = 'red'
-                g = dotcode_factory.add_subgraph_to_graph(graph, stackname, color = color)
+                g = dotcode_factory.add_subgraph_to_graph(graph,
+                                                          stackname,
+                                                          color = color,
+                                                          rank = self.rank,
+                                                          ranksep = self.ranksep,
+                                                          simplify = self.simplify,
+                                                          compound = self.compound)
                 for package_name in self.stacks[stackname]['packages']:
                     color = None
                     if not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
@@ -172,11 +204,11 @@ class RosPackageGraphDotcodeGenerator:
                 if not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
                     color = 'red'
                 dotcode_factory.add_node_to_graph(graph, package_name, color = color)
-        if (len(self.edges) < 1000):
+        if (len(self.edges) < MAX_EDGES):
             for edge_tupel in self.edges:
                 dotcode_factory.add_edge_to_graph(graph, edge_tupel[0], edge_tupel[1])
         else:
-            print("Too many edges %s, abandoning generation of edge display" % len(self.edges))
+            print("Too many edges %s > %s, abandoning generation of edge display"%(len(self.edges), MAX_EDGES))
         return graph
         
     def _add_stack(self, stackname):
