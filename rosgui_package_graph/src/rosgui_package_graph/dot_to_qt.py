@@ -111,7 +111,14 @@ class DotToQtGenerator():
         pos = node.attr['pos'].split(',')
         bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
         color = QColor(node.attr['color']) if 'color' in node.attr else None
-        name = node.attr['label']
+        name = None
+        if 'label' in node.attr:
+            name = node.attr['label']
+        elif 'name' in node.attr:
+            name = node.attr['name']
+        else:
+            print("Error, no label defined for node with attr: %s"%node.attr)
+            return
         if name is None:
             # happens on Lucid pygraphviz version
             print("Error, label is None for node %s, pygraphviz version may be too old."%node)
