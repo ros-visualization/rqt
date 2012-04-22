@@ -36,9 +36,9 @@ import pydot
 
 class PydotFactory():
     
-    def get_graph(self,rank = 'same', simplify = True, ranksep = 0.2, compound = True):
+    def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, ranksep = 0.2, compound = True):
         graph = pydot.Dot('graphname',
-                          graph_type='digraph',
+                          graph_type = graph_type,
                           rank = rank,
                           simplify = simplify)
         graph.set_ranksep(ranksep);
