@@ -69,7 +69,8 @@ class RosPackageGraphDotcodeGenerator:
         self.rank = None
         self.ranksep = None
         self.simplify = None
-        
+        self.descendants = None
+        self.ancestors = None
         
         
     def generate_dotcode(self,
@@ -125,6 +126,14 @@ class RosPackageGraphDotcodeGenerator:
         if self.excludes != excludes:
             selection_changed = True
             self.excludes = excludes
+
+        if self.ancestors != ancestors:
+            selection_changed = True
+            self.ancestors = ancestors
+
+        if self.descendants != descendants:
+            selection_changed = True
+            self.descendants = descendants
 
         if force_refresh or selection_changed:
             self.stacks = {}

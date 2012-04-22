@@ -197,11 +197,12 @@ class RosPackGraph(QObject):
         # orientation = 'LR'
         descendants = True
         ancestors = True
-        if self._widget.directions_combo_box.currentIndex() == 1:
+        selected_directions = self._widget.directions_combo_box.itemData(self._widget.directions_combo_box.currentIndex())
+        if selected_directions == 1:
             descendants = False
-        if self._widget.directions_combo_box.currentIndex() == 0:
+        if selected_directions == 0:
             ancestors = False
-        
+
         return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
                                                        selected_names = includes,
                                                        excludes = excludes,
