@@ -192,7 +192,7 @@ class RosPackGraph(QObject):
             if name.strip().startswith('-'):
                 excludes.append(name.strip()[1:])
             else:
-                includes.append(name)
+                includes.append(name.strip())
         depth = self._widget.depth_combo_box.itemData(self._widget.depth_combo_box.currentIndex())
         # orientation = 'LR'
         descendants = True
