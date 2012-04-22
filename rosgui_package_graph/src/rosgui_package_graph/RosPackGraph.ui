@@ -37,7 +37,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="graph_type_combo_box">
+      <widget class="QComboBox" name="depth_combo_box">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>

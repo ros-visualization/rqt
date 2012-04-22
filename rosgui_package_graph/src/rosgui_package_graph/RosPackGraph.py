@@ -94,13 +94,13 @@ class RosPackGraph(QObject):
         self._scene = QGraphicsScene()
         self._widget.graphics_view.setScene(self._scene)
 
-        self._widget.graph_type_combo_box.insertItem(0, self.tr('infinite'), -1)
-        self._widget.graph_type_combo_box.insertItem(1, self.tr('1'), 2)
-        self._widget.graph_type_combo_box.insertItem(2, self.tr('2'), 3)
-        self._widget.graph_type_combo_box.insertItem(3, self.tr('3'), 4)
-        self._widget.graph_type_combo_box.insertItem(4, self.tr('4'), 5)
-        self._widget.graph_type_combo_box.setCurrentIndex(0)
-        self._widget.graph_type_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
+        self._widget.depth_combo_box.insertItem(0, self.tr('infinite'), -1)
+        self._widget.depth_combo_box.insertItem(1, self.tr('1'), 2)
+        self._widget.depth_combo_box.insertItem(2, self.tr('2'), 3)
+        self._widget.depth_combo_box.insertItem(3, self.tr('3'), 4)
+        self._widget.depth_combo_box.insertItem(4, self.tr('4'), 5)
+        self._widget.depth_combo_box.setCurrentIndex(0)
+        self._widget.depth_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
 
         self._widget.directions_combo_box.insertItem(0, self.tr('depends'), 0)
         self._widget.directions_combo_box.insertItem(1, self.tr('depends_on'), 1)
@@ -144,7 +144,7 @@ class RosPackGraph(QObject):
         context.add_widget(self._widget)
 
     def save_settings(self, global_settings, perspective_settings):
-        perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
+        perspective_settings.set_value('depth_combo_box_index', self._widget.depth_combo_box.currentIndex())
         perspective_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
         perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
         perspective_settings.set_value('with_stacks_state', self._widget.with_stacks_check_box.isChecked())
@@ -154,7 +154,7 @@ class RosPackGraph(QObject):
         perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
 
     def restore_settings(self, global_settings, perspective_settings):
-        self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
+        self._widget.depth_combo_box.setCurrentIndex(int(perspective_settings.value('depth_combo_box_index', 0)))
         self._widget.directions_combo_box.setCurrentIndex(int(perspective_settings.value('directions_combo_box_index', 0)))
         self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', ''))
         self._widget.with_stacks_check_box.setChecked(perspective_settings.value('with_stacks_state', True) in [True, 'true'])
@@ -168,7 +168,7 @@ class RosPackGraph(QObject):
 
     def _update_rospackgraph(self):
         # re-enable controls customizing fetched ROS graph
-        self._widget.graph_type_combo_box.setEnabled(True)
+        self._widget.depth_combo_box.setEnabled(True)
         self._widget.directions_combo_box.setEnabled(True)
         self._widget.filter_line_edit.setEnabled(True)
         self._widget.with_stacks_check_box.setEnabled(True)
@@ -193,7 +193,7 @@ class RosPackGraph(QObject):
                 excludes.append(name.strip()[1:])
             else:
                 includes.append(name)
-        depth = self._widget.graph_type_combo_box.itemData(self._widget.directions_combo_box.currentIndex())
+        depth = self._widget.depth_combo_box.itemData(self._widget.depth_combo_box.currentIndex())
         # orientation = 'LR'
         descendants = True
         ancestors = True
@@ -202,7 +202,6 @@ class RosPackGraph(QObject):
         if self._widget.directions_combo_box.currentIndex() == 0:
             ancestors = False
         
-
         return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
                                                        selected_names = includes,
                                                        excludes = excludes,
@@ -274,7 +273,7 @@ class RosPackGraph(QObject):
             return
 
         # disable controls customizing fetched ROS graph
-        self._widget.graph_type_combo_box.setEnabled(False)
+        self._widget.depth_combo_box.setEnabled(False)
         self._widget.directions_combo_box.setEnabled(False)
         self._widget.filter_line_edit.setEnabled(False)
         self._widget.with_stacks_check_box.setEnabled(False)
