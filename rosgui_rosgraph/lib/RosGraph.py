@@ -48,15 +48,16 @@ import rosgraph.impl.graph, rostopic, rosnode, rosservice
 import dotcode
 reload(dotcode)
 from dotcode import generate_dotcode, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
-import EdgeItem
-reload(EdgeItem)
-from EdgeItem import EdgeItem
+
+import rosgui_dotgraph.edge_item
+reload(rosgui_dotgraph.edge_item)
+from rosgui_dotgraph.edge_item import EdgeItem
 import InteractiveGraphicsView
 reload(InteractiveGraphicsView)
 from InteractiveGraphicsView import InteractiveGraphicsView
-import NodeItem
-reload(NodeItem)
-from NodeItem import NodeItem
+import rosgui_dotgraph.node_item
+reload(rosgui_dotgraph.node_item)
+from rosgui_dotgraph.node_item import NodeItem
 
 class RosGraph(QObject):
 

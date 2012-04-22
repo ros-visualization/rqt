@@ -32,7 +32,7 @@ import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import QPointF, Qt
 from QtGui import QBrush, QGraphicsPathItem, QGraphicsPolygonItem, QGraphicsSimpleTextItem, QPainterPath, QPen, QPolygonF
 
-from RosGraphItem import RosGraphItem
+from ros_graph_item import RosGraphItem
 
 class EdgeItem(RosGraphItem):
 

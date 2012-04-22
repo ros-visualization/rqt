@@ -5,9 +5,6 @@ from __future__ import division
 import os
 import re
 
-# pydot requires some hacks
-import pydot
-
 
 import rospkg
 
@@ -18,12 +15,12 @@ from QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rosgui_package_graph')
-import rosgraph.impl.graph
 
 import rosgui_package_graph.dotcode_pack
 from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
-from rosgui_package_graph.pydotfactory import PydotFactory
-from rosgui_package_graph.dot_to_qt import DotToQtGenerator
+import rosgui_dotgraph
+from rosgui_dotgraph.pydotfactory import PydotFactory
+from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
 import InteractiveGraphicsView
 reload(InteractiveGraphicsView)

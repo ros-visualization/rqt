@@ -32,7 +32,7 @@ import rosgui.QtBindingHelper #@UnusedImport
 from QtCore import Qt, QRectF
 from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen, QPainterPath
 
-from RosGraphItem import RosGraphItem
+from ros_graph_item import RosGraphItem
 
 class NodeItem(RosGraphItem):
 

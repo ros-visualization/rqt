@@ -38,15 +38,12 @@ from QtGui import QColor
 
 import roslib
 roslib.load_manifest('rosgui_package_graph')
-import rosgraph.impl.graph
 
+import edge_item
+from edge_item import EdgeItem
 
-
-import EdgeItem
-from EdgeItem import EdgeItem
-
-import NodeItem
-from NodeItem import NodeItem
+import node_item
+from node_item import NodeItem
 
 POINTS_PER_INCH = 72
 

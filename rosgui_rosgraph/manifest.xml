@@ -10,14 +10,14 @@
   <url>http://ros.org/wiki/rosgui_rosgraph</url>
 
   <depend package="rosgui"/>
+  <depend package="rosgui_dotgraph"/>
+
   <depend package="rosgraph"/>
   <depend package="roslib"/>
 
   <depend package="rosnode"/>
   <depend package="rostopic"/>
   <depend package="rosservice"/>
-
-  <rosdep name="python-pydot"/>
 
   <export>
     <rosgui plugin="${prefix}/rosgraph_plugin.xml"/>
