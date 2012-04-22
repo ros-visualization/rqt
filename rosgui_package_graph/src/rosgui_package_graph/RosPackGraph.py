@@ -102,6 +102,11 @@ class RosPackGraph(QObject):
         self._widget.graph_type_combo_box.setCurrentIndex(0)
         self._widget.graph_type_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
 
+        self._widget.directions_combo_box.insertItem(0, self.tr('depends'), 0)
+        self._widget.directions_combo_box.insertItem(1, self.tr('depends_on'), 1)
+        self._widget.directions_combo_box.insertItem(2, self.tr('both'), 2)
+        self._widget.directions_combo_box.setCurrentIndex(2)
+        self._widget.directions_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
         
         completionmodel = StackageCompletionModel(self._widget.filter_line_edit)
         completer = RepeatedWordCompleter(completionmodel, self)
@@ -112,8 +117,9 @@ class RosPackGraph(QObject):
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rospackgraph)
         self._widget.filter_line_edit.setCompleter(completer)
         
-        self._widget.with_stacks.clicked.connect(self._refresh_rospackgraph)
-        self._widget.transitives.clicked.connect(self._refresh_rospackgraph)
+        self._widget.with_stacks_check_box.clicked.connect(self._refresh_rospackgraph)
+        self._widget.mark_check_box.clicked.connect(self._refresh_rospackgraph)
+        self._widget.transitives_check_box.clicked.connect(self._refresh_rospackgraph)
 
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
         self._widget.refresh_graph_push_button.pressed.connect(self._update_rospackgraph)
@@ -139,17 +145,21 @@ class RosPackGraph(QObject):
 
     def save_settings(self, global_settings, perspective_settings):
         perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
+        perspective_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
         perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
-        perspective_settings.set_value('with_stacks_state', self._widget.with_stacks.isChecked())
-        perspective_settings.set_value('transitives_state', self._widget.transitives.isChecked())
+        perspective_settings.set_value('with_stacks_state', self._widget.with_stacks_check_box.isChecked())
+        perspective_settings.set_value('transitives_state', self._widget.transitives_check_box.isChecked())
+        perspective_settings.set_value('mark_state', self._widget.mark_check_box.isChecked())
         perspective_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
         perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
 
     def restore_settings(self, global_settings, perspective_settings):
         self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
+        self._widget.directions_combo_box.setCurrentIndex(int(perspective_settings.value('directions_combo_box_index', 0)))
         self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', ''))
-        self._widget.with_stacks.setChecked(perspective_settings.value('with_stacks_state', True) in [True, 'true'])
-        self._widget.transitives.setChecked(perspective_settings.value('transitives_state', True) in [True, 'true'])
+        self._widget.with_stacks_check_box.setChecked(perspective_settings.value('with_stacks_state', True) in [True, 'true'])
+        self._widget.mark_check_box.setChecked(perspective_settings.value('mark_state', True) in [True, 'true'])
+        self._widget.transitives_check_box.setChecked(perspective_settings.value('transitives_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
         self.initialized = True
@@ -159,9 +169,11 @@ class RosPackGraph(QObject):
     def _update_rospackgraph(self):
         # re-enable controls customizing fetched ROS graph
         self._widget.graph_type_combo_box.setEnabled(True)
+        self._widget.directions_combo_box.setEnabled(True)
         self._widget.filter_line_edit.setEnabled(True)
-        self._widget.with_stacks.setEnabled(True)
-        self._widget.transitives.setEnabled(True)
+        self._widget.with_stacks_check_box.setEnabled(True)
+        self._widget.mark_check_box.setEnabled(True)
+        self._widget.transitives_check_box.setEnabled(True)
 
         self._refresh_rospackgraph()
 
@@ -181,15 +193,25 @@ class RosPackGraph(QObject):
                 excludes.append(name.strip()[1:])
             else:
                 includes.append(name)
-        depth = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
+        depth = self._widget.graph_type_combo_box.itemData(self._widget.directions_combo_box.currentIndex())
         # orientation = 'LR'
+        descendants = True
+        ancestors = True
+        if self._widget.directions_combo_box.currentIndex() == 1:
+            descendants = False
+        if self._widget.directions_combo_box.currentIndex() == 0:
+            ancestors = False
+        
+
         return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
                                                        selected_names = includes,
                                                        excludes = excludes,
                                                        depth = depth,
-                                                       with_stacks = self._widget.with_stacks.isChecked(),
-                                                       hide_transitives = self._widget.transitives.isChecked(),
-                                                       interstack_edges = True)
+                                                       with_stacks = self._widget.with_stacks_check_box.isChecked(),
+                                                       descendants = descendants,
+                                                       ancestors = ancestors,
+                                                       mark_selected = self._widget.mark_check_box.isChecked(),
+                                                       hide_transitives = self._widget.transitives_check_box.isChecked())
         #return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
 
     def _update_graph_view(self, dotcode):
@@ -253,9 +275,11 @@ class RosPackGraph(QObject):
 
         # disable controls customizing fetched ROS graph
         self._widget.graph_type_combo_box.setEnabled(False)
+        self._widget.directions_combo_box.setEnabled(False)
         self._widget.filter_line_edit.setEnabled(False)
-        self._widget.with_stacks.setEnabled(False)
-        self._widget.transitives.setEnabled(False)
+        self._widget.with_stacks_check_box.setEnabled(False)
+        self._widget.mark_check_box.setEnabled(False)
+        self._widget.transitives_check_box.setEnabled(False)
 
         self._update_graph_view(dotcode)
 

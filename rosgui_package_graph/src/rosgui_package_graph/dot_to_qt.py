@@ -79,11 +79,12 @@ class DotToQtGenerator():
         label_pos = subgraph.attr['lp'].strip('"').split(',')
         bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2))
         name = subgraph.attr['label']
+        color = QColor(subgraph.attr['color']) if 'color' in subgraph.attr else None
         subgraph_nodeitem = NodeItem(highlight_level,
                                      bounding_box,
                                      label = name,
                                      shape = 'box',
-                                     color=None,
+                                     color=color,
                                      label_pos=QPointF(float(label_pos[0]), -float(label_pos[1])))
         bounding_box = QRectF(bounding_box)
         # With clusters we have the problem that mouse hovers cannot

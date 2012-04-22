@@ -61,6 +61,7 @@ class RosPackageGraphDotcodeGenerator:
         self.excludes = None
         self.depth = None
         self.hide_transitives = None
+        self.mark_selected = None
         self.with_stacks = None
         self.last_graph = None
         self.graph = None
@@ -68,7 +69,7 @@ class RosPackageGraphDotcodeGenerator:
         self.rank = None
         self.ranksep = None
         self.simplify = None
-        self.compound = None
+        
         
         
     def generate_dotcode(self,
@@ -78,13 +79,12 @@ class RosPackageGraphDotcodeGenerator:
                          depth = 3,
                          with_stacks = True,
                          descendants = True,
-                         ancestors = False,
+                         ancestors = True,
                          hide_transitives = True,
-                         interstack_edges = True,
-                         rank = 'source', # None, same, min, max, source, sink
+                         mark_selected = True,
+                         rank = 'same', # None, same, min, max, source, sink
                          ranksep = 0.2, # vertical distance between layers
                          simplify = True, # remove double edges
-                         compound = True, # allow edges bewteen subgraphs
                          force_refresh = False):
         """
         
@@ -117,7 +117,6 @@ class RosPackageGraphDotcodeGenerator:
         if self.hide_transitives != hide_transitives:
             selection_changed = True
             self.hide_transitives = hide_transitives
-            print(self.hide_transitives)
 
         if self.selected_names != selected_names:
             selection_changed = True
@@ -158,14 +157,13 @@ class RosPackageGraphDotcodeGenerator:
         if self.simplify != simplify:
             display_changed = True
             self.simplify = simplify
-        if self.compound != compound:
-            display_changed = True
-            self.compound = compound
         if self.dotcode_factory != dotcode_factory:
             display_changed = True
             self.dotcode_factory = dotcode_factory
-
-                            
+        if self.mark_selected != mark_selected:
+            display_changed = True
+            self.mark_selected = mark_selected
+            
         graph_changed = False
         #generate new dotcode
         if force_refresh or selection_changed or display_changed:
@@ -178,30 +176,28 @@ class RosPackageGraphDotcodeGenerator:
     def generate(self, dotcode_factory):
         graph = dotcode_factory.get_graph(rank = self.rank,
                                           ranksep = self.ranksep,
-                                          simplify = self.simplify,
-                                          compound = self.compound)
+                                          simplify = self.simplify)
         # print("In generate", self.with_stacks, len(self.stacks), len(self.packages), len(self.edges))
         if self.with_stacks:
             for stackname in self.stacks:
                 color = None
-                if not '.*' in self.selected_names and matches_any(stackname, self.selected_names):
+                if self.mark_selected and not '.*' in self.selected_names and matches_any(stackname, self.selected_names):
                     color = 'red'
                 g = dotcode_factory.add_subgraph_to_graph(graph,
                                                           stackname,
                                                           color = color,
                                                           rank = self.rank,
                                                           ranksep = self.ranksep,
-                                                          simplify = self.simplify,
-                                                          compound = self.compound)
+                                                          simplify = self.simplify)
                 for package_name in self.stacks[stackname]['packages']:
                     color = None
-                    if not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
+                    if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
                         color = 'red'
                     dotcode_factory.add_node_to_graph(g, package_name, color = color)
         else:
             for package_name in self.packages:
                 color = None
-                if not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
+                if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
                     color = 'red'
                 dotcode_factory.add_node_to_graph(graph, package_name, color = color)
         if (len(self.edges) < MAX_EDGES):
@@ -231,10 +227,32 @@ class RosPackageGraphDotcodeGenerator:
     def _add_edge(self, name1, name2, attributes = None):
         self.edges.append((name1, name2, attributes))
 
-    def add_package_ancestors_recursively(self, package_name, expanded = None, depth = None):
-        pass
+    def add_package_ancestors_recursively(self, package_name, expanded_up = None, depth = None, implicit = False):
+       if matches_any(package_name, self.excludes):
+           return False
+       if (depth == 0):
+           return False
+       if (depth == None):
+           depth = self.depth
+       self._add_package(package_name)
+       if expanded_up is None:
+           expanded_up = []
+       expanded_up.append(package_name)
+       if (depth != 1):
+           depends_on = self.rospack.get_depends_on(package_name, implicit = implicit)
+           new_nodes = []
+           for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
+               if not self.hide_transitives or not dep_on_name in expanded_up:
+                   new_nodes.append(dep_on_name)
+                   self._add_edge(dep_on_name, package_name)
+                   self._add_package(dep_on_name)
+                   expanded_up.append(dep_on_name)
+           for dep_on_name in new_nodes:
+               self.add_package_ancestors_recursively(package_name = dep_on_name, 
+                                            expanded_up = expanded_up,
+                                            depth = depth-1)
 
-    def add_package_descendants_recursively(self, package_name, expanded = None, depth = None):
+    def add_package_descendants_recursively(self, package_name, expanded = None, depth = None, implicit = False):
         if matches_any(package_name, self.excludes):
             return False
         if (depth == 0):
@@ -246,7 +264,7 @@ class RosPackageGraphDotcodeGenerator:
             expanded = []
         expanded.append(package_name)
         if (depth != 1):
-            depends = self.rospack.get_depends(package_name, implicit = False)
+            depends = self.rospack.get_depends(package_name, implicit = implicit)
             new_nodes = []
             for dep_name in [x for x in depends if not matches_any(x, self.excludes)]:
                 if not self.hide_transitives or not dep_name in expanded:

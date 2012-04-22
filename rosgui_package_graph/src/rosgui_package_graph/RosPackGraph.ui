@@ -18,11 +18,21 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
      <item>
       <widget class="QPushButton" name="refresh_graph_push_button">
        <property name="toolTip">
         <string>Refresh ROS graph</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="filter_line_edit">
+       <property name="toolTip">
+        <string>Comma separated filter by regex patterns, leading dash creates exclusion pattern</string>
+       </property>
+       <property name="text">
+        <string notr="true"/>
        </property>
       </widget>
      </item>
@@ -40,17 +50,27 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="filter_line_edit">
-       <property name="toolTip">
-        <string>Comma separated filter by regex patterns, leading dash creates exclusion pattern</string>
-       </property>
-       <property name="text">
-        <string notr="true"/>
+      <widget class="QComboBox" name="directions_combo_box">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="with_stacks">
+      <widget class="QCheckBox" name="mark_check_box">
+       <property name="toolTip">
+        <string>Mark Selected</string>
+       </property>
+       <property name="text">
+        <string>Mark</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="with_stacks_check_box">
        <property name="toolTip">
         <string>Show stacks</string>
        </property>
@@ -60,7 +80,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="transitives">
+      <widget class="QCheckBox" name="transitives_check_box">
        <property name="toolTip">
         <string>Do not show transitive / duplicate dependencies</string>
        </property>
