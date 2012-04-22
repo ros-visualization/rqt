@@ -49,15 +49,11 @@ import dotcode
 reload(dotcode)
 from dotcode import generate_dotcode, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
 
-import rosgui_dotgraph.edge_item
-reload(rosgui_dotgraph.edge_item)
-from rosgui_dotgraph.edge_item import EdgeItem
 import InteractiveGraphicsView
 reload(InteractiveGraphicsView)
 from InteractiveGraphicsView import InteractiveGraphicsView
-import rosgui_dotgraph.node_item
-reload(rosgui_dotgraph.node_item)
-from rosgui_dotgraph.node_item import NodeItem
+
+from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
 class RosGraph(QObject):
 
@@ -71,6 +67,9 @@ class RosGraph(QObject):
         self._current_dotcode = None
 
         self._widget = QWidget()
+
+        # dot_to_qt transforms into Qt elements using dot layout
+        self.dot_to_qt = DotToQtGenerator()
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
@@ -187,86 +186,15 @@ class RosGraph(QObject):
 
         # read dot graph
         raw_graph = pydot.graph_from_dot_data(self._current_dotcode)
-        # layout graph
-        graph = pydot.graph_from_dot_data(raw_graph.create_dot('dot'))
 
-        #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)
-        #graph.layout(prog='dot')
-
-        POINTS_PER_INCH = 72
-
-        # hack required by pydot
-        def get_unquoted(item, name):
-            value = item.get(name)
-            if value.startswith('"') and value.endswith('"'):
-                value = value[1:-1]
-            value = value.replace('\\\n', '')
-            return value
-        # let pydot imitate pygraphviz api
-        graph.nodes_iter = graph.get_node_list
-        graph.edges_iter = graph.get_edge_list
-
-        nodes = {}
-        for node in graph.nodes_iter():
-            # hack required by pydot
-            if node.get_name() in ('graph', 'node', 'empty'):
-                continue
-            # let pydot imitate pygraphviz api
-            attr = {}
-            for name in node.get_attributes().iterkeys():
-                value = get_unquoted(node, name)
-                attr[name] = value
-            node.attr = attr
-
-            # decrease rect by one so that edges do not reach inside
-            bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
-            pos = node.attr['pos'].split(',')
-            bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
-            color = QColor(node.attr['color']) if 'color' in node.attr else None
-            node_item = NodeItem(highlight_level, bounding_box, node.attr['label'], node.attr.get('shape', 'ellipse'), color)
-            node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
-
-            # let pydot imitate pygraphviz api
-            pydot.Node.__repr__ = lambda self: self.get_name()
-
-            nodes[str(node)] = node_item
-
-        edges = {}
-        for edge in graph.edges_iter():
-            # let pydot imitate pygraphviz api
-            attr = {}
-            for name in edge.get_attributes().iterkeys():
-                value = get_unquoted(edge, name)
-                attr[name] = value
-            edge.attr = attr
-
-            label = edge.attr.get('label', None)
-            label_pos = edge.attr.get('lp', None)
-            label_center = None
-            if label_pos is not None:
-                label_pos = label_pos.split(',')
-                label_center = QPointF(float(label_pos[0]), -float(label_pos[1]))
-
-            # try pydot, fallback for pygraphviz
-            source_node = edge.get_source() if hasattr(edge, 'get_source') else edge[0]
-            destination_node = edge.get_destination() if hasattr(edge, 'get_destination') else edge[1]
-
-            # create edge with from-node and to-node
-            edge_item = EdgeItem(highlight_level, edge.attr['pos'], label_center, label, nodes[source_node], nodes[destination_node])
-            # symmetrically add all sibling edges with same label
-            if label is not None:
-                if label not in edges:
-                    edges[label] = []
-                for sibling in edges[label]:
-                    edge_item.add_sibling_edge(sibling)
-                    sibling.add_sibling_edge(edge_item)
-                edges[label].append(edge_item)
-
-            edge_item.setToolTip(self._generate_tool_tip(edge.attr.get('URL', None)))
-            edge_item.add_to_scene(self._scene)
+        # layout graph and create qt items
+        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(raw_graph.create_dot('dot'), highlight_level)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)
+        for edge_items in edges.itervalues():
+            for edge_item in edge_items:
+                edge_item.add_to_scene(self._scene)
 
         self._scene.setSceneRect(self._scene.itemsBoundingRect())
         if self._widget.auto_fit_graph_check_box.isChecked():
