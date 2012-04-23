@@ -209,14 +209,14 @@ class DockWidget(QDockWidget):
         rect = QRect(topleft, widget.geometry().size())
         return rect.contains(point)
 
-    def save_settings(self, perspective_settings):
-        perspective_settings.set_value('parent', self._parent_container_serial_number())
+    def save_settings(self, settings):
+        settings.set_value('parent', self._parent_container_serial_number())
 
         title_bar = self.titleBarWidget()
-        title_bar.save_settings(perspective_settings)
+        title_bar.save_settings(settings)
 
-    def restore_settings(self, perspective_settings):
-        serial_number = perspective_settings.value('parent', None)
+    def restore_settings(self, settings):
+        serial_number = settings.value('parent', None)
         if serial_number is not None:
             serial_number = int(serial_number)
         if self._parent_container_serial_number() != serial_number and self._container_manager is not None:
@@ -232,7 +232,7 @@ class DockWidget(QDockWidget):
                 self.setFloating(floating)
 
         title_bar = self.titleBarWidget()
-        title_bar.restore_settings(perspective_settings)
+        title_bar.restore_settings(settings)
 
     def _parent_container(self, dock_widget):
         from DockWidgetContainer import DockWidgetContainer

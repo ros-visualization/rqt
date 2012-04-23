@@ -59,7 +59,7 @@ class PluginHandler(QObject):
 
         self._plugin_provider = None
         self.__callback = None
-        self.__perspective_settings = None
+        self.__instance_settings = None
 
         self._plugin_has_configuration = False
 
@@ -150,36 +150,36 @@ class PluginHandler(QObject):
             callback(self._instance_id)
 
 
-    def save_settings(self, global_settings, perspective_settings, callback=None):
+    def save_settings(self, plugin_settings, instance_settings, callback=None):
         """
         Save settings of the plugin (`Plugin.save_settings()`) and all dock widget title bars.
         Completion is signaled asynchronously if a callback is passed.
         """
         #qDebug('PluginHandler.save_settings()')
-        self.__perspective_settings = perspective_settings
+        self.__instance_settings = instance_settings
         self.__callback = callback
         try:
-            self._save_settings(global_settings, perspective_settings)
+            self._save_settings(plugin_settings, instance_settings)
         except Exception:
             qCritical('PluginHandler.save_settings() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
             self.emit_save_settings_completed()
 
-    def _save_settings(self, global_settings, perspective_settings):
+    def _save_settings(self, plugin_settings, instance_settings):
         raise NotImplementedError
 
     def emit_save_settings_completed(self):
         #qDebug('PluginHandler.emit_save_settings_completed()')
-        self._call_method_on_all_dock_widgets('save_settings', self.__perspective_settings)
-        self.__perspective_settings = None
+        self._call_method_on_all_dock_widgets('save_settings', self.__instance_settings)
+        self.__instance_settings = None
         if self.__callback is not None:
             callback = self.__callback
             self.__callback = None
             callback(self._instance_id)
 
-    def _call_method_on_all_dock_widgets(self, method_name, perspective_settings):
+    def _call_method_on_all_dock_widgets(self, method_name, instance_settings):
         for dock_widget in self._widgets.values():
             name = 'dock_widget' + dock_widget.objectName().replace(self._instance_id.tidy_str(), '', 1)
-            settings = perspective_settings.get_settings(name)
+            settings = instance_settings.get_settings(name)
             method = getattr(dock_widget, method_name)
             try:
                 method(settings)
@@ -187,28 +187,28 @@ class PluginHandler(QObject):
                 qCritical('PluginHandler._call_method_on_all_dock_widgets(%s) failed:\n%s' % (method_name, traceback.format_exc()))
 
 
-    def restore_settings(self, global_settings, perspective_settings, callback=None):
+    def restore_settings(self, plugin_settings, instance_settings, callback=None):
         """
         Restore settings of the plugin (`Plugin.restore_settings()`) and all dock widget title bars.
         Completion is signaled asynchronously if a callback is passed.
         """
         #qDebug('PluginHandler.restore_settings()')
-        self.__perspective_settings = perspective_settings
+        self.__instance_settings = instance_settings
         self.__callback = callback
         try:
-            self._restore_settings(global_settings, perspective_settings)
+            self._restore_settings(plugin_settings, instance_settings)
         except Exception:
             qCritical('PluginHandler.restore_settings() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
             self.emit_restore_settings_completed()
 
-    def _restore_settings(self, global_settings, perspective_settings):
+    def _restore_settings(self, plugin_settings, instance_settings):
         raise NotImplementedError
 
     def emit_restore_settings_completed(self):
         #qDebug('PluginHandler.emit_restore_settings_completed()')
         # call after plugin has restored settings as it may spawn additional dock widgets
-        self._call_method_on_all_dock_widgets('restore_settings', self.__perspective_settings)
-        self.__perspective_settings = None
+        self._call_method_on_all_dock_widgets('restore_settings', self.__instance_settings)
+        self.__instance_settings = None
         if self.__callback is not None:
             callback = self.__callback
             self.__callback = None

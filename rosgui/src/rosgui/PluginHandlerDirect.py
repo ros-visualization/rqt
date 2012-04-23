@@ -101,23 +101,23 @@ class PluginHandlerDirect(PluginHandler):
         self._emit_unload_completed()
 
 
-    def _save_settings(self, global_settings, perspective_settings):
+    def _save_settings(self, plugin_settings, instance_settings):
         if hasattr(self._plugin, 'save_settings'):
-            global_settings_plugin = global_settings.get_settings('plugin')
-            perspective_settings_plugin = perspective_settings.get_settings('plugin')
+            plugin_settings_plugin = plugin_settings.get_settings('plugin')
+            instance_settings_plugin = instance_settings.get_settings('plugin')
             try:
-                self._plugin.save_settings(global_settings_plugin, perspective_settings_plugin)
+                self._plugin.save_settings(plugin_settings_plugin, instance_settings_plugin)
             except Exception:
                 qCritical('PluginHandlerDirect._save_settings() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
         self.emit_save_settings_completed()
 
 
-    def _restore_settings(self, global_settings, perspective_settings):
+    def _restore_settings(self, plugin_settings, instance_settings):
         if hasattr(self._plugin, 'restore_settings'):
-            global_settings_plugin = global_settings.get_settings('plugin')
-            perspective_settings_plugin = perspective_settings.get_settings('plugin')
+            plugin_settings_plugin = plugin_settings.get_settings('plugin')
+            instance_settings_plugin = instance_settings.get_settings('plugin')
             try:
-                self._plugin.restore_settings(global_settings_plugin, perspective_settings_plugin)
+                self._plugin.restore_settings(plugin_settings_plugin, instance_settings_plugin)
             except Exception:
                 qCritical('PluginHandlerDirect._restore_settings() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
         self.emit_restore_settings_completed()

@@ -55,8 +55,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._dbus_object_path = dbus_object_path
         self._dbus_server = None
         self._dbus_container_service = None
-        self._dbus_global_settings_service = None
-        self._dbus_perspective_settings_service = None
+        self._dbus_plugin_settings_service = None
+        self._dbus_instance_settings_service = None
 
         self._process = None
         self._pid = None
@@ -68,8 +68,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._dbus_server = Server('tcp:bind=*')
         self._dbus_server.on_connection_added.append(self._add_dbus_connection)
         self._dbus_container_service = PluginHandlerDBusService(self, self._dbus_object_path)
-        self._dbus_global_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/global')
-        self._dbus_perspective_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/perspective')
+        self._dbus_plugin_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/plugin')
+        self._dbus_instance_settings_service = SettingsProxyDBusService(self._dbus_object_path + '/instance')
 
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.SeparateChannels)
@@ -86,8 +86,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         started = self._process.waitForStarted(3000)
         if not started:
             self._dbus_container_service.remove_from_connection()
-            self._dbus_global_settings_service.remove_from_connection()
-            self._dbus_perspective_settings_service.remove_from_connection()
+            self._dbus_plugin_settings_service.remove_from_connection()
+            self._dbus_instance_settings_service.remove_from_connection()
             raise RuntimeError('PluginHandlerXEmbedContainer._load() could not start subprocess in reasonable time')
         # QProcess.pid() has been added to PySide in 1.0.5
         if hasattr(self._process, 'pid'):
@@ -102,8 +102,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
     def _add_dbus_connection(self, conn):
         self._dbus_container_service.add_to_connection(conn, self._dbus_object_path)
-        self._dbus_global_settings_service.add_to_connection(conn, self._dbus_object_path + '/global')
-        self._dbus_perspective_settings_service.add_to_connection(conn, self._dbus_object_path + '/perspective')
+        self._dbus_plugin_settings_service.add_to_connection(conn, self._dbus_object_path + '/plugin')
+        self._dbus_instance_settings_service.add_to_connection(conn, self._dbus_object_path + '/instance')
 
     def _print_process_output(self):
         self._print_process(self._process.readAllStandardOutput(), qDebug)
@@ -134,8 +134,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
     def emit_shutdown_plugin_completed(self):
         self._dbus_container_service.remove_from_connection()
-        self._dbus_global_settings_service.remove_from_connection()
-        self._dbus_perspective_settings_service.remove_from_connection()
+        self._dbus_plugin_settings_service.remove_from_connection()
+        self._dbus_instance_settings_service.remove_from_connection()
 
         self._process.close()
         self._process.waitForFinished(5000)
@@ -150,26 +150,26 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         #qDebug('PluginHandlerXEmbedContainer._unload()')
         self._emit_unload_completed()
 
-    def _save_settings(self, global_settings, perspective_settings):
+    def _save_settings(self, plugin_settings, instance_settings):
         #qDebug('PluginHandlerXEmbedContainer._save_settings()')
-        self._dbus_global_settings_service.set_settings(global_settings)
-        self._dbus_perspective_settings_service.set_settings(perspective_settings)
+        self._dbus_plugin_settings_service.set_settings(plugin_settings)
+        self._dbus_instance_settings_service.set_settings(instance_settings)
         self._dbus_container_service.save_settings()
 
     def emit_save_settings_completed(self):
-        self._dbus_global_settings_service.set_settings(None)
-        self._dbus_perspective_settings_service.set_settings(None)
+        self._dbus_plugin_settings_service.set_settings(None)
+        self._dbus_instance_settings_service.set_settings(None)
         super(PluginHandlerXEmbedContainer, self).emit_save_settings_completed()
 
-    def _restore_settings(self, global_settings, perspective_settings):
+    def _restore_settings(self, plugin_settings, instance_settings):
         #qDebug('PluginHandlerXEmbedContainer._restore_settings()')
-        self._dbus_global_settings_service.set_settings(global_settings)
-        self._dbus_perspective_settings_service.set_settings(perspective_settings)
+        self._dbus_plugin_settings_service.set_settings(plugin_settings)
+        self._dbus_instance_settings_service.set_settings(instance_settings)
         self._dbus_container_service.restore_settings()
 
     def emit_restore_settings_completed(self):
-        self._dbus_global_settings_service.set_settings(None)
-        self._dbus_perspective_settings_service.set_settings(None)
+        self._dbus_plugin_settings_service.set_settings(None)
+        self._dbus_instance_settings_service.set_settings(None)
         super(PluginHandlerXEmbedContainer, self).emit_restore_settings_completed()
 
 

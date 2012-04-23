@@ -231,10 +231,10 @@ class PluginManager(QObject):
     def _restore_plugin_settings(self, instance_id, callback):
         if self._global_settings is not None and self._perspective_settings is not None:
             info = self._running_plugins[str(instance_id)]
-            global_settings = self._global_settings.get_settings('plugin__' + instance_id.tidy_plugin_str())
-            perspective_settings = self._perspective_settings.get_settings('plugin__' + instance_id.tidy_str())
+            plugin_settings = self._global_settings.get_settings('plugin__' + instance_id.tidy_plugin_str())
+            instance_settings = self._perspective_settings.get_settings('plugin__' + instance_id.tidy_str())
             handler = info['handler']
-            handler.restore_settings(global_settings, perspective_settings, callback)
+            handler.restore_settings(plugin_settings, instance_settings, callback)
         else:
             callback(instance_id)
 
@@ -260,10 +260,10 @@ class PluginManager(QObject):
     def _save_plugin_settings(self, instance_id, callback):
         if self._global_settings is not None and self._perspective_settings is not None:
             info = self._running_plugins[str(instance_id)]
-            global_settings = self._global_settings.get_settings('plugin__' + instance_id.tidy_plugin_str())
-            perspective_settings = self._perspective_settings.get_settings('plugin__' + instance_id.tidy_str())
+            plugin_settings = self._global_settings.get_settings('plugin__' + instance_id.tidy_plugin_str())
+            instance_settings = self._perspective_settings.get_settings('plugin__' + instance_id.tidy_str())
             handler = info['handler']
-            handler.save_settings(global_settings, perspective_settings, callback)
+            handler.save_settings(plugin_settings, instance_settings, callback)
         else:
             callback(instance_id)
 

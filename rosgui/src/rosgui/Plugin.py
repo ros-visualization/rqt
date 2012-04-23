@@ -47,12 +47,12 @@ class Plugin(QObject):
         """Shutdown and clean up the plugin before unloading."""
         pass
 
-    def save_settings(self, global_settings, perspective_settings):
-        """Save the intrinsic state of the plugin to the global or perspective `Settings`."""
+    def save_settings(self, plugin_settings, instance_settings):
+        """Save the intrinsic state of the plugin to the plugin-specific or instance-specific `Settings`."""
         pass
 
-    def restore_settings(self, global_settings, perspective_settings):
-        """Restore the intrinsic state of the plugin from the global or perspective `Settings`."""
+    def restore_settings(self, plugin_settings, instance_settings):
+        """Restore the intrinsic state of the plugin from the plugin-specific or instance-specific `Settings`."""
         pass
 
     #def trigger_configuration(self):

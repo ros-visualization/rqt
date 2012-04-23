@@ -137,12 +137,12 @@ class DockWidgetTitleBar(QWidget):
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
 
 
-    def save_settings(self, perspective_settings):
-        perspective_settings.set_value('dockable', self.dockable_button.isChecked())
+    def save_settings(self, settings):
+        settings.set_value('dockable', self.dockable_button.isChecked())
 
 
-    def restore_settings(self, perspective_settings):
-        self.dockable_button.setChecked(perspective_settings.value('dockable', True) in [True, 'true'])
+    def restore_settings(self, settings):
+        self.dockable_button.setChecked(settings.value('dockable', True) in [True, 'true'])
         self._toggle_dockable(self.dockable_button.isChecked())
 
 

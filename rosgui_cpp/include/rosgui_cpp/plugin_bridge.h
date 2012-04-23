@@ -64,9 +64,9 @@ public slots:
 
   virtual void shutdown_plugin();
 
-  virtual void save_settings(QObject* global_settings, QObject* perspective_settings);
+  virtual void save_settings(QObject* plugin_settings, QObject* instance_settings);
 
-  virtual void restore_settings(QObject* global_settings, QObject* perspective_settings);
+  virtual void restore_settings(QObject* plugin_settings, QObject* instance_settings);
 
 private:
 

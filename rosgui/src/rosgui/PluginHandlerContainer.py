@@ -66,11 +66,11 @@ class PluginHandlerContainer(PluginHandler):
         self._emit_unload_completed()
 
 
-    def _save_settings(self, global_settings, perspective_settings):
+    def _save_settings(self, plugin_settings, instance_settings):
         self.emit_save_settings_completed()
 
 
-    def _restore_settings(self, global_settings, perspective_settings):
+    def _restore_settings(self, plugin_settings, instance_settings):
         print 'PluginHandlerContainer._restore_settings()'
         self.emit_restore_settings_completed()
 

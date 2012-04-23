@@ -50,8 +50,8 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self.setObjectName('PluginHandlerXEmbedClient')
         self._dbus_object_path = dbus_object_path
         self._remote_container = None
-        self._remote_global_settings = None
-        self._remote_perspective_settings = None
+        self._remote_plugin_settings = None
+        self._remote_instance_settings = None
         self._embed_widgets = {}
 
 
@@ -64,10 +64,10 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self._remote_container.connect_to_signal('restore_settings', self._restore_settings_from_remote)
         self._remote_container.connect_to_signal('trigger_configuration', self._trigger_configuration)
 
-        proxy = conn.get_object(None, self._dbus_object_path + '/global')
-        self._remote_global_settings = Interface(proxy, 'org.ros.rosgui.Settings')
-        proxy = conn.get_object(None, self._dbus_object_path + '/perspective')
-        self._remote_perspective_settings = Interface(proxy, 'org.ros.rosgui.Settings')
+        proxy = conn.get_object(None, self._dbus_object_path + '/plugin')
+        self._remote_plugin_settings = Interface(proxy, 'org.ros.rosgui.Settings')
+        proxy = conn.get_object(None, self._dbus_object_path + '/instance')
+        self._remote_instance_settings = Interface(proxy, 'org.ros.rosgui.Settings')
 
         super(PluginHandlerXEmbedClient, self)._load()
 
@@ -89,16 +89,16 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self._remote_container.shutdown_plugin_completed()
 
 
-    def save_settings(self, global_settings, perspective_settings, callback=None):
+    def save_settings(self, plugin_settings, instance_settings, callback=None):
         # this method should never be called for embedded clients
         assert(False)
 
     def _save_settings_from_remote(self):
         qDebug('PluginHandlerXEmbedClient._save_settings_from_remote()')
         try:
-            global_settings = Settings(self._remote_global_settings, '')
-            perspective_settings = Settings(self._remote_perspective_settings, '')
-            self._save_settings(global_settings, perspective_settings)
+            plugin_settings = Settings(self._remote_plugin_settings, '')
+            instance_settings = Settings(self._remote_instance_settings, '')
+            self._save_settings(plugin_settings, instance_settings)
         except Exception:
             qCritical('PluginHandlerXEmbedClient._save_settings_from_remote() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
             self.emit_save_settings_completed()
@@ -107,16 +107,16 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self._remote_container.save_settings_completed()
 
 
-    def restore_settings(self, global_settings, perspective_settings, callback=None):
+    def restore_settings(self, plugin_settings, instance_settings, callback=None):
         # this method should never be called for embedded clients
         assert(False)
 
     def _restore_settings_from_remote(self):
         qDebug('PluginHandlerXEmbedClient._restore_settings_from_remote()')
         try:
-            global_settings = Settings(self._remote_global_settings, '')
-            perspective_settings = Settings(self._remote_perspective_settings, '')
-            self._restore_settings(global_settings, perspective_settings)
+            plugin_settings = Settings(self._remote_plugin_settings, '')
+            instance_settings = Settings(self._remote_instance_settings, '')
+            self._restore_settings(plugin_settings, instance_settings)
         except Exception:
             qCritical('PluginHandlerXEmbedClient._restore_settings_from_remote() plugin "%s" raised an exception:\n%s' % (str(self._instance_id), traceback.format_exc()))
             self.emit_restore_settings_completed()

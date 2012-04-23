@@ -58,10 +58,10 @@ public:
   virtual void shutdownPlugin()
   {}
 
-  virtual void saveSettings(Settings& /*global_settings*/, Settings& /*perspective_settings*/)
+  virtual void saveSettings(Settings& /*plugin_settings*/, Settings& /*instance_settings*/)
   {}
 
-  virtual void restoreSettings(Settings& /*global_settings*/, Settings& /*perspective_settings*/)
+  virtual void restoreSettings(Settings& /*plugin_settings*/, Settings& /*instance_settings*/)
   {}
 
   virtual bool hasConfiguration() const

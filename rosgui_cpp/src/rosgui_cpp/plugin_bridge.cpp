@@ -93,23 +93,23 @@ void PluginBridge::shutdown_plugin()
   }
 }
 
-void PluginBridge::save_settings(QObject* global_settings, QObject* perspective_settings)
+void PluginBridge::save_settings(QObject* plugin_settings, QObject* instance_settings)
 {
   if (plugin_)
   {
-    Settings global(global_settings);
-    Settings perspective(perspective_settings);
-    plugin_->saveSettings(global, perspective);
+    Settings plugin(plugin_settings);
+    Settings instance(instance_settings);
+    plugin_->saveSettings(plugin, instance);
   }
 }
 
-void PluginBridge::restore_settings(QObject* global_settings, QObject* perspective_settings)
+void PluginBridge::restore_settings(QObject* plugin_settings, QObject* instance_settings)
 {
   if (plugin_)
   {
-    Settings global(global_settings);
-    Settings perspective(perspective_settings);
-    plugin_->restoreSettings(global, perspective);
+    Settings plugin(plugin_settings);
+    Settings instance(instance_settings);
+    plugin_->restoreSettings(plugin, instance);
   }
 }
 
