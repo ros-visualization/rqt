@@ -40,5 +40,5 @@ class RoslibPluginProvider(RosPluginProvider):
         super(RoslibPluginProvider, self).__init__(export_tag, base_class_type)
         self.setObjectName('RoslibPluginProvider')
 
-    def _find_rosgui_plugins(self):
-        return roslib.rospack.rospack_plugins(self._export_tag)
+    def _find_rosgui_plugins(self, export_tag):
+        return roslib.rospack.rospack_plugins(export_tag)

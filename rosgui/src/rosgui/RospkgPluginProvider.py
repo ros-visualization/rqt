@@ -40,12 +40,12 @@ class RospkgPluginProvider(RosPluginProvider):
         super(RospkgPluginProvider, self).__init__(export_tag, base_class_type)
         self.setObjectName('RospkgPluginProvider')
 
-    def _find_rosgui_plugins(self):
+    def _find_rosgui_plugins(self, export_tag):
         plugins = []
         r = rospkg.RosPack()
         for package_name in r.list():
             manifest = r.get_manifest(package_name)
-            exports = manifest.get_export(self._export_tag, 'plugin')
+            exports = manifest.get_export(export_tag, 'plugin')
             for export in exports:
                 plugins.append([package_name, str(export)])
         return plugins

@@ -44,6 +44,8 @@ class RosPluginProvider(PluginProvider):
 
     """Base class for providing plugins based on the ROS package system."""
 
+    _cached_plugins = {}
+
     def __init__(self, export_tag, base_class_type):
         super(RosPluginProvider, self).__init__()
         self.setObjectName('RosPluginProvider')
@@ -59,7 +61,7 @@ class RosPluginProvider(PluginProvider):
         """
         # search for plugins
         plugin_descriptors = []
-        plugin_file_list = self._find_rosgui_plugins()
+        plugin_file_list = self._get_rosgui_plugins(self._export_tag)
         for plugin_name, xml_file_name in plugin_file_list:
             plugin_descriptors += self._parse_plugin_xml(plugin_name, xml_file_name)
         # add list of discovered plugins to dictionary of known descriptors index by the plugin id
@@ -90,7 +92,13 @@ class RosPluginProvider(PluginProvider):
     def unload(self, plugin_instance):
         pass
 
-    def _find_rosgui_plugins(self):
+    def _get_rosgui_plugins(self, export_tag):
+        # query available plugins only once
+        if export_tag not in RosPluginProvider._cached_plugins.keys():
+            RosPluginProvider._cached_plugins[export_tag] = self._find_rosgui_plugins(export_tag)
+        return RosPluginProvider._cached_plugins[export_tag]
+
+    def _find_rosgui_plugins(self, export_tag):
         raise NotImplementedError
 
     def _parse_plugin_xml(self, plugin_name, xml_file_name):
