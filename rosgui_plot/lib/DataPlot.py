@@ -109,7 +109,7 @@ class DataPlot(Qwt.QwtPlot):
             x = self.invTransform(Qwt.QwtPlot.xBottom, event.pos().x())
             y = self.invTransform(Qwt.QwtPlot.yLeft, event.pos().y())
             coords = QPointF(x, y)
-            if self.picker.isActive():
+            if self.picker.isActive() and self.lastClickCoordinates:
                 toolTip = 'origin x: %.5f, y: %.5f' % (self.lastClickCoordinates.x(), self.lastClickCoordinates.y())
                 delta = coords - self.lastClickCoordinates
                 toolTip += '\ndelta x: %.5f, y: %.5f\nlength: %.5f' % (delta.x(), delta.y(), QVector2D(delta).length())
@@ -130,7 +130,8 @@ class DataPlot(Qwt.QwtPlot):
             self.timerRedraw.start(self.redrawTimerInterval)
 
     def resizeEvent(self, event):
-        super(DataPlot, self).resizeEvent(event)
+        #super(DataPlot, self).resizeEvent(event)
+        Qwt.QwtPlot.resizeEvent(self, event)
         self.rescale()
 
     def getCurves(self):
