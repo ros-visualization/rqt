@@ -31,18 +31,26 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import pydot
+from distutils.version import LooseVersion
 
 # Reference implementation for a dotcode factory
 
 class PydotFactory():
     
     def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, ranksep = 0.2, compound = True):
-        graph = pydot.Dot('graphname',
-                          graph_type = graph_type,
-                          rank = rank,
-                          simplify = simplify)
-        graph.set_ranksep(ranksep);
-        graph.set_compound(compound)
+        # Lucid version of pydot bugs with certain settings, not sure which version exactly fixes those
+        if LooseVersion(pydot.__version__) > LooseVersion('1.0.10'):
+            graph = pydot.Dot('graphname',
+                              graph_type = graph_type,
+                              rank = rank,
+                              simplify = simplify
+                              )
+            graph.set_ranksep(ranksep);
+            graph.set_compound(compound)
+        else:
+            graph = pydot.Dot('graphname',
+                              graph_type = graph_type,
+                              rank = rank)
         return graph
     
     def add_node_to_graph(self,
@@ -81,7 +89,13 @@ class PydotFactory():
         if subgraphlabel is None:
             return None
         g = pydot.Cluster("cluster_%s"%subgraphlabel, rank = rank, simplify = simplify)
-        g.set_style(style)
+        if 'set_style' in g.__dict__:
+            g.set_style(style)
+        if 'set_shape' in g.__dict__:
+            g.set_shape(shape)
+        if LooseVersion(pydot.__version__) > LooseVersion('1.0.10'):
+            g.set_compound(compound)
+            g.set_ranksep(ranksep)
         g.set_label(subgraphlabel)
         if color is not None:
             g.set_color('red')
