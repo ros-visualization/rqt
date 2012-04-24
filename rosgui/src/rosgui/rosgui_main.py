@@ -52,16 +52,18 @@ def rosgui_main(argv=None):
 
     parser.add_option('-b', '--qt-binding', dest='qt_binding', type='str', metavar='BINDING',
                       help='choose Qt bindings to be used [pyqt|pyside]')
-    parser.add_option('--clear-config', dest='clear_config', action="store_true",
+    parser.add_option('--clear-config', dest='clear_config', action='store_true',
                       help='clear the configuration (including all perspectives and plugin settings)')
-    parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action="store_true",
+    parser.add_option('-l', '--lock-perspective', dest='lock_perspective', action='store_true',
                       help='lock the GUI to the used perspective (hide menu bar and close buttons of plugins)')
-    parser.add_option('-m', '--multi-process', dest='multi_process', default=False, action="store_true",
+    parser.add_option('-m', '--multi-process', dest='multi_process', default=False, action='store_true',
                       help='use separate processes for each plugin instance (currently only supported under X11)')
     parser.add_option('-p', '--perspective', dest='perspective', type='str', metavar='PERSPECTIVE',
                       help='start with this perspective')
     parser.add_option('-s', '--stand-alone', dest='standalone_plugin', type='str', metavar='PLUGIN',
                       help='start only this plugin (implies -l)')
+    parser.add_option('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
+                      help='cache list of available plugins (trading faster start-up for not up-to-date plugin list)')
 
     group = OptionGroup(parser, 'Options to query information without starting a ROS GUI instance',
                         'These options can be used to query information about valid arguments for various options.')
@@ -217,6 +219,7 @@ def rosgui_main(argv=None):
     from PerspectiveManager import PerspectiveManager
     from PluginManager import PluginManager
     from RecursivePluginProvider import RecursivePluginProvider
+    from RosPluginProviderCache import RosPluginProviderCache
 
     try:
         from RospkgPluginProvider import RospkgPluginProvider
@@ -265,6 +268,12 @@ def rosgui_main(argv=None):
         settings = None
         main_window = None
         menu_bar = None
+
+    if options.cache_plugins:
+        plugin_cache = RosPluginProviderCache()
+        plugin_cache.load()
+    else:
+        plugin_cache = None
 
     # setup plugin manager
     plugin_providers = [
@@ -363,6 +372,8 @@ def rosgui_main(argv=None):
     qDebug('QtBindingHelper using %s' % QT_BINDING)
 
     plugin_manager.discover()
+    if plugin_cache is not None:
+        plugin_cache.save()
 
     # switch perspective
     if perspective_manager is not None:
