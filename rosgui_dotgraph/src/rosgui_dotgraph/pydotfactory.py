@@ -103,7 +103,10 @@ class PydotFactory():
         graph.add_subgraph(g)
         return g
 
-    def add_edge_to_graph(self, graph, nodename1, nodename2):
+    def add_edge_to_graph(self, graph, nodename1, nodename2, simplify = True):
+        if simplify and LooseVersion(pydot.__version__) < LooseVersion('1.0.10'):
+            if graph.get_edge(nodename1, nodename2) != []:
+                return
         edge = pydot.Edge(nodename1, nodename2)
         graph.add_edge(edge)
 
