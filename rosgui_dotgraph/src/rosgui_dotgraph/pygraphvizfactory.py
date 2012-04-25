@@ -73,9 +73,9 @@ class PygraphvizFactory():
         if subgraphlabel is None:
             return None
         if color is not None:
-            sg = graph.add_subgraph(name = "cluster%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold', color=color)
+            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold', color=color)
         else:
-            sg = graph.add_subgraph(name = "cluster%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold')
+            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold')
 
         return sg
 

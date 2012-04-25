@@ -36,6 +36,11 @@ from distutils.version import LooseVersion
 # Reference implementation for a dotcode factory
 
 class PydotFactory():
+
+    def escape_name(self, name):
+        if name in ['graph', 'subgraph', 'node', 'edge']:
+            return "%s_"%name
+        return name
     
     def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, ranksep = 0.2, compound = True):
         # Lucid version of pydot bugs with certain settings, not sure which version exactly fixes those
@@ -62,9 +67,9 @@ class PydotFactory():
         creates a node item for this factory, adds it to the graph.
         Node name can vary from label but must always be same for the same node label
         """
-        node = pydot.Node(nodelabel)
+        node = pydot.Node(self.escape_name(nodelabel))
         node.set_shape(shape)
-        node.set_label(nodelabel)
+        node.set_label(self.escape_name(nodelabel))
         
         if color is not None:
             node.set_color('red')
@@ -87,7 +92,7 @@ class PydotFactory():
         """
         if subgraphlabel is None:
             return None
-        g = pydot.Cluster("cluster_%s"%subgraphlabel, rank = rank, simplify = simplify)
+        g = pydot.Cluster(self.escape_name(subgraphlabel), rank = rank, simplify = simplify)
         if 'set_style' in g.__dict__:
             g.set_style(style)
         if 'set_shape' in g.__dict__:
@@ -106,7 +111,7 @@ class PydotFactory():
         if simplify and LooseVersion(pydot.__version__) < LooseVersion('1.0.10'):
             if graph.get_edge(nodename1, nodename2) != []:
                 return
-        edge = pydot.Edge(nodename1, nodename2)
+        edge = pydot.Edge(self.escape_name(nodename1), self.escape_name(nodename2))
         graph.add_edge(edge)
 
     def create_dot(self, graph):
