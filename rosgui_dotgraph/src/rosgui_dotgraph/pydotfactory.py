@@ -98,7 +98,8 @@ class PydotFactory():
             g.set_ranksep(ranksep)
         g.set_label(subgraphlabel)
         if color is not None:
-            g.set_color('red')
+            if 'set_color' in g.__dict__:
+                g.set_color('red')
         graph.add_subgraph(g)
         return g
 
