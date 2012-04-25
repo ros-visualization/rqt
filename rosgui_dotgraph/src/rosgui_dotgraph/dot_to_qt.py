@@ -32,12 +32,13 @@
 
 import pydot
 
+import roslib
+roslib.load_manifest('rosgui_package_graph')
+
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QRectF, QPointF
 from QtGui import QColor
 
-import roslib
-roslib.load_manifest('rosgui_package_graph')
 
 import edge_item
 from edge_item import EdgeItem
