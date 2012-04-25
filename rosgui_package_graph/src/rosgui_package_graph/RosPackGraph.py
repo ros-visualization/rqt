@@ -20,6 +20,7 @@ import rosgui_package_graph.dotcode_pack
 from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 import rosgui_dotgraph
 from rosgui_dotgraph.pydotfactory import PydotFactory
+# from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
 import InteractiveGraphicsView
@@ -77,6 +78,7 @@ class RosPackGraph(QObject):
 
         # factory builds generict dotcode items
         self.dotcode_factory = PydotFactory()
+        # self.dotcode_factory = PygraphvizFactory()
         # generator builds rosgraph
         self.dotcode_generator = RosPackageGraphDotcodeGenerator()
         # dot_to_qt transforms into Qt elements using dot layout
