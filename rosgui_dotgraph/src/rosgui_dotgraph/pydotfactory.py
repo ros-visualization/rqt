@@ -69,7 +69,6 @@ class PydotFactory():
         if color is not None:
             node.set_color('red')
         graph.add_node(node)
-        return node
     
     def add_subgraph_to_graph(self,
                               graph,
