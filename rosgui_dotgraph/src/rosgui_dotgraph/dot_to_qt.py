@@ -52,6 +52,8 @@ def get_unquoted(item, name):
     value = item.get(name)
     return value.strip('"\n"')
 
+# approximately, for workarounds (TODO: get this from dotfile somehow)
+LABEL_HEIGHT = 30
 
 # Class generating Qt Elements from doctcode
 class DotToQtGenerator():
@@ -72,8 +74,12 @@ class DotToQtGenerator():
         subgraph.attr = attr
     
         bb = subgraph.attr['bb'].strip('"').split(',')
-        bounding_box = QRectF(0,0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
-        label_pos = subgraph.attr['lp'].strip('"').split(',')
+        bounding_box = QRectF(0, 0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
+        if 'lp' in subgraph.attr:
+            label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, float(bb[1]) + (float(bb[3]) -float(bb[1])) - LABEL_HEIGHT / 2)
+            # label_pos = subgraph.attr['lp'].strip('"').split(',')
+        else:
+            label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2)
         bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2))
         name = subgraph.attr['label']
         color = QColor(subgraph.attr['color']) if 'color' in subgraph.attr else None
@@ -88,7 +94,7 @@ class DotToQtGenerator():
         # decide whether to be over the cluster or a subnode. Using
         # just the "title area" solves this. TODO: Maybe using a
         # border region would be even better (multiple RectF)
-        bounding_box.setHeight(30)
+        bounding_box.setHeight(LABEL_HEIGHT)
         subgraph_nodeitem.set_hovershape(bounding_box)
         return subgraph_nodeitem
     
