@@ -34,8 +34,6 @@ from __future__ import with_statement, print_function
 
 import sys
 
-import rospkg
-
 import re
 
 MAX_EDGES=1500
@@ -50,10 +48,15 @@ def matches_any(name, patternlist):
     return False
     
 class RosPackageGraphDotcodeGenerator:
+
     
-    def __init__(self):
-        self.rospack = rospkg.RosPack()
-        self.rosstack = rospkg.RosStack()
+    def __init__(self, rospack, rosstack):
+        """
+        :param rospack: use rospkg.RosPack()
+        :param rosstack: use rospkg.RosStack()
+        """
+        self.rospack = rospack
+        self.rosstack = rosstack
         self.stacks = {}
         self.packages = {}
         self.edges = []

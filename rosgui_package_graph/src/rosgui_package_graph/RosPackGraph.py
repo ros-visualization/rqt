@@ -46,9 +46,9 @@ class RepeatedWordCompleter(QCompleter):
 
 class StackageCompletionModel(QAbstractListModel):
     """Ros package and stacknames"""
-    def __init__(self, linewidget):
+    def __init__(self, linewidget, rospack, rosstack):
         super(QAbstractListModel, self).__init__(linewidget)
-        self.allnames = sorted(list(set(rospkg.RosPack().list() + rospkg.RosStack().list())))
+        self.allnames = sorted(list(set(rospack.list() + rosstack.list())))
         self.allnames = self.allnames + ['-%s'%name for name in self.allnames]
     def rowCount(self, parent):
         return len(self.allnames)
@@ -76,11 +76,14 @@ class RosPackGraph(QObject):
 
         self._widget = QWidget()
 
+        rospack = rospkg.RosPack()
+        rosstack = rospkg.RosStack()
+        
         # factory builds generict dotcode items
         self.dotcode_factory = PydotFactory()
         # self.dotcode_factory = PygraphvizFactory()
         # generator builds rosgraph
-        self.dotcode_generator = RosPackageGraphDotcodeGenerator()
+        self.dotcode_generator = RosPackageGraphDotcodeGenerator(rospack, rosstack)
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
         
@@ -107,7 +110,7 @@ class RosPackGraph(QObject):
         self._widget.directions_combo_box.setCurrentIndex(2)
         self._widget.directions_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
         
-        completionmodel = StackageCompletionModel(self._widget.filter_line_edit)
+        completionmodel = StackageCompletionModel(self._widget.filter_line_edit, rospack, rosstack)
         completer = RepeatedWordCompleter(completionmodel, self)
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setWrapAround(True)
