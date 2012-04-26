@@ -182,5 +182,6 @@ def generate_dotcode(g, ns_filter, graph_mode, orientation, quiet=False):
 
     edges = _filter_edges(edges, nodes)
     edges_str = '\n'.join([_edge_to_dot(e, is_topic=(graph_mode == NODE_NODE_GRAPH)) for e in edges])
-    return "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
+    result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
 
+    return result.replace("\\\n", "")
