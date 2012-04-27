@@ -159,15 +159,13 @@ class RosGraph(QObject):
         orientation = 'LR'
         quiet = self._widget.quiet_check_box.isChecked()
         
-        dotcode = self.dotcode_generator.generate_dotcode(
+        return self.dotcode_generator.generate_dotcode(
             rosgraphinst = self._graph,
             ns_filter = ns_filter,
             graph_mode = graph_mode,
             dotcode_factory = self.dotcode_factory,
             orientation = orientation,
             quiet = quiet)
-        print(dotcode)
-        return dotcode
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
