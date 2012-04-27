@@ -60,21 +60,8 @@ class RosPackageGraphDotcodeGenerator:
         self.stacks = {}
         self.packages = {}
         self.edges = []
-        self.selected_names = None
-        self.excludes = None
-        self.depth = None
-        self.hide_transitives = None
-        self.mark_selected = None
-        self.with_stacks = None
-        self.last_graph = None
-        self.graph = None
-        self.dotcode = None
-        self.rank = None
-        self.ranksep = None
-        self.simplify = None
-        self.descendants = None
-        self.ancestors = None
-        
+        self.last_drawargs = None
+        self.last_selection = None
         
     def generate_dotcode(self,
                          dotcode_factory,
@@ -86,8 +73,9 @@ class RosPackageGraphDotcodeGenerator:
                          ancestors = True,
                          hide_transitives = True,
                          mark_selected = True,
-                         rank = 'same', # None, same, min, max, source, sink
-                         ranksep = 0.2, # vertical distance between layers
+                         rank = 'same',   # None, same, min, max, source, sink
+                         ranksep = 0.2,   # vertical distance between layers
+                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
                          simplify = True, # remove double edges
                          force_refresh = False):
         """
@@ -95,49 +83,43 @@ class RosPackageGraphDotcodeGenerator:
         :param hide_transitives: if true, then dependency of children to grandchildren will be hidden if parent has same dependency
         """
 
-        # update arguments
-        self.dotcode_factory = dotcode_factory
-
-        
-
+        # defaults
         selected_names = filter(lambda x: x is not None and x != '', selected_names)
         excludes = filter(lambda x: x is not None and x != '', excludes)
         if selected_names is None or selected_names == []:
             selected_names = ['.*']
             self.depth = 1
-            
-        selection_changed = False
-        
-        if self.with_stacks != with_stacks:
-            selection_changed = True
-            self.with_stacks = with_stacks
-            
         if depth is None:
             depth = -1
-        if self.depth != depth:
-            selection_changed = True
-            self.depth = depth
-
-        if self.hide_transitives != hide_transitives:
-            selection_changed = True
-            self.hide_transitives = hide_transitives
-
-        if self.selected_names != selected_names:
-            selection_changed = True
-            self.selected_names = selected_names
             
-        if self.excludes != excludes:
+        # update arguments
+        
+        selection_args = {
+            "dotcode_factory" : dotcode_factory,
+            "with_stacks" : with_stacks,
+            "depth" : depth,
+            "hide_transitives" : hide_transitives,
+            "selected_names" : selected_names,
+            "excludes" : excludes,
+            "ancestors" : ancestors,
+            "descendants" : descendants
+            }
+        
+        # if selection did not change, we need not build up the graph again
+        selection_changed = False
+        if self.last_selection != selection_args:
             selection_changed = True
+            self.last_selection = selection_args
+            
+            self.dotcode_factory = dotcode_factory
+            self.with_stacks = with_stacks
+            self.depth = depth
+            self.hide_transitives = hide_transitives
+            self.selected_names = selected_names
             self.excludes = excludes
-
-        if self.ancestors != ancestors:
-            selection_changed = True
             self.ancestors = ancestors
-
-        if self.descendants != descendants:
-            selection_changed = True
             self.descendants = descendants
-
+        
         if force_refresh or selection_changed:
             self.stacks = {}
             self.packages = {}
@@ -159,34 +141,40 @@ class RosPackageGraphDotcodeGenerator:
                         if ancestors:
                             self.add_package_ancestors_recursively(package_name)
 
+        drawing_args = {
+            'dotcode_factory': dotcode_factory,
+            "rank" : rank,
+            "rankdir" : rankdir,
+            "ranksep" : ranksep,
+            "simplify" : simplify,
+            "dotcode_factory" : dotcode_factory,
+            "mark_selected" : mark_selected
+            }
+
+        # if selection and display args did not change, no need to generate dotcode
         display_changed = False
-        if self.rank != rank:
-            display_changed = True
-            self.rank = rank
-        if self.ranksep != ranksep:
-            display_changed = True
-            self.ranksep = ranksep
-        if self.simplify != simplify:
-            display_changed = True
-            self.simplify = simplify
-        if self.dotcode_factory != dotcode_factory:
-            display_changed = True
+        if self.last_drawargs != drawing_args:
+            selection_changed = True
+            self.last_drawargs = drawing_args
+            
             self.dotcode_factory = dotcode_factory
-        if self.mark_selected != mark_selected:
-            display_changed = True
+            self.rank = rank
+            self.rankdir = rankdir
+            self.ranksep = ranksep
+            self.simplify = simplify
+            self.dotcode_factory = dotcode_factory
             self.mark_selected = mark_selected
             
-        graph_changed = False
         #generate new dotcode
         if force_refresh or selection_changed or display_changed:
-            graph_changed = True
             self.graph = self.generate(self.dotcode_factory)
-        if graph_changed:
             self.dotcode = dotcode_factory.create_dot(self.graph)
+
         return self.dotcode
 
     def generate(self, dotcode_factory):
         graph = dotcode_factory.get_graph(rank = self.rank,
+                                          rankdir = self.rankdir,
                                           ranksep = self.ranksep,
                                           simplify = self.simplify)
         # print("In generate", self.with_stacks, len(self.stacks), len(self.packages), len(self.edges))
@@ -199,6 +187,7 @@ class RosPackageGraphDotcodeGenerator:
                                                           stackname,
                                                           color = color,
                                                           rank = self.rank,
+                                                          rankdir = self.rankdir,
                                                           ranksep = self.ranksep,
                                                           simplify = self.simplify)
                 for package_name in self.stacks[stackname]['packages']:
