@@ -38,12 +38,15 @@ from distutils.version import LooseVersion
 
 class PydotFactory():
 
-    def escape_name(self, name):
+    def escape_label(self, name):
         if name in ['graph', 'subgraph', 'node', 'edge']:
             ret = "%s_"%name
         else:
             ret = name
-        ret = urllib.quote(ret)
+        return ret
+            
+    def escape_name(self, name):
+        ret = urllib.quote(name)
         ret = ret.replace('/', '_')
         ret = ret.replace('%', '_')
         ret = ret.replace('-', '_')
@@ -79,7 +82,7 @@ class PydotFactory():
         """
         node = pydot.Node(self.escape_name(nodelabel))
         node.set_shape(shape)
-        node.set_label(self.escape_name(nodelabel))
+        node.set_label(self.escape_label(nodelabel))
         if url is not None:
             node.set_URL(self.escape_name(url))
         if color is not None:
