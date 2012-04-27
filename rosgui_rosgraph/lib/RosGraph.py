@@ -154,6 +154,7 @@ class RosGraph(QObject):
         graph_mode = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         orientation = 'LR'
         quiet = self._widget.quiet_check_box.isChecked()
+        
         return self.dotcode_generator.generate_dotcode(
             rosgraphinst = self._graph,
             ns_filter = ns_filter,
@@ -196,11 +197,8 @@ class RosGraph(QObject):
         else:
             highlight_level = 1
 
-        # read dot graph
-        raw_graph = pydot.graph_from_dot_data(self._current_dotcode)
-
         # layout graph and create qt items
-        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(raw_graph.create_dot('dot'), highlight_level)
+        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(self._current_dotcode, highlight_level)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)
