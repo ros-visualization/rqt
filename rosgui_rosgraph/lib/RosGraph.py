@@ -62,6 +62,7 @@ class RosGraph(QObject):
 
     def __init__(self, context):
         super(RosGraph, self).__init__(context)
+        self.initialized = False
         self.setObjectName('RosGraph')
 
         self._graph = None
@@ -130,6 +131,7 @@ class RosGraph(QObject):
         self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
+        self.initialized = True
         self._refresh_rosgraph()
 
     def _update_rosgraph(self):
@@ -145,6 +147,8 @@ class RosGraph(QObject):
         self._refresh_rosgraph()
 
     def _refresh_rosgraph(self):
+        if not self.initialized:
+            return
         self._update_graph_view(self._generate_dotcode())
 
     def _generate_dotcode(self):
@@ -155,13 +159,15 @@ class RosGraph(QObject):
         orientation = 'LR'
         quiet = self._widget.quiet_check_box.isChecked()
         
-        return self.dotcode_generator.generate_dotcode(
+        dotcode = self.dotcode_generator.generate_dotcode(
             rosgraphinst = self._graph,
             ns_filter = ns_filter,
             graph_mode = graph_mode,
             dotcode_factory = self.dotcode_factory,
             orientation = orientation,
             quiet = quiet)
+        print(dotcode)
+        return dotcode
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
