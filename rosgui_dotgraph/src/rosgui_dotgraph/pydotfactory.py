@@ -46,7 +46,7 @@ class PydotFactory():
         return ret
             
     def escape_name(self, name):
-        ret = urllib.quote(name)
+        ret = urllib.quote(name.strip())
         ret = ret.replace('/', '_')
         ret = ret.replace('%', '_')
         ret = ret.replace('-', '_')
@@ -124,7 +124,7 @@ class PydotFactory():
 
     def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True):
         if simplify and LooseVersion(pydot.__version__) < LooseVersion('1.0.10'):
-            if graph.get_edge(nodename1, nodename2) != []:
+            if graph.get_edge(self.escape_name(nodename1), self.escape_name(nodename2)) != []:
                 return
         edge = pydot.Edge(self.escape_name(nodename1), self.escape_name(nodename2))
         if label is not None:
