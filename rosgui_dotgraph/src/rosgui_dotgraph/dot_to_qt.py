@@ -171,6 +171,8 @@ class DotToQtGenerator():
         returns two dicts, one mapping node names to Node_Item, one mapping edge names to lists of Edge_Item
         """
         # layout graph
+        if dotcode is None:
+            return {}, {}
         graph = pydot.graph_from_dot_data(dotcode.encode("ascii","ignore"))
 
         #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)
