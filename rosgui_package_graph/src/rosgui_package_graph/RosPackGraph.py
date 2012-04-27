@@ -79,7 +79,7 @@ class RosPackGraph(QObject):
         rospack = rospkg.RosPack()
         rosstack = rospkg.RosStack()
         
-        # factory builds generict dotcode items
+        # factory builds generic dotcode items
         self.dotcode_factory = PydotFactory()
         # self.dotcode_factory = PygraphvizFactory()
         # generator builds rosgraph
@@ -205,7 +205,7 @@ class RosPackGraph(QObject):
         if selected_directions == 0:
             ancestors = False
 
-        return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
+        return self.dotcode_generator.generate_dotcode(dotcode_factory = self.dotcode_factory,
                                                        selected_names = includes,
                                                        excludes = excludes,
                                                        depth = depth,
@@ -214,7 +214,6 @@ class RosPackGraph(QObject):
                                                        ancestors = ancestors,
                                                        mark_selected = self._widget.mark_check_box.isChecked(),
                                                        hide_transitives = self._widget.transitives_check_box.isChecked())
-        #return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:

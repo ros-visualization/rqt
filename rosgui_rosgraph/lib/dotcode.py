@@ -132,7 +132,11 @@ class RosGraphDotcodeGenerator:
         return [e for e in edges if e.start in nodes and e.end in nodes]
     
     
-    def generate_dotcode(self, rosgraphinst, ns_filter, graph_mode, dotcode_factory,
+    def generate_dotcode(self,
+                         rosgraphinst,
+                         ns_filter,
+                         graph_mode,
+                         dotcode_factory,
                          orientation = 'LR',
                          rank = 'same',   # None, same, min, max, source, sink
                          ranksep = 0.2,   # vertical distance between layers
@@ -151,6 +155,7 @@ class RosGraphDotcodeGenerator:
         @return: dotcode generated from graph singleton
         @rtype: str
         """
+        
         self.dotcode_factory = dotcode_factory
         #print "generate_dotcode", graph_mode
         if ns_filter:
