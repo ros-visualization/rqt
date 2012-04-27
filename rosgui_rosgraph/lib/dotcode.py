@@ -42,146 +42,175 @@ NODE_TOPIC_GRAPH = 'node_topic'
 NODE_TOPIC_ALL_GRAPH = 'node_topic_all'
 
 import urllib
-def safe_dotcode_name(name):
-    """
-    encode the name for dotcode symbol-safe syntax    
-    """
-    # not the best solution, but unsafe names shouldn't be coming through much
-    ret = urllib.quote(name)
-    ret = ret.replace('/', '_')
-    ret = ret.replace('%', '_')
-    ret = ret.replace('-', '_')
-    return ret
-
-def _edge_to_dot(e, is_topic=False):
-    attr = {}
-    if e.label:
-        attr['label'] = e.label
-        if is_topic:
-            attr['URL'] = 'topic:%s' % e.label
-    if attr:
-        attr_str = '[' + (', '.join(['%s="%s"' % (key, value) for key, value in attr.items()])) + ']'
-    else:
-        attr_str = ''
-    return '    %s->%s %s' % (safe_dotcode_name(e.start), safe_dotcode_name(e.end), attr_str)
-
-def _generate_node_dotcode(node, g, quiet):
-    if node in g.bad_nodes:
-        if quiet:
-            return ''
-        bn = g.bad_nodes[node]
-        if bn.type == rosgraph.impl.graph.BadNode.DEAD:
-            return '  %s [color="red", shape="doublecircle", label="%s", URL="node:%s"];' % (
-                safe_dotcode_name(node), node, node)
-        else:
-            return '  %s [color="orange", shape="doublecircle", label="%s", URL="node:%s"];' % (
-                safe_dotcode_name(node), node, node, node)
-    else:
-        return '  %s [label="%s", URL="node:%s"];' % (safe_dotcode_name(node), node, node)
 
 QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock']
-def _quiet_filter(name):
-    # ignore viewers
-    for n in QUIET_NAMES:
-        if n in name:
-            return False
-    return True
 
-def _quiet_filter_edge(edge):
-    for quiet_label in ['/time', '/clock', '/rosout']:
-        if quiet_label == edge.label:
-            return False
-    return _quiet_filter(edge.start) and _quiet_filter(edge.end)
+class RosGraphDotcodeGenerator:
 
-def generate_namespaces(g, graph_mode, quiet=False):
-    """
-    Determine the namespaces of the nodes being displayed
-    """
-    namespaces = []
-    if graph_mode == NODE_NODE_GRAPH:
-        nodes = g.nn_nodes
-        if quiet:
-            nodes = [n for n in nodes if not n in QUIET_NAMES]
-        namespaces = list(set([roslib.names.namespace(n) for n in nodes]))
+    def __init__(self):
+        self.dotcode_factory = None
 
-    elif graph_mode == NODE_TOPIC_GRAPH or \
-             graph_mode == NODE_TOPIC_ALL_GRAPH:
-        nn_nodes = g.nn_nodes
-        nt_nodes = g.nt_nodes
-        if quiet:
-            nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
-            nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
-        if nn_nodes or nt_nodes:
-            namespaces = [roslib.names.namespace(n) for n in nn_nodes]
+    def _add_edge(self, edge, dotgraph, is_topic=False):
+        if is_topic:
+            self.dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label, url = 'topic:%s' % edge.label)
+        else:
+            self.dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label)
+            
+    def _add_node(self, node, rosgraphinst, dotgraph, quiet):
+        if node in rosgraphinst.bad_nodes:
+            if quiet:
+                return ''
+            bn = rosgraphinst.bad_nodes[node]
+            if bn.type == rosgraph.impl.graph.BadNode.DEAD:
+                self.dotcode_factory.add_node_to_graph(dotgraph,
+                                                       nodelabel = node,
+                                                       shape = "doublecircle",
+                                                       url=node,
+                                                       color = "red")
+            else:
+                self.dotcode_factory.add_node_to_graph(dotgraph,
+                                                       nodelabel = node,
+                                                       shape = "doublecircle",
+                                                       url=node,
+                                                       color = "orange")
+        else:
+            self.dotcode_factory.add_node_to_graph(dotgraph,
+                                                   nodelabel = node,
+                                                   shape = 'box',
+                                                   url=node)
+            
+    def _add_topic_node(self, node, dotgraph, quiet):
+        label = rosgraph.impl.graph.node_topic(node)
+        self.dotcode_factory.add_node_to_graph(dotgraph,
+                                               nodelabel = "%s"%label,
+                                               shape = 'box',
+                                               url="topic:%s"%label)
+    
+
+    def _quiet_filter(self, name):
+        # ignore viewers
+        for n in QUIET_NAMES:
+            if n in name:
+                return False
+        return True
+    
+    def _quiet_filter_edge(self, edge):
+        for quiet_label in ['/time', '/clock', '/rosout']:
+            if quiet_label == edge.label:
+                return False
+        return self._quiet_filter(edge.start) and self._quiet_filter(edge.end)
+    
+    def generate_namespaces(self, rosgraph, graph_mode, quiet=False):
+        """
+        Determine the namespaces of the nodes being displayed
+        """
+        namespaces = []
+        if graph_mode == NODE_NODE_GRAPH:
+            nodes = rosgraph.nn_nodes
+            if quiet:
+                nodes = [n for n in nodes if not n in QUIET_NAMES]
+            namespaces = list(set([roslib.names.namespace(n) for n in nodes]))
+    
+        elif graph_mode == NODE_TOPIC_GRAPH or \
+                 graph_mode == NODE_TOPIC_ALL_GRAPH:
+            nn_nodes = rosgraph.nn_nodes
+            nt_nodes = rosgraph.nt_nodes
+            if quiet:
+                nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
+                nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
+            if nn_nodes or nt_nodes:
+                namespaces = [roslib.names.namespace(n) for n in nn_nodes]
             # an annoyance with the rosgraph library is that it
             # prepends a space to topic names as they have to have
             # different graph node namees from nodes. we have to strip here
             namespaces.extend([roslib.names.namespace(n[1:]) for n in nt_nodes])
 
-    return list(set(namespaces))
+        return list(set(namespaces))
+    
+    def _filter_edges(self, edges, nodes):
+        # currently using and rule as the or rule generates orphan nodes with the current logic
+        return [e for e in edges if e.start in nodes and e.end in nodes]
+    
+    
+    def generate_dotcode(self, rosgraphinst, ns_filter, graph_mode, dotcode_factory,
+                         orientation = 'LR',
+                         rank = 'same',   # None, same, min, max, source, sink
+                         ranksep = 0.2,   # vertical distance between layers
+                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
+                         simplify = True, # remove double edges
+                         quiet=False):
+        """
+        @param rosgraphinst: RosGraph instance
+        @param ns_filter: namespace filter (must be canonicalized with trailing '/')
+        @type  ns_filter: string
+        @param graph_mode str: NODE_NODE_GRAPH | NODE_TOPIC_GRAPH | NODE_TOPIC_ALL_GRAPH
+        @type  graph_mode: str
+        @param orientation: rankdir value (see ORIENTATIONS dict)
+        @type  dotcode_factory: object
+        @param dotcode_factory: abstract factory manipulating dot language objects
+        @return: dotcode generated from graph singleton
+        @rtype: str
+        """
+        self.dotcode_factory = dotcode_factory
+        #print "generate_dotcode", graph_mode
+        if ns_filter:
+            name_filter = ns_filter[:-1]
 
-def _filter_edges(edges, nodes):
-    # currently using and rule as the or rule generates orphan nodes with the current logic
-    return [e for e in edges if e.start in nodes and e.end in nodes]
+        # result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
+        dotgraph = dotcode_factory.get_graph(rank = rank,
+                                          ranksep = ranksep,
+                                          simplify = simplify,
+                                          rankdir = orientation)
+            
+        # create the node definitions
+        if graph_mode == NODE_NODE_GRAPH:
+            nodes = rosgraphinst.nn_nodes
+            if quiet:
+                nodes = [n for n in nodes if not n in QUIET_NAMES]
+            if ns_filter and ns_filter != '/':
+                nodes = [n for n in nodes if n.startswith(ns_filter) or n == name_filter]
 
-def generate_dotcode(g, ns_filter, graph_mode, orientation, quiet=False):
-    """
-    @param g: Graph instance
-    @param ns_filter: namespace filter (must be canonicalized with trailing '/')
-    @type  ns_filter: string
-    @param graph_mode str: NODE_NODE_GRAPH | NODE_TOPIC_GRAPH | NODE_TOPIC_ALL_GRAPH
-    @type  graph_mode: str
-    @param orientation: rankdir value (see ORIENTATIONS dict)
-    @return: dotcode generated from graph singleton
-    @rtype: str
-    """
-    #print "generate_dotcode", graph_mode
-    if ns_filter:
-        name_filter = ns_filter[:-1]
-
-    # create the node definitions
-    if graph_mode == NODE_NODE_GRAPH:
-        nodes = g.nn_nodes
-        if quiet:
-            nodes = [n for n in nodes if not n in QUIET_NAMES]
-        if ns_filter and ns_filter != '/':
-            nodes = [n for n in nodes if n.startswith(ns_filter) or n == name_filter]
-        if nodes:
-            nodes_str = '\n'.join([_generate_node_dotcode(n, g, quiet) for n in nodes])
+            for n in nodes:
+                self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)
+                
+    
+        elif graph_mode == NODE_TOPIC_GRAPH or \
+                 graph_mode == NODE_TOPIC_ALL_GRAPH:
+            nn_nodes = rosgraphinst.nn_nodes
+            nt_nodes = rosgraphinst.nt_nodes
+            if quiet:
+                nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
+                nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
+            if ns_filter and ns_filter != '/':
+                nn_nodes = [n for n in nn_nodes if n.startswith(ns_filter) or n == name_filter]
+                nt_nodes = [n for n in nt_nodes if n[1:].startswith(ns_filter) or n[1:] == name_filter]
+    
+            if nn_nodes or nt_nodes:
+                for n in nn_nodes:
+                    self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)
+                for n in nt_nodes:
+                    self._add_topic_node(n, dotgraph=dotgraph, quiet=quiet)
+            nodes = list(nn_nodes) + list(nt_nodes)
+    
+        # create the edge definitions
+        if graph_mode == NODE_NODE_GRAPH:
+            edges = rosgraphinst.nn_edges
+        elif graph_mode == NODE_TOPIC_GRAPH:
+            edges = rosgraphinst.nt_edges
         else:
-            nodes_str = '  empty;'
-
-    elif graph_mode == NODE_TOPIC_GRAPH or \
-             graph_mode == NODE_TOPIC_ALL_GRAPH:
-        nn_nodes = g.nn_nodes
-        nt_nodes = g.nt_nodes
+            edges = rosgraphinst.nt_all_edges
+            
         if quiet:
-            nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
-            nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
-        if ns_filter and ns_filter != '/':
-            nn_nodes = [n for n in nn_nodes if n.startswith(ns_filter) or n == name_filter]
-            nt_nodes = [n for n in nt_nodes if n[1:].startswith(ns_filter) or n[1:] == name_filter]
+            edges = filter(self._quiet_filter_edge, edges)
+      
+        edges = self._filter_edges(edges, nodes)
+        
+        for e in edges:
+            self._add_edge(e, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
-        if nn_nodes or nt_nodes:
-            nodes_str = '\n'.join([_generate_node_dotcode(n, g, quiet) for n in nn_nodes])
-            nodes_str += '\n'.join(['  %s [shape=box,label="%s",URL="topic:%s"];' % (
-                safe_dotcode_name(n), rosgraph.impl.graph.node_topic(n), rosgraph.impl.graph.node_topic(n)) for n in nt_nodes])
-        else:
-            nodes_str = '  empty;'
-        nodes = list(nn_nodes) + list(nt_nodes)
 
-    # create the edge definitions
-    if graph_mode == NODE_NODE_GRAPH:
-        edges = g.nn_edges
-    elif graph_mode == NODE_TOPIC_GRAPH:
-        edges = g.nt_edges
-    else:
-        edges = g.nt_all_edges
-    if quiet:
-        edges = filter(_quiet_filter_edge, edges)
+        self.dotcode = dotcode_factory.create_dot(dotgraph)
 
-    edges = _filter_edges(edges, nodes)
-    edges_str = '\n'.join([_edge_to_dot(e, is_topic=(graph_mode == NODE_NODE_GRAPH)) for e in edges])
-    result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
-
-    return result.replace("\\\n", "")
+        return self.dotcode
+        
+      

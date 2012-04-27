@@ -31,10 +31,7 @@
 from __future__ import division
 import os
 
-# pydot requires some hacks
 import pydot
-# TODO: use pygraphviz instead, but non-deterministic layout will first be resolved in graphviz 2.30
-#import pygraphviz
 
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal
@@ -47,7 +44,11 @@ import rosgraph.impl.graph, rostopic, rosnode, rosservice
 
 import dotcode
 reload(dotcode)
-from dotcode import generate_dotcode, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
+from dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
+# pydot requires some hacks
+from rosgui_dotgraph.pydotfactory import PydotFactory
+# TODO: use pygraphviz instead, but non-deterministic layout will first be resolved in graphviz 2.30
+# from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 
 import InteractiveGraphicsView
 reload(InteractiveGraphicsView)
@@ -68,6 +69,11 @@ class RosGraph(QObject):
 
         self._widget = QWidget()
 
+        # factory builds generic dotcode items
+        self.dotcode_factory = PydotFactory()
+        # self.dotcode_factory = PygraphvizFactory()
+        # generator builds rosgraph
+        self.dotcode_generator = RosGraphDotcodeGenerator()
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
 
@@ -148,7 +154,13 @@ class RosGraph(QObject):
         graph_mode = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         orientation = 'LR'
         quiet = self._widget.quiet_check_box.isChecked()
-        return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
+        return self.dotcode_generator.generate_dotcode(
+            rosgraphinst = self._graph,
+            ns_filter = ns_filter,
+            graph_mode = graph_mode,
+            dotcode_factory = self.dotcode_factory,
+            orientation = orientation,
+            quiet = quiet)
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
