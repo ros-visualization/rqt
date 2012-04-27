@@ -37,29 +37,30 @@ from distutils.version import LooseVersion
 
 class PygraphvizFactory():
     
-    def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, ranksep = 0.2, compound = True):
-        graph = pygraphviz.AGraph(directed=(graph_type == 'digraph'), ranksep=ranksep, rank=rank, compound=True, simplify=simplify)
+    def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, rankdir = "TB", ranksep = 0.2, compound = True):
+        graph = pygraphviz.AGraph(directed=(graph_type == 'digraph'), ranksep=ranksep, rankdir=rankdir, rank=rank, compound=True, simplify=simplify)
         return graph
     
     def add_node_to_graph(self,
                           graph,
                           nodelabel,
                           shape = 'box',
-                          color = None):
+                          color = None,
+                          url=None):
         """
         creates a node item for this factory, adds it to the graph.
         Node name can vary from label but must always be same for the same node label
         """
         if color is not None:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', color=color)
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', url=url, color=color)
         else:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box')
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', url=url)
     
     def add_subgraph_to_graph(self,
                               graph,
                               subgraphlabel,
                               rank = 'same',
-                              simplify = True,
+                              rankdir = "TB",
                               ranksep = 0.2,
                               compound = True,
                               color = None,
@@ -73,14 +74,14 @@ class PygraphvizFactory():
         if subgraphlabel is None:
             return None
         if color is not None:
-            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold', color=color)
+            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold', color=color)
         else:
-            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold')
+            sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = style)
 
         return sg
 
-    def add_edge_to_graph(self, graph, nodename1, nodename2, simplify = True):
-        graph.add_edge(nodename1, nodename2)
+    def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True):
+        graph.add_edge(nodename1, nodename2, label=label, url=url)
 
     def create_dot(self, graph):
         graph.layout('dot')
