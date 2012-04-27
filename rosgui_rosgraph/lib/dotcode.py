@@ -76,13 +76,13 @@ class RosGraphDotcodeGenerator:
         else:
             self.dotcode_factory.add_node_to_graph(dotgraph,
                                                    nodelabel = node,
-                                                   shape = 'box',
+                                                   shape = 'ellipse',
                                                    url=node)
             
     def _add_topic_node(self, node, dotgraph, quiet):
         label = rosgraph.impl.graph.node_topic(node)
         self.dotcode_factory.add_node_to_graph(dotgraph,
-                                               nodelabel = "%s"%label,
+                                               nodelabel = label,
                                                shape = 'box',
                                                url="topic:%s"%label)
     
