@@ -80,6 +80,8 @@ class PydotFactory():
         creates a node item for this factory, adds it to the graph.
         Node name can vary from label but must always be same for the same node label
         """
+        if nodelabel is None or nodelabel == '':
+            raise ValueError('Empty Node label')
         node = pydot.Node(self.escape_name(nodelabel))
         node.set_shape(shape)
         node.set_label(self.escape_label(nodelabel))
@@ -105,8 +107,8 @@ class PydotFactory():
         cluster name can vary from label but must always be same for the same node label.
         Most layouters require cluster names to start with cluster.
         """
-        if subgraphlabel is None:
-            return None
+        if subgraphlabel is None or subgraphlabel == '':
+            raise ValueError('Empty subgraph label')
         g = pydot.Cluster(self.escape_name(subgraphlabel), rank = rank, rankdir = rankdir, simplify = simplify)
         if 'set_style' in g.__dict__:
             g.set_style(style)
@@ -127,7 +129,7 @@ class PydotFactory():
             if graph.get_edge(self.escape_name(nodename1), self.escape_name(nodename2)) != []:
                 return
         edge = pydot.Edge(self.escape_name(nodename1), self.escape_name(nodename2))
-        if label is not None:
+        if label is not None and label != '':
             edge.set_label(label)
         if url is not None:
             edge.set_URL(self.escape_name(url))
