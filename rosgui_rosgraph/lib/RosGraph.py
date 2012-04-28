@@ -93,6 +93,11 @@ class RosGraph(QObject):
         self._widget.graph_type_combo_box.setCurrentIndex(0)
         self._widget.graph_type_combo_box.currentIndexChanged.connect(self._refresh_rosgraph)
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
+        self._widget.topic_filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
+        self._widget.namespace_cluster_check_box.clicked.connect(self._refresh_rosgraph)
+        self._widget.actionlib_check_box.clicked.connect(self._refresh_rosgraph)
+        self._widget.dead_sinks_check_box.clicked.connect(self._refresh_rosgraph)
+        self._widget.leaf_topics_check_box.clicked.connect(self._refresh_rosgraph)
         self._widget.quiet_check_box.clicked.connect(self._refresh_rosgraph)
 
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
@@ -121,6 +126,11 @@ class RosGraph(QObject):
     def save_settings(self, global_settings, perspective_settings):
         perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
         perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
+        perspective_settings.set_value('topic_filter_line_edit_text', self._widget.topic_filter_line_edit.text())
+        perspective_settings.set_value('namespace_cluster_check_box_state', self._widget.namespace_cluster_check_box.isChecked())
+        perspective_settings.set_value('actionlib_check_box_state', self._widget.actionlib_check_box.isChecked())
+        perspective_settings.set_value('dead_sinks_check_box_state', self._widget.dead_sinks_check_box.isChecked())
+        perspective_settings.set_value('leaf_topics_check_box_state', self._widget.leaf_topics_check_box.isChecked())
         perspective_settings.set_value('quiet_check_box_state', self._widget.quiet_check_box.isChecked())
         perspective_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
         perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
@@ -128,6 +138,11 @@ class RosGraph(QObject):
     def restore_settings(self, global_settings, perspective_settings):
         self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
         self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', '/'))
+        self._widget.topic_filter_line_edit.setText(perspective_settings.value('topic_filter_line_edit_text', '/'))
+        self._widget.namespace_cluster_check_box.setChecked(perspective_settings.value('namespace_cluster_check_box_state', True) in [True, 'true'])
+        self._widget.actionlib_check_box.setChecked(perspective_settings.value('actionlib_check_box_state', True) in [True, 'true'])
+        self._widget.dead_sinks_check_box.setChecked(perspective_settings.value('dead_sinks_check_box_state', True) in [True, 'true'])
+        self._widget.leaf_topics_check_box.setChecked(perspective_settings.value('leaf_topics_check_box_state', True) in [True, 'true'])
         self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
@@ -138,6 +153,11 @@ class RosGraph(QObject):
         # re-enable controls customizing fetched ROS graph
         self._widget.graph_type_combo_box.setEnabled(True)
         self._widget.filter_line_edit.setEnabled(True)
+        self._widget.topic_filter_line_edit.setEnabled(True)
+        self._widget.namespace_cluster_check_box.setEnabled(True)
+        self._widget.actionlib_check_box.setEnabled(True)
+        self._widget.dead_sinks_check_box.setEnabled(True)
+        self._widget.leaf_topics_check_box.setEnabled(True)
         self._widget.quiet_check_box.setEnabled(True)
 
         self._graph = rosgraph.impl.graph.Graph()
@@ -153,20 +173,27 @@ class RosGraph(QObject):
 
     def _generate_dotcode(self):
         ns_filter = self._widget.filter_line_edit.text()
-        if not ns_filter.endswith('/'):
-            ns_filter += '/'
+        topic_filter = self._widget.topic_filter_line_edit.text()
         graph_mode = self._widget.graph_type_combo_box.itemData(self._widget.graph_type_combo_box.currentIndex())
         orientation = 'LR'
+        if self._widget.namespace_cluster_check_box.isChecked():
+            namespace_cluster = 1
+        else:
+            namespace_cluster = 0
+        accumulate_actions = self._widget.actionlib_check_box.isChecked()
+        hide_dead_end_topics = self._widget.dead_sinks_check_box.isChecked()
+        hide_single_connection_topics = self._widget.leaf_topics_check_box.isChecked()
         quiet = self._widget.quiet_check_box.isChecked()
         
         return self.dotcode_generator.generate_dotcode(
             rosgraphinst = self._graph,
             ns_filter = ns_filter,
+            topic_filter = topic_filter,
             graph_mode = graph_mode,
-            hide_single_connection_topics = False,
-            hide_dead_end_topics = False,
-            cluster_namespaces_level = 0,
-            accumulate_actions = False,            
+            hide_single_connection_topics = hide_single_connection_topics,
+            hide_dead_end_topics = hide_dead_end_topics,
+            cluster_namespaces_level = namespace_cluster,
+            accumulate_actions = accumulate_actions,
             dotcode_factory = self.dotcode_factory,
             orientation = orientation,
             quiet = quiet)
@@ -234,6 +261,11 @@ class RosGraph(QObject):
         # disable controls customizing fetched ROS graph
         self._widget.graph_type_combo_box.setEnabled(False)
         self._widget.filter_line_edit.setEnabled(False)
+        self._widget.topic_filter_line_edit.setEnabled(False)
+        self._widget.namespace_cluster_check_box.setEnabled(False)
+        self._widget.actionlib_check_box.setEnabled(False)
+        self._widget.dead_sinks_check_box.setEnabled(False)
+        self._widget.leaf_topics_check_box.setEnabled(False)
         self._widget.quiet_check_box.setEnabled(False)
 
         self._update_graph_view(dotcode)

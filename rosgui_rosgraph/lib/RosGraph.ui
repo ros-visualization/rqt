@@ -18,7 +18,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
      <item>
       <widget class="QPushButton" name="refresh_graph_push_button">
        <property name="toolTip">
@@ -46,6 +46,37 @@
        </property>
        <property name="text">
         <string notr="true">/</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="topic_filter_line_edit"/>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="namespace_cluster_check_box">
+       <property name="text">
+        <string>namespaces</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="actionlib_check_box">
+       <property name="text">
+        <string>actions</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="dead_sinks_check_box">
+       <property name="text">
+        <string>dead sinks</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="leaf_topics_check_box">
+       <property name="text">
+        <string>leaf topics</string>
        </property>
       </widget>
      </item>
