@@ -43,7 +43,8 @@ class PygraphvizFactory():
     
     def add_node_to_graph(self,
                           graph,
-                          nodelabel,
+                          nodename,
+                          nodelabel = None,
                           shape = 'box',
                           color = None,
                           url=None):
@@ -51,6 +52,10 @@ class PygraphvizFactory():
         creates a node item for this factory, adds it to the graph.
         Node name can vary from label but must always be same for the same node label
         """
+        if nodename is None or nodename == '':
+            raise ValueError('Empty Node label')
+        if nodelabel is None:
+            nodelabel = nodename
         if color is not None:
             node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', url=url, color=color)
         else:
@@ -71,8 +76,8 @@ class PygraphvizFactory():
         cluster name can vary from label but must always be same for the same node label.
         Most layouters require cluster names to start with cluster.
         """
-        if subgraphlabel is None:
-            return None
+        if subgraphlabel is None or subgraphlabel == '':
+            raise ValueError('Empty subgraph label')
         if color is not None:
             sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = 'bold', color=color)
         else:

@@ -72,7 +72,8 @@ class PydotFactory():
     
     def add_node_to_graph(self,
                           graph,
-                          nodelabel,
+                          nodename,
+                          nodelabel = None,
                           shape = 'box',
                           color = None,
                           url=None):
@@ -80,8 +81,10 @@ class PydotFactory():
         creates a node item for this factory, adds it to the graph.
         Node name can vary from label but must always be same for the same node label
         """
-        if nodelabel is None or nodelabel == '':
+        if nodename is None or nodename == '':
             raise ValueError('Empty Node label')
+        if nodelabel is None:
+            nodelabel = nodename
         node = pydot.Node(self.escape_name(nodelabel))
         node.set_shape(shape)
         node.set_label(self.escape_label(nodelabel))
