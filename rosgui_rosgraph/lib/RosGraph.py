@@ -162,9 +162,11 @@ class RosGraph(QObject):
         return self.dotcode_generator.generate_dotcode(
             rosgraphinst = self._graph,
             ns_filter = ns_filter,
+            graph_mode = graph_mode,
+            hide_single_connection_topics = False,
             hide_dead_end_topics = False,
             cluster_namespaces_level = 0,
-            graph_mode = graph_mode,
+            accumulate_actions = False,            
             dotcode_factory = self.dotcode_factory,
             orientation = orientation,
             quiet = quiet)
