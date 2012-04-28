@@ -137,6 +137,8 @@ class RosGraphDotcodeGenerator:
                          ns_filter,
                          graph_mode,
                          dotcode_factory,
+                         hide_dead_end_topics = False,
+                         cluster_namespaces_level = 0,
                          orientation = 'LR',
                          rank = 'same',   # None, same, min, max, source, sink
                          ranksep = 0.2,   # vertical distance between layers
@@ -160,24 +162,18 @@ class RosGraphDotcodeGenerator:
         #print "generate_dotcode", graph_mode
         if ns_filter:
             name_filter = ns_filter[:-1]
-
-        # result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
-        dotgraph = dotcode_factory.get_graph(rank = rank,
-                                          ranksep = ranksep,
-                                          simplify = simplify,
-                                          rankdir = orientation)
-            
+        
+        node_connections = {}
+        
+        nn_nodes = []
+        nt_nodes = []
         # create the node definitions
         if graph_mode == NODE_NODE_GRAPH:
-            nodes = rosgraphinst.nn_nodes
+            nn_nodes = rosgraphinst.nn_nodes
             if quiet:
-                nodes = [n for n in nodes if not n in QUIET_NAMES]
+                nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
             if ns_filter and ns_filter != '/':
-                nodes = [n for n in nodes if n.startswith(ns_filter) or n == name_filter]
-
-            for n in nodes:
-                self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)
-                
+                nn_nodes = [n for n in nn_nodes if n.startswith(ns_filter) or n == name_filter]
     
         elif graph_mode == NODE_TOPIC_GRAPH or \
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
@@ -190,12 +186,7 @@ class RosGraphDotcodeGenerator:
                 nn_nodes = [n for n in nn_nodes if n.startswith(ns_filter) or n == name_filter]
                 nt_nodes = [n for n in nt_nodes if n[1:].startswith(ns_filter) or n[1:] == name_filter]
     
-            if nn_nodes or nt_nodes:
-                for n in nn_nodes:
-                    self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)
-                for n in nt_nodes:
-                    self._add_topic_node(n, dotgraph=dotgraph, quiet=quiet)
-            nodes = list(nn_nodes) + list(nt_nodes)
+            
     
         # create the edge definitions
         if graph_mode == NODE_NODE_GRAPH:
@@ -207,15 +198,78 @@ class RosGraphDotcodeGenerator:
             
         if quiet:
             edges = filter(self._quiet_filter_edge, edges)
-      
+
+        nodes = list(nn_nodes) + list(nt_nodes)
         edges = self._filter_edges(edges, nodes)
-        
+
+        if graph_mode != NODE_NODE_GRAPH and hide_dead_end_topics:
+            for edge in edges:
+                if not edge.start in node_connections:
+                    node_connections[edge.start] = {'outgoing' : [], 'incoming' : []}
+                if not edge.end in node_connections:
+                    node_connections[edge.end] = {'outgoing' : [], 'incoming' : []}
+                node_connections[edge.start]['outgoing'].append(edge)
+                node_connections[edge.end]['incoming'].append(edge)
+       
+            removal_nodes = []
+            for n in nt_nodes:
+                if n in node_connections:
+                    node_edges = []
+                    if 'outgoing' in node_connections[n]:
+                        node_edges.extend(node_connections[n]['outgoing'])
+                    if 'incoming' in node_connections[n]:
+                        node_edges.extend(node_connections[n]['incoming'])
+                    if len(node_edges) < 2:
+                        removal_nodes.append(n)
+                        for e in node_edges:
+                            if e in edges:
+                                edges.remove(e)
+       
+            for n in removal_nodes:
+                nt_nodes.remove(n)
+            
+        # create the graph
+            
+        # result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
+        dotgraph = dotcode_factory.get_graph(rank = rank,
+                                          ranksep = ranksep,
+                                          simplify = simplify,
+                                          rankdir = orientation)
+
+        namespace_clusters = {}
+        if nt_nodes is not None:
+            for n in nt_nodes:
+                if n in node_connections:
+                    # cluster topics with same namespace
+                    if (cluster_namespaces_level > 0 and
+                        str(n).count('/') > 1 and
+                        len(str(n).split('/')[1]) > 0):
+                        
+                        namespace = str(n).split('/')[1]
+                        if namespace not in namespace_clusters:
+                            namespace_clusters[namespace] = dotcode_factory.add_subgraph_to_graph(dotgraph, namespace, rank = rank, rankdir = orientation, simplify = simplify)
+                        self._add_topic_node(n, dotgraph=namespace_clusters[namespace], quiet=quiet)
+                    else:
+                        self._add_topic_node(n, dotgraph=dotgraph, quiet=quiet)
+
+        # for normal node, if we have created a namespace clusters for
+        # one of its peer topics, drop it into that cluster
+        if nn_nodes is not None:
+            for n in nn_nodes:
+                if n in node_connections:
+                    if (cluster_namespaces_level > 0 and
+                        str(n).count('/') >= 1 and
+                        len(str(n).split('/')[1]) > 0 and
+                        str(n).split('/')[1] in namespace_clusters):
+                        
+                        namespace = str(n).split('/')[1]
+                        self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=namespace_clusters[namespace], quiet=quiet)
+                    else:
+                        self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)                
         for e in edges:
             self._add_edge(e, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
-
         self.dotcode = dotcode_factory.create_dot(dotgraph)
-
         return self.dotcode
         
       
