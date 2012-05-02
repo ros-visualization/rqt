@@ -206,7 +206,9 @@ class RosGraphDotcodeGenerator:
             if quiet:
                 nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
-    
+            edges = rosgraphinst.nn_edges
+            edges = [e for e in edges if matches_any(e.label, topic_includes) and not matches_any(e.label, topic_excludes)]
+            
         elif graph_mode == NODE_TOPIC_GRAPH or \
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
             nn_nodes = rosgraphinst.nn_nodes
@@ -218,13 +220,11 @@ class RosGraphDotcodeGenerator:
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
             nt_nodes = [n for n in nt_nodes if matches_any(n, topic_includes) and not matches_any(n, topic_excludes)]
 
-        # create the edge definitions
-        if graph_mode == NODE_NODE_GRAPH:
-            edges = rosgraphinst.nn_edges
-        elif graph_mode == NODE_TOPIC_GRAPH:
-            edges = rosgraphinst.nt_edges
-        else:
-            edges = rosgraphinst.nt_all_edges
+            # create the edge definitions
+            if graph_mode == NODE_TOPIC_GRAPH:
+                edges = rosgraphinst.nt_edges
+            else:
+                edges = rosgraphinst.nt_all_edges
             
         if quiet:
             edges = filter(self._quiet_filter_edge, edges)
