@@ -33,6 +33,8 @@
 import pygraphviz
 from distutils.version import LooseVersion
 
+from colors import get_color_for_string
+
 # Reference implementation for a dotcode factory
 
 class PygraphvizFactory():
@@ -57,9 +59,9 @@ class PygraphvizFactory():
         if nodelabel is None:
             nodelabel = nodename
         if color is not None:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', url=url, color=color)
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url, color=color)
         else:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape='box', url=url)
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url)
     
     def add_subgraph_to_graph(self,
                               graph,

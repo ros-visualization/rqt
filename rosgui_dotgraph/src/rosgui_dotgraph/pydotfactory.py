@@ -34,6 +34,8 @@ import pydot
 import urllib
 from distutils.version import LooseVersion
 
+from colors import get_color_for_string
+
 # Reference implementation for a dotcode factory
 
 class PydotFactory():
@@ -91,7 +93,7 @@ class PydotFactory():
         if url is not None:
             node.set_URL(self.escape_name(url))
         if color is not None:
-            node.set_color('red')
+            node.set_color(color)
         graph.add_node(node)
     
     def add_subgraph_to_graph(self,
@@ -121,9 +123,9 @@ class PydotFactory():
             g.set_compound(compound)
             g.set_ranksep(ranksep)
         g.set_label(subgraphlabel)
-        if color is not None:
-            if 'set_color' in g.__dict__:
-                g.set_color('red')
+        if 'set_color' in g.__dict__:
+            if color is not None:
+                g.set_color(color)
         graph.add_subgraph(g)
         return g
 
