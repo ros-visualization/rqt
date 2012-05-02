@@ -51,7 +51,13 @@ POINTS_PER_INCH = 72
 # hack required by pydot
 def get_unquoted(item, name):
     value = item.get(name)
-    return value.strip('"\n"')
+    if value is None:
+        return None
+    try:
+        return value.strip('"\n"')
+    except AttributeError:
+        # not part of the string family
+        return value
 
 # approximately, for workarounds (TODO: get this from dotfile somehow)
 LABEL_HEIGHT = 30
@@ -68,10 +74,10 @@ class DotToQtGenerator():
         obj_dic = subgraph.__getattribute__("obj_dict")
         for name in obj_dic:
             if name not in ['nodes', 'attributes', 'parent_graph'] and obj_dic[name] is not None:
-                attr[name] = obj_dic[name]
+                attr[name] = get_unquoted(obj_dic, name)
             elif name == 'nodes':
                 for key in obj_dic['nodes']['graph'][0]['attributes']:
-                    attr[key] = obj_dic['nodes']['graph'][0]['attributes'][key]
+                    attr[key] = get_unquoted(obj_dic['nodes']['graph'][0]['attributes'], key)
         subgraph.attr = attr
     
         bb = subgraph.attr['bb'].strip('"').split(',')
@@ -107,7 +113,7 @@ class DotToQtGenerator():
         obj_dic = node.__getattribute__("obj_dict")
         for name in obj_dic:
             if name not in ['attributes', 'parent_graph'] and obj_dic[name] is not None:
-                attr[name] = obj_dic[name]
+                attr[name] = get_unquoted(obj_dic, name)
         node.attr = attr
         
         # decrease rect by one so that edges do not reach inside
