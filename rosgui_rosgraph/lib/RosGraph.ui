@@ -42,7 +42,7 @@
      <item>
       <widget class="QLineEdit" name="filter_line_edit">
        <property name="toolTip">
-        <string>Namespace filter</string>
+        <string>Namespace filter, comma separated list of names/regexp to include or exclude. Example: -/rosgui.*</string>
        </property>
        <property name="text">
         <string notr="true">/</string>
@@ -50,12 +50,19 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="topic_filter_line_edit"/>
+      <widget class="QLineEdit" name="topic_filter_line_edit">
+       <property name="toolTip">
+        <string>Topic filter, comma separated list of names/regexp to include or exclude. Example: -/tf</string>
+       </property>
+       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="namespace_cluster_check_box">
        <property name="text">
         <string>namespaces</string>
+       </property>
+       <property name="toolTip">
+        <string>Show or hide namespace boxes</string>
        </property>
       </widget>
      </item>
@@ -64,6 +71,9 @@
        <property name="text">
         <string>actions</string>
        </property>
+       <property name="toolTip">
+        <string>Action topics summarized into one virtual topic node</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -71,12 +81,18 @@
        <property name="text">
         <string>dead sinks</string>
        </property>
+       <property name="toolTip">
+        <string>Show or hide topics with publishers only</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="leaf_topics_check_box">
        <property name="text">
         <string>leaf topics</string>
+       </property>
+       <property name="toolTip">
+        <string>Show or hide topics with one connection only</string>
        </property>
       </widget>
      </item>
