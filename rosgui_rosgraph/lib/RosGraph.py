@@ -34,8 +34,8 @@ import os
 import pydot
 
 from rosgui.QtBindingHelper import loadUi
-from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal
-from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
+from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal, QAbstractListModel
+from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
 import roslib
@@ -55,6 +55,41 @@ reload(InteractiveGraphicsView)
 from InteractiveGraphicsView import InteractiveGraphicsView
 
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
+
+class RepeatedWordCompleter(QCompleter):
+    """A completer that completes multiple times from a list"""
+    def init(self, parent=None):
+        QCompleter.init(self, parent)
+
+    def pathFromIndex(self, index):
+        path = QCompleter.pathFromIndex(self, index)
+        lst = str(self.widget().text()).split(',')
+        if len(lst) > 1:
+            path = '%s, %s' % (','.join(lst[:-1]), path)
+        return path
+
+    def splitPath(self, path):
+        path = str(path.split(',')[-1]).lstrip(' ')
+        return [path]
+
+class NamespaceCompletionModel(QAbstractListModel):
+    """Ros package and stacknames"""
+    def __init__(self, linewidget, topics_only):
+        super(QAbstractListModel, self).__init__(linewidget)
+        self.names = []
+        
+    def refresh(self, names):
+        namesset = set()
+        for n in names:
+            namesset.add(str(n).strip())
+            namesset.add("-%s"%(str(n).strip()))
+        self.names = sorted(namesset)
+    def rowCount(self, parent):
+        return len(self.names)
+    def data(self, index, role):
+        if index.isValid() and (role == Qt.DisplayRole or role == Qt.EditRole):
+            return self.names[index.row()]
+        return None
 
 class RosGraph(QObject):
 
@@ -92,8 +127,24 @@ class RosGraph(QObject):
         self._widget.graph_type_combo_box.insertItem(2, self.tr('Nodes/Topics (all)'), NODE_TOPIC_ALL_GRAPH)
         self._widget.graph_type_combo_box.setCurrentIndex(0)
         self._widget.graph_type_combo_box.currentIndexChanged.connect(self._refresh_rosgraph)
+
+        self.node_completionmodel = NamespaceCompletionModel(self._widget.filter_line_edit, False)
+        completer = RepeatedWordCompleter(self.node_completionmodel, self)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setWrapAround(True)
+        completer.setCaseSensitivity(Qt.CaseInsensitive);
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
+        self._widget.filter_line_edit.setCompleter(completer)
+
+        self.topic_completionmodel = NamespaceCompletionModel(self._widget.topic_filter_line_edit, False)
+        topic_completer = RepeatedWordCompleter(self.topic_completionmodel, self)
+        topic_completer.setCompletionMode(QCompleter.PopupCompletion)
+        topic_completer.setWrapAround(True)
+        topic_completer.setCaseSensitivity(Qt.CaseInsensitive);
         self._widget.topic_filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
+        self._widget.topic_filter_line_edit.setCompleter(topic_completer)
+        
+
         self._widget.namespace_cluster_check_box.clicked.connect(self._refresh_rosgraph)
         self._widget.actionlib_check_box.clicked.connect(self._refresh_rosgraph)
         self._widget.dead_sinks_check_box.clicked.connect(self._refresh_rosgraph)
@@ -164,6 +215,8 @@ class RosGraph(QObject):
         self._graph.set_master_stale(5.0)
         self._graph.set_node_stale(5.0)
         self._graph.update()
+        self.node_completionmodel.refresh(self._graph.nn_nodes)
+        self.topic_completionmodel.refresh(self._graph.nt_nodes)
         self._refresh_rosgraph()
 
     def _refresh_rosgraph(self):
