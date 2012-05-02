@@ -126,6 +126,9 @@ class PydotFactory():
         if 'set_color' in g.__dict__:
             if color is not None:
                 g.set_color(color)
+            else:
+                color = get_color_for_string(subgraphlabel)
+                g.set_color(color)
         graph.add_subgraph(g)
         return g
 
