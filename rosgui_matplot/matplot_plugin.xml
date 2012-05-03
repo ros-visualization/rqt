@@ -1,4 +1,4 @@
-<library path="lib/MatPlot">
+<library path="src/rosgui_matplot/MatPlot">
   <class name="MatPlot" type="MatPlot" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin plotting data from ROS messages using matplotlib.

@@ -1,4 +1,4 @@
-<library path="lib/ServiceCaller">
+<library path="src/rosgui_service_caller/ServiceCaller">
   <class name="ServiceCaller" type="ServiceCaller" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin calling ROS services.

@@ -1,4 +1,4 @@
-<library path="lib/Publisher">
+<library path="src/rosgui_publisher/Publisher">
   <class name="Publisher" type="Publisher" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin publishing ROS messages.

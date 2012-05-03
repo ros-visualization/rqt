@@ -23,9 +23,8 @@ from rosgui_dotgraph.pydotfactory import PydotFactory
 # from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
-import InteractiveGraphicsView
-reload(InteractiveGraphicsView)
-from InteractiveGraphicsView import InteractiveGraphicsView
+import rosgui_rosgraph.InteractiveGraphicsView
+reload(rosgui_rosgraph.InteractiveGraphicsView)
 
 
 class RepeatedWordCompleter(QCompleter):
@@ -88,7 +87,7 @@ class RosPackGraph(QObject):
         self.dot_to_qt = DotToQtGenerator()
         
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
-        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
+        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rosgui_rosgraph.InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
