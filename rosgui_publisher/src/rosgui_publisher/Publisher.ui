@@ -214,7 +214,7 @@
   <customwidget>
    <class>PublisherTreeWidget</class>
    <extends>QTreeView</extends>
-   <header>rosgui_publisher/PublisherTreeWidget</header>
+   <header>rosgui_publisher/PublisherTreeWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
