@@ -1,4 +1,4 @@
-<library path="lib/Plot">
+<library path="src/rosgui_plot/Plot">
   <class name="Plot" type="Plot" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin plotting data from ROS messages using PyQwt5.

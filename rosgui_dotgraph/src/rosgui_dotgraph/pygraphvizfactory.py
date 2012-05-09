@@ -30,46 +30,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pydot
-import urllib
+import pygraphviz
 from distutils.version import LooseVersion
 
 from colors import get_color_for_string
 
 # Reference implementation for a dotcode factory
 
-class PydotFactory():
-
-    def escape_label(self, name):
-        if name in ['graph', 'subgraph', 'node', 'edge']:
-            ret = "%s_"%name
-        else:
-            ret = name
-        return ret
-            
-    def escape_name(self, name):
-        ret = urllib.quote(name.strip())
-        ret = ret.replace('/', '_')
-        ret = ret.replace('%', '_')
-        ret = ret.replace('-', '_')
-        return ret
+class PygraphvizFactory():
     
     def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, rankdir = "TB", ranksep = 0.2, compound = True):
-        # Lucid version of pydot bugs with certain settings, not sure which version exactly fixes those
-        if LooseVersion(pydot.__version__) > LooseVersion('1.0.10'):
-            graph = pydot.Dot('graphname',
-                              graph_type = graph_type,
-                              rank = rank,
-                              rankdir = rankdir,
-                              simplify = simplify
-                              )
-            graph.set_ranksep(ranksep);
-            graph.set_compound(compound)
-        else:
-            graph = pydot.Dot('graphname',
-                              graph_type = graph_type,
-                              rank = rank,
-                              rankdir = rankdir)
+        graph = pygraphviz.AGraph(directed=(graph_type == 'digraph'), ranksep=ranksep, rankdir=rankdir, rank=rank, compound=True, simplify=simplify)
         return graph
     
     def add_node_to_graph(self,
@@ -87,22 +58,17 @@ class PydotFactory():
             raise ValueError('Empty Node label')
         if nodelabel is None:
             nodelabel = nodename
-        node = pydot.Node(self.escape_name(nodelabel))
-        node.set_shape(shape)
-        node.set_label(self.escape_label(nodelabel))
-        if url is not None:
-            node.set_URL(self.escape_name(url))
         if color is not None:
-            node.set_color(color)
-        graph.add_node(node)
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url, color=color)
+        else:
+            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url)
     
     def add_subgraph_to_graph(self,
                               graph,
                               subgraphlabel,
                               rank = 'same',
-                              simplify = True,
                               rankdir = "TB",
-                              ranksep = 0.2,                              
+                              ranksep = 0.2,
                               compound = True,
                               color = None,
                               shape = 'box',
@@ -114,36 +80,18 @@ class PydotFactory():
         """
         if subgraphlabel is None or subgraphlabel == '':
             raise ValueError('Empty subgraph label')
-        g = pydot.Cluster(self.escape_name(subgraphlabel), rank = rank, rankdir = rankdir, simplify = simplify)
-        if 'set_style' in g.__dict__:
-            g.set_style(style)
-        if 'set_shape' in g.__dict__:
-            g.set_shape(shape)
-        if LooseVersion(pydot.__version__) > LooseVersion('1.0.10'):
-            g.set_compound(compound)
-            g.set_ranksep(ranksep)
-        g.set_label(subgraphlabel)
-        if 'set_color' in g.__dict__:
-            if color is not None:
-                g.set_color(color)
-            else:
-                color = get_color_for_string(subgraphlabel)
-                g.set_color(color)
-        graph.add_subgraph(g)
-        return g
+
+        if color is None:
+            color = get_color_for_string(subgraphlabel)
+        sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = style, color=color)
+
+        return sg
 
     def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True):
-        if simplify and LooseVersion(pydot.__version__) < LooseVersion('1.0.10'):
-            if graph.get_edge(self.escape_name(nodename1), self.escape_name(nodename2)) != []:
-                return
-        edge = pydot.Edge(self.escape_name(nodename1), self.escape_name(nodename2))
-        if label is not None and label != '':
-            edge.set_label(label)
-        if url is not None:
-            edge.set_URL(self.escape_name(url))
-        graph.add_edge(edge)
+        graph.add_edge(nodename1, nodename2, label=label, url=url)
 
     def create_dot(self, graph):
-        dot = graph.create_dot()
-        # sadly pydot generates line wraps cutting between numbers
-        return dot.replace("\\\n", "")
+        graph.layout('dot')
+        # sadly pygraphviz generates line wraps cutting between numbers
+        return graph.string().replace("\\\n", "")
+        

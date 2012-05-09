@@ -32,12 +32,13 @@
 
 import pydot
 
+import roslib
+roslib.load_manifest('rosgui_package_graph')
+
 from rosgui.QtBindingHelper import loadUi
 from QtCore import QRectF, QPointF
 from QtGui import QColor
 
-import roslib
-roslib.load_manifest('rosgui_package_graph')
 
 import edge_item
 from edge_item import EdgeItem
@@ -50,8 +51,16 @@ POINTS_PER_INCH = 72
 # hack required by pydot
 def get_unquoted(item, name):
     value = item.get(name)
-    return value.strip('"\n"')
+    if value is None:
+        return None
+    try:
+        return value.strip('"\n"')
+    except AttributeError:
+        # not part of the string family
+        return value
 
+# approximately, for workarounds (TODO: get this from dotfile somehow)
+LABEL_HEIGHT = 30
 
 # Class generating Qt Elements from doctcode
 class DotToQtGenerator():
@@ -65,15 +74,18 @@ class DotToQtGenerator():
         obj_dic = subgraph.__getattribute__("obj_dict")
         for name in obj_dic:
             if name not in ['nodes', 'attributes', 'parent_graph'] and obj_dic[name] is not None:
-                attr[name] = obj_dic[name]
+                attr[name] = get_unquoted(obj_dic, name)
             elif name == 'nodes':
                 for key in obj_dic['nodes']['graph'][0]['attributes']:
-                    attr[key] = obj_dic['nodes']['graph'][0]['attributes'][key]
+                    attr[key] = get_unquoted(obj_dic['nodes']['graph'][0]['attributes'], key)
         subgraph.attr = attr
     
         bb = subgraph.attr['bb'].strip('"').split(',')
-        bounding_box = QRectF(0,0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
-        label_pos = subgraph.attr['lp'].strip('"').split(',')
+        bounding_box = QRectF(0, 0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
+        if 'lp' in subgraph.attr:
+            label_pos = subgraph.attr['lp'].strip('"').split(',')
+        else:
+            label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, float(bb[1]) + (float(bb[3]) -float(bb[1])) - LABEL_HEIGHT / 2)
         bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2))
         name = subgraph.attr['label']
         color = QColor(subgraph.attr['color']) if 'color' in subgraph.attr else None
@@ -88,7 +100,7 @@ class DotToQtGenerator():
         # decide whether to be over the cluster or a subnode. Using
         # just the "title area" solves this. TODO: Maybe using a
         # border region would be even better (multiple RectF)
-        bounding_box.setHeight(30)
+        bounding_box.setHeight(LABEL_HEIGHT)
         subgraph_nodeitem.set_hovershape(bounding_box)
         return subgraph_nodeitem
     
@@ -101,7 +113,7 @@ class DotToQtGenerator():
         obj_dic = node.__getattribute__("obj_dict")
         for name in obj_dic:
             if name not in ['attributes', 'parent_graph'] and obj_dic[name] is not None:
-                attr[name] = obj_dic[name]
+                attr[name] = get_unquoted(obj_dic, name)
         node.attr = attr
         
         # decrease rect by one so that edges do not reach inside
@@ -165,6 +177,8 @@ class DotToQtGenerator():
         returns two dicts, one mapping node names to Node_Item, one mapping edge names to lists of Edge_Item
         """
         # layout graph
+        if dotcode is None:
+            return {}, {}
         graph = pydot.graph_from_dot_data(dotcode.encode("ascii","ignore"))
 
         #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)

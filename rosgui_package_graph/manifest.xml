@@ -12,7 +12,7 @@
   <depend package="rosgui_dotgraph"/>
   <depend package="rosgui_rosgraph"/>
 
-  <rosdep name="rospkg"/>
+  <rosdep name="python-rospkg"/>
 
   <export>
     <rosgui plugin="${prefix}/rospackage_graph_plugin.xml"/>

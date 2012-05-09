@@ -20,11 +20,11 @@ import rosgui_package_graph.dotcode_pack
 from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 import rosgui_dotgraph
 from rosgui_dotgraph.pydotfactory import PydotFactory
+# from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
-import InteractiveGraphicsView
-reload(InteractiveGraphicsView)
-from InteractiveGraphicsView import InteractiveGraphicsView
+import rosgui_rosgraph.InteractiveGraphicsView
+reload(rosgui_rosgraph.InteractiveGraphicsView)
 
 
 class RepeatedWordCompleter(QCompleter):
@@ -45,9 +45,9 @@ class RepeatedWordCompleter(QCompleter):
 
 class StackageCompletionModel(QAbstractListModel):
     """Ros package and stacknames"""
-    def __init__(self, linewidget):
+    def __init__(self, linewidget, rospack, rosstack):
         super(QAbstractListModel, self).__init__(linewidget)
-        self.allnames = sorted(list(set(rospkg.RosPack().list() + rospkg.RosStack().list())))
+        self.allnames = sorted(list(set(rospack.list() + rosstack.list())))
         self.allnames = self.allnames + ['-%s'%name for name in self.allnames]
     def rowCount(self, parent):
         return len(self.allnames)
@@ -75,15 +75,19 @@ class RosPackGraph(QObject):
 
         self._widget = QWidget()
 
-        # factory builds generict dotcode items
+        rospack = rospkg.RosPack()
+        rosstack = rospkg.RosStack()
+        
+        # factory builds generic dotcode items
         self.dotcode_factory = PydotFactory()
+        # self.dotcode_factory = PygraphvizFactory()
         # generator builds rosgraph
-        self.dotcode_generator = RosPackageGraphDotcodeGenerator()
+        self.dotcode_generator = RosPackageGraphDotcodeGenerator(rospack, rosstack)
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
         
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
-        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
+        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rosgui_rosgraph.InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
@@ -105,7 +109,7 @@ class RosPackGraph(QObject):
         self._widget.directions_combo_box.setCurrentIndex(2)
         self._widget.directions_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
         
-        completionmodel = StackageCompletionModel(self._widget.filter_line_edit)
+        completionmodel = StackageCompletionModel(self._widget.filter_line_edit, rospack, rosstack)
         completer = RepeatedWordCompleter(completionmodel, self)
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setWrapAround(True)
@@ -200,7 +204,7 @@ class RosPackGraph(QObject):
         if selected_directions == 0:
             ancestors = False
 
-        return self.dotcode_generator.generate_dotcode(self.dotcode_factory,
+        return self.dotcode_generator.generate_dotcode(dotcode_factory = self.dotcode_factory,
                                                        selected_names = includes,
                                                        excludes = excludes,
                                                        depth = depth,
@@ -209,7 +213,6 @@ class RosPackGraph(QObject):
                                                        ancestors = ancestors,
                                                        mark_selected = self._widget.mark_check_box.isChecked(),
                                                        hide_transitives = self._widget.transitives_check_box.isChecked())
-        #return generate_dotcode(self._graph, ns_filter, graph_mode, orientation, quiet)
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:

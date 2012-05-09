@@ -1,4 +1,4 @@
-<library path="lib/PoseView">
+<library path="src/rosgui_pose_view/PoseView">
   <class name="PoseView" type="PoseView" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin to visualize a geometry_msgs/Pose message.

@@ -1,4 +1,4 @@
-<library path="lib/RosGraph">
+<library path="src/rosgui_rosgraph/RosGraph">
   <class name="RosGraph" type="RosGraph" base_class_type="rosgui_rospy::Plugin">
     <description>
       A Python GUI plugin to visualize a ROS computation graph.

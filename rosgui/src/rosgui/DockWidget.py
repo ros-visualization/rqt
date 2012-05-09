@@ -58,7 +58,7 @@ class DockWidget(QDockWidget):
         if self._dragging_parent is None and e.type() == QEvent.MouseButtonPress and e.button() == Qt.LeftButton:
             self._dragging_local_pos = e.pos()
 
-        if self._dragging_parent is None and e.type() == QEvent.Move and QApplication.mouseButtons() & Qt.LeftButton:
+        if self._dragging_parent is None and self._dragging_local_pos is not None and e.type() == QEvent.Move and QApplication.mouseButtons() & Qt.LeftButton:
             if self.widget_at(e.pos()) is not None:
                 print 'DockWidget._event()', 'start drag', 'dockwidget', self, 'parent', self.parent(), self.isFloating(), self._dragging_local_pos
                 self._dragging_parent = self.parent()
@@ -72,10 +72,13 @@ class DockWidget(QDockWidget):
                         continue
                     self._main_windows.append(container.main_window)
 
+        # unset local position when releasing button even when custom drag'n'drop has not been started
+        if self._dragging_local_pos is not None and e.type() == QEvent.MouseButtonRelease and e.button() == Qt.LeftButton and not self._releasing_and_repressing_while_dragging:
+            self._dragging_local_pos = None
+
         if self._dragging_parent is not None and e.type() == QEvent.MouseButtonRelease and e.button() == Qt.LeftButton and not self._releasing_and_repressing_while_dragging:
             print 'DockWidget._event()', 'stop drag', 'dockwidget', self, 'parent', self.parent(), '\n'
             self._dragging_parent = None
-            self._dragging_local_pos = None
             self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
             self._main_windows = []
 

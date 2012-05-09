@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RosPackGraphWidget</class>
- <widget class="QWidget" name="RosPackGraphWidget">
+ <class>RosGraphWidget</class>
+ <widget class="QWidget" name="RosGraphWidget">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
      <item>
       <widget class="QPushButton" name="refresh_graph_push_button">
        <property name="toolTip">
@@ -27,19 +27,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="filter_line_edit">
-       <property name="toolTip">
-        <string>Comma separated regex patterns / names, leading dash creates exclusion pattern. Example: gazebo, -test.*</string>
-       </property>
-       <property name="text">
-        <string notr="true"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="depth_combo_box">
+      <widget class="QComboBox" name="graph_type_combo_box">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -50,42 +40,69 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="directions_combo_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QLineEdit" name="filter_line_edit">
+       <property name="toolTip">
+        <string>Namespace filter, comma separated list of names/regexp to include or exclude. Example: -/rosgui.*</string>
+       </property>
+       <property name="text">
+        <string notr="true">/</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="mark_check_box">
+      <widget class="QLineEdit" name="topic_filter_line_edit">
        <property name="toolTip">
-        <string>Mark Selected</string>
+        <string>Topic filter, comma separated list of names/regexp to include or exclude. Example: -/tf</string>
        </property>
+       </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="namespace_cluster_check_box">
        <property name="text">
-        <string>Mark</string>
+        <string>namespaces</string>
+       </property>
+       <property name="toolTip">
+        <string>Show or hide namespace boxes</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="with_stacks_check_box">
-       <property name="toolTip">
-        <string>Show stacks</string>
-       </property>
+      <widget class="QCheckBox" name="actionlib_check_box">
        <property name="text">
-        <string>Show Stacks</string>
+        <string>actions</string>
+       </property>
+       <property name="toolTip">
+        <string>Action topics summarized into one virtual topic node</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="transitives_check_box">
+      <widget class="QCheckBox" name="dead_sinks_check_box">
+       <property name="text">
+        <string>dead sinks</string>
+       </property>
        <property name="toolTip">
-        <string>Do not show transitive / duplicate dependencies</string>
+        <string>Show or hide topics with publishers only</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="leaf_topics_check_box">
+       <property name="text">
+        <string>leaf topics</string>
+       </property>
+       <property name="toolTip">
+        <string>Show or hide topics with one connection only</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="quiet_check_box">
+       <property name="toolTip">
+        <string>Hide common debugging nodes</string>
        </property>
        <property name="text">
-        <string>No Transitive deps</string>
+        <string>Hide Debug</string>
        </property>
       </widget>
      </item>

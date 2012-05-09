@@ -4,6 +4,6 @@
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/ros_gui</url>
-  <depend stack="ros" />
+  <rosdep name="ros"/>
 
 </stack>
