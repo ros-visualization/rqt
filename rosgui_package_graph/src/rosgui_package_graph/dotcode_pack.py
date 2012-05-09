@@ -33,10 +33,11 @@
 from __future__ import with_statement, print_function
 
 import sys
-
 import re
 
-MAX_EDGES=1500
+from rospkg.common import ResourceNotFound
+
+MAX_EDGES = 1500
 
 def matches_any(name, patternlist):
     for pattern in patternlist:
@@ -46,10 +47,10 @@ def matches_any(name, patternlist):
             if re.match(pattern, name) is not None:
                 return True
     return False
-    
+
+
 class RosPackageGraphDotcodeGenerator:
 
-    
     def __init__(self, rospack, rosstack):
         """
         :param rospack: use rospkg.RosPack()
@@ -62,22 +63,22 @@ class RosPackageGraphDotcodeGenerator:
         self.edges = []
         self.last_drawargs = None
         self.last_selection = None
-        
+
     def generate_dotcode(self,
                          dotcode_factory,
-                         selected_names = [],
-                         excludes = [],
-                         depth = 3,
-                         with_stacks = True,
-                         descendants = True,
-                         ancestors = True,
-                         hide_transitives = True,
-                         mark_selected = True,
-                         rank = 'same',   # None, same, min, max, source, sink
-                         ranksep = 0.2,   # vertical distance between layers
-                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
-                         simplify = True, # remove double edges
-                         force_refresh = False):
+                         selected_names=[],
+                         excludes=[],
+                         depth=3,
+                         with_stacks=True,
+                         descendants=True,
+                         ancestors=True,
+                         hide_transitives=True,
+                         mark_selected=True,
+                         rank='same', # None, same, min, max, source, sink
+                         ranksep=0.2, # vertical distance between layers
+                         rankdir='TB', # direction of layout (TB top > bottom, LR left > right)
+                         simplify=True, # remove double edges
+                         force_refresh=False):
         """
         
         :param hide_transitives: if true, then dependency of children to grandchildren will be hidden if parent has same dependency
@@ -91,9 +92,9 @@ class RosPackageGraphDotcodeGenerator:
             self.depth = 1
         if depth is None:
             depth = -1
-            
+
         # update arguments
-        
+
         selection_args = {
             "dotcode_factory" : dotcode_factory,
             "with_stacks" : with_stacks,
@@ -104,13 +105,13 @@ class RosPackageGraphDotcodeGenerator:
             "ancestors" : ancestors,
             "descendants" : descendants
             }
-        
+
         # if selection did not change, we need not build up the graph again
         selection_changed = False
         if self.last_selection != selection_args:
             selection_changed = True
             self.last_selection = selection_args
-            
+
             self.dotcode_factory = dotcode_factory
             self.with_stacks = with_stacks
             self.depth = depth
@@ -119,7 +120,7 @@ class RosPackageGraphDotcodeGenerator:
             self.excludes = excludes
             self.ancestors = ancestors
             self.descendants = descendants
-        
+
         if force_refresh or selection_changed:
             self.stacks = {}
             self.packages = {}
@@ -156,7 +157,7 @@ class RosPackageGraphDotcodeGenerator:
         if self.last_drawargs != drawing_args:
             selection_changed = True
             self.last_drawargs = drawing_args
-            
+
             self.dotcode_factory = dotcode_factory
             self.rank = rank
             self.rankdir = rankdir
@@ -164,7 +165,7 @@ class RosPackageGraphDotcodeGenerator:
             self.simplify = simplify
             self.dotcode_factory = dotcode_factory
             self.mark_selected = mark_selected
-            
+
         #generate new dotcode
         if force_refresh or selection_changed or display_changed:
             self.graph = self.generate(self.dotcode_factory)
@@ -173,10 +174,10 @@ class RosPackageGraphDotcodeGenerator:
         return self.dotcode
 
     def generate(self, dotcode_factory):
-        graph = dotcode_factory.get_graph(rank = self.rank,
-                                          rankdir = self.rankdir,
-                                          ranksep = self.ranksep,
-                                          simplify = self.simplify)
+        graph = dotcode_factory.get_graph(rank=self.rank,
+                                          rankdir=self.rankdir,
+                                          ranksep=self.ranksep,
+                                          simplify=self.simplify)
         # print("In generate", self.with_stacks, len(self.stacks), len(self.packages), len(self.edges))
         if self.with_stacks:
             for stackname in self.stacks:
@@ -185,75 +186,83 @@ class RosPackageGraphDotcodeGenerator:
                     color = 'red'
                 g = dotcode_factory.add_subgraph_to_graph(graph,
                                                           stackname,
-                                                          color = color,
-                                                          rank = self.rank,
-                                                          rankdir = self.rankdir,
-                                                          ranksep = self.ranksep,
-                                                          simplify = self.simplify)
+                                                          color=color,
+                                                          rank=self.rank,
+                                                          rankdir=self.rankdir,
+                                                          ranksep=self.ranksep,
+                                                          simplify=self.simplify)
                 for package_name in self.stacks[stackname]['packages']:
                     color = None
                     if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
                         color = 'red'
-                    dotcode_factory.add_node_to_graph(g, package_name, color = color)
+                    dotcode_factory.add_node_to_graph(g, package_name, color=color)
         else:
             for package_name in self.packages:
                 color = None
                 if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
                     color = 'red'
-                dotcode_factory.add_node_to_graph(graph, package_name, color = color)
+                dotcode_factory.add_node_to_graph(graph, package_name, color=color)
         if (len(self.edges) < MAX_EDGES):
             for edge_tupel in self.edges:
                 dotcode_factory.add_edge_to_graph(graph, edge_tupel[0], edge_tupel[1])
         else:
-            print("Too many edges %s > %s, abandoning generation of edge display"%(len(self.edges), MAX_EDGES))
+            print("Too many edges %s > %s, abandoning generation of edge display" % (len(self.edges), MAX_EDGES))
         return graph
-        
+
     def _add_stack(self, stackname):
         if stackname is None or stackname in self.stacks:
             return
         self.stacks[stackname] = {'packages': []}
-        
+
     def _add_package(self, package_name):
         if package_name in self.packages:
             return False
         self.packages[package_name] = {}
         if self.with_stacks:
-            stackname = self.rospack.stack_of(package_name)
+            try:
+                stackname = self.rospack.stack_of(package_name)
+            except ResourceNotFound, e:
+                print('RosPackageGraphDotcodeGenerator._add_package(): ResourceNotFound:', e)
+                stackname = None
             if not stackname is None:
                 if not stackname in self.stacks:
                     self._add_stack(stackname)
                 self.stacks[stackname]['packages'].append(package_name)
         return True
-    
-    def _add_edge(self, name1, name2, attributes = None):
+
+    def _add_edge(self, name1, name2, attributes=None):
         self.edges.append((name1, name2, attributes))
 
-    def add_package_ancestors_recursively(self, package_name, expanded_up = None, depth = None, implicit = False):
-       if matches_any(package_name, self.excludes):
-           return False
-       if (depth == 0):
-           return False
-       if (depth == None):
-           depth = self.depth
-       self._add_package(package_name)
-       if expanded_up is None:
-           expanded_up = []
-       expanded_up.append(package_name)
-       if (depth != 1):
-           depends_on = self.rospack.get_depends_on(package_name, implicit = implicit)
-           new_nodes = []
-           for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
-               if not self.hide_transitives or not dep_on_name in expanded_up:
-                   new_nodes.append(dep_on_name)
-                   self._add_edge(dep_on_name, package_name)
-                   self._add_package(dep_on_name)
-                   expanded_up.append(dep_on_name)
-           for dep_on_name in new_nodes:
-               self.add_package_ancestors_recursively(package_name = dep_on_name, 
-                                            expanded_up = expanded_up,
-                                            depth = depth-1)
+    def add_package_ancestors_recursively(self, package_name, expanded_up=None, depth=None, implicit=False):
+        if matches_any(package_name, self.excludes):
+            return False
+        if (depth == 0):
+            return False
+        if (depth == None):
+            depth = self.depth
+        self._add_package(package_name)
+        if expanded_up is None:
+            expanded_up = []
+        expanded_up.append(package_name)
+        if (depth != 1):
+            try:
+                depends_on = self.rospack.get_depends_on(package_name, implicit=implicit)
+            except ResourceNotFound, e:
+                print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(): ResourceNotFound:', e)
+                depends = []
+            new_nodes = []
+            for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
+                if not self.hide_transitives or not dep_on_name in expanded_up:
+                    new_nodes.append(dep_on_name)
+                    self._add_edge(dep_on_name, package_name)
+                    self._add_package(dep_on_name)
+                    expanded_up.append(dep_on_name)
+            for dep_on_name in new_nodes:
+                self.add_package_ancestors_recursively(package_name=dep_on_name,
+                                             expanded_up=expanded_up,
+                                             depth=depth - 1)
 
-    def add_package_descendants_recursively(self, package_name, expanded = None, depth = None, implicit = False):
+    def add_package_descendants_recursively(self, package_name, expanded=None, depth=None, implicit=False):
         if matches_any(package_name, self.excludes):
             return False
         if (depth == 0):
@@ -265,7 +274,11 @@ class RosPackageGraphDotcodeGenerator:
             expanded = []
         expanded.append(package_name)
         if (depth != 1):
-            depends = self.rospack.get_depends(package_name, implicit = implicit)
+            try:
+                depends = self.rospack.get_depends(package_name, implicit=implicit)
+            except ResourceNotFound, e:
+                print('RosPackageGraphDotcodeGenerator.add_package_descendants_recursively(): ResourceNotFound:', e)
+                depends = []
             new_nodes = []
             for dep_name in [x for x in depends if not matches_any(x, self.excludes)]:
                 if not self.hide_transitives or not dep_name in expanded:
@@ -274,8 +287,8 @@ class RosPackageGraphDotcodeGenerator:
                     self._add_package(dep_name)
                     expanded.append(dep_name)
             for dep_name in new_nodes:
-                self.add_package_descendants_recursively(package_name = dep_name, 
-                                             expanded = expanded,
-                                             depth = depth-1)
+                self.add_package_descendants_recursively(package_name=dep_name,
+                                             expanded=expanded,
+                                             depth=depth - 1)
 
-    
+

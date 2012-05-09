@@ -17,8 +17,10 @@ import roslib
 roslib.load_manifest('rosgui_package_graph')
 
 import rosgui_package_graph.dotcode_pack
+reload(rosgui_package_graph.dotcode_pack)
 from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 import rosgui_dotgraph
+reload(rosgui_dotgraph)
 from rosgui_dotgraph.pydotfactory import PydotFactory
 # from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
@@ -48,10 +50,10 @@ class StackageCompletionModel(QAbstractListModel):
     def __init__(self, linewidget, rospack, rosstack):
         super(QAbstractListModel, self).__init__(linewidget)
         self.allnames = sorted(list(set(rospack.list() + rosstack.list())))
-        self.allnames = self.allnames + ['-%s'%name for name in self.allnames]
+        self.allnames = self.allnames + ['-%s' % name for name in self.allnames]
     def rowCount(self, parent):
         return len(self.allnames)
-    
+
     def data(self, index, role):
         # TODO: symbols to distinguish stacks from packages
         if index.isValid() and (role == Qt.DisplayRole or role == Qt.EditRole):
@@ -68,7 +70,7 @@ class RosPackGraph(QObject):
     def __init__(self, context):
         super(RosPackGraph, self).__init__(context)
         self.initialized = False
-        
+
         self.setObjectName('RosPackGraph')
 
         self._current_dotcode = None
@@ -77,7 +79,7 @@ class RosPackGraph(QObject):
 
         rospack = rospkg.RosPack()
         rosstack = rospkg.RosStack()
-        
+
         # factory builds generic dotcode items
         self.dotcode_factory = PydotFactory()
         # self.dotcode_factory = PygraphvizFactory()
@@ -85,7 +87,7 @@ class RosPackGraph(QObject):
         self.dotcode_generator = RosPackageGraphDotcodeGenerator(rospack, rosstack)
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
-        
+
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rosgui_rosgraph.InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
@@ -108,7 +110,7 @@ class RosPackGraph(QObject):
         self._widget.directions_combo_box.insertItem(2, self.tr('both'), 2)
         self._widget.directions_combo_box.setCurrentIndex(2)
         self._widget.directions_combo_box.currentIndexChanged.connect(self._refresh_rospackgraph)
-        
+
         completionmodel = StackageCompletionModel(self._widget.filter_line_edit, rospack, rosstack)
         completer = RepeatedWordCompleter(completionmodel, self)
         completer.setCompletionMode(QCompleter.PopupCompletion)
@@ -117,7 +119,7 @@ class RosPackGraph(QObject):
         completer.setCaseSensitivity(Qt.CaseInsensitive);
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rospackgraph)
         self._widget.filter_line_edit.setCompleter(completer)
-        
+
         self._widget.with_stacks_check_box.clicked.connect(self._refresh_rospackgraph)
         self._widget.mark_check_box.clicked.connect(self._refresh_rospackgraph)
         self._widget.transitives_check_box.clicked.connect(self._refresh_rospackgraph)
@@ -204,15 +206,15 @@ class RosPackGraph(QObject):
         if selected_directions == 0:
             ancestors = False
 
-        return self.dotcode_generator.generate_dotcode(dotcode_factory = self.dotcode_factory,
-                                                       selected_names = includes,
-                                                       excludes = excludes,
-                                                       depth = depth,
-                                                       with_stacks = self._widget.with_stacks_check_box.isChecked(),
-                                                       descendants = descendants,
-                                                       ancestors = ancestors,
-                                                       mark_selected = self._widget.mark_check_box.isChecked(),
-                                                       hide_transitives = self._widget.transitives_check_box.isChecked())
+        return self.dotcode_generator.generate_dotcode(dotcode_factory=self.dotcode_factory,
+                                                       selected_names=includes,
+                                                       excludes=excludes,
+                                                       depth=depth,
+                                                       with_stacks=self._widget.with_stacks_check_box.isChecked(),
+                                                       descendants=descendants,
+                                                       ancestors=ancestors,
+                                                       mark_selected=self._widget.mark_check_box.isChecked(),
+                                                       hide_transitives=self._widget.transitives_check_box.isChecked())
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
