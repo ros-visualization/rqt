@@ -29,9 +29,12 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import roslib
+roslib.load_manifest('rosgui_py_common')
+import rospy
 
-import TopicTreeModel
-reload(TopicTreeModel) # force reload to update on changes during runtime
+import MessageTreeModel
+reload(MessageTreeModel) # force reload to update on changes during runtime
 import TreeModelCompleter
 reload(TreeModelCompleter) # force reload to update on changes during runtime
 
@@ -39,11 +42,16 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
     def __init__(self, parent=None):
         super(TopicCompleter, self).__init__(parent)
-        self.setModel(TopicTreeModel.TopicTreeModel())
+        self.setModel(MessageTreeModel.MessageTreeModel())
 
 
     def update_topics(self):
-        self.model().refresh()
+        self.model().clear()
+        topic_list = rospy.get_published_topics()
+        for topic_path, topic_type in topic_list:
+            topic_name = topic_path.strip('/')
+            message_instance = roslib.message.get_message_class(topic_type)()
+            self.model().add_message(message_instance, topic_name, topic_type, topic_path)
 
 
 if __name__ == '__main__':

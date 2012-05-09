@@ -90,11 +90,11 @@ class MessageTreeWidget(QTreeView):
             menu.addAction(self._action_item_collapse)
 
 
-    def _handle_action_item_collapse(self, checked):
+    def _handle_action_item_collapse(self):
         self._handle_action_set_expanded(False)
 
 
-    def _handle_action_item_expand(self, checked):
+    def _handle_action_item_expand(self):
         self._handle_action_set_expanded(True)
 
 

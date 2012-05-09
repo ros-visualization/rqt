@@ -61,17 +61,6 @@ class PublisherTreeModel(MessageTreeModel.MessageTreeModel):
         self.setHorizontalHeaderLabels(self._column_names)
 
 
-    def _get_toplevel_items(self, index_list):
-        items = [self.itemFromIndex(index) for index in index_list]
-        uniqueItems = {}
-        for item in items:
-            while item.parent() is not None:
-                item = item.parent()
-            if item.row() not in uniqueItems:
-                uniqueItems[item.row()] = item
-        return uniqueItems.values()
-
-
     def get_publisher_ids(self, index_list):
         return [item._user_data['publisher_id'] for item in self._get_toplevel_items(index_list)]
 

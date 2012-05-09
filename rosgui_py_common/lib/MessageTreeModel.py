@@ -5,8 +5,6 @@ from QtGui import QStandardItem, QStandardItemModel
 class MessageTreeModel(QStandardItemModel):
 
     def __init__(self, parent=None):
-        qDebug('MessageTreeModel: %s' % MessageTreeModel)
-        qDebug('self: %s' % self)
         # FIXME: why is this not working? should be the same as the following line...
         #super(MessageTreeModel, self).__init__(parent)
         QStandardItemModel.__init__(self, parent)
@@ -16,6 +14,17 @@ class MessageTreeModel(QStandardItemModel):
         if message_instance is None:
             return
         self._recursive_create_items(self, message_instance, message_name, message_type, message_path)
+
+
+    def _get_toplevel_items(self, index_list):
+        items = [self.itemFromIndex(index) for index in index_list]
+        uniqueItems = {}
+        for item in items:
+            while item.parent() is not None:
+                item = item.parent()
+            if item.row() not in uniqueItems:
+                uniqueItems[item.row()] = item
+        return uniqueItems.values()
 
 
     def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
