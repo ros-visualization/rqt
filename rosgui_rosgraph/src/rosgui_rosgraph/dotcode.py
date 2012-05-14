@@ -153,6 +153,21 @@ class RosGraphDotcodeGenerator:
         # currently using and rule as the or rule generates orphan nodes with the current logic
         return [e for e in edges if e.start.strip() in nodenames and e.end.strip() in nodenames]
 
+    def _filter_orphaned_topics(self, nt_nodes, edges):
+        '''remove topic graphnodes without connected ROS nodes'''
+        removal_nodes = []
+        for n in nt_nodes:
+            keep = False
+            for e in edges:
+                if (e.start.strip() == str(n).strip() or e.end.strip() == str(n).strip()):
+                    keep = True
+                    break
+            if not keep:
+                removal_nodes.append(n)
+        for n in removal_nodes:
+            nt_nodes.remove(n)
+        return nt_nodes
+
     def _split_filter_string(self, ns_filter):
         '''splits a string after each comma, and treats tokens with leading dash as exclusions.
         Adds .* as inclusion if no other inclusion option was given'''
@@ -339,20 +354,8 @@ class RosGraphDotcodeGenerator:
                 nt_nodes, edges, action_nodes = self._accumulate_action_topics(nt_nodes, edges, node_connections)
 
         edges = self._filter_orphaned_edges(edges, list(nn_nodes) + list(nt_nodes))
+        nt_nodes = self._filter_orphaned_topics(nt_nodes, edges)
 
-        # remove topic graphnodes without connected ROS nodes (after filtering)
-        removal_nodes = []
-        for n in nt_nodes:
-            keep = False
-            for e in edges:
-                if (e.start.strip() == str(n).strip() or e.end.strip() == str(n).strip()):
-                    keep = True
-                    break
-            if not keep:
-                removal_nodes.append(n)
-        for n in removal_nodes:
-            nt_nodes.remove(n)
-            
         # create the graph
             
         # result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
