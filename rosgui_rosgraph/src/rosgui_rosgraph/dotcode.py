@@ -46,7 +46,7 @@ NODE_TOPIC_ALL_GRAPH = 'node_topic_all'
 
 import urllib
 
-QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock']
+QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock', '/rosgui']
 
 def matches_any(name, patternlist):
     if patternlist is None or len(patternlist) == 0:
@@ -54,7 +54,7 @@ def matches_any(name, patternlist):
     for pattern in patternlist:
         if str(name).strip() == pattern:
             return True
-        if re.match("^[a-zA-Z0-9_]+$", pattern) is None:
+        if re.match("^[a-zA-Z0-9_/]+$", pattern) is None:
             if re.match(str(pattern), name.strip()) is not None:
                 return True
     return False
@@ -115,7 +115,7 @@ class RosGraphDotcodeGenerator:
                 return False
         return True
     
-    def _quiet_filter_edge(self, edge):
+    def quiet_filter_topic_edge(self, edge):
         for quiet_label in ['/time', '/clock', '/rosout']:
             if quiet_label == edge.label:
                 return False
@@ -297,8 +297,6 @@ class RosGraphDotcodeGenerator:
         # create the node definitions
         if graph_mode == NODE_NODE_GRAPH:
             nn_nodes = rosgraphinst.nn_nodes
-            if quiet:
-                nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
             edges = rosgraphinst.nn_edges
             edges = [e for e in edges if matches_any(e.label, topic_includes) and not matches_any(e.label, topic_excludes)]
@@ -307,9 +305,6 @@ class RosGraphDotcodeGenerator:
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
             nn_nodes = rosgraphinst.nn_nodes
             nt_nodes = rosgraphinst.nt_nodes
-            if quiet:
-                nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
-                nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
             nodenames = [str(n) for n in nn_nodes]
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
             nt_nodes = [n for n in nt_nodes if matches_any(n, topic_includes) and not matches_any(n, topic_excludes)]
@@ -321,10 +316,12 @@ class RosGraphDotcodeGenerator:
                 edges = rosgraphinst.nt_all_edges
             
         if quiet:
-            edges = filter(self._quiet_filter_edge, edges)
+            nn_nodes = filter(self._quiet_filter, nn_nodes)
+            nt_nodes = filter(self._quiet_filter, nt_nodes)
+            if graph_mode == NODE_NODE_GRAPH:
+                edges = filter(self._quiet_filter_topic, edges)
 
-        nodes = list(nn_nodes) + list(nt_nodes)
-        edges = self._filter_edges(edges, nodes)
+        edges = self._filter_edges(edges, list(nn_nodes) + list(nt_nodes))
 
         # for accumulating actions topics
         action_nodes = {}
