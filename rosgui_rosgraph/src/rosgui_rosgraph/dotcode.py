@@ -363,8 +363,9 @@ class RosGraphDotcodeGenerator:
                                           simplify = simplify,
                                           rankdir = orientation)
 
+        ACTION_TOPICS_SUFFIX = '/action_topics'
         namespace_clusters = {}
-        for n in (nt_nodes or []) + [action_prefix + '/action_topics' for (action_prefix, _) in action_nodes.items()]:
+        for n in (nt_nodes or []) + [action_prefix + ACTION_TOPICS_SUFFIX for (action_prefix, _) in action_nodes.items()]:
             # cluster topics with same namespace
             if (cluster_namespaces_level > 0 and
                 str(n).count('/') > 1 and
@@ -397,10 +398,10 @@ class RosGraphDotcodeGenerator:
             for (action_prefix, node_connections) in action_nodes.items():
                 if 'outgoing' in node_connections:
                     for out_edge in node_connections.outgoing:
-                        self.dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + '/action_topics', out_edge.end)
+                        self.dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + ACTION_TOPICS_SUFFIX, out_edge.end)
                 if 'incoming' in node_connections:
                     for in_edge in node_connections.incoming:
-                        self.dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + '/action_topics')
+                        self.dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
                 
         self.dotcode = dotcode_factory.create_dot(dotgraph)
         return self.dotcode
