@@ -70,42 +70,42 @@ class RosGraphDotcodeGenerator:
     def __init__(self):
         self.dotcode_factory = None
 
-    def _add_edge(self, edge, dotgraph, is_topic=False):
+    def _add_edge(self, edge, dotcode_factory, dotgraph, is_topic=False):
         if is_topic:
-            self.dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label, url = 'topic:%s' % edge.label)
+            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label, url = 'topic:%s' % edge.label)
         else:
-            self.dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label)
+            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label)
             
-    def _add_node(self, node, rosgraphinst, dotgraph, quiet):
+    def _add_node(self, node, rosgraphinst, dotcode_factory, dotgraph, quiet):
         if node in rosgraphinst.bad_nodes:
             if quiet:
                 return ''
             bn = rosgraphinst.bad_nodes[node]
             if bn.type == rosgraph.impl.graph.BadNode.DEAD:
-                self.dotcode_factory.add_node_to_graph(dotgraph,
-                                                       nodename = node,
-                                                       shape = "doublecircle",
-                                                       url=node,
-                                                       color = "red")
+                dotcode_factory.add_node_to_graph(dotgraph,
+                                                  nodename = node,
+                                                  shape = "doublecircle",
+                                                  url=node,
+                                                  color = "red")
             else:
-                self.dotcode_factory.add_node_to_graph(dotgraph,
-                                                       nodename = node,
-                                                       shape = "doublecircle",
-                                                       url=node,
-                                                       color = "orange")
+                dotcode_factory.add_node_to_graph(dotgraph,
+                                                  nodename = node,
+                                                  shape = "doublecircle",
+                                                  url=node,
+                                                  color = "orange")
         else:
-            self.dotcode_factory.add_node_to_graph(dotgraph,
-                                                   nodename = node,
-                                                   shape = 'ellipse',
-                                                   url=node)
+            dotcode_factory.add_node_to_graph(dotgraph,
+                                              nodename = node,
+                                              shape = 'ellipse',
+                                              url=node)
             
-    def _add_topic_node(self, node, dotgraph, quiet):
+    def _add_topic_node(self, node, dotcode_factory, dotgraph, quiet):
         label = rosgraph.impl.graph.node_topic(node)
-        self.dotcode_factory.add_node_to_graph(dotgraph,
-                                               nodename = label,
-                                               nodelabel = label,
-                                               shape = 'box',
-                                               url="topic:%s"%label)
+        dotcode_factory.add_node_to_graph(dotgraph,
+                                          nodename = label,
+                                          nodelabel = label,
+                                          shape = 'box',
+                                          url="topic:%s"%label)
     
 
     def _quiet_filter(self, name):
@@ -373,9 +373,9 @@ class RosGraphDotcodeGenerator:
                 namespace = str(n).split('/')[1]
                 if namespace not in namespace_clusters:
                     namespace_clusters[namespace] = dotcode_factory.add_subgraph_to_graph(dotgraph, namespace, rank = rank, rankdir = orientation, simplify = simplify)
-                self._add_topic_node(n, dotgraph=namespace_clusters[namespace], quiet=quiet)
+                self._add_topic_node(n, dotcode_factory=dotcode_factory, dotgraph=namespace_clusters[namespace], quiet=quiet)
             else:
-                self._add_topic_node(n, dotgraph=dotgraph, quiet=quiet)
+                self._add_topic_node(n, dotcode_factory=dotcode_factory, dotgraph=dotgraph, quiet=quiet)
 
         # for ROS node, if we have created a namespace clusters for
         # one of its peer topics, drop it into that cluster
@@ -386,13 +386,13 @@ class RosGraphDotcodeGenerator:
                     len(str(n).split('/')[1]) > 0 and
                     str(n).split('/')[1] in namespace_clusters):
                     namespace = str(n).split('/')[1]
-                    self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=namespace_clusters[namespace], quiet=quiet)
+                    self._add_node(n, rosgraphinst=rosgraphinst, dotcode_factory=dotcode_factory, dotgraph=namespace_clusters[namespace], quiet=quiet)
                 else:
-                    self._add_node(n, rosgraphinst=rosgraphinst, dotgraph=dotgraph, quiet=quiet)
+                    self._add_node(n, rosgraphinst=rosgraphinst, dotcode_factory=dotcode_factory, dotgraph=dotgraph, quiet=quiet)
 
         for e in edges:
             if (e.start.strip() in nodenames and e.end.strip() in nodenames):
-                self._add_edge(e, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
+                self._add_edge(e, dotcode_factory, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
         if len(action_nodes) > 0:
             for (action_prefix, node_connections) in action_nodes.items():
