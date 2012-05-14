@@ -306,15 +306,14 @@ class RosGraphDotcodeGenerator:
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
             nn_nodes = rosgraphinst.nn_nodes
             nt_nodes = rosgraphinst.nt_nodes
-            nodenames = [str(n) for n in nn_nodes]
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
             nt_nodes = [n for n in nt_nodes if matches_any(n, topic_includes) and not matches_any(n, topic_excludes)]
 
-            # create the edge definitions
+            # create the edge definitions, unwrap EdgeList objects into python lists
             if graph_mode == NODE_TOPIC_GRAPH:
-                edges = rosgraphinst.nt_edges
+                edges = [e for e in rosgraphinst.nt_edges]
             else:
-                edges = rosgraphinst.nt_all_edges
+                edges = [e for e in rosgraphinst.nt_all_edges]
             
         if quiet:
             nn_nodes = filter(self._quiet_filter, nn_nodes)
@@ -322,7 +321,6 @@ class RosGraphDotcodeGenerator:
             if graph_mode == NODE_NODE_GRAPH:
                 edges = filter(self.quiet_filter_topic_edge, edges)
 
-        edges = self._filter_orphaned_edges(edges, list(nn_nodes) + list(nt_nodes))
 
         # for accumulating actions topics
         action_nodes = {}
@@ -340,8 +338,7 @@ class RosGraphDotcodeGenerator:
             if accumulate_actions:
                 nt_nodes, edges, action_nodes = self._accumulate_action_topics(nt_nodes, edges, node_connections)
 
-        nodenames = [str(n).strip() for n in nn_nodes] + [str(n).strip() for n in nt_nodes]
-        edges = [e for e in edges if e.start.strip() in nodenames and e.end.strip() in nodenames]
+        edges = self._filter_orphaned_edges(edges, list(nn_nodes) + list(nt_nodes))
 
         # remove topic graphnodes without connected ROS nodes (after filtering)
         removal_nodes = []
@@ -392,8 +389,7 @@ class RosGraphDotcodeGenerator:
                     self._add_node(n, rosgraphinst=rosgraphinst, dotcode_factory=dotcode_factory, dotgraph=dotgraph, quiet=quiet)
 
         for e in edges:
-            if (e.start.strip() in nodenames and e.end.strip() in nodenames):
-                self._add_edge(e, dotcode_factory, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
+            self._add_edge(e, dotcode_factory, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
         if len(action_nodes) > 0:
             for (action_prefix, node_connections) in action_nodes.items():
