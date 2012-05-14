@@ -68,7 +68,7 @@ class NodeConnections:
 class RosGraphDotcodeGenerator:
 
     def __init__(self):
-        self.dotcode_factory = None
+        pass
 
     def _add_edge(self, edge, dotcode_factory, dotgraph, is_topic=False):
         if is_topic:
@@ -269,7 +269,7 @@ class RosGraphDotcodeGenerator:
             nodes.remove(n)
         return nodes, edges, action_nodes
     
-    def generate_dotcode(self,
+    def generate_dotgraph(self,
                          rosgraphinst,
                          ns_filter,
                          topic_filter,
@@ -286,25 +286,8 @@ class RosGraphDotcodeGenerator:
                          simplify = True, # remove double edges
                          quiet=False):
         """
-        @param rosgraphinst: RosGraph instance
-        @param ns_filter: nodename filter
-        @type  ns_filter: string
-        @param topic_filter: topicname filter
-        @type  ns_filter: string
-        @param graph_mode str: NODE_NODE_GRAPH | NODE_TOPIC_GRAPH | NODE_TOPIC_ALL_GRAPH
-        @type  graph_mode: str
-        @param orientation: rankdir value (see ORIENTATIONS dict)
-        @type  dotcode_factory: object
-        @param dotcode_factory: abstract factory manipulating dot language objects
-        @param hide_single_connection_topics: if true remove topics with just one connection
-        @param hide_dead_end_topics: if true remove topics with publishers only
-        @param cluster_namespaces_level: if > 0 places box around members of same namespace (TODO: multiple namespace layers)
-        @param accumulate_actions: if true each 5 action topic graph nodes are shown as single graph node
-        @return: dotcode generated from graph singleton
-        @rtype: str
+        See generate_dotcode
         """
-        self.dotcode_factory = dotcode_factory
-
         includes, excludes = self._split_filter_string(ns_filter)
         topic_includes, topic_excludes = self._split_filter_string(topic_filter)
                 
@@ -397,11 +380,63 @@ class RosGraphDotcodeGenerator:
         for (action_prefix, node_connections) in action_nodes.items():
             if 'outgoing' in node_connections:
                 for out_edge in node_connections.outgoing:
-                    self.dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + ACTION_TOPICS_SUFFIX, out_edge.end)
+                    dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + ACTION_TOPICS_SUFFIX, out_edge.end)
             if 'incoming' in node_connections:
                 for in_edge in node_connections.incoming:
-                    self.dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
-                
-        self.dotcode = dotcode_factory.create_dot(dotgraph)
-        return self.dotcode
+                    dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
+        return dotgraph
+
+
+
+    def generate_dotcode(self,
+                         rosgraphinst,
+                         ns_filter,
+                         topic_filter,
+                         graph_mode,
+                         dotcode_factory,
+                         hide_single_connection_topics = False,
+                         hide_dead_end_topics = False,
+                         cluster_namespaces_level = 0,
+                         accumulate_actions = True,
+                         orientation = 'LR',
+                         rank = 'same',   # None, same, min, max, source, sink
+                         ranksep = 0.2,   # vertical distance between layers
+                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
+                         simplify = True, # remove double edges
+                         quiet=False):
+        """
+        @param rosgraphinst: RosGraph instance
+        @param ns_filter: nodename filter
+        @type  ns_filter: string
+        @param topic_filter: topicname filter
+        @type  ns_filter: string
+        @param graph_mode str: NODE_NODE_GRAPH | NODE_TOPIC_GRAPH | NODE_TOPIC_ALL_GRAPH
+        @type  graph_mode: str
+        @param orientation: rankdir value (see ORIENTATIONS dict)
+        @type  dotcode_factory: object
+        @param dotcode_factory: abstract factory manipulating dot language objects
+        @param hide_single_connection_topics: if true remove topics with just one connection
+        @param hide_dead_end_topics: if true remove topics with publishers only
+        @param cluster_namespaces_level: if > 0 places box around members of same namespace (TODO: multiple namespace layers)
+        @param accumulate_actions: if true each 5 action topic graph nodes are shown as single graph node
+        @return: dotcode generated from graph singleton
+        @rtype: str
+        """
+        dotgraph = self.generate_dotgraph(rosgraphinst=rosgraphinst,
+                         ns_filter=ns_filter,
+                         topic_filter=topic_filter,
+                         graph_mode=graph_mode,
+                         dotcode_factory=dotcode_factory,
+                         hide_single_connection_topics=hide_single_connection_topics,
+                         hide_dead_end_topics=hide_dead_end_topics,
+                         cluster_namespaces_level=cluster_namespaces_level,
+                         accumulate_actions=accumulate_actions,
+                         orientation=orientation,
+                         rank=rank,
+                         ranksep=ranksep,
+                         rankdir=rankdir,
+                         simplify=simplify,
+                         quiet=quiet)
+        dotcode = dotcode_factory.create_dot(dotgraph)
+        return dotcode
         
