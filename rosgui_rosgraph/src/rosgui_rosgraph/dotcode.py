@@ -149,8 +149,9 @@ class RosGraphDotcodeGenerator:
         return list(set(namespaces))
     
     def _filter_orphaned_edges(self, edges, nodes):
+        nodenames = [str(n).strip() for n in nodes]
         # currently using and rule as the or rule generates orphan nodes with the current logic
-        return [e for e in edges if e.start in nodes and e.end in nodes]
+        return [e for e in edges if e.start.strip() in nodenames and e.end.strip() in nodenames]
 
     def _split_filter_string(self, ns_filter):
         '''splits a string after each comma, and treats tokens with leading dash as exclusions.
