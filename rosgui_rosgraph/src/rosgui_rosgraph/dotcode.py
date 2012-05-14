@@ -59,6 +59,12 @@ def matches_any(name, patternlist):
                 return True
     return False
 
+class NodeConnections:
+    def __init__(self, incoming=None, outgoing=None):
+        self.incoming = incoming or []
+        self.outgoing = outgoing or []
+
+
 class RosGraphDotcodeGenerator:
 
     def __init__(self):
@@ -165,11 +171,11 @@ class RosGraphDotcodeGenerator:
         node_connections = {}
         for edge in edges:
             if not edge.start in node_connections:
-                node_connections[edge.start] = {'outgoing' : [], 'incoming' : []}
+                node_connections[edge.start] = NodeConnections()
             if not edge.end in node_connections:
-                node_connections[edge.end] = {'outgoing' : [], 'incoming' : []}
-            node_connections[edge.start]['outgoing'].append(edge)
-            node_connections[edge.end]['incoming'].append(edge)
+                node_connections[edge.end] = NodeConnections()
+            node_connections[edge.start].outgoing.append(edge)
+            node_connections[edge.end].incoming.append(edge)
         return node_connections
 
     def _filter_leaf_topics(self,
@@ -194,10 +200,10 @@ class RosGraphDotcodeGenerator:
             if n in node_connections:
                 node_edges = []
                 has_out_edges = False
-                node_edges.extend(node_connections[n]['outgoing'])
-                if len(node_connections[n]['outgoing']) > 0:
+                node_edges.extend(node_connections[n].outgoing)
+                if len(node_connections[n].outgoing) > 0:
                     has_out_edges = True
-                node_edges.extend(node_connections[n]['incoming'])
+                node_edges.extend(node_connections[n].incoming)
                 if ((hide_single_connection_topics and len(node_edges) < 2) or
                     (hide_dead_end_topics and not has_out_edges)):
                     removal_nodes.append(n)
@@ -229,8 +235,8 @@ class RosGraphDotcodeGenerator:
                         if str(n2).strip() == prefix + suffix:
                             action_topic_nodes.append(n2)
                             if n2 in node_connections:
-                                action_topic_edges_out.update(node_connections[n2]['outgoing'])
-                                action_topic_edges_in.update(node_connections[n2]['incoming'])
+                                action_topic_edges_out.update(node_connections[n2].outgoing)
+                                action_topic_edges_in.update(node_connections[n2].incoming)
                 if len(action_topic_nodes) == 5:
                     # found action
                     removal_nodes.extend(action_topic_nodes)
@@ -391,12 +397,12 @@ class RosGraphDotcodeGenerator:
                 self._add_edge(e, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
         if len(action_nodes) > 0:
-            for (action_prefix, node_dict) in action_nodes.items():
-                if 'outgoing' in node_dict:
-                    for out_edge in node_dict['outgoing']:
+            for (action_prefix, node_connections) in action_nodes.items():
+                if 'outgoing' in node_connections:
+                    for out_edge in node_connections.outgoing:
                         self.dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + '/action_topics', out_edge.end)
-                if 'incoming' in node_dict:
-                    for in_edge in node_dict['incoming']:
+                if 'incoming' in node_connections:
+                    for in_edge in node_connections.incoming:
                         self.dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + '/action_topics')
                 
         self.dotcode = dotcode_factory.create_dot(dotgraph)

@@ -87,10 +87,10 @@ class GraphUtilsTest(unittest.TestCase):
         self.assertEqual(2, len(nmap))
         self.assertTrue('foo' in nmap)
         self.assertTrue('bar' in nmap)
-        self.assertEqual([], nmap['foo']['incoming'])
-        self.assertEqual([e1], nmap['foo']['outgoing'])
-        self.assertEqual([e1], nmap['bar']['incoming'])
-        self.assertEqual([], nmap['bar']['outgoing'])
+        self.assertEqual([], nmap['foo'].incoming)
+        self.assertEqual([e1], nmap['foo'].outgoing)
+        self.assertEqual([e1], nmap['bar'].incoming)
+        self.assertEqual([], nmap['bar'].outgoing)
 
     def test_get_node_edge_map(self):
         gen = RosGraphDotcodeGenerator()
@@ -102,10 +102,10 @@ class GraphUtilsTest(unittest.TestCase):
         self.assertTrue('foo' in nmap)
         self.assertTrue('bar' in nmap)
         self.assertTrue('pam' in nmap)
-        self.assertEqual([e2], nmap['foo']['incoming'])
-        self.assertEqual([e1, e3], nmap['foo']['outgoing'])
-        self.assertEqual([e1], nmap['bar']['incoming'])
-        self.assertEqual([e2], nmap['bar']['outgoing'])
+        self.assertEqual([e2], nmap['foo'].incoming)
+        self.assertEqual([e1, e3], nmap['foo'].outgoing)
+        self.assertEqual([e1], nmap['bar'].incoming)
+        self.assertEqual([e2], nmap['bar'].outgoing)
 
     def test_filter_leaf_topics_single_connection(self):
         gen = RosGraphDotcodeGenerator()
