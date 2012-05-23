@@ -40,7 +40,6 @@ import roslib
 roslib.load_manifest('rosgui_publisher')
 import rospy
 from rosgui_publisher import PublisherWidget
-reload(PublisherWidget)
 
 class Publisher(QObject):
 

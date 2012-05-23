@@ -17,16 +17,13 @@ import roslib
 roslib.load_manifest('rosgui_package_graph')
 
 import rosgui_package_graph.dotcode_pack
-reload(rosgui_package_graph.dotcode_pack)
 from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 import rosgui_dotgraph
-reload(rosgui_dotgraph)
 from rosgui_dotgraph.pydotfactory import PydotFactory
 # from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 
 import rosgui_rosgraph.InteractiveGraphicsView
-reload(rosgui_rosgraph.InteractiveGraphicsView)
 
 
 class RepeatedWordCompleter(QCompleter):

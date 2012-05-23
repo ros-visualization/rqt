@@ -36,7 +36,6 @@ import roslib
 roslib.load_manifest('rosgui_pose_view')
 
 from rosgui_pose_view import PoseViewWidget
-reload(PoseViewWidget) # force reload to update on changes during runtime
 
 class PoseView(QObject):
 

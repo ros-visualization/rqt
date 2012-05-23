@@ -43,9 +43,7 @@ from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
 import rosgui_matplot.MatDataPlot
-reload(rosgui_matplot.MatDataPlot)
 import rosgui_py_common.TopicCompleter
-reload(rosgui_py_common.TopicCompleter)
 
 # main class inherits from the ui window class
 class MatPlot(QWidget):

@@ -40,7 +40,6 @@ from QtCore import Signal, qDebug, Qt
 from QtGui import QStandardItem
 
 import rosgui_py_common.MessageTreeModel
-reload(rosgui_py_common.MessageTreeModel) # force reload to update on changes during runtime
 
 class PublisherTreeModel(rosgui_py_common.MessageTreeModel.MessageTreeModel):
     _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']

@@ -35,7 +35,6 @@ from QtCore import Signal, Slot, qDebug, QMimeData, QModelIndex, Qt
 from QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
 
 import MessageTreeModel
-reload(MessageTreeModel) # force reload to update on changes during runtime
 
 class MessageTreeWidget(QTreeView):
 

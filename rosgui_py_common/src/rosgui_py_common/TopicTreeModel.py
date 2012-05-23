@@ -33,7 +33,6 @@ roslib.load_manifest('rosgui_py_common')
 import rospy
 
 import MessageTreeModel
-reload(MessageTreeModel) # force reload to update on changes during runtime
 
 class TopicTreeModel(MessageTreeModel.MessageTreeModel):
 

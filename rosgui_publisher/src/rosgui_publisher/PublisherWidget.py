@@ -43,7 +43,6 @@ import rospkg, rosmsg, rospy
 
 import rosgui_py_common.ExtendedComboBox
 import rosgui_publisher.PublisherTreeWidget
-reload(rosgui_publisher.PublisherTreeWidget)
 
 # main class inherits from the ui window class
 class PublisherWidget(QWidget):

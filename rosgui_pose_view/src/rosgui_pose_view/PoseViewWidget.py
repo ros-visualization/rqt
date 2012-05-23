@@ -43,7 +43,6 @@ from tf.transformations import quaternion_matrix, quaternion_about_axis
 
 from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
 import rosgui_pose_view.GLWidget
-reload(rosgui_pose_view.GLWidget) # force reload to update on changes during runtime
 
 # main class inherits from the ui window class
 class PoseViewWidget(QWidget):

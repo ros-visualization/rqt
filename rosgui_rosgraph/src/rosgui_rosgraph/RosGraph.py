@@ -43,7 +43,6 @@ roslib.load_manifest('rosgui_rosgraph')
 import rosgraph.impl.graph, rostopic, rosnode, rosservice
 
 from rosgui_rosgraph import dotcode
-reload(dotcode)
 from rosgui_rosgraph.dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
 # pydot requires some hacks
 from rosgui_dotgraph.pydotfactory import PydotFactory
@@ -51,7 +50,6 @@ from rosgui_dotgraph.pydotfactory import PydotFactory
 # from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
 
 import rosgui_rosgraph.InteractiveGraphicsView
-reload(rosgui_rosgraph.InteractiveGraphicsView)
 
 from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
 

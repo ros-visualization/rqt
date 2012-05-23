@@ -41,7 +41,6 @@ import roslib
 roslib.load_manifest('rosgui_topic')
 import rospy
 import rosgui_topic.TopicInfo
-reload(rosgui_topic.TopicInfo) # force reload to update on changes during runtime
 
 
 # main class inherits from the ui window class

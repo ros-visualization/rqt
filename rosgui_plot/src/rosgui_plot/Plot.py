@@ -43,7 +43,6 @@ from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
 import rosgui_plot.DataPlot
-reload(rosgui_plot.DataPlot)
 
 from rosgui_py_common.TopicCompleter import TopicCompleter
 

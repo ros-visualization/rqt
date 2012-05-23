@@ -37,7 +37,6 @@ import roslib
 roslib.load_manifest('rosgui_topic')
 
 import rosgui_topic.TopicWidget
-reload(rosgui_topic.TopicWidget) # force reload to update on changes during runtime
 
 class Topic(QObject):
 

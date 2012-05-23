@@ -38,9 +38,7 @@ from QtCore import Signal, Slot
 from QtGui import QAction, QIcon
 
 from rosgui_publisher import PublisherTreeModel
-reload(PublisherTreeModel) # force reload to update on changes during runtime
 from rosgui_py_common import MessageTreeWidget
-reload(MessageTreeWidget)
 
 class PublisherTreeWidget(MessageTreeWidget.MessageTreeWidget):
     remove_publisher = Signal(int)
