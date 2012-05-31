@@ -1,0 +1,15 @@
+<package>
+  <description brief="Common functionality for plugins">
+
+     rosgui_py_common provides common functionality for rosgui plugins written in Python.
+
+  </description>
+  <author>Dorian Scholz</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rosgui</url>
+
+  <depend package="rosgui"/>
+  <depend package="rostopic"/>
+
+</package>
