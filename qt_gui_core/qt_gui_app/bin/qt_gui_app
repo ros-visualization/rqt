@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+try:
+    import rospkg
+    r = rospkg.RosPack()
+    p = r.get_path('qt_gui_app')
+    sys.path.append(os.path.join(p, 'src'))
+except ImportError:
+    import roslib
+    roslib.load_manifest('qt_gui_app')
+
+from qt_gui_app import qt_gui_main
+qt_gui_main.qt_gui_main()

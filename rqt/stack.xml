@@ -1,0 +1,10 @@
+<stack>
+  <description brief="rqt">
+    Integration of the ROS package system and ROS-specific plugins for a Qt-based GUI.
+  </description>
+  <author>Maintained by Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rqt</url>
+  <depend stack="qt_gui_core"/>
+</stack>

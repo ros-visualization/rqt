@@ -1,9 +1,0 @@
-<stack>
-  <description brief="ros_gui">ros_gui</description>
-  <author>Maintained by Dirk Thomas</author>
-  <license>BSD</license>  
-  <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/ros_gui</url>
-  <rosdep name="ros"/>
-
-</stack>
