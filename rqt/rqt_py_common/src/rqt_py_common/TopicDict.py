@@ -29,7 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
-roslib.load_manifest('rosgui_py_common')
+roslib.load_manifest('rqt_py_common')
 import rospy
 
 class TopicDict(object):

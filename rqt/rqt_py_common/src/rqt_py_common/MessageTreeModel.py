@@ -1,4 +1,4 @@
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import qDebug
 from QtGui import QStandardItem, QStandardItemModel
 
