@@ -54,8 +54,6 @@
 #include <string>
 #include <vector>
 
-#define USE_PATCHED_PLUGINLIB
-
 namespace qt_gui_cpp
 {
 
@@ -120,26 +118,20 @@ public:
       attributes["class_base_class_type"] = base_class_type.c_str();
 
       // check if plugin is available
-#ifdef USE_PATCHED_PLUGINLIB
       std::string library_path = class_loader_->getClassLibraryPath(lookup_name);
       library_path.append(Poco::SharedLibrary::suffix());
       attributes["not_available"] = !std::ifstream(library_path.c_str()) ? QString("library ").append(lookup_name.c_str()).append(" not found (may be it must be built?)") : "";
-#else
-      attributes["not_available"] = "";
-#endif
 
       PluginDescriptor* plugin_descriptor = new PluginDescriptor(lookup_name.c_str(), attributes);
       QString label = name.c_str();
       QString statustip = class_loader_->getClassDescription(lookup_name).c_str();
       QString icon;
       QString icontype;
-#ifdef USE_PATCHED_PLUGINLIB
       std::string package_path = ros::package::getPath(class_loader_->getClassPackage(lookup_name));
       size_t package_path_length = package_path.length();
       assert(library_path.compare(0, package_path_length, package_path) == 0);
       std::string relative_library_path = library_path.substr(package_path_length + 1);
       parseManifest(lookup_name, package_path, relative_library_path, label, statustip, icon, icontype, plugin_descriptor);
-#endif
       plugin_descriptor->setActionAttributes(label, statustip, icon, icontype);
 
       // add plugin descriptor
@@ -264,7 +256,6 @@ private slots:
 
 private:
 
-#ifdef USE_PATCHED_PLUGINLIB
   bool parseManifest(const std::string& lookup_name, const std::string& package_path, const std::string& relative_library_path, QString& label, QString& statustip, QString& icon, QString& icontype, PluginDescriptor* plugin_descriptor)
   {
     //qDebug("RosPluginlibPluginProvider::parseManifest() relative_library_path \"%s\"", relative_library_path.c_str());
@@ -358,7 +349,6 @@ private:
       statustip = child_element->GetText();
     }
   }
-#endif
 
   void unload_pending_libraries()
   {
