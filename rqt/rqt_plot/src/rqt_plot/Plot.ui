@@ -139,7 +139,7 @@
   <customwidget>
    <class>DataPlot</class>
    <extends>QFrame</extends>
-   <header>rosgui_plot/DataPlot.h</header>
+   <header>rqt_plot/DataPlot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

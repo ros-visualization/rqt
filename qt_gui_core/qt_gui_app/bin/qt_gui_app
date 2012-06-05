@@ -6,11 +6,13 @@ import sys
 try:
     import rospkg
     r = rospkg.RosPack()
-    p = r.get_path('qt_gui_app')
+    p = r.get_path('qt_gui')
     sys.path.append(os.path.join(p, 'src'))
 except ImportError:
     import roslib
-    roslib.load_manifest('qt_gui_app')
+    roslib.load_manifest('qt_gui')
 
-from qt_gui_app import qt_gui_main
-qt_gui_main.qt_gui_main()
+from qt_gui.Main import Main
+main = Main()
+# TODO add dummy plugin provider 
+sys.exit(main.main())

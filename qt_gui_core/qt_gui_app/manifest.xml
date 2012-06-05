@@ -1,20 +1,11 @@
 <package>
-  <description brief="Integrated graphical user interface for ROS">
-
-     rosgui provides the infrastructure for an integrated graphical user interface based on Qt.
-     It is extensible with Python- and C++-based plugins (implemented in separate packages) which can contribute arbitrary widgets.
-     The dependencies of either rosgui_pyqt or rosgui_pyside are required to run rosgui.
-
+  <description brief="Integrated graphical user interface">
+    qt_gui_app provides the main to start an instance of the integrated graphical user interface provided by qt_gui.
   </description>
   <author>Dirk Thomas</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui</url>
+  <url>http://ros.org/wiki/qt_gui_app</url>
 
-  <depend package="python_qt_binding"/>
-
-  <rosdep name="python-qt-bindings"/>
-
+  <depend package="qt_gui"/>
 </package>
-
-

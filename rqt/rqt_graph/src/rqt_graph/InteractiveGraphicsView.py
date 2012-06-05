@@ -30,7 +30,7 @@
 
 from __future__ import division
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import QPointF, QRectF, Qt
 from QtGui import QGraphicsView, QTransform
 

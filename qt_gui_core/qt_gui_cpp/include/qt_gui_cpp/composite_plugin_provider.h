@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__CompositePluginProvider_H
-#define rosgui_cpp__CompositePluginProvider_H
+#ifndef qt_gui_cpp__CompositePluginProvider_H
+#define qt_gui_cpp__CompositePluginProvider_H
 
 #include "plugin_descriptor.h"
 #include "plugin_provider.h"
@@ -41,7 +41,7 @@
 #include <QSet>
 #include <QString>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class CompositePluginProvider
@@ -76,4 +76,4 @@ private:
 
 } // namespace
 
-#endif // rosgui_cpp__CompositePluginProvider_H
+#endif // qt_gui_cpp__CompositePluginProvider_H

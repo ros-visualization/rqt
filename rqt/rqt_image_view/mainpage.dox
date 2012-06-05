@@ -2,5 +2,5 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b rosgui_image_view provides a rosgui plugin for displaying images using image_transport.
+\b rqt_image_view provides a GUI plugin for displaying images using image_transport.
 */

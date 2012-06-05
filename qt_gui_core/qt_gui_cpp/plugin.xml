@@ -1,0 +1,7 @@
+<library path="src/qt_gui_cpp/CppPluginProvider">
+  <class name="CppPluginProvider" type="CppPluginProvider" base_class_type="qt_gui_py::PluginProvider">
+    <description>
+      A plugin provider for ROS GUI integrating C++ plugins using Python Qt bindings.
+    </description>
+  </class>
+</library>

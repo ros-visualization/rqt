@@ -33,13 +33,13 @@
 from __future__ import division
 import math, random, time # used for the expression eval context
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import Slot, qDebug, QObject, QSignalMapper, Qt, QTimer, qWarning
 
 import roslib
-roslib.load_manifest('rosgui_publisher')
+roslib.load_manifest('rqt_publisher')
 import rospy
-from rosgui_publisher import PublisherWidget
+from rqt_publisher import PublisherWidget
 
 class Publisher(QObject):
 

@@ -30,9 +30,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/plugin_provider.h>
+#include <qt_gui_cpp/plugin_provider.h>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 PluginProvider::PluginProvider()
 {}

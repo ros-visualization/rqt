@@ -30,15 +30,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/plugin_bridge.h>
+#include <qt_gui_cpp/plugin_bridge.h>
 
-#include <rosgui_cpp/plugin.h>
-#include <rosgui_cpp/plugin_context.h>
-#include <rosgui_cpp/plugin_provider.h>
+#include <qt_gui_cpp/plugin.h>
+#include <qt_gui_cpp/plugin_context.h>
+#include <qt_gui_cpp/plugin_provider.h>
 
 #include <QEvent>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 PluginBridge::PluginBridge()
   : QObject()

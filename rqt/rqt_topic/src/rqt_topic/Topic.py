@@ -30,13 +30,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import QObject
 
 import roslib
-roslib.load_manifest('rosgui_topic')
+roslib.load_manifest('rqt_topic')
 
-import rosgui_topic.TopicWidget
+from rqt_topic.TopicWidget import TopicWidget
 
 class Topic(QObject):
 
@@ -44,7 +44,7 @@ class Topic(QObject):
         super(Topic, self).__init__(context)
         self.setObjectName('Topic')
 
-        self._widget = rosgui_topic.TopicWidget.TopicWidget(self)
+        self._widget = TopicWidget(self)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)

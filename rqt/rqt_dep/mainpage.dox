@@ -2,13 +2,5 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b rosgui_package_graph 
-
-<!-- 
-Provide an overview of your package.
--->
-
--->
-
-
+\b rqt_dep provides a GUI plugin for visualizing the ROS dependency graph.
 */

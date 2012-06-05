@@ -32,18 +32,18 @@
 
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
 from QtGui import QWidget
 
 import roslib
-roslib.load_manifest('rosgui_matplot')
+roslib.load_manifest('rqt_matplot')
 import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
-import rosgui_matplot.MatDataPlot
-import rosgui_py_common.TopicCompleter
+import rqt_matplot.MatDataPlot
+import rqt_py_common.TopicCompleter
 
 # main class inherits from the ui window class
 class MatPlot(QWidget):
@@ -53,14 +53,14 @@ class MatPlot(QWidget):
         self.setObjectName('MatPlot')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'MatPlot.ui')
-        loadUi(ui_file, self, {'MatDataPlot': rosgui_matplot.MatDataPlot.MatDataPlot})
+        loadUi(ui_file, self, {'MatDataPlot': rqt_matplot.MatDataPlot.MatDataPlot})
 
         if context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self.subscribe_topic_button.setEnabled(False)
 
-        self._topic_completer = rosgui_py_common.TopicCompleter.TopicCompleter(self.topic_edit)
+        self._topic_completer = rqt_py_common.TopicCompleter.TopicCompleter(self.topic_edit)
         self.topic_edit.setCompleter(self._topic_completer)
 
         self._start_time = rospy.get_time()

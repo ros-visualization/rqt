@@ -37,17 +37,17 @@
 
 #include <QCloseEvent>
 
-namespace rosgui_rviz {
+namespace rqt_rviz {
 
 RViz::RViz()
-  : rosgui_roscpp::Plugin()
+  : rqt_gui_cpp::Plugin()
   , context_(0)
   , widget_(0)
 {
   setObjectName("RViz");
 }
 
-void RViz::initPlugin(rosgui_cpp::PluginContext& context)
+void RViz::initPlugin(qt_gui_cpp::PluginContext& context)
 {
   context_ = &context;
   Ogre::LogManager* log_manager = new Ogre::LogManager();
@@ -80,14 +80,14 @@ bool RViz::eventFilter(QObject* watched, QEvent* event)
   return QObject::eventFilter(watched, event);
 }
 
-void RViz::saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)
+void RViz::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
 {
 }
 
-void RViz::restoreSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)
+void RViz::restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
 {
 }
 
 }
 
-PLUGINLIB_DECLARE_CLASS(rosgui_rviz, RViz, rosgui_rviz::RViz, rosgui_roscpp::Plugin)
+PLUGINLIB_DECLARE_CLASS(rqt_rviz, RViz, rqt_rviz::RViz, rqt_gui_cpp::Plugin)

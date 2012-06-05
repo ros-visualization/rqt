@@ -31,14 +31,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
-roslib.load_manifest('rosgui_publisher')
+roslib.load_manifest('rqt_publisher')
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import Signal, Slot
 from QtGui import QAction, QIcon
 
-from rosgui_publisher import PublisherTreeModel
-from rosgui_py_common import MessageTreeWidget
+from rqt_publisher import PublisherTreeModel
+from rqt_py_common import MessageTreeWidget
 
 class PublisherTreeWidget(MessageTreeWidget.MessageTreeWidget):
     remove_publisher = Signal(int)

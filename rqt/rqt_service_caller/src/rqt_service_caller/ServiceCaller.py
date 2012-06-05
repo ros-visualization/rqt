@@ -34,14 +34,14 @@ from __future__ import division
 import os, sys
 import math, random, time # used for the expression eval context
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
 from QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
-roslib.load_manifest('rosgui_service_caller')
+roslib.load_manifest('rqt_service_caller')
 import rospy, rosservice
-from rosgui_py_common.ExtendedComboBox import ExtendedComboBox
+from rqt_py_common.ExtendedComboBox import ExtendedComboBox
 
 # main class inherits from the ui window class
 class ServiceCaller(QWidget):

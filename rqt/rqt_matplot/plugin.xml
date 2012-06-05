@@ -1,0 +1,12 @@
+<library path="src/rqt_matplot/MatPlot">
+  <class name="MatPlot" type="MatPlot" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin plotting data from ROS messages using matplotlib.
+    </description>
+    <qtguiplugin>
+      <label>MatPlot</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip>A Python GUI plugin plotting data from ROS messages using matplotlib.</statustip>
+    </qtguiplugin>
+  </class>
+</library>

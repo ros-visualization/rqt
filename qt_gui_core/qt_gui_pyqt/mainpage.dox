@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_pyqt only specifies the PyQt dependencies for rosgui.
-*/

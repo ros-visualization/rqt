@@ -28,10 +28,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from rosgui.PluginDescriptor import PluginDescriptor
-from rosgui.PluginProvider import PluginProvider
+from qt_gui.PluginDescriptor import PluginDescriptor
+from qt_gui.PluginProvider import PluginProvider
 
-from CppBindingHelper import rosgui_cpp
+from CppBindingHelper import qt_gui_cpp
 
 class RosPluginlibPluginProvider(PluginProvider):
 
@@ -56,12 +56,12 @@ class RosPluginlibPluginProvider(PluginProvider):
         return plugin_descriptors
 
     def load(self, plugin_id, plugin_context):
-        if rosgui_cpp is None:
+        if qt_gui_cpp is None:
             return None
         cpp_plugin_context = None
         if plugin_context is not None:
-            cpp_plugin_context = rosgui_cpp.PluginContext(plugin_context._handler, plugin_context.serial_number())
-        bridge = rosgui_cpp.PluginBridge()
+            cpp_plugin_context = qt_gui_cpp.PluginContext(plugin_context._handler, plugin_context.serial_number())
+        bridge = qt_gui_cpp.PluginBridge()
         loaded = bridge.load_plugin(self._plugin_provider, plugin_id, cpp_plugin_context)
         if not loaded:
             return None

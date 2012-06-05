@@ -4,7 +4,7 @@ include(${QT_USE_FILE})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-set(rosgui_cpp_SRCS
+set(qt_gui_cpp_SRCS
   composite_plugin_provider.cpp
   generic_proxy.cpp
   plugin_bridge.cpp
@@ -15,24 +15,24 @@ set(rosgui_cpp_SRCS
   settings.cpp
 )
 
-set(rosgui_cpp_HDRS
-  ../../include/rosgui_cpp/plugin_bridge.h
+set(qt_gui_cpp_HDRS
+  ../../include/qt_gui_cpp/plugin_bridge.h
 )
 
-set(rosgui_cpp_INCLUDE_DIRECTORIES
+set(qt_gui_cpp_INCLUDE_DIRECTORIES
   ${PYTHON_INCLUDE_DIR}
-  ${PROJECT_SOURCE_DIR}/include/rosgui_cpp
-  ${PROJECT_SOURCE_DIR}/src/rosgui_cpp
+  ${PROJECT_SOURCE_DIR}/include/qt_gui_cpp
+  ${PROJECT_SOURCE_DIR}/src/qt_gui_cpp
 )
 
-set(rosgui_cpp_LINK_LIBRARIES
+set(qt_gui_cpp_LINK_LIBRARIES
   ${QT_QTCORE_LIBRARY}
   ${QT_QTGUI_LIBRARY}
 )
 
-qt4_wrap_cpp(rosgui_cpp_MOCS ${rosgui_cpp_HDRS})
+qt4_wrap_cpp(qt_gui_cpp_MOCS ${qt_gui_cpp_HDRS})
 
-include_directories(${PROJECT_NAME} ${rosgui_cpp_INCLUDE_DIRECTORIES})
-rosbuild_add_library(${PROJECT_NAME} ${rosgui_cpp_SRCS} ${rosgui_cpp_MOCS})
-target_link_libraries(${PROJECT_NAME} ${rosgui_cpp_LINK_LIBRARIES})
+include_directories(${PROJECT_NAME} ${qt_gui_cpp_INCLUDE_DIRECTORIES})
+rosbuild_add_library(${PROJECT_NAME} ${qt_gui_cpp_SRCS} ${qt_gui_cpp_MOCS})
+target_link_libraries(${PROJECT_NAME} ${qt_gui_cpp_LINK_LIBRARIES})
 

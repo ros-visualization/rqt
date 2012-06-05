@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__Plugin_H
-#define rosgui_cpp__Plugin_H
+#ifndef qt_gui_cpp__Plugin_H
+#define qt_gui_cpp__Plugin_H
 
 #include "plugin_bridge.h"
 #include "plugin_context.h"
@@ -39,7 +39,7 @@
 
 #include <QObject>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class Plugin
@@ -76,4 +76,4 @@ public:
 
 } // namespace
 
-#endif // rosgui_cpp__Plugin_H
+#endif // qt_gui_cpp__Plugin_H

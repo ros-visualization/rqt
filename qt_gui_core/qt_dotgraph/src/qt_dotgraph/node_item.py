@@ -28,13 +28,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import Qt, QRectF
 from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen, QPainterPath
 
-from ros_graph_item import RosGraphItem
+from graph_item import GraphItem
 
-class NodeItem(RosGraphItem):
+class NodeItem(GraphItem):
 
     def __init__(self, highlight_level, bounding_box, label, shape, color=None, parent=None, label_pos=None):
         super(NodeItem, self).__init__(highlight_level, parent)

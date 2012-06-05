@@ -1,2 +1,2 @@
-add_subdirectory(rosgui_rviz)
+add_subdirectory(rqt_rviz)
 

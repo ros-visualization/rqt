@@ -1,22 +1,18 @@
 <package>
   <description brief="Plugin for publishing arbitrary messages">
-
-     rosgui_publisher provides a rosgui plugin for publishing arbitrary messages with fixed or computed field values.
-
+    rqt_publisher provides a GUI plugin for publishing arbitrary messages with fixed or computed field values.
   </description>
   <author>Dorian Scholz</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_publisher</url>
+  <url>http://ros.org/wiki/rqt_publisher</url>
 
-  <depend package="rosgui"/>
-  <depend package="rosgui_rospy"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
+  <depend package="rqt_py_common"/>
   <depend package="rosmsg"/>
-  <depend package="rosgui_py_common"/>
 
   <export>
-    <rosgui plugin="${prefix}/publisher_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
 </package>
-

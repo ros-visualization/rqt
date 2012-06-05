@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/recursive_plugin_provider.h>
+#include <qt_gui_cpp/recursive_plugin_provider.h>
 
 #include <stdexcept>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 RecursivePluginProvider::RecursivePluginProvider(RosPluginlibPluginProvider_ForPluginProviders* plugin_provider)
   : CompositePluginProvider()

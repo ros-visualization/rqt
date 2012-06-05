@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import collections
-import rosgui.QtBindingHelper
+import qt_gui.QtBindingHelper
 from QtCore import Slot
 from QtGui import QWidget, QVBoxLayout, QSizePolicy
 

@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import Signal, Slot, qDebug, QMimeData, QModelIndex, Qt
 from QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
 

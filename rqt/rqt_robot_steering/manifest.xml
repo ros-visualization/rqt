@@ -1,23 +1,18 @@
 <package>
   <description brief="Plugin for steering a robot">
-
-     rosgui_robot_steering provides a rosgui plugin for steering a robot using twist messages.
-
+    rqt_robot_steering provides a GUI plugin for steering a robot using Twist messages.
   </description>
   <author>Dirk Thomas</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_robot_steering</url>
+  <url>http://ros.org/wiki/rqt_robot_steering</url>
 
-  <depend package="rosgui"/>
-  <depend package="rosgui_rospy"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
   <depend package="rostopic"/>
   <depend package="geometry_msgs"/>
 
   <export>
-    <rosgui plugin="${prefix}/robot_steering_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
 </package>
-
-

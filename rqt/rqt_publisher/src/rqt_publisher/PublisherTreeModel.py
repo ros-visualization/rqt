@@ -32,16 +32,16 @@
 import threading
 
 import roslib
-roslib.load_manifest('rosgui_publisher')
+roslib.load_manifest('rqt_publisher')
 import rospy
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import Signal, qDebug, Qt
 from QtGui import QStandardItem
 
-import rosgui_py_common.MessageTreeModel
+import rqt_py_common.MessageTreeModel
 
-class PublisherTreeModel(rosgui_py_common.MessageTreeModel.MessageTreeModel):
+class PublisherTreeModel(rqt_py_common.MessageTreeModel.MessageTreeModel):
     _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
     item_value_changed = Signal(int, str, str, str, object)
 

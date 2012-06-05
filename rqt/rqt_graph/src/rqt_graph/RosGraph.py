@@ -33,25 +33,25 @@ import os
 
 import pydot
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal, QAbstractListModel
 from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
 import roslib
-roslib.load_manifest('rosgui_rosgraph')
+roslib.load_manifest('rqt_graph')
 import rosgraph.impl.graph, rostopic, rosnode, rosservice
 
-from rosgui_rosgraph import dotcode
-from rosgui_rosgraph.dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
+from rqt_graph import dotcode
+from rqt_graph.dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
 # pydot requires some hacks
-from rosgui_dotgraph.pydotfactory import PydotFactory
+from qt_dotgraph.pydotfactory import PydotFactory
 # TODO: use pygraphviz instead, but non-deterministic layout will first be resolved in graphviz 2.30
-# from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
+# from qtgui_plugin.pygraphvizfactory import PygraphvizFactory
 
-import rosgui_rosgraph.InteractiveGraphicsView
+import rqt_graph.InteractiveGraphicsView
 
-from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
+from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
 class RepeatedWordCompleter(QCompleter):
     """A completer that completes multiple times from a list"""
@@ -111,7 +111,7 @@ class RosGraph(QObject):
         self.dot_to_qt = DotToQtGenerator()
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosGraph.ui')
-        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rosgui_rosgraph.InteractiveGraphicsView})
+        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rqt_graph.InteractiveGraphicsView})
         self._widget.setObjectName('RosGraphUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))

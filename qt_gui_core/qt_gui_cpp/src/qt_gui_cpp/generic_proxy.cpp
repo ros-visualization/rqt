@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/generic_proxy.h>
+#include <qt_gui_cpp/generic_proxy.h>
 
 #include <QMetaObject>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 GenericProxy::GenericProxy(QObject* obj)
   : object_(obj)

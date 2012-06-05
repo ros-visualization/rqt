@@ -1,25 +1,20 @@
 <package>
   <description brief="Plugin for plotting numeric values">
-
-     rosgui_plot provides a rosgui plugin for visualizing numeric values in a 2D plot using PyQwt5.
-
+    rqt_plot provides a GUI plugin for visualizing numeric values in a 2D plot using PyQwt5.
   </description>
   <author>Dorian Scholz</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_plot</url>
+  <url>http://ros.org/wiki/rqt_plot</url>
 
-  <depend package="rosgui"/>
-  <depend package="rosgui_rospy"/>
-  <depend package="rosgui_py_common"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
+  <depend package="rqt_py_common"/>
   <depend package="rxtools"/>
   <depend package="rostopic"/>
-
   <rosdep name="python-qwt5-qt4"/>
 
   <export>
-    <rosgui plugin="${prefix}/plot_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
 </package>
-

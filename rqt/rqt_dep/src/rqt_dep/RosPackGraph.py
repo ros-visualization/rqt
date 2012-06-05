@@ -3,27 +3,24 @@
 
 from __future__ import division
 import os
-import re
-
 
 import rospkg
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal, QAbstractListModel, SIGNAL
 from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
 import roslib
-roslib.load_manifest('rosgui_package_graph')
+roslib.load_manifest('rqt_dep')
 
-import rosgui_package_graph.dotcode_pack
-from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
-import rosgui_dotgraph
-from rosgui_dotgraph.pydotfactory import PydotFactory
-# from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
-from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
+import rqt_graph.dotcode_pack
+from rqt_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
+from qt_dotgraph.pydotfactory import PydotFactory
+# from qt_dotgraph.pygraphvizfactory import PygraphvizFactory
+from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
-import rosgui_rosgraph.InteractiveGraphicsView
+import rqt_graph.InteractiveGraphicsView
 
 
 class RepeatedWordCompleter(QCompleter):
@@ -86,7 +83,7 @@ class RosPackGraph(QObject):
         self.dot_to_qt = DotToQtGenerator()
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
-        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rosgui_rosgraph.InteractiveGraphicsView})
+        loadUi(ui_file, self._widget, {'InteractiveGraphicsView': rqt_graph.InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))

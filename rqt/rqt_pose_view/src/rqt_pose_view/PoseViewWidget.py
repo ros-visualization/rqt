@@ -31,18 +31,18 @@
 from __future__ import division
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
 from QtGui import QAction, QMenu, QWidget
 
 import roslib
-roslib.load_manifest('rosgui_pose_view')
+roslib.load_manifest('rqt_pose_view')
 import rospy
 from rostopic import get_topic_class
 from tf.transformations import quaternion_matrix, quaternion_about_axis
 
 from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
-import rosgui_pose_view.GLWidget
+from rqt_pose_view.GLWidget import GLWidget
 
 # main class inherits from the ui window class
 class PoseViewWidget(QWidget):
@@ -59,7 +59,7 @@ class PoseViewWidget(QWidget):
         self._subscriber = None
 
         # create GL view         
-        self._gl_view = rosgui_pose_view.GLWidget.GLWidget()
+        self._gl_view = GLWidget()
         self._gl_view.setAcceptDrops(True)
 
         # backup and replace original paint method

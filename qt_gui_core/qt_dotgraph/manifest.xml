@@ -1,17 +1,12 @@
 <package>
-  <description brief="rosgui_dotgraph">
-
-     rosgui_dotgraph
-
+  <description brief="qt_dotgraph">
+    qt_dotgraph provides helpers to work with dot graphs.
   </description>
   <author>Thibault Kruse</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_dotgraph</url>
-  <depend package="rosgui"/>
+  <url>http://ros.org/wiki/qt_dotgraph</url>
 
+  <depend package="qt_gui"/>
   <rosdep name="python-pydot"/>
-
 </package>
-
-

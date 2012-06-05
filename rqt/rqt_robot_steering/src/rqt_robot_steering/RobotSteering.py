@@ -31,12 +31,12 @@
 from __future__ import division
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import QObject, Qt, QTimer, Slot
 from QtGui import QShortcut, QWidget
 
 import roslib
-roslib.load_manifest('rosgui_robot_steering')
+roslib.load_manifest('rqt_robot_steering')
 import rospy
 
 from geometry_msgs.msg import Twist

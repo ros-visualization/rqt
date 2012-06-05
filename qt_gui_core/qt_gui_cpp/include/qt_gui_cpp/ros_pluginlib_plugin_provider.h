@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__RosPluginlibPluginProvider_H
-#define rosgui_cpp__RosPluginlibPluginProvider_H
+#ifndef qt_gui_cpp__RosPluginlibPluginProvider_H
+#define qt_gui_cpp__RosPluginlibPluginProvider_H
 
 #include "plugin.h"
 #include "plugin_context.h"
@@ -56,7 +56,7 @@
 
 #define USE_PATCHED_PLUGINLIB
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 template<typename T>
@@ -299,7 +299,7 @@ private:
         {
           if (class_type.compare(class_element->Attribute("type")) == 0 && base_class_type_.compare(class_element->Attribute("base_class_type")) == 0)
           {
-            TiXmlElement* gui_plugin_element = class_element->FirstChildElement("rosguiplugin");
+            TiXmlElement* gui_plugin_element = class_element->FirstChildElement("qtguiplugin");
             if (gui_plugin_element)
             {
               // extract meta information
@@ -380,4 +380,4 @@ private:
 
 } // namespace
 
-#endif // rosgui_cpp__RosPluginlibPluginProvider_H
+#endif // qt_gui_cpp__RosPluginlibPluginProvider_H

@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/plugin_context.h>
+#include <qt_gui_cpp/plugin_context.h>
 
 #include <stdexcept>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 PluginContext::PluginContext(QObject* obj, int serial_number)
   : QObject(obj)

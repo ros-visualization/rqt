@@ -30,9 +30,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/plugin_descriptor.h>
+#include <qt_gui_cpp/plugin_descriptor.h>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 PluginDescriptor::PluginDescriptor(const QString& plugin_id, const QMap<QString, QString>& attributes)
 {

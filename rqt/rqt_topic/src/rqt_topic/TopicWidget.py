@@ -33,14 +33,14 @@
 from __future__ import division
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import Qt, QTimer, Slot
 from QtGui import QHeaderView, QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
-roslib.load_manifest('rosgui_topic')
+roslib.load_manifest('rqt_topic')
 import rospy
-import rosgui_topic.TopicInfo
+from rqt_topic.TopicInfo import TopicInfo
 
 
 # main class inherits from the ui window class
@@ -86,7 +86,7 @@ class TopicWidget(QWidget):
                 # if topic is new or has changed its type
                 if topic_name not in self._topics or self._topics[topic_name]['type'] != topic_type:
                     # create new TopicInfo
-                    topic_info = rosgui_topic.TopicInfo.TopicInfo(topic_name)
+                    topic_info = TopicInfo(topic_name)
                     # if successful, add it to the dict and tree view
                     if topic_info._topic_name:
                         topic_item = self._recursive_create_widget_items(self.topics_tree_widget, topic_name, topic_type, topic_info.message_class())

@@ -1,24 +1,18 @@
 <package>
-  <description brief="rosgui_package_graph">
-
-     rosgui_package_graph
-
+  <description brief="Plugin for visualizing the ROS dependency graph">
+    rqt_dep provides a GUI plugin for visualizing the ROS dependency graph.
   </description>
   <author>Thibault Kruse</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_package_graph</url>
-  <depend package="rosgui"/>
-  <depend package="rosgui_dotgraph"/>
-  <depend package="rosgui_rosgraph"/>
+  <url>http://ros.org/wiki/rqt_dep</url>
 
+  <depend package="rqt_gui"/>
+  <depend package="qt_dotgraph"/>
+  <depend package="rqt_graph"/>
   <rosdep name="python-rospkg"/>
 
   <export>
-    <rosgui plugin="${prefix}/rospackage_graph_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
-
 </package>
-
-

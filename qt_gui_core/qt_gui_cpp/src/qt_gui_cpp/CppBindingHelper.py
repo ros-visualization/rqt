@@ -32,24 +32,24 @@ import os
 import sys
 import traceback
 
-from rosgui.QtBindingHelper import QT_BINDING
+from qt_gui.QtBindingHelper import QT_BINDING
 from QtCore import qWarning
 
-from rosgui.RosPackageHelper import get_package_path
-sys.path.append(os.path.realpath(os.path.join(get_package_path('rosgui_cpp'), 'lib')))
+from qt_gui.RosPackageHelper import get_package_path
+sys.path.append(os.path.realpath(os.path.join(get_package_path('qt_gui_cpp'), 'lib')))
 
 try:
     if QT_BINDING == 'pyside':
-        import librosgui_cpp_shiboken
-        rosgui_cpp = librosgui_cpp_shiboken.rosgui_cpp
+        import libqt_gui_cpp_shiboken
+        qt_gui_cpp = libqt_gui_cpp_shiboken.qt_gui_cpp
 
     elif QT_BINDING == 'pyqt':
-        import librosgui_cpp_sip
-        rosgui_cpp = librosgui_cpp_sip.rosgui_cpp
+        import libqt_gui_cpp_sip
+        qt_gui_cpp = libqt_gui_cpp_sip.qt_gui_cpp
 
     else:
         raise ImportError('Qt binding name "%s" is unknown.' % QT_BINDING)
 
 except ImportError:
-    rosgui_cpp = None
-    qWarning('Could not import "%s" bindings of rosgui_cpp library - so C++ plugins will not be available:\n%s' % (QT_BINDING, traceback.format_exc()))
+    qt_gui_cpp = None
+    qWarning('Could not import "%s" bindings of qt_gui_cpp library - so C++ plugins will not be available:\n%s' % (QT_BINDING, traceback.format_exc()))

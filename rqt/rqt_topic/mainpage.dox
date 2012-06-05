@@ -2,5 +2,5 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b rosgui_topic provides a rosgui plugin for displaying debug information about ROS topics including publishers, subscribers, publishing rate, and ROS Messages.
+\b rqt_topic provides a GUI plugin for displaying debug information about ROS topics including publishers, subscribers, publishing rate, and ROS Messages.
 */

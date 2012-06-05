@@ -34,7 +34,7 @@
 
 #include <assert.h>
 
-namespace rosgui_image_view {
+namespace rqt_image_view {
 
 RatioLayoutedFrame::RatioLayoutedFrame(QWidget* parent, Qt::WFlags flags)
   : QFrame()

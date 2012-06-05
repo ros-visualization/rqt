@@ -30,12 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__GenericProxy_H
-#define rosgui_cpp__GenericProxy_H
+#ifndef qt_gui_cpp__GenericProxy_H
+#define qt_gui_cpp__GenericProxy_H
 
 #include <QObject>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class GenericProxy
@@ -61,4 +61,4 @@ private:
 
 } // namespace
 
-#endif // rosgui_cpp__GenericProxy_H
+#endif // qt_gui_cpp__GenericProxy_H

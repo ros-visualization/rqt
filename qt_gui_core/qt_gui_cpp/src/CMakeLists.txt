@@ -1,11 +1,11 @@
-add_subdirectory(rosgui_cpp)
+add_subdirectory(qt_gui_cpp)
 
-set(rosgui_cpp_BINDINGS "")
+set(qt_gui_cpp_BINDINGS "")
 
-add_subdirectory(rosgui_cpp_shiboken)
-add_subdirectory(rosgui_cpp_sip)
+add_subdirectory(qt_gui_cpp_shiboken)
+add_subdirectory(qt_gui_cpp_sip)
 
-message("Python binding generators: ${rosgui_cpp_BINDINGS}")
-if(NOT rosgui_cpp_BINDINGS)
+message("Python binding generators: ${qt_gui_cpp_BINDINGS}")
+if(NOT qt_gui_cpp_BINDINGS)
   message(FATAL_ERROR "No Python binding generator found.")
 endif()

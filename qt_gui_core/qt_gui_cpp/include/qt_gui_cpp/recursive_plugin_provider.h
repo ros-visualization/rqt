@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__RecursivePluginProvider_H
-#define rosgui_cpp__RecursivePluginProvider_H
+#ifndef qt_gui_cpp__RecursivePluginProvider_H
+#define qt_gui_cpp__RecursivePluginProvider_H
 
 #include "composite_plugin_provider.h"
 #include "ros_pluginlib_plugin_provider_for_plugin_providers.h"
@@ -40,7 +40,7 @@
 #include <QSet>
 #include <QString>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class RecursivePluginProvider
@@ -65,4 +65,4 @@ private:
 
 } // namespace
 
-#endif // rosgui_cpp__RecursivePluginProvider_H
+#endif // qt_gui_cpp__RecursivePluginProvider_H

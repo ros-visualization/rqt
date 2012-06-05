@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__PluginContext_H
-#define rosgui_cpp__PluginContext_H
+#ifndef qt_gui_cpp__PluginContext_H
+#define qt_gui_cpp__PluginContext_H
 
 #include "generic_proxy.h"
 
@@ -40,7 +40,7 @@
 #include <QString>
 #include <QVariant>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class PluginContext
@@ -73,4 +73,4 @@ protected:
 
 } // namespace
 
-#endif // rosgui_cpp__PluginContext_H
+#endif // qt_gui_cpp__PluginContext_H

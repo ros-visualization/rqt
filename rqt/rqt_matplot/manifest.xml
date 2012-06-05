@@ -1,19 +1,19 @@
 <package>
-  <description brief="rosgui_matplot">
-
-     rosgui_matplot
-
+  <description brief="Plugin for plotting numeric values">
+    rqt_matplot provides a GUI plugin for visualizing numeric values in a 2D plot using matplot.
   </description>
   <author>Ye Cheng</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_matplot</url>
-  <depend package="rosgui"/>
-  <depend package="rosgui_rospy"/>
-  <depend package="rosgui_py_common"/>
+  <url>http://ros.org/wiki/rqt_matplot</url>
+
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
+  <depend package="rqt_py_common"/>
   <depend package="rostopic"/>
   <rosdep name="python-matplotlib"/>
+
   <export>
-    <rosgui plugin="${prefix}/matplot_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>

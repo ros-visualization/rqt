@@ -2,5 +2,5 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b rosgui_rosgraph provides a rosgui plugin for visualizing a ROS computation graph.
+\b rqt_graph provides a GUI plugin for visualizing the ROS computation graph.
 */

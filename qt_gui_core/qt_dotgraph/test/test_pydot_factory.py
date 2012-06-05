@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import unittest
-from rosgui_dotgraph.pydotfactory import PydotFactory
+from qt_dotgraph.pydotfactory import PydotFactory
 
 class PyDotFactoryTest(unittest.TestCase):
 

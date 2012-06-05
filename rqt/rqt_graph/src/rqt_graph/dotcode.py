@@ -46,7 +46,7 @@ NODE_TOPIC_ALL_GRAPH = 'node_topic_all'
 
 import urllib
 
-QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock', '/rosgui']
+QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock', '/rqt']
 
 def matches_any(name, patternlist):
     if patternlist is None or len(patternlist) == 0:

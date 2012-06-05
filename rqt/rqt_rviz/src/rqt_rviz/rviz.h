@@ -30,18 +30,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_rviz__RViz_H
-#define rosgui_rviz__RViz_H
+#ifndef rqt_rviz__RViz_H
+#define rqt_rviz__RViz_H
 
-#include <rosgui_roscpp/plugin.h>
+#include <rqt_gui_cpp/plugin.h>
 #include <rviz/visualization_frame.h>
 
 #include <QDockWidget>
 
-namespace rosgui_rviz {
+namespace rqt_rviz {
 
 class RViz
-  : public rosgui_roscpp::Plugin
+  : public rqt_gui_cpp::Plugin
 {
 
   Q_OBJECT
@@ -50,17 +50,17 @@ public:
 
   RViz();
 
-  virtual void initPlugin(rosgui_cpp::PluginContext& context);
+  virtual void initPlugin(qt_gui_cpp::PluginContext& context);
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 
-  virtual void saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings);
+  virtual void saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
 
-  virtual void restoreSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings);
+  virtual void restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
 
 protected:
 
-  rosgui_cpp::PluginContext* context_;
+  qt_gui_cpp::PluginContext* context_;
 
   rviz::VisualizationFrame* widget_;
 
@@ -68,4 +68,4 @@ protected:
 
 }
 
-#endif // rosgui_rviz__RViz_H
+#endif // rqt_rviz__RViz_H

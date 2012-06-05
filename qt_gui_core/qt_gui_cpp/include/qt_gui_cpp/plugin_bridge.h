@@ -30,12 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__PluginBridge_H
-#define rosgui_cpp__PluginBridge_H
+#ifndef qt_gui_cpp__PluginBridge_H
+#define qt_gui_cpp__PluginBridge_H
 
 #include <QObject>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class Plugin;
@@ -78,4 +78,4 @@ private:
 
 } // namespace
 
-#endif // rosgui_cpp__PluginBridge_H
+#endif // qt_gui_cpp__PluginBridge_H

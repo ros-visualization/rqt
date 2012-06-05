@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_pyside only specifies the PySide dependencies for rosgui.
-*/

@@ -1,2 +1,2 @@
-add_subdirectory(rosgui_image_view)
+add_subdirectory(rqt_image_view)
 

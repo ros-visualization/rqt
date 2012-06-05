@@ -1,0 +1,7 @@
+<library path="src/rqt_gui_py/RosPyPluginProvider">
+  <class name="RosPyPluginProvider" type="RosPyPluginProvider" base_class_type="rqt_gui_py::PluginProvider">
+    <description>
+      A Python plugin provider for ROS GUI integrating plugins using rospy client library.
+    </description>
+  </class>
+</library>

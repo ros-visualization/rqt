@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_cpp__Settings_H
-#define rosgui_cpp__Settings_H
+#ifndef qt_gui_cpp__Settings_H
+#define qt_gui_cpp__Settings_H
 
 #include "generic_proxy.h"
 
@@ -39,7 +39,7 @@
 #include <QStringList>
 #include <QVariant>
 
-namespace rosgui_cpp
+namespace qt_gui_cpp
 {
 
 class Settings
@@ -81,4 +81,4 @@ protected:
 
 } // namespace
 
-#endif // rosgui_cpp__Settings_H
+#endif // qt_gui_cpp__Settings_H

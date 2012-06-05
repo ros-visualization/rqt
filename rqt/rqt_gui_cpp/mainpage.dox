@@ -1,0 +1,6 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.
+*/

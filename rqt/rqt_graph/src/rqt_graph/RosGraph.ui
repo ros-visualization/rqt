@@ -42,7 +42,7 @@
      <item>
       <widget class="QLineEdit" name="filter_line_edit">
        <property name="toolTip">
-        <string>Namespace filter, comma separated list of names/regexp to include or exclude. Example: -/rosgui.*</string>
+        <string>Namespace filter, comma separated list of names/regexp to include or exclude. Example: -/rqt.*</string>
        </property>
        <property name="text">
         <string notr="true">/</string>
@@ -205,7 +205,7 @@
   <customwidget>
    <class>InteractiveGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>rosgui_rosgraph/InteractiveGraphicsView.h</header>
+   <header>rqt_graph/InteractiveGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

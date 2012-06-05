@@ -1,0 +1,12 @@
+<library path="src/rqt_publisher/Publisher">
+  <class name="Publisher" type="Publisher" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin publishing ROS messages.
+    </description>
+    <qtguiplugin>
+      <label>Publisher</label>
+      <icon type="theme">media-playback-start</icon>
+      <statustip>A Python GUI plugin publishing ROS messages.</statustip>
+    </qtguiplugin>
+  </class>
+</library>

@@ -31,11 +31,11 @@
 import os
 import sys
 
-from rosgui.CompositePluginProvider import CompositePluginProvider
+from qt_gui.CompositePluginProvider import CompositePluginProvider
 
 # append folder of this file to module search path
 sys.path.append(os.path.realpath(os.path.dirname(__file__)))
-from CppBindingHelper import rosgui_cpp
+from CppBindingHelper import qt_gui_cpp
 
 from RosPluginlibPluginProvider import RosPluginlibPluginProvider
 
@@ -43,9 +43,9 @@ class CppPluginProvider(CompositePluginProvider):
 
     def __init__(self):
         plugin_providers = None
-        if rosgui_cpp is not None:
+        if qt_gui_cpp is not None:
             plugin_providers = [
-                RosPluginlibPluginProvider(rosgui_cpp.RosPluginlibPluginProvider_ForPlugins('rosgui', 'rosgui_cpp::Plugin')),
-                RosPluginlibPluginProvider(rosgui_cpp.RecursivePluginProvider(rosgui_cpp.RosPluginlibPluginProvider_ForPluginProviders.create_instance('rosgui', 'rosgui_cpp::PluginProvider'))),
+                RosPluginlibPluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPlugins('qt_gui', 'qt_gui_cpp::Plugin')),
+                RosPluginlibPluginProvider(qt_gui_cpp.RecursivePluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPluginProviders.create_instance('qt_gui', 'qt_gui_cpp::PluginProvider'))),
             ]
         super(CppPluginProvider, self).__init__(plugin_providers)

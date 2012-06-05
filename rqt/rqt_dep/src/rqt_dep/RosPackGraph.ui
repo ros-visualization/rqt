@@ -188,7 +188,7 @@
   <customwidget>
    <class>InteractiveGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>rosgui_rosgraph/InteractiveGraphicsView.h</header>
+   <header>rqt_graph/InteractiveGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

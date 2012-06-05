@@ -37,7 +37,7 @@ import rospkg
 # get mock from pypi as 'mock'
 from mock import Mock, MagicMock, patch
 
-from rosgui_package_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
+from rqt_graph.dotcode_pack import RosPackageGraphDotcodeGenerator
 
 
 class DotcodeGeneratorTest(unittest.TestCase):

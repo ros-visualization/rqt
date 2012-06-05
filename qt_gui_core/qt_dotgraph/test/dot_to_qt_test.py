@@ -33,7 +33,7 @@
 
 import unittest
 
-from rosgui_dotgraph.dot_to_qt import DotToQtGenerator
+from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
 class DotToQtGeneratorTest(unittest.TestCase):
 

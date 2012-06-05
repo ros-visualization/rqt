@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import unittest
-from rosgui_dotgraph.pygraphvizfactory import PygraphvizFactory
+from qt_dotgraph.pygraphvizfactory import PygraphvizFactory
 
 class PygraphvizFactoryTest(unittest.TestCase):
 

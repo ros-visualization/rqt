@@ -34,11 +34,11 @@ from __future__ import division, with_statement
 import time
 from StringIO import StringIO
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import qDebug
 
 import roslib
-roslib.load_manifest('rosgui_topic')
+roslib.load_manifest('rqt_topic')
 import rospy
 from rostopic import get_topic_class, ROSTopicHz
 

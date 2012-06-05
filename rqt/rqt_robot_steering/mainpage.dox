@@ -2,5 +2,5 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b rosgui_robot_steering provides a rosgui plugin for steering a robot using twist messages.
+\b rqt_robot_steering provides a GUI plugin for steering a robot using twist messages.
 */

@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_roscpp enables rosgui plugins to use the C++ client library for ROS.
-*/

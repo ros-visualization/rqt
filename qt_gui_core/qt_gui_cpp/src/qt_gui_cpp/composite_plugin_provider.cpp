@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/composite_plugin_provider.h>
+#include <qt_gui_cpp/composite_plugin_provider.h>
 
 #include <stdexcept>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 CompositePluginProvider::CompositePluginProvider(const QList<PluginProvider*>& plugin_providers)
   : PluginProvider()

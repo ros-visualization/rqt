@@ -1,22 +1,18 @@
 <package>
   <description brief="Plugin for displaying topic information">
-
-     rosgui_topic provides a rosgui plugin for displaying debug information about ROS topics including publishers, subscribers, publishing rate, and ROS Messages.
-
+    rqt_topic provides a GUI plugin for displaying debug information about ROS topics including publishers, subscribers, publishing rate, and ROS Messages.
   </description>
   <author>Dorian Scholz</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/rosgui_topic</url>
+  <url>http://ros.org/wiki/rqt_topic</url>
 
-  <depend package="rosgui"/>
-  <depend package="rosgui_rospy"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
   <depend package="std_msgs"/>
   <depend package="rostopic"/>
 
   <export>
-    <rosgui plugin="${prefix}/topic_plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
 </package>
-

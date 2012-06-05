@@ -32,7 +32,7 @@ from __future__ import division
 import math
 import numpy
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import QPoint, Qt
 from QtOpenGL import QGLFormat, QGLWidget
 

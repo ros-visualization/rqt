@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_image_view__RatioLayoutedFrame_H
-#define rosgui_image_view__RatioLayoutedFrame_H
+#ifndef rqt_image_view__RatioLayoutedFrame_H
+#define rqt_image_view__RatioLayoutedFrame_H
 
 #include <QFrame>
 #include <QLayout>
@@ -40,7 +40,7 @@
 #include <QRect>
 #include <QSize>
 
-namespace rosgui_image_view {
+namespace rqt_image_view {
 
 /**
  * RatioLayoutedFrame is a layout containing a single frame with a fixed aspect ratio.
@@ -80,4 +80,4 @@ private:
 
 }
 
-#endif // rosgui_image_view__RatioLayoutedFrame_H
+#endif // rqt_image_view__RatioLayoutedFrame_H

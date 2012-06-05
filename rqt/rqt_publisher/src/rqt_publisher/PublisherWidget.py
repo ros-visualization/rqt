@@ -33,16 +33,16 @@
 from __future__ import division
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import Signal, Slot, qDebug
 from QtGui import QIcon, QWidget
 
 import roslib
-roslib.load_manifest('rosgui_publisher')
+roslib.load_manifest('rqt_publisher')
 import rospkg, rosmsg, rospy
 
-import rosgui_py_common.ExtendedComboBox
-import rosgui_publisher.PublisherTreeWidget
+import rqt_py_common.ExtendedComboBox
+import rqt_publisher.PublisherTreeWidget
 
 # main class inherits from the ui window class
 class PublisherWidget(QWidget):
@@ -56,7 +56,7 @@ class PublisherWidget(QWidget):
         super(PublisherWidget, self).__init__(parent)
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
-        loadUi(ui_file, self, {'ExtendedComboBox': rosgui_py_common.ExtendedComboBox, 'PublisherTreeWidget': rosgui_publisher.PublisherTreeWidget.PublisherTreeWidget})
+        loadUi(ui_file, self, {'ExtendedComboBox': rqt_py_common.ExtendedComboBox, 'PublisherTreeWidget': rqt_publisher.PublisherTreeWidget.PublisherTreeWidget})
         self.refresh_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.refresh_button.clicked.connect(self.refresh_combo_boxes)
         self.add_publisher_button.setIcon(QIcon.fromTheme('add'))

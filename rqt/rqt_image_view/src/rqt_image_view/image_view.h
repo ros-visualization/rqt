@@ -30,12 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rosgui_image_view__ImageView_H
-#define rosgui_image_view__ImageView_H
+#ifndef rqt_image_view__ImageView_H
+#define rqt_image_view__ImageView_H
 
-#include <rosgui_roscpp/plugin.h>
+#include <rqt_gui_cpp/plugin.h>
 
-#include <rosgui_image_view/ui_image_view.h>
+#include <rqt_image_view/ui_image_view.h>
 
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
@@ -46,10 +46,10 @@
 #include <QSize>
 #include <QWidget>
 
-namespace rosgui_image_view {
+namespace rqt_image_view {
 
 class ImageView
-  : public rosgui_roscpp::Plugin
+  : public rqt_gui_cpp::Plugin
 {
 
   Q_OBJECT
@@ -58,15 +58,15 @@ public:
 
   ImageView();
 
-  virtual void initPlugin(rosgui_cpp::PluginContext& context);
+  virtual void initPlugin(qt_gui_cpp::PluginContext& context);
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 
   virtual void shutdownPlugin();
 
-  virtual void saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings);
+  virtual void saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
 
-  virtual void restoreSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings);
+  virtual void restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
 
 protected slots:
 
@@ -99,4 +99,4 @@ protected:
 
 }
 
-#endif // rosgui_image_view__ImageView_H
+#endif // rqt_image_view__ImageView_H

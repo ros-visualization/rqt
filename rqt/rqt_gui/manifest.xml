@@ -1,0 +1,12 @@
+<package>
+  <description brief="Integrated graphical user interface for ROS">
+    rqt_gui provides the main to start an instance of the ROS integrated graphical user interface provided by qt_gui.
+    The code API of rqt_gui (except the exposed interfaces for plugins) is not stable, so it is not recommended for use in other tools.
+  </description>
+  <author>Dirk Thomas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rqt_gui</url>
+
+  <depend package="qt_gui"/>
+</package>

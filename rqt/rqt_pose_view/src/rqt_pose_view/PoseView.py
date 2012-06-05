@@ -28,14 +28,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rosgui.QtBindingHelper #@UnusedImport
+import qt_gui.QtBindingHelper #@UnusedImport
 from QtCore import QObject
 from QtGui import QDockWidget
 
 import roslib
-roslib.load_manifest('rosgui_pose_view')
+roslib.load_manifest('rqt_pose_view')
 
-from rosgui_pose_view import PoseViewWidget
+from rqt_pose_view.PoseViewWidget import PoseViewWidget
 
 class PoseView(QObject):
 
@@ -43,7 +43,7 @@ class PoseView(QObject):
         super(PoseView, self).__init__(context)
         self.setObjectName('PoseView')
 
-        self._widget = PoseViewWidget.PoseViewWidget(self)
+        self._widget = PoseViewWidget(self)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)

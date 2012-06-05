@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rosgui_cpp/settings.h>
+#include <qt_gui_cpp/settings.h>
 
 #include <stdexcept>
 
-namespace rosgui_cpp {
+namespace qt_gui_cpp {
 
 Settings::Settings(QObject* obj)
   : proxy_(obj)

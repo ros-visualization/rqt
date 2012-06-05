@@ -40,16 +40,16 @@
 
 #include <QPainter>
 
-namespace rosgui_image_view {
+namespace rqt_image_view {
 
 ImageView::ImageView()
-  : rosgui_roscpp::Plugin()
+  : rqt_gui_cpp::Plugin()
   , widget_(0)
 {
   setObjectName("ImageView");
 }
 
-void ImageView::initPlugin(rosgui_cpp::PluginContext& context)
+void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 {
   widget_ = new QWidget();
   ui_.setupUi(widget_);
@@ -97,7 +97,7 @@ void ImageView::shutdownPlugin()
   subscriber_.shutdown();
 }
 
-void ImageView::saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)
+void ImageView::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
 {
   QString topic = ui_.topics_combo_box->currentText();
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
@@ -105,7 +105,7 @@ void ImageView::saveSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::
   perspective_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
 }
 
-void ImageView::restoreSettings(rosgui_cpp::Settings& global_settings, rosgui_cpp::Settings& perspective_settings)
+void ImageView::restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
 {
   QString topic = perspective_settings.value("topic", "").toString();
   bool zoom1_checked = perspective_settings.value("zoom1", false).toBool();
@@ -270,4 +270,4 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 
 }
 
-PLUGINLIB_DECLARE_CLASS(rosgui_image_view, ImageView, rosgui_image_view::ImageView, rosgui_roscpp::Plugin)
+PLUGINLIB_DECLARE_CLASS(rqt_image_view, ImageView, rqt_image_view::ImageView, rqt_gui_cpp::Plugin)

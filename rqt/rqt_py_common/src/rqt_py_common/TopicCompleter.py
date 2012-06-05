@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import roslib
-roslib.load_manifest('rosgui_py_common')
+roslib.load_manifest('rqt_py_common')
 import rospy
 
 import MessageTreeModel
@@ -54,7 +54,7 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    import rosgui.QtBindingHelper #@UnusedImport
+    import qt_gui.QtBindingHelper #@UnusedImport
     from QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     mw = QMainWindow()

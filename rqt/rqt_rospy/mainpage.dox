@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rosgui_rospy enables rosgui plugins to use the Python client library for ROS.
-*/

@@ -32,19 +32,19 @@
 
 import os
 
-from rosgui.QtBindingHelper import loadUi
+from qt_gui.QtBindingHelper import loadUi
 from QtCore import qDebug, Qt, QTimer, Slot
 from QtGui import QWidget
 
 import roslib
-roslib.load_manifest('rosgui_plot')
+roslib.load_manifest('rqt_plot')
 import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
-import rosgui_plot.DataPlot
+import rqt_plot.DataPlot
 
-from rosgui_py_common.TopicCompleter import TopicCompleter
+from rqt_py_common.TopicCompleter import TopicCompleter
 
 # main class inherits from the ui window class
 class Plot(QWidget):
@@ -54,7 +54,7 @@ class Plot(QWidget):
         self.setObjectName('Plot')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
-        loadUi(ui_file, self, {'DataPlot': rosgui_plot.DataPlot})
+        loadUi(ui_file, self, {'DataPlot': rqt_plot.DataPlot})
 
         if context.serial_number() > 1:
             self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
