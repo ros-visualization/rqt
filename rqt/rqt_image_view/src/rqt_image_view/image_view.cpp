@@ -54,11 +54,11 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   widget_ = new QWidget();
   ui_.setupUi(widget_);
 
-  if (context.serial_number() > 1)
+  if (context.serialNumber() > 1)
   {
-    widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serial_number()) + ")");
+    widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serialNumber()) + ")");
   }
-  context.add_widget(widget_);
+  context.addWidget(widget_);
 
   ui_.image_frame->installEventFilter(this);
 
@@ -97,7 +97,7 @@ void ImageView::shutdownPlugin()
   subscriber_.shutdown();
 }
 
-void ImageView::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
+void ImageView::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings) const
 {
   QString topic = ui_.topics_combo_box->currentText();
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
@@ -105,7 +105,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::
   perspective_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
 }
 
-void ImageView::restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
+void ImageView::restoreSettings(const qt_gui_cpp::Settings& global_settings, const qt_gui_cpp::Settings& perspective_settings)
 {
   QString topic = perspective_settings.value("topic", "").toString();
   bool zoom1_checked = perspective_settings.value("zoom1", false).toBool();

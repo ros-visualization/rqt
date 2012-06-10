@@ -64,9 +64,9 @@ public:
 
   virtual void shutdownPlugin();
 
-  virtual void saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
+  virtual void saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings) const;
 
-  virtual void restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
+  virtual void restoreSettings(const qt_gui_cpp::Settings& global_settings, const qt_gui_cpp::Settings& perspective_settings);
 
 protected slots:
 

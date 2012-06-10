@@ -58,11 +58,11 @@ void RViz::initPlugin(qt_gui_cpp::PluginContext& context)
   widget_->initialize("", "", "", "", false);
 
   widget_->setWindowTitle("RViz");
-  if (context.serial_number() != 1)
+  if (context.serialNumber() != 1)
   {
-    widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serial_number()) + ")");
+    widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serialNumber()) + ")");
   }
-  context.add_widget(widget_);
+  context.addWidget(widget_);
 
   // trigger deleteLater for plugin when widget or frame is closed
   widget_->installEventFilter(this);
@@ -73,19 +73,11 @@ bool RViz::eventFilter(QObject* watched, QEvent* event)
   if (watched == widget_ && event->type() == QEvent::Close)
   {
     event->ignore();
-    context_->close_plugin();
+    context_->closePlugin();
     return true;
   }
 
   return QObject::eventFilter(watched, event);
-}
-
-void RViz::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
-{
-}
-
-void RViz::restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings)
-{
 }
 
 }

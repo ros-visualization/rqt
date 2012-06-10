@@ -86,7 +86,7 @@ boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string
 
   nodelet::M_string remappings;
   nodelet::V_string my_argv;
-  std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serial_number()).toStdString();
+  std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serialNumber()).toStdString();
   instance_.reset();
   //qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
   bool loaded = loader_->load(nodelet_name, lookup_name, remappings, my_argv);

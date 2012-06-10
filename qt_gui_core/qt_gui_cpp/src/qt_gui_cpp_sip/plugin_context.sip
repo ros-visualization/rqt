@@ -13,15 +13,15 @@ public:
 
   PluginContext(const qt_gui_cpp::PluginContext& other);
 
-  int serial_number();
+  int serialNumber() const;
 
-  void add_widget(QWidget* widget);
+  void addWidget(QWidget* widget);
 
-  void update_widget_title(QWidget* widget);
+  void updateWidgetTitle(QWidget* widget);
 
-  void remove_widget(QWidget* widget);
+  void removeWidget(QWidget* widget);
 
-  void close_plugin();
+  void closePlugin();
 
 };
 

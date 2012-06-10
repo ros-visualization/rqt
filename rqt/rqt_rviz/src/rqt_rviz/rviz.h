@@ -54,10 +54,6 @@ public:
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 
-  virtual void saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
-
-  virtual void restoreSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings);
-
 protected:
 
   qt_gui_cpp::PluginContext* context_;
