@@ -32,7 +32,6 @@
 
 from __future__ import with_statement, print_function
 
-import sys
 import re
 
 from rospkg.common import ResourceNotFound

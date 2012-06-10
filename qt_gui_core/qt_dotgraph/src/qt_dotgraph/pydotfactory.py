@@ -34,7 +34,7 @@ import pydot
 import urllib
 from distutils.version import LooseVersion
 
-from colors import get_color_for_string
+from .colors import get_color_for_string
 
 # Reference implementation for a dotcode factory
 

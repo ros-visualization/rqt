@@ -35,12 +35,12 @@ import pydot
 import roslib
 roslib.load_manifest('qt_dotgraph')
 
-from qt_gui.QtBindingHelper import loadUi
+import qt_gui.qt_binding_helper #@UnusedImport
 from QtCore import QRectF, QPointF
 from QtGui import QColor
 
-from edge_item import EdgeItem
-from node_item import NodeItem
+from .edge_item import EdgeItem
+from .node_item import NodeItem
 
 POINTS_PER_INCH = 72
 

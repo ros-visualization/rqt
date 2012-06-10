@@ -1,5 +1,5 @@
-<library path="src/rqt_topic/Topic">
-  <class name="Topic" type="Topic" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="TopicPlugin" type="rqt_topic.topic.Topic" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to introspect ROS topics.
     </description>

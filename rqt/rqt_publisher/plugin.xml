@@ -1,5 +1,5 @@
-<library path="src/rqt_publisher/Publisher">
-  <class name="Publisher" type="Publisher" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="Publisher" type="rqt_publisher.publisher.Publisher" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin publishing ROS messages.
     </description>

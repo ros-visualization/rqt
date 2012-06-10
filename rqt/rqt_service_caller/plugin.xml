@@ -1,5 +1,5 @@
-<library path="src/rqt_service_caller/ServiceCaller">
-  <class name="ServiceCaller" type="ServiceCaller" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="ServiceCaller" type="rqt_service_caller.service_caller.ServiceCaller" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin calling ROS services.
     </description>

@@ -1,5 +1,5 @@
-<library path="src/rqt_graph/RosGraph">
-  <class name="RosGraph" type="RosGraph" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="RosGraph" type="rqt_graph.ros_graph.RosGraph" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to visualize a ROS computation graph.
     </description>

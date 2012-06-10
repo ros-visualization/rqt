@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
+    <width>1298</width>
     <height>307</height>
    </rect>
   </property>
@@ -54,45 +54,45 @@
        <property name="toolTip">
         <string>Topic filter, comma separated list of names/regexp to include or exclude. Example: -/tf</string>
        </property>
-       </widget>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="namespace_cluster_check_box">
-       <property name="text">
-        <string>namespaces</string>
-       </property>
        <property name="toolTip">
         <string>Show or hide namespace boxes</string>
+       </property>
+       <property name="text">
+        <string>namespaces</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="actionlib_check_box">
-       <property name="text">
-        <string>actions</string>
-       </property>
        <property name="toolTip">
         <string>Action topics summarized into one virtual topic node</string>
+       </property>
+       <property name="text">
+        <string>actions</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="dead_sinks_check_box">
-       <property name="text">
-        <string>dead sinks</string>
-       </property>
        <property name="toolTip">
         <string>Show or hide topics with publishers only</string>
+       </property>
+       <property name="text">
+        <string>dead sinks</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="leaf_topics_check_box">
-       <property name="text">
-        <string>leaf topics</string>
-       </property>
        <property name="toolTip">
         <string>Show or hide topics with one connection only</string>
+       </property>
+       <property name="text">
+        <string>leaf topics</string>
        </property>
       </widget>
      </item>
@@ -205,7 +205,7 @@
   <customwidget>
    <class>InteractiveGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>rqt_graph/InteractiveGraphicsView.h</header>
+   <header>rqt_graph.interactive_graphics_view</header>
   </customwidget>
  </customwidgets>
  <resources/>

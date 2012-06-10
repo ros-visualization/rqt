@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
+    <width>1144</width>
     <height>307</height>
    </rect>
   </property>
@@ -188,7 +188,7 @@
   <customwidget>
    <class>InteractiveGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>rqt_graph/InteractiveGraphicsView.h</header>
+   <header>rqt_graph.interactive_graphics_view</header>
   </customwidget>
  </customwidgets>
  <resources/>

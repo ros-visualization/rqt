@@ -1,5 +1,5 @@
-<library path="src/rqt_robot_steering/RobotSteering">
-  <class name="RobotSteering" type="RobotSteering" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="RobotSteering" type="rqt_robot_steering.robot_steering.RobotSteering" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to steer a robot with a geometry_msgs/Twist message.
     </description>

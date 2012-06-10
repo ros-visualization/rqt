@@ -1,5 +1,5 @@
-<library path="src/rqt_matplot/MatPlot">
-  <class name="MatPlot" type="MatPlot" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="MatPlot" type="rqt_matplot.mat_plot.MatPlot" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin plotting data from ROS messages using matplotlib.
     </description>

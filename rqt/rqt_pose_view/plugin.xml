@@ -1,5 +1,5 @@
-<library path="src/rqt_pose_view/PoseView">
-  <class name="PoseView" type="PoseView" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="PoseView" type="rqt_pose_view.pose_view.PoseView" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to visualize a geometry_msgs/Pose message.
     </description>

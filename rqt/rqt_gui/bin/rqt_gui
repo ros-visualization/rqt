@@ -13,6 +13,6 @@ except ImportError:
     import roslib
     roslib.load_manifest('rqt_gui')
 
-from rqt_gui.Main import Main
+from rqt_gui.main import Main
 main = Main()
 sys.exit(main.main())

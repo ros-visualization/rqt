@@ -1,5 +1,5 @@
-<library path="src/rqt_dep/RosPackGraph">
-  <class name="RosPackGraph" type="RosPackGraph" base_class_type="rqt_gui_py::Plugin">
+<library path="src">
+  <class name="RosPackGraph" type="rqt_dep.ros_pack_graph.RosPackGraph" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to visualize a ROS package network.
     </description>

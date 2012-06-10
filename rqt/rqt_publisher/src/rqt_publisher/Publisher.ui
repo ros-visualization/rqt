@@ -209,12 +209,12 @@
   <customwidget>
    <class>ExtendedComboBox</class>
    <extends>QComboBox</extends>
-   <header>rqt_py_common/ExtendedComboBox</header>
+   <header>rqt_py_common.extended_combo_box</header>
   </customwidget>
   <customwidget>
    <class>PublisherTreeWidget</class>
    <extends>QTreeView</extends>
-   <header>rqt_publisher/PublisherTreeWidget.h</header>
+   <header>rqt_publisher.publisher_tree_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>

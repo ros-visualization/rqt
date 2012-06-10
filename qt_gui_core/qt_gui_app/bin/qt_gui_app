@@ -12,7 +12,7 @@ except ImportError:
     import roslib
     roslib.load_manifest('qt_gui')
 
-from qt_gui.Main import Main
+from qt_gui.main import Main
 main = Main()
 # TODO add dummy plugin provider 
 sys.exit(main.main())

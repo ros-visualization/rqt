@@ -167,7 +167,7 @@
   <customwidget>
    <class>ExtendedComboBox</class>
    <extends>QComboBox</extends>
-   <header>rqt_py_common/ExtendedComboBox.h</header>
+   <header>rqt_py_common.extended_combo_box</header>
   </customwidget>
  </customwidgets>
  <resources/>
