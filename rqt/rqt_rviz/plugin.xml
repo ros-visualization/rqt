@@ -3,10 +3,10 @@
     <description>
       A GUI plugin version of rviz.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>RViz</label>
       <icon type="theme">image-x-generic</icon>
       <statustip>A GUI plugin version of rviz</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

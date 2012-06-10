@@ -290,14 +290,14 @@ private:
         {
           if (class_type.compare(class_element->Attribute("type")) == 0 && base_class_type_.compare(class_element->Attribute("base_class_type")) == 0)
           {
-            TiXmlElement* gui_plugin_element = class_element->FirstChildElement("qtguiplugin");
-            if (gui_plugin_element)
+            TiXmlElement* qtgui_element = class_element->FirstChildElement("qtgui");
+            if (qtgui_element)
             {
               // extract meta information
-              parseActionAttributes(gui_plugin_element, package_path, label, statustip, icon, icontype);
+              parseActionAttributes(qtgui_element, package_path, label, statustip, icon, icontype);
 
               // extract grouping information
-              TiXmlElement* group_element = gui_plugin_element->FirstChildElement("group");
+              TiXmlElement* group_element = qtgui_element->FirstChildElement("group");
               while (group_element)
               {
                 QString group_label;

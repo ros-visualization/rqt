@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin calling ROS services.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>ServiceCaller</label>
       <icon type="theme">media-playback-start</icon>
       <statustip>A Python GUI plugin calling ROS services.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

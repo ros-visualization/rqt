@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin to visualize a geometry_msgs/Pose message.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>Pose View</label>
       <icon type="theme">view-fullscreen</icon>
       <statustip>A Python GUI plugin to visualize a geometry_msgs/Pose message.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

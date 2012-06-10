@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin plotting data from ROS messages using PyQwt5.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>Plot</label>
       <icon type="theme">utilities-system-monitor</icon>
       <statustip>A Python GUI plugin plotting data from ROS messages using PyQwt5.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

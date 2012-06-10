@@ -183,8 +183,8 @@ class RosPluginProvider(PluginProvider):
         plugin_attributes = {}
         groups = []
 
-        # update descriptor and group from qtguiplugin tag
-        guiplugin_el = class_el.find('qtguiplugin')
+        # update descriptor and group from qtgui tag
+        guiplugin_el = class_el.find('qtgui')
         if guiplugin_el is not None:
             plugin_attributes.update(self._parse_action_group(guiplugin_el))
             for group_el in guiplugin_el.getiterator('group'):

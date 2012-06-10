@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin to introspect ROS topics.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>Topic Introspection</label>
       <icon type="theme">system-search</icon>
       <statustip>A Python GUI plugin to introspect ROS topics.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

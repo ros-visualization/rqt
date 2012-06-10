@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin to visualize a ROS computation graph.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>ROS Graph</label>
       <icon type="theme">preferences-system-network</icon>
       <statustip>A Python GUI plugin to visualize a ROS computation graph.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

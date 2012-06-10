@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin to visualize a ROS package network.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>ROS Package Graph</label>
       <icon type="theme">preferences-system-network</icon>
       <statustip>A Python GUI plugin to visualize a ROS package network.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

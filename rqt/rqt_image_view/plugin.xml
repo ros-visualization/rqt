@@ -3,10 +3,10 @@
     <description>
       A GUI plugin to view a sensor_msgs/Image topic.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>Image View</label>
       <icon type="theme">image-x-generic</icon>
       <statustip>A GUI plugin to view a sensor_msgs/Image topic.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>

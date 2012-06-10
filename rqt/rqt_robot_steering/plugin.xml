@@ -3,10 +3,10 @@
     <description>
       A Python GUI plugin to steer a robot with a geometry_msgs/Twist message.
     </description>
-    <qtguiplugin>
+    <qtgui>
       <label>Robot Steering</label>
       <icon type="theme">input-gaming</icon>
       <statustip>A Python GUI plugin to steer a robot with a geometry_msgs/Twist message.</statustip>
-    </qtguiplugin>
+    </qtgui>
   </class>
 </library>
