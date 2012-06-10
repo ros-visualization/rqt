@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
 #
@@ -28,23 +30,21 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_py_common')
-import rospy
+import qt_gui.qt_binding_helper #@UnusedImport
+from QtGui import QCompleter
 
-import MessageTreeModel
-
-class TopicTreeModel(MessageTreeModel.MessageTreeModel):
+class TreeModelCompleter(QCompleter):
+    separator = '/'
 
     def __init__(self, parent=None):
-        super(TopicTreeModel, self).__init__(parent)
-        self.refresh()
+        super(TreeModelCompleter, self).__init__(parent)
 
 
-    def refresh(self):
-        self.clear()
-        topic_list = rospy.get_published_topics()
-        for topic_path, topic_type in topic_list:
-            topic_name = topic_path.strip('/')
-            message_instance = roslib.message.get_message_class(topic_type)()
-            self.add_message(message_instance, topic_name, topic_type, topic_path)
+    def splitPath(self, path):
+        path = path.lstrip(self.separator)
+        path_list = path.split(self.separator)
+        return path_list
+
+
+    def pathFromIndex(self, index):
+        return self.model().itemFromIndex(index)._path

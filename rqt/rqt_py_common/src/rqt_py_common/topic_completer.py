@@ -29,18 +29,19 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 import roslib
 roslib.load_manifest('rqt_py_common')
 import rospy
 
-import MessageTreeModel
-import TreeModelCompleter
+from .message_tree_model import MessageTreeModel
+from .tree_model_completer import TreeModelCompleter
 
-class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
+class TopicCompleter(TreeModelCompleter):
 
     def __init__(self, parent=None):
         super(TopicCompleter, self).__init__(parent)
-        self.setModel(MessageTreeModel.MessageTreeModel())
+        self.setModel(MessageTreeModel())
 
 
     def update_topics(self):
@@ -54,7 +55,7 @@ class TopicCompleter(TreeModelCompleter.TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    import qt_gui.QtBindingHelper #@UnusedImport
+    import qt_gui.qt_binding_helper #@UnusedImport
     from QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     mw = QMainWindow()

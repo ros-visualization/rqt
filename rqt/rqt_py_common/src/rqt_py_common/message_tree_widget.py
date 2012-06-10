@@ -30,18 +30,15 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.QtBindingHelper #@UnusedImport
+import qt_gui.qt_binding_helper #@UnusedImport
 from QtCore import Signal, Slot, qDebug, QMimeData, QModelIndex, Qt
 from QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
-
-import MessageTreeModel
 
 class MessageTreeWidget(QTreeView):
 
     def __init__(self, parent=None):
         super(MessageTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
-        #self.setModel(MessageTreeModel.MessageTreeModel(self))
         self.sortByColumn(0, Qt.AscendingOrder)
 
         self.header().setResizeMode(QHeaderView.ResizeToContents)

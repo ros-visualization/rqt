@@ -1,4 +1,4 @@
-import qt_gui.QtBindingHelper #@UnusedImport
+import qt_gui.qt_binding_helper #@UnusedImport
 from QtCore import qDebug
 from QtGui import QStandardItem, QStandardItemModel
 
