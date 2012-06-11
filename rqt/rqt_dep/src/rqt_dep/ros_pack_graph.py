@@ -136,25 +136,25 @@ class RosPackGraph(QObject):
 
         context.add_widget(self._widget)
 
-    def save_settings(self, global_settings, perspective_settings):
-        perspective_settings.set_value('depth_combo_box_index', self._widget.depth_combo_box.currentIndex())
-        perspective_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
-        perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
-        perspective_settings.set_value('with_stacks_state', self._widget.with_stacks_check_box.isChecked())
-        perspective_settings.set_value('transitives_state', self._widget.transitives_check_box.isChecked())
-        perspective_settings.set_value('mark_state', self._widget.mark_check_box.isChecked())
-        perspective_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
-        perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('depth_combo_box_index', self._widget.depth_combo_box.currentIndex())
+        instance_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
+        instance_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
+        instance_settings.set_value('with_stacks_state', self._widget.with_stacks_check_box.isChecked())
+        instance_settings.set_value('transitives_state', self._widget.transitives_check_box.isChecked())
+        instance_settings.set_value('mark_state', self._widget.mark_check_box.isChecked())
+        instance_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
+        instance_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
 
-    def restore_settings(self, global_settings, perspective_settings):
-        self._widget.depth_combo_box.setCurrentIndex(int(perspective_settings.value('depth_combo_box_index', 0)))
-        self._widget.directions_combo_box.setCurrentIndex(int(perspective_settings.value('directions_combo_box_index', 0)))
-        self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', ''))
-        self._widget.with_stacks_check_box.setChecked(perspective_settings.value('with_stacks_state', True) in [True, 'true'])
-        self._widget.mark_check_box.setChecked(perspective_settings.value('mark_state', True) in [True, 'true'])
-        self._widget.transitives_check_box.setChecked(perspective_settings.value('transitives_state', True) in [True, 'true'])
-        self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
-        self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._widget.depth_combo_box.setCurrentIndex(int(instance_settings.value('depth_combo_box_index', 0)))
+        self._widget.directions_combo_box.setCurrentIndex(int(instance_settings.value('directions_combo_box_index', 0)))
+        self._widget.filter_line_edit.setText(instance_settings.value('filter_line_edit_text', ''))
+        self._widget.with_stacks_check_box.setChecked(instance_settings.value('with_stacks_state', True) in [True, 'true'])
+        self._widget.mark_check_box.setChecked(instance_settings.value('mark_state', True) in [True, 'true'])
+        self._widget.transitives_check_box.setChecked(instance_settings.value('transitives_state', True) in [True, 'true'])
+        self._widget.auto_fit_graph_check_box.setChecked(instance_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
+        self._widget.highlight_connections_check_box.setChecked(instance_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
         self.initialized = True
         self._refresh_rospackgraph()
 

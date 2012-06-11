@@ -279,7 +279,7 @@ class Publisher(QObject):
             del self._publishers[publisher_id]
 
 
-    def save_settings(self, global_settings, perspective_settings):
+    def save_settings(self, plugin_settings, instance_settings):
         publisher_copies = []
         for publisher in self._publishers.values():
             publisher_copy = {}
@@ -289,11 +289,11 @@ class Publisher(QObject):
             del publisher_copy['message_instance']
             del publisher_copy['publisher']
             publisher_copies.append(publisher_copy)
-        perspective_settings.set_value('publishers', repr(publisher_copies))
+        instance_settings.set_value('publishers', repr(publisher_copies))
 
 
-    def restore_settings(self, global_settings, perspective_settings):
-        publishers = eval(perspective_settings.value('publishers', '[]'))
+    def restore_settings(self, plugin_settings, instance_settings):
+        publishers = eval(instance_settings.value('publishers', '[]'))
         for publisher in publishers:
             self._add_publisher(publisher)
 

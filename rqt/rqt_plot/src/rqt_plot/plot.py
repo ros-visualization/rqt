@@ -196,13 +196,5 @@ class Plot(QWidget):
         self._rosdata = {}
 
 
-    def save_settings(self, global_settings, perspective_settings):
-        pass
-
-
-    def restore_settings(self, global_settings, perspective_settings):
-        pass
-
-
     def shutdown_plugin(self):
         self.clean_up_subscribers()

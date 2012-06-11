@@ -97,18 +97,18 @@ void ImageView::shutdownPlugin()
   subscriber_.shutdown();
 }
 
-void ImageView::saveSettings(qt_gui_cpp::Settings& global_settings, qt_gui_cpp::Settings& perspective_settings) const
+void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
 {
   QString topic = ui_.topics_combo_box->currentText();
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
-  perspective_settings.setValue("topic", topic);
-  perspective_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
+  instance_settings.setValue("topic", topic);
+  instance_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
 }
 
-void ImageView::restoreSettings(const qt_gui_cpp::Settings& global_settings, const qt_gui_cpp::Settings& perspective_settings)
+void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
 {
-  QString topic = perspective_settings.value("topic", "").toString();
-  bool zoom1_checked = perspective_settings.value("zoom1", false).toBool();
+  QString topic = instance_settings.value("topic", "").toString();
+  bool zoom1_checked = instance_settings.value("zoom1", false).toBool();
   //qDebug("ImageView::restoreSettings() topic '%s'", topic.toStdString().c_str());
   selectTopic(topic);
   ui_.zoom_1_push_button->setChecked(zoom1_checked);

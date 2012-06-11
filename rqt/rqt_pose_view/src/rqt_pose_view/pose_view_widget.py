@@ -79,13 +79,13 @@ class PoseViewWidget(QWidget):
         self._update_timer.start(40)
 
 
-    def save_settings(self, global_settings, perspective_settings):
+    def save_settings(self, plugin_settings, instance_settings):
         view_matrix_string = repr(self._gl_view.get_view_matrix())
-        perspective_settings.set_value('view_matrix', view_matrix_string)
+        instance_settings.set_value('view_matrix', view_matrix_string)
 
 
-    def restore_settings(self, global_settings, perspective_settings):
-        view_matrix_string = perspective_settings.value('view_matrix')
+    def restore_settings(self, plugin_settings, instance_settings):
+        view_matrix_string = instance_settings.value('view_matrix')
         try:
             view_matrix = eval(view_matrix_string)
         except Exception:

@@ -168,29 +168,29 @@ class RosGraph(QObject):
 
         context.add_widget(self._widget)
 
-    def save_settings(self, global_settings, perspective_settings):
-        perspective_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
-        perspective_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
-        perspective_settings.set_value('topic_filter_line_edit_text', self._widget.topic_filter_line_edit.text())
-        perspective_settings.set_value('namespace_cluster_check_box_state', self._widget.namespace_cluster_check_box.isChecked())
-        perspective_settings.set_value('actionlib_check_box_state', self._widget.actionlib_check_box.isChecked())
-        perspective_settings.set_value('dead_sinks_check_box_state', self._widget.dead_sinks_check_box.isChecked())
-        perspective_settings.set_value('leaf_topics_check_box_state', self._widget.leaf_topics_check_box.isChecked())
-        perspective_settings.set_value('quiet_check_box_state', self._widget.quiet_check_box.isChecked())
-        perspective_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
-        perspective_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('graph_type_combo_box_index', self._widget.graph_type_combo_box.currentIndex())
+        instance_settings.set_value('filter_line_edit_text', self._widget.filter_line_edit.text())
+        instance_settings.set_value('topic_filter_line_edit_text', self._widget.topic_filter_line_edit.text())
+        instance_settings.set_value('namespace_cluster_check_box_state', self._widget.namespace_cluster_check_box.isChecked())
+        instance_settings.set_value('actionlib_check_box_state', self._widget.actionlib_check_box.isChecked())
+        instance_settings.set_value('dead_sinks_check_box_state', self._widget.dead_sinks_check_box.isChecked())
+        instance_settings.set_value('leaf_topics_check_box_state', self._widget.leaf_topics_check_box.isChecked())
+        instance_settings.set_value('quiet_check_box_state', self._widget.quiet_check_box.isChecked())
+        instance_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
+        instance_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
 
-    def restore_settings(self, global_settings, perspective_settings):
-        self._widget.graph_type_combo_box.setCurrentIndex(int(perspective_settings.value('graph_type_combo_box_index', 0)))
-        self._widget.filter_line_edit.setText(perspective_settings.value('filter_line_edit_text', '/'))
-        self._widget.topic_filter_line_edit.setText(perspective_settings.value('topic_filter_line_edit_text', '/'))
-        self._widget.namespace_cluster_check_box.setChecked(perspective_settings.value('namespace_cluster_check_box_state', True) in [True, 'true'])
-        self._widget.actionlib_check_box.setChecked(perspective_settings.value('actionlib_check_box_state', True) in [True, 'true'])
-        self._widget.dead_sinks_check_box.setChecked(perspective_settings.value('dead_sinks_check_box_state', True) in [True, 'true'])
-        self._widget.leaf_topics_check_box.setChecked(perspective_settings.value('leaf_topics_check_box_state', True) in [True, 'true'])
-        self._widget.quiet_check_box.setChecked(perspective_settings.value('quiet_check_box_state', True) in [True, 'true'])
-        self._widget.auto_fit_graph_check_box.setChecked(perspective_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
-        self._widget.highlight_connections_check_box.setChecked(perspective_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._widget.graph_type_combo_box.setCurrentIndex(int(instance_settings.value('graph_type_combo_box_index', 0)))
+        self._widget.filter_line_edit.setText(instance_settings.value('filter_line_edit_text', '/'))
+        self._widget.topic_filter_line_edit.setText(instance_settings.value('topic_filter_line_edit_text', '/'))
+        self._widget.namespace_cluster_check_box.setChecked(instance_settings.value('namespace_cluster_check_box_state', True) in [True, 'true'])
+        self._widget.actionlib_check_box.setChecked(instance_settings.value('actionlib_check_box_state', True) in [True, 'true'])
+        self._widget.dead_sinks_check_box.setChecked(instance_settings.value('dead_sinks_check_box_state', True) in [True, 'true'])
+        self._widget.leaf_topics_check_box.setChecked(instance_settings.value('leaf_topics_check_box_state', True) in [True, 'true'])
+        self._widget.quiet_check_box.setChecked(instance_settings.value('quiet_check_box_state', True) in [True, 'true'])
+        self._widget.auto_fit_graph_check_box.setChecked(instance_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
+        self._widget.highlight_connections_check_box.setChecked(instance_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
         self.initialized = True
         self._refresh_rosgraph()
 

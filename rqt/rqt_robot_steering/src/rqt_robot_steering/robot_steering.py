@@ -160,10 +160,10 @@ class RobotSteering(QObject):
     def shutdown_plugin(self):
         self._unregister_publisher()
 
-    def save_settings(self, global_settings, perspective_settings):
+    def save_settings(self, plugin_settings, instance_settings):
         topic = self._widget.topic_line_edit.text()
-        perspective_settings.set_value('topic', topic)
+        instance_settings.set_value('topic', topic)
 
-    def restore_settings(self, global_settings, perspective_settings):
-        topic = perspective_settings.value('topic', '/cmd_vel')
+    def restore_settings(self, plugin_settings, instance_settings):
+        topic = instance_settings.value('topic', '/cmd_vel')
         self._widget.topic_line_edit.setText(topic)

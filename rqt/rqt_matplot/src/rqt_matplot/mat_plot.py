@@ -194,14 +194,6 @@ class MatPlot(QWidget):
         self._rosdata = {}
 
 
-    def save_settings(self, global_settings, perspective_settings):
-        pass
-
-
-    def restore_settings(self, global_settings, perspective_settings):
-        pass
-
-
     def set_name(self, name):
         self.setWindowTitle(name)
 

@@ -48,11 +48,11 @@ class PoseView(QObject):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-    def save_settings(self, global_settings, perspective_settings):
-        self._widget.save_settings(global_settings, perspective_settings)
+    def save_settings(self, plugin_settings, instance_settings):
+        self._widget.save_settings(plugin_settings, instance_settings)
 
-    def restore_settings(self, global_settings, perspective_settings):
-        self._widget.restore_settings(global_settings, perspective_settings)
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._widget.restore_settings(plugin_settings, instance_settings)
 
     def shutdown_plugin(self):
         self._widget.shutdown_plugin()
