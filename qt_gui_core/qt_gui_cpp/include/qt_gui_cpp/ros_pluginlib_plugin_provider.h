@@ -232,7 +232,7 @@ public:
 
 protected:
 
-  virtual boost::shared_ptr<T> create_plugin(const std::string& lookup_name, PluginContext* plugin_context = 0)
+  virtual boost::shared_ptr<T> create_plugin(const std::string& lookup_name, PluginContext* /*plugin_context*/ = 0)
   {
     return class_loader_->createInstance(lookup_name);
   }
