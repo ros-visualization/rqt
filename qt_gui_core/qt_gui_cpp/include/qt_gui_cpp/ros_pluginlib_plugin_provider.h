@@ -256,7 +256,7 @@ private slots:
 
 private:
 
-  bool parseManifest(const std::string& lookup_name, const std::string& package_path, const std::string& relative_library_path, QString& label, QString& statustip, QString& icon, QString& icontype, PluginDescriptor* plugin_descriptor)
+  bool parseManifest(const std::string& lookup_name, const std::string& package_path, const std::string& /*relative_library_path*/, QString& label, QString& statustip, QString& icon, QString& icontype, PluginDescriptor* plugin_descriptor)
   {
     //qDebug("RosPluginlibPluginProvider::parseManifest() relative_library_path \"%s\"", relative_library_path.c_str());
 
