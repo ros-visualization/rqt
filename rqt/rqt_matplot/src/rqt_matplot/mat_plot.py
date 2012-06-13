@@ -43,7 +43,7 @@ from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
 from .mat_data_plot import MatDataPlot
-import rqt_py_common.TopicCompleter
+from rqt_py_common.topic_completer import TopicCompleter
 
 # main class inherits from the ui window class
 class MatPlot(QWidget):
@@ -60,7 +60,7 @@ class MatPlot(QWidget):
 
         self.subscribe_topic_button.setEnabled(False)
 
-        self._topic_completer = rqt_py_common.TopicCompleter.TopicCompleter(self.topic_edit)
+        self._topic_completer = TopicCompleter(self.topic_edit)
         self.topic_edit.setCompleter(self._topic_completer)
 
         self._start_time = rospy.get_time()
