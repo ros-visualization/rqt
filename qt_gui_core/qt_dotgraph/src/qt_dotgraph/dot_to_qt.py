@@ -103,7 +103,10 @@ class DotToQtGenerator():
         return subgraph_nodeitem
 
     def getNodeItemForNode(self, node, highlight_level):
-    # let pydot imitate pygraphviz api
+        """
+        returns a pyqt NodeItem object, or None in case of error or invisible style
+        """
+        # let pydot imitate pygraphviz api
         attr = {}
         for name in node.get_attributes().iterkeys():
             value = get_unquoted(node, name)
@@ -114,6 +117,10 @@ class DotToQtGenerator():
                 attr[name] = get_unquoted(obj_dic, name)
         node.attr = attr
 
+        if 'style' in node.attr:
+            if node.attr['style'] == 'invis':
+                return None
+
         color = QColor(node.attr['color']) if 'color' in node.attr else None
         name = None
         if 'label' in node.attr:
@@ -122,7 +129,7 @@ class DotToQtGenerator():
             name = node.attr['name']
         else:
             print("Error, no label defined for node with attr: %s"%node.attr)
-            return
+            return None
         if name is None:
             # happens on Lucid pygraphviz version
             print("Error, label is None for node %s, pygraphviz version may be too old."%node)
