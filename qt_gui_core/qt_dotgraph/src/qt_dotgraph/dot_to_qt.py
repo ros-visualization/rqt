@@ -75,7 +75,7 @@ class DotToQtGenerator():
                 for key in obj_dic['nodes']['graph'][0]['attributes']:
                     attr[key] = get_unquoted(obj_dic['nodes']['graph'][0]['attributes'], key)
         subgraph.attr = attr
-    
+
         bb = subgraph.attr['bb'].strip('"').split(',')
         if len(bb) < 4:
             raise ValueError('bounding box has too few elements %s'%subgraph.attr)
@@ -101,7 +101,7 @@ class DotToQtGenerator():
         bounding_box.setHeight(LABEL_HEIGHT)
         subgraph_nodeitem.set_hovershape(bounding_box)
         return subgraph_nodeitem
-    
+
     def getNodeItemForNode(self, node, highlight_level):
     # let pydot imitate pygraphviz api
         attr = {}
@@ -144,45 +144,54 @@ class DotToQtGenerator():
         #node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
         return node_item
 
-    def getEdgeItem(self, edge, nodes, edges, highlight_level):
+    def getEdgeItem(self, edge, nodes, edges, highlight_level, same_label_siblings=False):
+        """
+        :param same_label_siblings: if true, edges with same label will be considered siblings (collective highlighting)
+        """
         # let pydot imitate pygraphviz api
         attr = {}
         for name in edge.get_attributes().iterkeys():
             value = get_unquoted(edge, name)
             attr[name] = value
         edge.attr = attr
-    
+
         label = edge.attr.get('label', None)
         label_pos = edge.attr.get('lp', None)
         label_center = None
         if label_pos is not None:
             label_pos = label_pos.split(',')
             label_center = QPointF(float(label_pos[0]), -float(label_pos[1]))
-    
+
         # try pydot, fallback for pygraphviz
         source_node = edge.get_source() if hasattr(edge, 'get_source') else edge[0]
         destination_node = edge.get_destination() if hasattr(edge, 'get_destination') else edge[1]
-    
-        # create edge with from-node and to-node
-        edge_item = EdgeItem(highlight_level, edge.attr['pos'], label_center, label, nodes[source_node], nodes[destination_node])
 
-        if label is None:
-            # for sibling detection
-            label = "%s_%s"%(source_node, destination_node)
-        
-        # symmetrically add all sibling edges with same label
+        # create edge with from-node and to-node
+        edge_pos = (0, 0)
+        if 'pos' in edge.attr:
+            edge_pos = edge.attr['pos']
+        edge_item = EdgeItem(highlight_level, edge_pos, label_center, label, nodes[source_node], nodes[destination_node])
+
+
+        if same_label_siblings:
+            if label is None:
+                # for sibling detection
+                label = "%s_%s"%(source_node, destination_node)
+            # symmetrically add all sibling edges with same label
+            for sibling in edges[label]:
+                edge_item.add_sibling_edge(sibling)
+                sibling.add_sibling_edge(edge_item)
+
         if label not in edges:
             edges[label] = []
-        for sibling in edges[label]:
-            edge_item.add_sibling_edge(sibling)
-            sibling.add_sibling_edge(edge_item)
         edges[label].append(edge_item)
         return edge_item
 
-    def dotcode_to_qt_items(self, dotcode, highlight_level):
+    def dotcode_to_qt_items(self, dotcode, highlight_level, same_label_siblings=False):
         """
         takes dotcode, runs layout, and creates qt items based on the dot layout.
         returns two dicts, one mapping node names to Node_Item, one mapping edge names to lists of Edge_Item
+        :param same_label_siblings: if true, edges with same label will be considered siblings (collective highlighting)
         """
         # layout graph
         if dotcode is None:
@@ -191,10 +200,11 @@ class DotToQtGenerator():
 
         #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)
         #graph.layout(prog='dot')
-        
+
         # let pydot imitate pygraphviz api
         graph.nodes_iter = graph.get_node_list
         graph.edges_iter = graph.get_edge_list
+
         graph.subgraphs_iter = graph.get_subgraph_list
 
         nodes = {}
@@ -215,11 +225,17 @@ class DotToQtGenerator():
             nodes[node.get_name()] = self.getNodeItemForNode(node, highlight_level)
 
         edges = {} # is irrelevant?
+
         for subgraph in graph.subgraphs_iter():
             subgraph.edges_iter = subgraph.get_edge_list
             for edge in subgraph.edges_iter():
-                edge_item = self.getEdgeItem(edge, nodes, edges, highlight_level)
+                edge_item = self.getEdgeItem(edge, nodes, edges,
+                                             highlight_level=highlight_level,
+                                             same_label_siblings=same_label_siblings)
+
         for edge in graph.edges_iter():
-            edge_item = self.getEdgeItem(edge, nodes, edges, highlight_level)
+            edge_item = self.getEdgeItem(edge, nodes, edges,
+                                         highlight_level=highlight_level,
+                                         same_label_siblings=same_label_siblings)
 
         return nodes, edges

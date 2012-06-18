@@ -280,7 +280,9 @@ class RosGraph(QObject):
             highlight_level = 1
 
         # layout graph and create qt items
-        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(self._current_dotcode, highlight_level)
+        (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(self._current_dotcode,
+                                                            highlight_level=highlight_level,
+                                                            same_label_siblings = True)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)
