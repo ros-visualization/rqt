@@ -52,7 +52,7 @@ class PydotFactory():
         ret = ret.replace('/', '_')
         ret = ret.replace('%', '_')
         ret = ret.replace('-', '_')
-        return ret
+        return self.escape_label(ret)
     
     def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, rankdir = "TB", ranksep = 0.2, compound = True):
         # Lucid version of pydot bugs with certain settings, not sure which version exactly fixes those
