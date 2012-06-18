@@ -92,6 +92,11 @@ class PluginHandler(QObject):
                 title_bar.show_button('configuration')
 
     def _emit_load_completed(self, exception=None):
+        if exception is not None:
+            # garbage already registered widgets
+            for widget in self._widgets.keys():
+                self.remove_widget(widget)
+                self._delete_widget(widget)
         if self.__callback is not None:
             callback = self.__callback
             self.__callback = None
