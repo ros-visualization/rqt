@@ -92,4 +92,12 @@ class PygraphvizFactoryTest(unittest.TestCase):
         fac.add_node_to_graph(g, 'edge')
         fac.add_edge_to_graph(g, 'foo', 'edge')
         fac.add_subgraph_to_graph(g, 'graph')
-        self.assertEqual(u'strict digraph {\n\tgraph [bb="0,0,54,94",\n\t\tcompound=True,\n\t\trank=same,\n\t\tranksep="0.2",\n\t\tsimplify=True\n\t];\n\tnode [label="\\N"];\n\tsubgraph cluster_graph {\n\t\tgraph [bb="",\n\t\t\tlabel="graph",\n\t\t\tstyle=bold\n\t\t];\n\t}\n\tfoo\t [height="0.50",\n\t\tlabel=foo,\n\t\tpos="27,76",\n\t\tshape=box,\n\t\twidth="0.75"];\n\t"edge"\t [height="0.50",\n\t\tlabel="edge",\n\t\tpos="27,26",\n\t\tshape=box,\n\t\twidth="0.75"];\n\tfoo -> "edge"\t [pos="e,27,44 27,58 27,57 27,56 27,54"];\n}\n', fac.create_dot(g))
+        snippets = ['strict digraph {\n\tgraph',
+                    'foo',
+                    'label=foo',
+                    '"edge"',
+                    'label="edge"',
+                    'foo -> "edge"']
+        result = fac.create_dot(g)
+        for sn in snippets:
+            self.assertTrue(sn in result, '%s \nmissing in\n %s'%(sn, result))

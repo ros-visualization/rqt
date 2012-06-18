@@ -92,4 +92,11 @@ class PyDotFactoryTest(unittest.TestCase):
         fac.add_node_to_graph(g, 'edge')
         fac.add_edge_to_graph(g, 'foo', 'edge')
         fac.add_subgraph_to_graph(g, 'foo')
-        self.assertEqual('digraph graphname {\n\tgraph [rank=same];\n\tnode [label="\\N"];\n\tgraph [bb="0,0,56,116"];\n\tsubgraph cluster_foo {\n\t\tgraph [label=foo,\n\t\t\tbb=""];\n\t}\n\tfoo [label=foo, shape=box, pos="28,98", width="0.75", height="0.50"];\n\tedge_ [label=edge_, shape=box, pos="28,26", width="0.78", height="0.50"];\n\tfoo -> edge_ [pos="e,28,44 28,80 28,72 28,63 28,54"];\n}\n', fac.create_dot(g))
+        snippets = ['digraph graphname {\n\tgraph [rankdir=TB, ranksep="0.2", rank=same, compound=True];\n\tnode [label="\\N"];\n\tgraph [bb="', '"];\n\tsubgraph cluster_foo {\n\t\tgraph [',
+                    '];\n\t}\n\tfoo [label=foo, shape=box, pos="',
+                    'edge_ [label=edge_, shape=box, pos="',
+                    'foo -> edge_',
+                    '"];\n}\n']
+        result = fac.create_dot(g)
+        for sn in snippets:
+            self.assertTrue(sn in result, '%s \nmissing in\n %s'%(sn, result))
