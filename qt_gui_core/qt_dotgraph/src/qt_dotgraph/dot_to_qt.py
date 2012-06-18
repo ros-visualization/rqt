@@ -77,6 +77,8 @@ class DotToQtGenerator():
         subgraph.attr = attr
     
         bb = subgraph.attr['bb'].strip('"').split(',')
+        if len(bb) < 4:
+            raise ValueError('bounding box has too few elements %s'%subgraph.attr)
         bounding_box = QRectF(0, 0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
         if 'lp' in subgraph.attr:
             label_pos = subgraph.attr['lp'].strip('"').split(',')
