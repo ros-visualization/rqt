@@ -113,11 +113,7 @@ class DotToQtGenerator():
             if name not in ['attributes', 'parent_graph'] and obj_dic[name] is not None:
                 attr[name] = get_unquoted(obj_dic, name)
         node.attr = attr
-        
-        # decrease rect by one so that edges do not reach inside
-        bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(node.attr['width']) - 1.0, POINTS_PER_INCH * float(node.attr['height']) - 1.0)
-        pos = node.attr['pos'].split(',')
-        bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
+
         color = QColor(node.attr['color']) if 'color' in node.attr else None
         name = None
         if 'label' in node.attr:
@@ -130,6 +126,20 @@ class DotToQtGenerator():
         if name is None:
             # happens on Lucid pygraphviz version
             print("Error, label is None for node %s, pygraphviz version may be too old."%node)
+
+        # decrease rect by one so that edges do not reach inside
+        bb_width = len(name) / 5
+        if 'width' in node.attr:
+            bb_width = node.attr['width']
+        bb_height = 1.0
+        if 'width' in node.attr:
+            bb_height = node.attr['height']
+        bounding_box = QRectF(0, 0, POINTS_PER_INCH * float(bb_width) - 1.0, POINTS_PER_INCH * float(bb_height) - 1.0)
+        pos = (0, 0)
+        if 'pos' in node.attr:
+            pos = node.attr['pos'].split(',')
+        bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
+
         node_item = NodeItem(highlight_level, bounding_box, name, node.attr.get('shape', 'ellipse'), color)
         #node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
         return node_item
