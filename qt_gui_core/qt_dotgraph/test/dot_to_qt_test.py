@@ -33,14 +33,17 @@
 
 import unittest
 
-from qt_dotgraph.dot_to_qt import DotToQtGenerator
+from qt_dotgraph.dot_to_qt import DotToQtGenerator, get_unquoted
 
 class DotToQtGeneratorTest(unittest.TestCase):
 
-    def simpleIntegrationTest(self):
+    @unittest.skip("fails with Segfault in Nodeitem.__init__()")
+    def test_simpleIntegration(self):
         gen = DotToQtGenerator()
-        dotcode = 'digraph graphname {\n\tgraph [rank=same];\n\tnode [label="\\N"];\n\tgraph [bb="0,0,56,116"];\n\tsubgraph cluster_foo {\n\t\tgraph [label=foo,\n\t\t\tbb=""];\n\t}\n\tfoo [label=foo, shape=box, pos="28,98", width="0.75", height="0.50"];\n\tedge_ [label=edge_, shape=box, pos="28,26", width="0.78", height="0.50"];\n\tfoo -> edge_ [pos="e,28,44 28,80 28,72 28,63 28,54"];\n}\n'
+        dotcode = 'digraph graphname {\n\tgraph [rank=same];\n\tnode [label="\\N"];\n\tgraph [bb="0,0,56,116"];\n\tsubgraph cluster_foo {\n\t\tgraph [label=foo,\n\t\t\tbb="1,1,100,101"];\n\t}\n\tfoo [label=foo, shape=box, pos="28,98", width="0.75", height="0.50"];\n\tedge_ [label=edge_, shape=box, pos="28,26", width="0.78", height="0.50"];\n\tfoo -> edge_ [pos="e,28,44 28,80 28,72 28,63 28,54"];\n}\n'
         (nodes, edges) = gen.dotcode_to_qt_items(dotcode, 1)
         self.assertEqual(3, len(nodes)) # also for stack
         self.assertEqual(1, len(nodes))
-        
+
+    def test_unquoted(self):
+        self.assertEqual("foo", get_unquoted({'bar': 'foo'}, 'bar'))
