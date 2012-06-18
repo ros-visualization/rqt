@@ -34,7 +34,7 @@
 import unittest
 import rospkg
 
-from dotcode import RosGraphDotcodeGenerator
+from rqt_graph.dotcode import RosGraphDotcodeGenerator
 
 
 class FilterSplitTest(unittest.TestCase):
