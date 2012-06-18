@@ -213,7 +213,11 @@ class RosPackageGraphDotcodeGenerator:
             return
         self.stacks[stackname] = {'packages': []}
 
-    def _add_package(self, package_name):
+    def _add_package(self, package_name, parent=None):
+        """
+        adds object based on package_name to self.packages
+        :param parent: packagename which referenced package_name (for debugging only)
+        """
         if package_name in self.packages:
             return False
         self.packages[package_name] = {}
@@ -221,7 +225,7 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 stackname = self.rospack.stack_of(package_name)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator._add_package(): ResourceNotFound:', e)
+                print('RosPackageGraphDotcodeGenerator._add_package(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
                 stackname = None
             if not stackname is None:
                 if not stackname in self.stacks:
@@ -232,14 +236,21 @@ class RosPackageGraphDotcodeGenerator:
     def _add_edge(self, name1, name2, attributes=None):
         self.edges.append((name1, name2, attributes))
 
-    def add_package_ancestors_recursively(self, package_name, expanded_up=None, depth=None, implicit=False):
+    def add_package_ancestors_recursively(self, package_name, expanded_up=None, depth=None, implicit=False, parent=None):
+        """
+        :param package_name: the name of package for which to add ancestors
+        :param expanded_up: names that have already been expanded (to avoid cycles)
+        :param depth: how many layers to follow
+        :param implicit: arg to rospack
+        :param parent: package that referenced package_name for error message only
+        """
         if matches_any(package_name, self.excludes):
             return False
         if (depth == 0):
             return False
         if (depth == None):
             depth = self.depth
-        self._add_package(package_name)
+        self._add_package(package_name, parent=parent)
         if expanded_up is None:
             expanded_up = []
         expanded_up.append(package_name)
@@ -247,29 +258,30 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 depends_on = self.rospack.get_depends_on(package_name, implicit=implicit)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(): ResourceNotFound:', e)
+                print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
                 depends = []
             new_nodes = []
             for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
                 if not self.hide_transitives or not dep_on_name in expanded_up:
                     new_nodes.append(dep_on_name)
                     self._add_edge(dep_on_name, package_name)
-                    self._add_package(dep_on_name)
+                    self._add_package(dep_on_name, parent=package_name)
                     expanded_up.append(dep_on_name)
             for dep_on_name in new_nodes:
                 self.add_package_ancestors_recursively(package_name=dep_on_name,
                                                        expanded_up=expanded_up,
                                                        depth=depth - 1,
-                                                       implicit=implicit)
+                                                       implicit=implicit,
+                                                       parent=package_name)
 
-    def add_package_descendants_recursively(self, package_name, expanded=None, depth=None, implicit=False):
+    def add_package_descendants_recursively(self, package_name, expanded=None, depth=None, implicit=False, parent=None):
         if matches_any(package_name, self.excludes):
             return False
         if (depth == 0):
             return False
         if (depth == None):
             depth = self.depth
-        self._add_package(package_name)
+        self._add_package(package_name, parent=parent)
         if expanded is None:
             expanded = []
         expanded.append(package_name)
@@ -277,19 +289,20 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 depends = self.rospack.get_depends(package_name, implicit=implicit)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator.add_package_descendants_recursively(): ResourceNotFound:', e)
+                print('RosPackageGraphDotcodeGenerator.add_package_descendants_recursively(%s), parent: %s: ResourceNotFound:'%(package_name, parent), e)
                 depends = []
             new_nodes = []
             for dep_name in [x for x in depends if not matches_any(x, self.excludes)]:
                 if not self.hide_transitives or not dep_name in expanded:
                     new_nodes.append(dep_name)
                     self._add_edge(package_name, dep_name)
-                    self._add_package(dep_name)
+                    self._add_package(dep_name, parent=package_name)
                     expanded.append(dep_name)
             for dep_name in new_nodes:
                 self.add_package_descendants_recursively(package_name=dep_name,
                                                          expanded=expanded,
                                                          depth=depth - 1,
-                                                         implicit=implicit)
+                                                         implicit=implicit,
+                                                         parent=package_name)
 
 
