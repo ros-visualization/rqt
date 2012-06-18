@@ -258,8 +258,9 @@ class RosPackageGraphDotcodeGenerator:
                     expanded_up.append(dep_on_name)
             for dep_on_name in new_nodes:
                 self.add_package_ancestors_recursively(package_name=dep_on_name,
-                                             expanded_up=expanded_up,
-                                             depth=depth - 1)
+                                                       expanded_up=expanded_up,
+                                                       depth=depth - 1,
+                                                       implicit=implicit)
 
     def add_package_descendants_recursively(self, package_name, expanded=None, depth=None, implicit=False):
         if matches_any(package_name, self.excludes):
@@ -287,7 +288,8 @@ class RosPackageGraphDotcodeGenerator:
                     expanded.append(dep_name)
             for dep_name in new_nodes:
                 self.add_package_descendants_recursively(package_name=dep_name,
-                                             expanded=expanded,
-                                             depth=depth - 1)
+                                                         expanded=expanded,
+                                                         depth=depth - 1,
+                                                         implicit=implicit)
 
 
