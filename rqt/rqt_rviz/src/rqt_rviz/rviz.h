@@ -35,6 +35,7 @@
 
 #include <rqt_gui_cpp/plugin.h>
 #include <rviz/visualization_frame.h>
+#include <OGRE/OgreLog.h>
 
 #include <QDockWidget>
 
@@ -50,6 +51,8 @@ public:
 
   RViz();
 
+  ~RViz();
+
   virtual void initPlugin(qt_gui_cpp::PluginContext& context);
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
@@ -59,6 +62,8 @@ protected:
   qt_gui_cpp::PluginContext* context_;
 
   rviz::VisualizationFrame* widget_;
+
+  Ogre::Log* log_;
 
 };
 

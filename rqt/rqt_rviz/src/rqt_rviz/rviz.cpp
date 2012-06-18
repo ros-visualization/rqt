@@ -43,21 +43,37 @@ RViz::RViz()
   : rqt_gui_cpp::Plugin()
   , context_(0)
   , widget_(0)
+  , log_(0)
 {
   setObjectName("RViz");
+}
+
+RViz::~RViz()
+{
+  Ogre::LogManager* log_manager = Ogre::LogManager::getSingletonPtr();
+  if (log_manager && log_)
+  {
+    log_manager->destroyLog(log_);
+  }
 }
 
 void RViz::initPlugin(qt_gui_cpp::PluginContext& context)
 {
   context_ = &context;
-  Ogre::LogManager* log_manager = new Ogre::LogManager();
-  log_manager->createLog("Ogre.log", false, false, false);
+
+  // prevent output of Ogre stuff to console
+  Ogre::LogManager* log_manager = Ogre::LogManager::getSingletonPtr();
+  if (!log_manager)
+  {
+    log_manager = new Ogre::LogManager();
+  }
+  QString filename = QString("rqt_rviz_ogre") + (context.serialNumber() > 1 ? QString::number(context.serialNumber()) : QString("")) + QString(".log");
+  log_ = log_manager->createLog(filename.toStdString().c_str(), false, false);
 
   widget_ = new rviz::VisualizationFrame();
-  // TODO: pass arguments
-  widget_->initialize("", "", "", "", false);
+  widget_->initialize();
 
-  widget_->setWindowTitle("RViz");
+  widget_->setWindowTitle("RViz[*]");
   if (context.serialNumber() != 1)
   {
     widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serialNumber()) + ")");
