@@ -200,9 +200,10 @@ class DotToQtGenerator():
                 # for sibling detection
                 label = "%s_%s"%(source_node, destination_node)
             # symmetrically add all sibling edges with same label
-            for sibling in edges[label]:
-                edge_item.add_sibling_edge(sibling)
-                sibling.add_sibling_edge(edge_item)
+            if label in edges:
+                for sibling in edges[label]:
+                    edge_item.add_sibling_edge(sibling)
+                    sibling.add_sibling_edge(edge_item)
 
         if label not in edges:
             edges[label] = []
