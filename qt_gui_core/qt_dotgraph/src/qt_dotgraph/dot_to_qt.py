@@ -133,6 +133,8 @@ class DotToQtGenerator():
         if name is None:
             # happens on Lucid pygraphviz version
             print("Error, label is None for node %s, pygraphviz version may be too old."%node)
+        else:
+            name = name.decode('string_escape')
 
         # decrease rect by one so that edges do not reach inside
         bb_width = len(name) / 5
@@ -147,7 +149,14 @@ class DotToQtGenerator():
             pos = node.attr['pos'].split(',')
         bounding_box.moveCenter(QPointF(float(pos[0]), -float(pos[1])))
 
-        node_item = NodeItem(highlight_level, bounding_box, name, node.attr.get('shape', 'ellipse'), color)
+        node_item = NodeItem(highlight_level=highlight_level,
+                             bounding_box=bounding_box,
+                             label=name,
+                             shape=node.attr.get('shape', 'ellipse'),
+                             color=color,
+                             #parent=None,
+                             #label_pos=None
+                             )
         #node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
         return node_item
 
@@ -177,8 +186,14 @@ class DotToQtGenerator():
         edge_pos = (0, 0)
         if 'pos' in edge.attr:
             edge_pos = edge.attr['pos']
-        edge_item = EdgeItem(highlight_level, edge_pos, label_center, label, nodes[source_node], nodes[destination_node])
-
+        if label is not None:
+            label = label.decode('string_escape')
+        edge_item = EdgeItem(highlight_level=highlight_level,
+                             spline=edge_pos,
+                             label_center=label_center,
+                             label=label,
+                             from_node=nodes[source_node],
+                             to_node=nodes[destination_node])
 
         if same_label_siblings:
             if label is None:
