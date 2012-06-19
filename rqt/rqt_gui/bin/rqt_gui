@@ -14,5 +14,5 @@ except ImportError:
     roslib.load_manifest('rqt_gui')
 
 from rqt_gui.main import Main
-main = Main()
+main = Main(os.path.abspath(__file__))
 sys.exit(main.main())

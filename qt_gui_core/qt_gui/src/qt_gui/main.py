@@ -39,8 +39,10 @@ class Main(object):
 
     main_filename = None
 
-    def __init__(self):
-        Main.main_filename = os.path.abspath(__file__)
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = os.path.abspath(__file__)
+        Main.main_filename = filename
         self.plugin_providers = []
         self._dbus_available = False
         self._options = None

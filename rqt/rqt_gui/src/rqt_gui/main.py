@@ -33,15 +33,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import sys
+
+import roslib
+roslib.load_manifest('rqt_gui')
 
 from qt_gui.main import Main as Base
 from qt_gui.recursive_plugin_provider import RecursivePluginProvider
 
 class Main(Base):
 
-    def __init__(self):
-        super(Main, self).__init__()
-        Base.main_filename = os.path.abspath(__file__)
+    def __init__(self, filename=None):
+        super(Main, self).__init__(filename)
         self._plugin_cache  = None
 
     def _add_options(self, parser):
