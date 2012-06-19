@@ -36,7 +36,7 @@ from .plugin_handler_dbus_service import PluginHandlerDBusService
 from .qt_binding_helper import QT_BINDING
 from QtCore import qDebug, QProcess, qWarning
 from QtGui import QX11EmbedContainer
-from .qt_gui_main import Main
+from .main import Main
 from .settings_proxy_dbus_service import SettingsProxyDBusService
 
 class PluginHandlerXEmbedContainer(PluginHandler):
@@ -60,6 +60,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
         self._process = None
         self._pid = None
+        # mapping of widget object name to their embed container
         self._embed_containers = {}
 
         self._objects_and_paths = []
@@ -78,7 +79,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._process.finished.connect(self._emit_close_plugin)
         # start python with unbuffered stdout/stderr so that the order of the output is retained
         cmd = sys.executable + ' -u'
-        cmd += ' %s' % Main.main_filename()
+        cmd += ' %s' % Main.main_filename
         cmd += ' --qt-binding=%s' % QT_BINDING
         cmd += ' --embed-plugin=%s --embed-plugin-serial=%s --embed-plugin-address=%s' % (self.instance_id().plugin_id , self.instance_id().serial_number, self._dbus_server.address)
         #qDebug('PluginHandlerXEmbedContainer._load() starting command: %s' % cmd)
@@ -191,7 +192,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
 
     def update_embedded_widget_title(self, widget_object_name, title):
         embed_container = self._embed_containers[widget_object_name]
-        self._update_widget_title(embed_container, title)
+        embed_container.setWindowTitle(title)
 
     def unembed_widget(self, widget_object_name):
         embed_container = self._embed_containers[widget_object_name]

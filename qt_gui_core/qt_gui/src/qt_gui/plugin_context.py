@@ -52,10 +52,6 @@ class PluginContext(QObject):
         """Add a widget to the UI."""
         self._handler.add_widget(widget)
 
-    def update_widget_title(self, widget):
-        """Update the window title of the surrounding dock widget based on the window title of the previously added widget."""
-        self._handler.update_widget_title(widget)
-
     def remove_widget(self, widget):
         """Remove a widget from the UI."""
         self._handler.remove_widget(widget)

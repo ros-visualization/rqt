@@ -131,13 +131,6 @@ class PluginHandlerDirect(PluginHandler):
         # every dock widget needs a unique name for save/restore geometry/state to work
         dock_widget.setObjectName(self._instance_id.tidy_str() + '__' + widget.objectName())
         self._add_dock_widget(dock_widget, widget)
-        self.update_widget_title(widget)
-
-
-    # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
-    @Slot('QWidget*')
-    def update_widget_title(self, widget):
-        self._update_widget_title(widget, widget.windowTitle())
 
 
     @Slot()

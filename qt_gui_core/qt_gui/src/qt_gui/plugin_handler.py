@@ -36,6 +36,7 @@ from QtGui import QDockWidget
 
 from .dock_widget import DockWidget
 from .dock_widget_title_bar import DockWidgetTitleBar
+from .window_title_changed_signaler import WindowTitleChangedSignaler
 
 class PluginHandler(QObject):
 
@@ -63,7 +64,7 @@ class PluginHandler(QObject):
 
         self._plugin_has_configuration = False
 
-        # mapping of added widgets to their parent dock widget
+        # mapping of added widgets to their parent dock widget and WindowTitleChangedSignaler
         self._widgets = {}
 
     def instance_id(self):
@@ -87,7 +88,7 @@ class PluginHandler(QObject):
 
     def _update_title_bars(self):
         if self._plugin_has_configuration:
-            for dock_widget in self._widgets.values():
+            for dock_widget, _ in self._widgets.values():
                 title_bar = dock_widget.titleBarWidget()
                 title_bar.show_button('configuration')
 
@@ -182,7 +183,7 @@ class PluginHandler(QObject):
             callback(self._instance_id)
 
     def _call_method_on_all_dock_widgets(self, method_name, instance_settings):
-        for dock_widget in self._widgets.values():
+        for dock_widget, _ in self._widgets.values():
             name = 'dock_widget' + dock_widget.objectName().replace(self._instance_id.tidy_str(), '', 1)
             settings = instance_settings.get_settings(name)
             method = getattr(dock_widget, method_name)
@@ -248,7 +249,7 @@ class PluginHandler(QObject):
             title_bar.hide_button('configuration')
 
     def _close_dock_widget(self, dock_widget):
-        widget = [key for key, value in self._widgets.iteritems() if value == dock_widget][0]
+        widget = [key for key, value in self._widgets.iteritems() if value[0] == dock_widget][0]
         self.remove_widget(widget)
 
     def _emit_help_signal(self):
@@ -262,7 +263,11 @@ class PluginHandler(QObject):
 
     def _add_dock_widget(self, dock_widget, widget):
         self._add_dock_widget_to_main_window(dock_widget)
-        self._widgets[widget] = dock_widget
+        signaler = WindowTitleChangedSignaler(widget, widget)
+        signaler.window_title_changed_signal.connect(self._on_widget_title_changed)
+        self._widgets[widget] = [dock_widget, signaler]
+        # trigger to update initial window title
+        signaler.window_title_changed_signal.emit(widget)
 
     def _add_dock_widget_to_main_window(self, dock_widget):
         if self._main_window is not None:
@@ -274,15 +279,21 @@ class PluginHandler(QObject):
             self._main_window.addDockWidget(Qt.BottomDockWidgetArea, dock_widget)
 
 
+    def _on_widget_title_changed(self, widget):
+        dock_widget, _ = self._widgets[widget]
+        dock_widget.setWindowTitle(widget.windowTitle())
+
+
     def _update_widget_title(self, widget, title):
-        dock_widget = self._widgets[widget]
+        dock_widget, _ = self._widgets[widget]
         dock_widget.setWindowTitle(title)
 
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def remove_widget(self, widget):
-        dock_widget = self._widgets[widget]
+        dock_widget, signaler = self._widgets[widget]
+        signaler.window_title_changed_signal.disconnect(self._on_widget_title_changed)
         self._remove_dock_widget_from_parent(dock_widget)
         # do not delete the widget, only the dock widget
         widget.setParent(None)

@@ -37,6 +37,7 @@ from .plugin_handler_direct import PluginHandlerDirect
 from QtCore import qCritical, qDebug, Slot
 from QtGui import QVBoxLayout, QX11EmbedWidget
 from .settings import Settings
+from .window_title_changed_signaler import WindowTitleChangedSignaler
 
 class PluginHandlerXEmbedClient(PluginHandlerDirect):
 
@@ -52,6 +53,7 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self._remote_container = None
         self._remote_plugin_settings = None
         self._remote_instance_settings = None
+        # mapping of added widgets to their embed widget and WindowTitleChangedSignaler
         self._embed_widgets = {}
 
 
@@ -141,17 +143,22 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         embed_container_window_id = self._remote_container.embed_widget(os.getpid(), widget.objectName())
         embed_widget.embedInto(embed_container_window_id)
 
-        self._embed_widgets[widget] = embed_widget
-        self.update_widget_title(widget)
+        signaler = WindowTitleChangedSignaler(widget, widget)
+        signaler.window_title_changed_signal.connect(self._on_embed_widget_title_changed)
+        self._embed_widgets[widget] = embed_widget, signaler
+        # trigger to update initial window title
+        signaler.window_title_changed_signal.emit(widget)
 
         embed_widget.show()
 
-    def _update_widget_title(self, widget, title):
-        self._remote_container.update_embedded_widget_title(widget.objectName(), title)
+    def _on_embed_widget_title_changed(self, widget):
+        self._remote_container.update_embedded_widget_title(widget.objectName(), widget.windowTitle())
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def remove_widget(self, widget):
+        _, signaler = self._embed_widgets[widget]
+        signaler.window_title_changed_signal.disconnect(self._on_embed_widget_title_changed)
         self._remote_container.unembed_widget(widget.objectName())
         # do not delete the widget, only the embed widget
         widget.setParent(None)

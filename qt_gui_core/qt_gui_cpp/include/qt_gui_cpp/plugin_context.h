@@ -57,8 +57,6 @@ public:
 
   void addWidget(QWidget* widget);
 
-  void updateWidgetTitle(QWidget* widget);
-
   void removeWidget(QWidget* widget);
 
   void closePlugin();

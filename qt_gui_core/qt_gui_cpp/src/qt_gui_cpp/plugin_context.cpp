@@ -59,12 +59,6 @@ void PluginContext::addWidget(QWidget* widget)
   if (!rc) throw std::runtime_error("PluginContext::addWidget() invoke method failed");
 }
 
-void PluginContext::updateWidgetTitle(QWidget* widget)
-{
-  bool rc = proxy_.invokeMethod("update_widget_title", Q_ARG(QWidget*, widget));
-  if (!rc) throw std::runtime_error("PluginContext::updateWidgetTitle() invoke method failed");
-}
-
 void PluginContext::removeWidget(QWidget* widget)
 {
   bool rc = proxy_.invokeMethod("remove_widget", Q_ARG(QWidget*, widget));

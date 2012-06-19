@@ -116,7 +116,7 @@ class PluginManager(QObject):
     def find_plugins_by_name(self, lookup_name):
         plugins = {}
         for plugin_id, plugin_full_name in self.get_plugins().items():
-            if plugin_full_name.lower().find(lookup_name.lower()) >= 0:
+            if plugin_full_name.lower().find(lookup_name.lower()) >= 0 or plugin_id.lower().find(lookup_name.lower()) >= 0:
                 plugins[plugin_id] = plugin_full_name
         return plugins
 
