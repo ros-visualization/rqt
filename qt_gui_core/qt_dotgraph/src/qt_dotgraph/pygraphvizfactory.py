@@ -87,8 +87,8 @@ class PygraphvizFactory():
 
         return sg
 
-    def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True):
-        graph.add_edge(nodename1, nodename2, label=label, url=url)
+    def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True, style=None):
+        graph.add_edge(nodename1, nodename2, label=label, url=url, style=style)
 
     def create_dot(self, graph):
         graph.layout('dot')

@@ -172,6 +172,10 @@ class DotToQtGenerator():
             attr[name] = value
         edge.attr = attr
 
+        if 'style' in edge.attr:
+            if edge.attr['style'] == 'invis':
+                return
+
         label = edge.attr.get('label', None)
         label_pos = edge.attr.get('lp', None)
         label_center = None
