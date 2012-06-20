@@ -34,8 +34,6 @@ import pydot
 import urllib
 from distutils.version import LooseVersion
 
-from .colors import get_color_for_string
-
 # Reference implementation for a dotcode factory
 
 class PydotFactory():
@@ -125,9 +123,6 @@ class PydotFactory():
         g.set_label(subgraphlabel)
         if 'set_color' in g.__dict__:
             if color is not None:
-                g.set_color(color)
-            else:
-                color = get_color_for_string(subgraphlabel)
                 g.set_color(color)
         graph.add_subgraph(g)
         return g

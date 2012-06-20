@@ -35,6 +35,8 @@ from __future__ import with_statement, print_function
 import re
 
 from rospkg.common import ResourceNotFound
+import qt_dotgraph
+from qt_dotgraph.colors import get_color_for_string
 
 MAX_EDGES = 1500
 
@@ -73,13 +75,14 @@ class RosPackageGraphDotcodeGenerator:
                          ancestors=True,
                          hide_transitives=True,
                          mark_selected=True,
+                         colortheme=None,
                          rank='same', # None, same, min, max, source, sink
                          ranksep=0.2, # vertical distance between layers
                          rankdir='TB', # direction of layout (TB top > bottom, LR left > right)
                          simplify=True, # remove double edges
                          force_refresh=False):
         """
-        
+
         :param hide_transitives: if true, then dependency of children to grandchildren will be hidden if parent has same dependency
         """
 
@@ -147,6 +150,7 @@ class RosPackageGraphDotcodeGenerator:
             "rankdir" : rankdir,
             "ranksep" : ranksep,
             "simplify" : simplify,
+            "colortheme": colortheme,
             "dotcode_factory" : dotcode_factory,
             "mark_selected" : mark_selected
             }
@@ -154,7 +158,7 @@ class RosPackageGraphDotcodeGenerator:
         # if selection and display args did not change, no need to generate dotcode
         display_changed = False
         if self.last_drawargs != drawing_args:
-            selection_changed = True
+            display_changed = True
             self.last_drawargs = drawing_args
 
             self.dotcode_factory = dotcode_factory
@@ -162,6 +166,7 @@ class RosPackageGraphDotcodeGenerator:
             self.rankdir = rankdir
             self.ranksep = ranksep
             self.simplify = simplify
+            self.colortheme = colortheme
             self.dotcode_factory = dotcode_factory
             self.mark_selected = mark_selected
 
@@ -184,6 +189,9 @@ class RosPackageGraphDotcodeGenerator:
                 color = None
                 if self.mark_selected and not '.*' in self.selected_names and matches_any(stackname, self.selected_names):
                     color = 'red'
+                else:
+                    if self.colortheme is not None:
+                        color = get_color_for_string(stackname)
                 g = dotcode_factory.add_subgraph_to_graph(graph,
                                                           stackname,
                                                           color=color,

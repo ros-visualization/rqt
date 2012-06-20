@@ -16,49 +16,96 @@
   <property name="windowTitle">
    <string>ROS Package Graph</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
-     <item>
-      <widget class="QPushButton" name="refresh_graph_push_button">
-       <property name="toolTip">
-        <string>Refresh ROS graph</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="filter_line_edit">
-       <property name="toolTip">
-        <string>Comma separated regex patterns / names, leading dash creates exclusion pattern. Example: gazebo, -test.*</string>
-       </property>
-       <property name="text">
-        <string notr="true"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="depth_combo_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Choose graph type</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="directions_combo_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QPushButton" name="refresh_graph_push_button">
+        <property name="toolTip">
+         <string>Refresh ROS graph</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="depth_combo_box">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Choose graph type</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="filter_line_edit">
+        <property name="toolTip">
+         <string>Comma separated regex patterns / names, leading dash creates exclusion pattern. Example: gazebo, -test.*</string>
+        </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="directions_combo_box">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="load_dot_push_button">
+        <property name="toolTip">
+         <string>Load DOT graph from file</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save_dot_push_button">
+        <property name="toolTip">
+         <string>Save as DOT graph</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save_as_svg_push_button">
+        <property name="toolTip">
+         <string>Save as SVG</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save_as_image_push_button">
+        <property name="toolTip">
+         <string>Save as image</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0">
      <item>
       <widget class="QCheckBox" name="mark_check_box">
        <property name="toolTip">
@@ -86,6 +133,19 @@
        </property>
        <property name="text">
         <string>No Transitive deps</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="colorize_check_box">
+       <property name="toolTip">
+        <string>Random colors for stacks</string>
+       </property>
+       <property name="text">
+        <string>Colorize</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -141,34 +201,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="load_dot_push_button">
-       <property name="toolTip">
-        <string>Load DOT graph from file</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="save_dot_push_button">
-       <property name="toolTip">
-        <string>Save as DOT graph</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="save_as_svg_push_button">
-       <property name="toolTip">
-        <string>Save as SVG</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="save_as_image_push_button">
-       <property name="toolTip">
-        <string>Save as image</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>

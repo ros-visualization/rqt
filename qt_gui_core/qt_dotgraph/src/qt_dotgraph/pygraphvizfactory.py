@@ -33,8 +33,6 @@
 import pygraphviz
 from distutils.version import LooseVersion
 
-from .colors import get_color_for_string
-
 # Reference implementation for a dotcode factory
 
 class PygraphvizFactory():
@@ -81,8 +79,6 @@ class PygraphvizFactory():
         if subgraphlabel is None or subgraphlabel == '':
             raise ValueError('Empty subgraph label')
 
-        if color is None:
-            color = get_color_for_string(subgraphlabel)
         sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = style, color=color)
 
         return sg

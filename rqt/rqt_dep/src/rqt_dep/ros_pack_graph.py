@@ -112,6 +112,7 @@ class RosPackGraph(QObject):
 
         self._widget.with_stacks_check_box.clicked.connect(self._refresh_rospackgraph)
         self._widget.mark_check_box.clicked.connect(self._refresh_rospackgraph)
+        self._widget.colorize_check_box.clicked.connect(self._refresh_rospackgraph)
         self._widget.transitives_check_box.clicked.connect(self._refresh_rospackgraph)
 
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
@@ -143,6 +144,7 @@ class RosPackGraph(QObject):
         instance_settings.set_value('with_stacks_state', self._widget.with_stacks_check_box.isChecked())
         instance_settings.set_value('transitives_state', self._widget.transitives_check_box.isChecked())
         instance_settings.set_value('mark_state', self._widget.mark_check_box.isChecked())
+        instance_settings.set_value('colorize_state', self._widget.colorize_check_box.isChecked())
         instance_settings.set_value('auto_fit_graph_check_box_state', self._widget.auto_fit_graph_check_box.isChecked())
         instance_settings.set_value('highlight_connections_check_box_state', self._widget.highlight_connections_check_box.isChecked())
 
@@ -152,6 +154,7 @@ class RosPackGraph(QObject):
         self._widget.filter_line_edit.setText(instance_settings.value('filter_line_edit_text', ''))
         self._widget.with_stacks_check_box.setChecked(instance_settings.value('with_stacks_state', True) in [True, 'true'])
         self._widget.mark_check_box.setChecked(instance_settings.value('mark_state', True) in [True, 'true'])
+        self._widget.colorize_check_box.setChecked(instance_settings.value('colorize_state', True) in [True, 'true'])
         self._widget.transitives_check_box.setChecked(instance_settings.value('transitives_state', True) in [True, 'true'])
         self._widget.auto_fit_graph_check_box.setChecked(instance_settings.value('auto_fit_graph_check_box_state', True) in [True, 'true'])
         self._widget.highlight_connections_check_box.setChecked(instance_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
@@ -166,6 +169,7 @@ class RosPackGraph(QObject):
         self._widget.filter_line_edit.setEnabled(True)
         self._widget.with_stacks_check_box.setEnabled(True)
         self._widget.mark_check_box.setEnabled(True)
+        self._widget.colorize_check_box.setEnabled(True)
         self._widget.transitives_check_box.setEnabled(True)
 
         self._refresh_rospackgraph()
@@ -195,7 +199,10 @@ class RosPackGraph(QObject):
             descendants = False
         if selected_directions == 0:
             ancestors = False
-
+        # TODO: Allow different color themes
+        colortheme = None
+        if self._widget.colorize_check_box.isChecked():
+            colortheme = True
         return self.dotcode_generator.generate_dotcode(dotcode_factory=self.dotcode_factory,
                                                        selected_names=includes,
                                                        excludes=excludes,
@@ -204,6 +211,7 @@ class RosPackGraph(QObject):
                                                        descendants=descendants,
                                                        ancestors=ancestors,
                                                        mark_selected=self._widget.mark_check_box.isChecked(),
+                                                       colortheme=colortheme,
                                                        hide_transitives=self._widget.transitives_check_box.isChecked())
 
     def _update_graph_view(self, dotcode):
@@ -271,6 +279,7 @@ class RosPackGraph(QObject):
         self._widget.filter_line_edit.setEnabled(False)
         self._widget.with_stacks_check_box.setEnabled(False)
         self._widget.mark_check_box.setEnabled(False)
+        self._widget.colorize_check_box.setEnabled(False)
         self._widget.transitives_check_box.setEnabled(False)
 
         self._update_graph_view(dotcode)
