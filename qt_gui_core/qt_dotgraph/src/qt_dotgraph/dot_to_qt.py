@@ -160,8 +160,9 @@ class DotToQtGenerator():
         #node_item.setToolTip(self._generate_tool_tip(node.attr.get('URL', None)))
         return node_item
 
-    def getEdgeItem(self, edge, nodes, edges, highlight_level, same_label_siblings=False):
+    def addEdgeItem(self, edge, nodes, edges, highlight_level, same_label_siblings=False):
         """
+        adds EdgeItem by data in edge to edges
         :param same_label_siblings: if true, edges with same label will be considered siblings (collective highlighting)
         """
         # let pydot imitate pygraphviz api
@@ -208,7 +209,7 @@ class DotToQtGenerator():
         if label not in edges:
             edges[label] = []
         edges[label].append(edge_item)
-        return edge_item
+
 
     def dotcode_to_qt_items(self, dotcode, highlight_level, same_label_siblings=False):
         """
@@ -247,18 +248,18 @@ class DotToQtGenerator():
                 continue
             nodes[node.get_name()] = self.getNodeItemForNode(node, highlight_level)
 
-        edges = {} # is irrelevant?
+        edges = {}
 
         for subgraph in graph.subgraphs_iter():
             subgraph.edges_iter = subgraph.get_edge_list
             for edge in subgraph.edges_iter():
-                edge_item = self.getEdgeItem(edge, nodes, edges,
-                                             highlight_level=highlight_level,
-                                             same_label_siblings=same_label_siblings)
+                self.addEdgeItem(edge, nodes, edges,
+                                 highlight_level=highlight_level,
+                                 same_label_siblings=same_label_siblings)
 
         for edge in graph.edges_iter():
-            edge_item = self.getEdgeItem(edge, nodes, edges,
-                                         highlight_level=highlight_level,
-                                         same_label_siblings=same_label_siblings)
+            self.addEdgeItem(edge, nodes, edges,
+                             highlight_level=highlight_level,
+                             same_label_siblings=same_label_siblings)
 
         return nodes, edges
