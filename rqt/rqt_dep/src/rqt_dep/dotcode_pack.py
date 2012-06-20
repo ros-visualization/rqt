@@ -178,6 +178,7 @@ class RosPackageGraphDotcodeGenerator:
                                           ranksep=self.ranksep,
                                           simplify=self.simplify)
         # print("In generate", self.with_stacks, len(self.stacks), len(self.packages), len(self.edges))
+        packages_in_stacks = []
         if self.with_stacks:
             for stackname in self.stacks:
                 color = None
@@ -190,23 +191,26 @@ class RosPackageGraphDotcodeGenerator:
                                                           rankdir=self.rankdir,
                                                           ranksep=self.ranksep,
                                                           simplify=self.simplify)
+
                 for package_name in self.stacks[stackname]['packages']:
-                    color = None
-                    if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
-                        color = 'red'
-                    dotcode_factory.add_node_to_graph(g, package_name, color=color)
-        else:
-            for package_name in self.packages:
-                color = None
-                if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
-                    color = 'red'
-                dotcode_factory.add_node_to_graph(graph, package_name, color=color)
+                    packages_in_stacks.append(package_name)
+                    self._generate_package(dotcode_factory, g, package_name)
+
+        for package_name in self.packages:
+            if package_name not in packages_in_stacks:
+                self._generate_package(dotcode_factory, graph, package_name)
         if (len(self.edges) < MAX_EDGES):
             for edge_tupel in self.edges:
                 dotcode_factory.add_edge_to_graph(graph, edge_tupel[0], edge_tupel[1])
         else:
             print("Too many edges %s > %s, abandoning generation of edge display" % (len(self.edges), MAX_EDGES))
         return graph
+
+    def _generate_package(self, dotcode_factory, graph, package_name):
+        color = None
+        if self.mark_selected and not '.*' in self.selected_names and matches_any(package_name, self.selected_names):
+            color = 'red'
+        dotcode_factory.add_node_to_graph(graph, package_name, color=color)
 
     def _add_stack(self, stackname):
         if stackname is None or stackname in self.stacks:
@@ -221,13 +225,14 @@ class RosPackageGraphDotcodeGenerator:
         if package_name in self.packages:
             return False
         self.packages[package_name] = {}
+
         if self.with_stacks:
             try:
                 stackname = self.rospack.stack_of(package_name)
             except ResourceNotFound, e:
                 print('RosPackageGraphDotcodeGenerator._add_package(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
                 stackname = None
-            if not stackname is None:
+            if not stackname is None and stackname != '':
                 if not stackname in self.stacks:
                     self._add_stack(stackname)
                 self.stacks[stackname]['packages'].append(package_name)
