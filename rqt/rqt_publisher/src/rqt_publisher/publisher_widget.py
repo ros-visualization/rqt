@@ -119,6 +119,6 @@ class PublisherWidget(QWidget):
         topic_name = str(self.topic_combo_box.currentText())
         type_name = str(self.type_combo_box.currentText())
         rate = float(self.frequency_combo_box.currentText())
-        enabled = True
+        enabled = False
         self.add_publisher.emit(topic_name, type_name, rate, enabled)
 
