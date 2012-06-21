@@ -63,7 +63,7 @@ class Main(object):
         parser.add_option('-s', '--stand-alone', dest='standalone_plugin', type='str', metavar='PLUGIN',
                           help='start only this plugin (implies -l)')
 
-        group = OptionGroup(parser, 'Options to query information without starting a ROS GUI instance',
+        group = OptionGroup(parser, 'Options to query information without starting a GUI instance',
                             'These options can be used to query information about valid arguments for various options.')
         group.add_option('--list-perspectives', dest='list_perspectives', action='store_true',
                          help='list available perspectives')
@@ -71,10 +71,10 @@ class Main(object):
                          help='list available plugins')
         parser.add_option_group(group)
 
-        group = OptionGroup(parser, 'Options to operate on a running ROS GUI instance',
-                            'These options can be used to perform actions on a running ROS GUI instance.')
+        group = OptionGroup(parser, 'Options to operate on a running GUI instance',
+                            'These options can be used to perform actions on a running GUI instance.')
         group.add_option('--command-pid', dest='command_pid', type='int', metavar='PID',
-                         help='pid of ROS GUI instance to operate on, defaults to oldest running ROS GUI instance')
+                         help='pid of the GUI instance to operate on, defaults to oldest running GUI instance')
         group.add_option('--command-start-plugin', dest='command_start_plugin', type='str', metavar='PLUGIN',
                          help='start plugin')
         group.add_option('--command-switch-perspective', dest='command_switch_perspective', type='str', metavar='PERSPECTIVE',
@@ -86,13 +86,13 @@ class Main(object):
         parser.add_option_group(group)
 
         group = OptionGroup(parser, 'Special options for embedding widgets from separate processes',
-                            'These options should never be used on the CLI but only from the ROS GUI code itself.')
+                            'These options should never be used on the CLI but only from the GUI code itself.')
         group.add_option('--embed-plugin', dest='embed_plugin', type='str', metavar='PLUGIN',
-                         help='embed a plugin into an already running ROS GUI instance (requires all other --embed-* options)')
+                         help='embed a plugin into an already running GUI instance (requires all other --embed-* options)')
         group.add_option('--embed-plugin-serial', dest='embed_plugin_serial', type='int', metavar='SERIAL',
                          help='serial number of plugin to be embedded (requires all other --embed-* options)')
         group.add_option('--embed-plugin-address', dest='embed_plugin_address', type='str', metavar='ADDRESS',
-                         help='dbus server address of ROS GUI instance to embed plugin into (requires all other --embed-* options)')
+                         help='dbus server address of the GUI instance to embed plugin into (requires all other --embed-* options)')
         for o in group.option_list:
             o.help = SUPPRESS_HELP
         parser.add_option_group(group)
@@ -205,20 +205,20 @@ class Main(object):
                 try:
                     remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PluginManager')
                 except DBusException:
-                    (rc, msg) = (1, 'unable to communicate with ROS GUI instance "%s"' % context.dbus_host_bus_name)
+                    (rc, msg) = (1, 'unable to communicate with GUI instance "%s"' % context.dbus_host_bus_name)
                 else:
                     remote_interface = Interface(remote_object, 'org.ros.qt_gui.PluginManager')
                     (rc, msg) = remote_interface.start_plugin(self._options.command_start_plugin)
                 if rc == 0:
-                    print 'qt_gui_main() started plugin "%s" in ROS GUI "%s"' % (msg, context.dbus_host_bus_name)
+                    print 'qt_gui_main() started plugin "%s" in GUI "%s"' % (msg, context.dbus_host_bus_name)
                 else:
-                    print 'qt_gui_main() could not start plugin "%s" in ROS GUI "%s": %s' % (self._options.command_start_plugin, context.dbus_host_bus_name, msg)
+                    print 'qt_gui_main() could not start plugin "%s" in GUI "%s": %s' % (self._options.command_start_plugin, context.dbus_host_bus_name, msg)
                 return rc
             elif self._options.command_switch_perspective is not None:
                 remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PerspectiveManager')
                 remote_interface = Interface(remote_object, 'org.ros.qt_gui.PerspectiveManager')
                 remote_interface.switch_perspective(self._options.command_switch_perspective)
-                print 'qt_gui_main() switched to perspective "%s" in ROS GUI "%s"' % (self._options.command_switch_perspective, context.dbus_host_bus_name)
+                print 'qt_gui_main() switched to perspective "%s" in GUI "%s"' % (self._options.command_switch_perspective, context.dbus_host_bus_name)
                 return 0
             print 'unknown command'
             return 1
