@@ -48,7 +48,7 @@ class AboutHandler(QObject):
     def show(self):
         # append folder of 'qt_gui_cpp/lib' to module search path
         sys.path.append(os.path.realpath(os.path.join(get_package_path('qt_gui_cpp'), 'lib')))
-        from CppBindingHelper import qt_gui_cpp
+        from cpp_binding_helper import qt_gui_cpp
 
         _rospkg_version = None
         try:
@@ -63,7 +63,7 @@ class AboutHandler(QObject):
         text += '<h3 style="margin-top: 1px;">%s</h3>' % self.tr('ROS GUI')
 
         text += '<p>%s %s</p>' % (self.tr('ROS GUI is a framework for graphical user interfaces.'), self.tr('It is extensible with plugins which can be written in either Python or C++.'))
-        text += '<p>%s</p>' % (self.tr('Please see the <a href="%s">Wiki</a> for more information on ROS GUI and available plugins.' % 'http://www.ros.org/wiki/ros_gui'))
+        text += '<p>%s</p>' % (self.tr('Please see the <a href="%s">Wiki</a> for more information on ROS GUI and available plugins.' % 'http://www.ros.org/wiki/rqt'))
 
         text += '<p>%s: ' % self.tr('Utilized libraries:')
 
