@@ -48,11 +48,23 @@ class Plugin(QObject):
         pass
 
     def save_settings(self, plugin_settings, instance_settings):
-        """Save the intrinsic state of the plugin to the plugin-specific or instance-specific `Settings`."""
+        """
+        Save the intrinsic state of the plugin to the plugin-specific or instance-specific `Settings`.
+        @param plugin_settings: the plugin-specific settings
+        @type plugin_settings: qt_gui.settings.Settings
+        @param instance_settings: the instance-specific settings
+        @type instance_settings: qt_gui.settings.Settings
+        """
         pass
 
     def restore_settings(self, plugin_settings, instance_settings):
-        """Restore the intrinsic state of the plugin from the plugin-specific or instance-specific `Settings`."""
+        """
+        Restore the intrinsic state of the plugin from the plugin-specific or instance-specific `Settings`.
+        @param plugin_settings: the plugin-specific settings
+        @type plugin_settings: qt_gui.settings.Settings
+        @param instance_settings: the instance-specific settings
+        @type instance_settings: qt_gui.settings.Settings
+        """
         pass
 
     #def trigger_configuration(self):
