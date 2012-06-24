@@ -41,6 +41,11 @@
 
 namespace rqt_gui_cpp {
 
+/**
+ * The base class for C++ plugins which use the ROS client library.
+ * A plugin must not call ros::init() as this is performed once by the framework.
+ * The name of the ROS node consists of the prefix "rqt_gui_cpp_node_" and the process id.
+ */
 class Plugin
   : public qt_gui_cpp::Plugin
   , public nodelet::Nodelet
@@ -52,13 +57,11 @@ public:
     : qt_gui_cpp::Plugin()
   {}
 
-  virtual void initPlugin(qt_gui_cpp::PluginContext& /*context*/)
-  {}
-
-  virtual void saveSettings(qt_gui_cpp::Settings& /*plugin_settings*/, qt_gui_cpp::Settings& /*instance_settings*/) const
-  {}
-
-  virtual void restoreSettings(const qt_gui_cpp::Settings& /*plugin_settings*/, const qt_gui_cpp::Settings& /*instance_settings*/)
+  /**
+   * Shutdown and clean up the plugin before unloading.
+   * I.e. unregister subscribers and stop timers.
+   */
+  virtual void shutdownPlugin()
   {}
 
 private:

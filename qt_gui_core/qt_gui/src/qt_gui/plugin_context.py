@@ -47,6 +47,7 @@ class PluginContext(QObject):
     def serial_number(self):
         """
         Return the serial number of the plugin.
+        For a specific type of plugin each instance gets a serial number (which is the first currently not used positive integer at construction time).
         @return: the serial number
         @rtype: int
         """
@@ -55,6 +56,7 @@ class PluginContext(QObject):
     def add_widget(self, widget):
         """
         Add a widget to the UI.
+        This method can be called multiple times and at any point in time (until the calling plugin has been shutdown).
         @param widget: the widget
         @type widget: QWidget
         """
@@ -62,7 +64,7 @@ class PluginContext(QObject):
 
     def remove_widget(self, widget):
         """
-        Remove a widget from the UI.
+        Remove a previously added widget from the UI.
         @param widget: the widget
         @type widget: QWidget
         """

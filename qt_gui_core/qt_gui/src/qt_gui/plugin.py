@@ -34,8 +34,8 @@ from QtCore import QObject
 class Plugin(QObject):
 
     """
-    Interface for plugins.
-    User-defined plugins may either subclass `Plugin` or according to duck typing implement only the needed methods.
+    Interface for Python plugins.
+    User-defined plugins may either subclass `qt_gui.plugin.Plugin` or according to duck typing implement only the needed methods.
     """
 
     def __init__(self, context):
