@@ -39,7 +39,6 @@ import roslib
 roslib.load_manifest('rqt_gui')
 
 from qt_gui.main import Main as Base
-from qt_gui.recursive_plugin_provider import RecursivePluginProvider
 
 class Main(Base):
 
@@ -67,6 +66,8 @@ class Main(Base):
             from .roslib_plugin_provider import RoslibPluginProvider
             ActualRosPluginProvider = RoslibPluginProvider
 
+        # do not import earlier as it would import Qt stuff without the proper initialization from qt_gui.main
+        from qt_gui.recursive_plugin_provider import RecursivePluginProvider
         self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
         self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
 
