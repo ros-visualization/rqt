@@ -99,4 +99,4 @@ class PyDotFactoryTest(unittest.TestCase):
                     '"];\n}\n']
         result = fac.create_dot(g)
         for sn in snippets:
-            self.assertTrue(sn in result, '%s \nmissing in\n %s'%(sn, result))
+            self.assertTrue(sn in result, '%s \nmissing in\n %s' % (sn, result))

@@ -45,7 +45,7 @@ class Main(Base):
 
     def __init__(self, filename=None):
         super(Main, self).__init__(filename)
-        self._plugin_cache  = None
+        self._plugin_cache = None
 
     def _add_options(self, parser):
         super(Main, self)._add_options(parser)

@@ -235,7 +235,7 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 stackname = self.rospack.stack_of(package_name)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator._add_package(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
+                print('RosPackageGraphDotcodeGenerator._add_package(%s), parent %s: ResourceNotFound:' % (package_name, parent), e)
                 stackname = None
             if not stackname is None and stackname != '':
                 if not stackname in self.stacks:
@@ -268,7 +268,7 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 depends_on = self.rospack.get_depends_on(package_name, implicit=implicit)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
+                print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(%s), parent %s: ResourceNotFound:' % (package_name, parent), e)
                 depends_on = []
             new_nodes = []
             for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
@@ -299,7 +299,7 @@ class RosPackageGraphDotcodeGenerator:
             try:
                 depends = self.rospack.get_depends(package_name, implicit=implicit)
             except ResourceNotFound, e:
-                print('RosPackageGraphDotcodeGenerator.add_package_descendants_recursively(%s), parent: %s: ResourceNotFound:'%(package_name, parent), e)
+                print('RosPackageGraphDotcodeGenerator.add_package_descendants_recursively(%s), parent: %s: ResourceNotFound:' % (package_name, parent), e)
                 depends = []
             new_nodes = []
             for dep_name in [x for x in depends if not matches_any(x, self.excludes)]:

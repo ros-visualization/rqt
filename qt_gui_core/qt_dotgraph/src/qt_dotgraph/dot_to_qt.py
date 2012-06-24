@@ -89,7 +89,7 @@ class DotToQtGenerator():
             label_pos = subgraph.attr['lp'].strip('"').split(',')
         else:
             label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, float(bb[1]) + (float(bb[3]) - float(bb[1])) - LABEL_HEIGHT / 2)
-        bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) - float(bb[1])) / 2))
+        bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, -float(bb[1]) - (float(bb[3]) - float(bb[1])) / 2))
         name = subgraph.attr['label']
         color = QColor(subgraph.attr['color']) if 'color' in subgraph.attr else None
         subgraph_nodeitem = NodeItem(highlight_level,

@@ -77,8 +77,8 @@ class GraphUtilsTest(unittest.TestCase):
 
     class MockEdge():
         def __init__(self, start, end):
-            self.start=start
-            self.end=end
+            self.start = start
+            self.end = end
 
     def test_get_node_edge_map(self):
         gen = RosGraphDotcodeGenerator()
