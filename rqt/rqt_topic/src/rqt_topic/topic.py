@@ -36,10 +36,12 @@ from QtCore import QObject
 import roslib
 roslib.load_manifest('rqt_topic')
 
+from rqt_gui_py.plugin import Plugin
+
 from .topic_widget import TopicWidget
 
 
-class Topic(QObject):
+class Topic(Plugin):
 
     def __init__(self, context):
         super(Topic, self).__init__(context)

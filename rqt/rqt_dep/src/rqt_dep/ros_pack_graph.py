@@ -21,6 +21,7 @@ from qt_dotgraph.pydotfactory import PydotFactory
 # from qt_dotgraph.pygraphvizfactory import PygraphvizFactory
 from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
+from rqt_gui_py.plugin import Plugin
 from rqt_graph.interactive_graphics_view import InteractiveGraphicsView
 
 
@@ -55,7 +56,7 @@ class StackageCompletionModel(QAbstractListModel):
         return None
 
 
-class RosPackGraph(QObject):
+class RosPackGraph(Plugin):
 
     _deferred_fit_in_view = Signal()
 

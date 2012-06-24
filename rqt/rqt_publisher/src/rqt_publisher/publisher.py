@@ -41,10 +41,11 @@ from QtCore import Slot, qDebug, QObject, QSignalMapper, QTimer, qWarning
 import roslib
 roslib.load_manifest('rqt_publisher')
 import rospy
+from rqt_gui_py.plugin import Plugin
 from .publisher_widget import PublisherWidget
 
 
-class Publisher(QObject):
+class Publisher(Plugin):
 
     def __init__(self, context):
         super(Publisher, self).__init__()

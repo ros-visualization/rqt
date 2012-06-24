@@ -52,6 +52,8 @@ from .interactive_graphics_view import InteractiveGraphicsView
 
 from qt_dotgraph.dot_to_qt import DotToQtGenerator
 
+from rqt_gui_py.plugin import Plugin
+
 
 class RepeatedWordCompleter(QCompleter):
     """A completer that completes multiple times from a list"""
@@ -92,7 +94,7 @@ class NamespaceCompletionModel(QAbstractListModel):
         return None
 
 
-class RosGraph(QObject):
+class RosGraph(Plugin):
 
     _deferred_fit_in_view = Signal()
 

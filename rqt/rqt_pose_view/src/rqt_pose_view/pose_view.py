@@ -34,10 +34,12 @@ from QtCore import QObject
 import roslib
 roslib.load_manifest('rqt_pose_view')
 
+from rqt_gui_py.plugin import Plugin
+
 from .pose_view_widget import PoseViewWidget
 
 
-class PoseView(QObject):
+class PoseView(Plugin):
 
     def __init__(self, context):
         super(PoseView, self).__init__(context)

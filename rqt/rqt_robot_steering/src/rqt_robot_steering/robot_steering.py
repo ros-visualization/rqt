@@ -41,8 +41,10 @@ import rospy
 
 from geometry_msgs.msg import Twist
 
+from rqt_gui_py.plugin import Plugin
 
-class RobotSteering(QObject):
+
+class RobotSteering(Plugin):
 
     def __init__(self, context):
         super(RobotSteering, self).__init__(context)
