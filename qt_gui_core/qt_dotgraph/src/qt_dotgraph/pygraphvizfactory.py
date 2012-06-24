@@ -31,22 +31,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import pygraphviz
-from distutils.version import LooseVersion
+
 
 # Reference implementation for a dotcode factory
-
 class PygraphvizFactory():
-    
-    def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, rankdir = "TB", ranksep = 0.2, compound = True):
+
+    def __init__(self):
+        pass
+
+    def get_graph(self, graph_type='digraph', rank='same', simplify=True, rankdir='TB', ranksep=0.2, compound=True):
         graph = pygraphviz.AGraph(directed=(graph_type == 'digraph'), ranksep=ranksep, rankdir=rankdir, rank=rank, compound=True, simplify=simplify)
         return graph
-    
+
     def add_node_to_graph(self,
                           graph,
                           nodename,
-                          nodelabel = None,
-                          shape = 'box',
-                          color = None,
+                          nodelabel=None,
+                          shape='box',
+                          color=None,
                           url=None):
         """
         creates a node item for this factory, adds it to the graph.
@@ -57,19 +59,19 @@ class PygraphvizFactory():
         if nodelabel is None:
             nodelabel = nodename
         if color is not None:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url, color=color)
+            graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url, color=color)
         else:
-            node = graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url)
-    
+            graph.add_node(nodelabel, label=str(nodelabel), shape=shape, url=url)
+
     def add_subgraph_to_graph(self,
                               graph,
                               subgraphlabel,
-                              rank = 'same',
-                              rankdir = "TB",
-                              ranksep = 0.2,
-                              compound = True,
-                              color = None,
-                              shape = 'box',
+                              rank='same',
+                              rankdir='TB',
+                              ranksep=0.2,
+                              compound=True,
+                              color=None,
+                              shape='box',
                               style='bold'):
         """
         creates a cluster subgraph  item for this factory, adds it to the graph.
@@ -79,15 +81,14 @@ class PygraphvizFactory():
         if subgraphlabel is None or subgraphlabel == '':
             raise ValueError('Empty subgraph label')
 
-        sg = graph.add_subgraph(name = "cluster_%s"%subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style = style, color=color)
+        sg = graph.add_subgraph(name="cluster_%s" % subgraphlabel, ranksep=ranksep, rankdir=rankdir, rank=rank, compound=compound, label=str(subgraphlabel), style=style, color=color)
 
         return sg
 
-    def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True, style=None):
+    def add_edge_to_graph(self, graph, nodename1, nodename2, label=None, url=None, simplify=True, style=None):
         graph.add_edge(nodename1, nodename2, label=label, url=url, style=style)
 
     def create_dot(self, graph):
         graph.layout('dot')
         # sadly pygraphviz generates line wraps cutting between numbers
         return graph.string().replace("\\\n", "")
-        

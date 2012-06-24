@@ -28,14 +28,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QObject
-from QtGui import QDockWidget
 
 import roslib
 roslib.load_manifest('rqt_pose_view')
 
 from .pose_view_widget import PoseViewWidget
+
 
 class PoseView(QObject):
 

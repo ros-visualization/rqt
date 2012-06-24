@@ -35,6 +35,7 @@ import signal
 import sys
 from optparse import OptionGroup, OptionParser, SUPPRESS_HELP
 
+
 class Main(object):
 
     main_filename = None

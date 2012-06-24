@@ -46,6 +46,7 @@ from .data_plot import DataPlot
 
 from rqt_py_common.topic_completer import TopicCompleter
 
+
 # main class inherits from the ui window class
 class Plot(QWidget):
 
@@ -71,7 +72,7 @@ class Plot(QWidget):
         self.data_plot.dropEvent = self.dropEvent
         self.data_plot.dragEnterEvent = self.dragEnterEvent
 
-        # setup data plot 
+        # setup data plot
         self.data_plot.redrawManually = True
         self.pause_button.clicked[bool].connect(self.data_plot.togglePause)
 
@@ -83,15 +84,13 @@ class Plot(QWidget):
         self._update_plot_timer.timeout.connect(self.update_plot)
         self._update_plot_timer.start(40)
 
-
     def update_plot(self):
         for topic_name, rosdata in self._rosdata.items():
             # TODO: use data_x as time stamp
-            data_x, data_y = rosdata.next() #@UnusedVariable
+            data_x, data_y = rosdata.next()  # @UnusedVariable
             for value in data_y:
                 self.data_plot.updateValue(topic_name, value)
         self.data_plot.redraw()
-
 
     def _get_field_type(self, topic_name):
         # get message
@@ -110,7 +109,6 @@ class Plot(QWidget):
             field_type = type(message)
 
         return field_type
-
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
@@ -138,7 +136,6 @@ class Plot(QWidget):
         else:
             qDebug('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
 
-
     @Slot('QDropEvent*')
     def dropEvent(self, event):
         if event.mimeData().hasText():
@@ -148,10 +145,9 @@ class Plot(QWidget):
             topic_name = str(droped_item.data(0, Qt.UserRole))
         self.add_topic(topic_name)
 
-
     @Slot(str)
     def on_topic_edit_textChanged(self, topic_name):
-        # on empty topic name, update topics 
+        # on empty topic name, update topics
         if topic_name in ('', '/'):
             self._topic_completer.update_topics()
 
@@ -169,11 +165,9 @@ class Plot(QWidget):
             self.subscribe_topic_button.setEnabled(False)
             self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
 
-
     @Slot()
     def on_subscribe_topic_button_clicked(self):
         self.add_topic(str(self.topic_edit.text()))
-
 
     def add_topic(self, topic_name):
         if topic_name in self._rosdata:
@@ -183,18 +177,15 @@ class Plot(QWidget):
         self.data_plot.addCurve(topic_name, topic_name)
         self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
 
-
     @Slot()
     def on_clear_button_clicked(self):
         self.clean_up_subscribers()
-
 
     def clean_up_subscribers(self):
         for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.removeCurve(topic_name)
         self._rosdata = {}
-
 
     def shutdown_plugin(self):
         self.clean_up_subscribers()

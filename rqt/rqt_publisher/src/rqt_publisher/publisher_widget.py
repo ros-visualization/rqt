@@ -34,15 +34,18 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Signal, Slot, qDebug
+from QtCore import Signal, Slot
 from QtGui import QIcon, QWidget
 
 import roslib
 roslib.load_manifest('rqt_publisher')
-import rospkg, rosmsg, rospy
+import rosmsg
+import rospkg
+import rospy
 
 from rqt_py_common.extended_combo_box import ExtendedComboBox
 from .publisher_tree_widget import PublisherTreeWidget
+
 
 # main class inherits from the ui window class
 class PublisherWidget(QWidget):
@@ -71,14 +74,12 @@ class PublisherWidget(QWidget):
         self.remove_publisher_button.clicked.connect(self.publisher_tree_widget.remove_selected_publishers)
         self.clear_button.clicked.connect(self.clean_up_publishers)
 
-
     @Slot()
     def refresh_combo_boxes(self):
         self._topic_dict = {}
         self._update_topic_combo_box()
         self._update_type_combo_box()
         self.on_topic_combo_box_currentIndexChanged(self.topic_combo_box.currentText())
-
 
     def _update_topic_combo_box(self):
         _, _, topic_types = rospy.get_master().getTopicTypes()
@@ -87,7 +88,6 @@ class PublisherWidget(QWidget):
             self._topic_dict = topic_dict
             self.topic_combo_box.clear()
             self.topic_combo_box.addItems(sorted(topic_dict.keys()))
-
 
     def _update_type_combo_box(self):
         message_type_names = []
@@ -107,12 +107,10 @@ class PublisherWidget(QWidget):
         self.type_combo_box.clear()
         self.type_combo_box.addItems(sorted(message_type_names))
 
-
     @Slot(str)
     def on_topic_combo_box_currentIndexChanged(self, topic_name):
         if topic_name in self._topic_dict:
             self.type_combo_box.setEditText(self._topic_dict[topic_name])
-
 
     @Slot()
     def on_add_publisher_button_clicked(self):
@@ -121,4 +119,3 @@ class PublisherWidget(QWidget):
         rate = float(self.frequency_combo_box.currentText())
         enabled = False
         self.add_publisher.emit(topic_name, type_name, rate, enabled)
-

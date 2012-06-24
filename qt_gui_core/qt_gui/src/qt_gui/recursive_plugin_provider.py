@@ -30,10 +30,11 @@
 
 import traceback
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import qCritical
 
 from .composite_plugin_provider import CompositePluginProvider
+
 
 class RecursivePluginProvider(CompositePluginProvider):
 

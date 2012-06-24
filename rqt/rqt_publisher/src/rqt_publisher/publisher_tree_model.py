@@ -33,13 +33,12 @@ import threading
 
 import roslib
 roslib.load_manifest('rqt_publisher')
-import rospy
 
-import qt_gui.qt_binding_helper #@UnusedImport
-from QtCore import Signal, qDebug, Qt
-from QtGui import QStandardItem
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import Signal
 
 from rqt_py_common.message_tree_model import MessageTreeModel
+
 
 class PublisherTreeModel(MessageTreeModel):
     _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
@@ -59,15 +58,12 @@ class PublisherTreeModel(MessageTreeModel):
         super(PublisherTreeModel, self).clear()
         self.setHorizontalHeaderLabels(self._column_names)
 
-
     def get_publisher_ids(self, index_list):
         return [item._user_data['publisher_id'] for item in self._get_toplevel_items(index_list)]
-
 
     def remove_items_with_parents(self, index_list):
         for item in self._get_toplevel_items(index_list):
             self.removeRow(item.row())
-
 
     def handle_item_changed(self, item):
         if not self._item_change_lock.acquire(False):
@@ -84,7 +80,6 @@ class PublisherTreeModel(MessageTreeModel):
         # release lock
         self._item_change_lock.release()
 
-
     def remove_publisher(self, publisher_id):
         for top_level_row_number in range(self.rowCount()):
             item = self.item(top_level_row_number)
@@ -93,11 +88,9 @@ class PublisherTreeModel(MessageTreeModel):
                 return top_level_row_number
         return None
 
-
     def update_publisher(self, publisher_info):
         top_level_row_number = self.remove_publisher(publisher_info['publisher_id'])
         self.add_publisher(publisher_info, top_level_row_number)
-
 
     def add_publisher(self, publisher_info, top_level_row_number=None):
         # recursively create widget items for the message's slots
@@ -118,10 +111,8 @@ class PublisherTreeModel(MessageTreeModel):
         top_level_row[self._column_index['enabled']].setText(str(publisher_info['enabled']))
         top_level_row[self._column_index['rate']].setText(str(publisher_info['rate']))
 
-
     def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         return (slot_name, slot_type_name, '', '', '')
-
 
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, expressions={}, **kwargs):
         row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, expressions=expressions, **kwargs)

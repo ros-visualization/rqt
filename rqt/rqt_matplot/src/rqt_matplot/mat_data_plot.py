@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import collections
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Slot
 from QtGui import QWidget, QVBoxLayout, QSizePolicy
 
@@ -40,6 +40,7 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as Naviga
 from matplotlib.figure import Figure
 
 import numpy
+
 
 class MatDataPlot(QWidget):
     class Canvas(FigureCanvas):
@@ -66,7 +67,6 @@ class MatDataPlot(QWidget):
         self._color_index = 0
         self._curves = {}
 
-
     def add_curve(self, curve_id, data_x, data_y):
         data_x = collections.deque(data_x)
         data_y = collections.deque(data_y)
@@ -74,7 +74,6 @@ class MatDataPlot(QWidget):
         self._color_index += 1
         plot = self._canvas.axes.plot(data_x, data_y, linewidth=1, picker=5, color=color)[0]
         self._curves[curve_id] = (data_x, data_y, plot)
-
 
     def draw_plot(self):
         self._canvas.axes.grid(True, color='gray')
@@ -111,13 +110,11 @@ class MatDataPlot(QWidget):
 
         self._canvas.draw()
 
-
     @Slot(str, float)
     def update_value(self, curve_id, x, y):
         data_x, data_y, _ = self._curves[curve_id]
         data_x.extend(x)
         data_y.extend(y)
-
 
     def remove_curve(self, curve_id):
         curve_id = str(curve_id)

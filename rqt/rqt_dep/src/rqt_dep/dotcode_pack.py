@@ -35,10 +35,10 @@ from __future__ import with_statement, print_function
 import re
 
 from rospkg.common import ResourceNotFound
-import qt_dotgraph
 from qt_dotgraph.colors import get_color_for_string
 
 MAX_EDGES = 1500
+
 
 def matches_any(name, patternlist):
     for pattern in patternlist:
@@ -76,10 +76,10 @@ class RosPackageGraphDotcodeGenerator:
                          hide_transitives=True,
                          mark_selected=True,
                          colortheme=None,
-                         rank='same', # None, same, min, max, source, sink
-                         ranksep=0.2, # vertical distance between layers
-                         rankdir='TB', # direction of layout (TB top > bottom, LR left > right)
-                         simplify=True, # remove double edges
+                         rank='same',  # None, same, min, max, source, sink
+                         ranksep=0.2,  # vertical distance between layers
+                         rankdir='TB',  # direction of layout (TB top > bottom, LR left > right)
+                         simplify=True,  # remove double edges
                          force_refresh=False):
         """
 
@@ -130,17 +130,15 @@ class RosPackageGraphDotcodeGenerator:
             # update internal graph structure
             for name in self.rospack.list():
                 if matches_any(name, self.selected_names):
-                    namefound = True
                     if descendants:
                         self.add_package_descendants_recursively(name)
                     if ancestors:
                         self.add_package_ancestors_recursively(name)
             for stackname in self.rosstack.list():
                 if matches_any(stackname, self.selected_names):
-                    namefound = True
                     for package_name in self.rosstack.packages_of(stackname):
                         if descendants:
-                             self.add_package_descendants_recursively(package_name)
+                            self.add_package_descendants_recursively(package_name)
                         if ancestors:
                             self.add_package_ancestors_recursively(package_name)
 
@@ -151,7 +149,6 @@ class RosPackageGraphDotcodeGenerator:
             "ranksep" : ranksep,
             "simplify" : simplify,
             "colortheme": colortheme,
-            "dotcode_factory" : dotcode_factory,
             "mark_selected" : mark_selected
             }
 
@@ -272,7 +269,7 @@ class RosPackageGraphDotcodeGenerator:
                 depends_on = self.rospack.get_depends_on(package_name, implicit=implicit)
             except ResourceNotFound, e:
                 print('RosPackageGraphDotcodeGenerator.add_package_ancestors_recursively(%s), parent %s: ResourceNotFound:'%(package_name, parent), e)
-                depends = []
+                depends_on = []
             new_nodes = []
             for dep_on_name in [x for x in depends_on if not matches_any(x, self.excludes)]:
                 if not self.hide_transitives or not dep_on_name in expanded_up:

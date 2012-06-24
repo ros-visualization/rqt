@@ -35,7 +35,7 @@ import rospy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import qDebug, qWarning
 
 try:
@@ -44,6 +44,7 @@ try:
 except ImportError:
     from rqt_gui.roslib_plugin_provider import RoslibPluginProvider
     ActualRosPluginProvider = RoslibPluginProvider
+
 
 class RosPyPluginProvider(CompositePluginProvider):
 

@@ -31,22 +31,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import division
+import math
 import os
-import math, random, time # used for the expression eval context
+import random
+import time
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt, QTimer, QSignalMapper, Slot, qDebug, qWarning
+from QtCore import Qt, Slot, qDebug, qWarning
 from QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
 roslib.load_manifest('rqt_service_caller')
-import rospy, rosservice
+import rospy
+import rosservice
 from rqt_py_common.extended_combo_box import ExtendedComboBox
+
 
 # main class inherits from the ui window class
 class ServiceCaller(QWidget):
     column_names = ['service', 'type', 'expression']
-
 
     def __init__(self, context):
         super(ServiceCaller, self).__init__()
@@ -80,7 +83,6 @@ class ServiceCaller(QWidget):
         # add our self to the main window
         context.add_widget(self)
 
-
     @Slot()
     def on_refresh_services_button_clicked(self):
         service_names = rosservice.get_service_list()
@@ -94,7 +96,6 @@ class ServiceCaller(QWidget):
 
         self.service_combo_box.clear()
         self.service_combo_box.addItems(sorted(service_names))
-
 
     @Slot(str)
     def on_service_combo_box_currentIndexChanged(self, service_name):
@@ -122,7 +123,6 @@ class ServiceCaller(QWidget):
         self.request_tree_widget.expandAll()
         for i in range(self.request_tree_widget.columnCount()):
             self.request_tree_widget.resizeColumnToContents(i)
-
 
     def _recursive_create_widget_items(self, parent, topic_name, type_name, message, is_editable=True):
         item = QTreeWidgetItem(parent)
@@ -156,7 +156,6 @@ class ServiceCaller(QWidget):
 
         return item
 
-
     @Slot('QTreeWidgetItem*', int)
     def request_tree_widget_itemChanged(self, item, column):
         column_name = self.column_names[column]
@@ -167,7 +166,6 @@ class ServiceCaller(QWidget):
             topic_name = str(item.data(0, Qt.UserRole))
             self._service_info['expressions'][topic_name] = new_value
             qDebug('ServiceCaller.request_tree_widget_itemChanged(): %s expression: %s' % (topic_name, new_value))
-
 
     def fill_message_slots(self, message, topic_name, expressions, counter):
         if not hasattr(message, '__slots__'):
@@ -196,7 +194,6 @@ class ServiceCaller(QWidget):
             if value is not None:
                 setattr(message, slot_name, value)
 
-
     def _evaluate_expression(self, expression, slot_type):
         successful_eval = True
         successful_conversion = True
@@ -224,7 +221,6 @@ class ServiceCaller(QWidget):
 
         return None
 
-
     @Slot()
     def on_call_service_button_clicked(self):
         self.response_tree_widget.clear()
@@ -250,16 +246,13 @@ class ServiceCaller(QWidget):
         for i in range(self.response_tree_widget.columnCount()):
             self.response_tree_widget.resizeColumnToContents(i)
 
-
     @Slot('QPoint')
     def on_request_tree_widget_customContextMenuRequested(self, pos):
         self._show_context_menu(self.request_tree_widget.itemAt(pos), self.request_tree_widget.mapToGlobal(pos))
 
-
     @Slot('QPoint')
     def on_response_tree_widget_customContextMenuRequested(self, pos):
         self._show_context_menu(self.response_tree_widget.itemAt(pos), self.response_tree_widget.mapToGlobal(pos))
-
 
     def _show_context_menu(self, item, global_pos):
         if item is None:
@@ -274,6 +267,7 @@ class ServiceCaller(QWidget):
         # evaluate user action
         if action in (action_item_expand, action_item_collapse):
             expanded = (action is action_item_expand)
+
             def recursive_set_expanded(item):
                 item.setExpanded(expanded)
                 for index in range(item.childCount()):

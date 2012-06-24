@@ -34,13 +34,14 @@ from __future__ import division, with_statement
 import time
 from StringIO import StringIO
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import qDebug
 
 import roslib
 roslib.load_manifest('rqt_topic')
 import rospy
 from rostopic import get_topic_class, ROSTopicHz
+
 
 class TopicInfo(ROSTopicHz):
 
@@ -56,13 +57,11 @@ class TopicInfo(ROSTopicHz):
             qDebug('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
             return
 
-
     def _reset_data(self):
         self.last_message = None
         self.times = []
         self.timestamps = []
         self.sizes = []
-
 
     def toggle_monitoring(self):
         if self.monitoring:
@@ -70,20 +69,17 @@ class TopicInfo(ROSTopicHz):
         else:
             self.start_monitoring()
 
-
     def start_monitoring(self):
         self.monitoring = True
         if self._topic_name is not None:
             # FIXME: subscribing to class AnyMsg breaks other subscribers on same node
             self._subscriber = rospy.Subscriber(self._topic_name, self.message_class, self.message_callback)
 
-
     def stop_monitoring(self):
         self.monitoring = False
         self._reset_data()
         if self._subscriber is not None:
             self._subscriber.unregister()
-
 
     def message_callback(self, message):
         ROSTopicHz.callback_hz(self, message)
@@ -104,7 +100,6 @@ class TopicInfo(ROSTopicHz):
 
             self.last_message = message
 
-
     def get_bw(self):
         if len(self.timestamps) < 2:
             return None, None, None, None
@@ -115,7 +110,6 @@ class TopicInfo(ROSTopicHz):
             max_size = max(self.sizes)
             min_size = min(self.sizes)
             return bytes_per_s, mean_size, min_size, max_size
-
 
     def get_hz(self):
         if not self.times:

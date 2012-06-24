@@ -39,6 +39,7 @@ from QtGui import QVBoxLayout, QX11EmbedWidget
 from .settings import Settings
 from .window_title_changed_signaler import WindowTitleChangedSignaler
 
+
 class PluginHandlerXEmbedClient(PluginHandlerDirect):
 
     """
@@ -55,7 +56,6 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         self._remote_instance_settings = None
         # mapping of added widgets to their embed widget and WindowTitleChangedSignaler
         self._embed_widgets = {}
-
 
     def _load(self):
         conn = Connection(self._application_context.options.embed_plugin_address)
@@ -82,14 +82,12 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
         if exception is None:
             self._remote_container.load_completed(True, self._plugin_has_configuration)
 
-
     def shutdown_plugin(self, callback):
         # this method should never be called for embedded clients
         assert(False)
 
     def emit_shutdown_plugin_completed(self):
         self._remote_container.shutdown_plugin_completed()
-
 
     def save_settings(self, plugin_settings, instance_settings, callback=None):
         # this method should never be called for embedded clients
@@ -108,7 +106,6 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
     def emit_save_settings_completed(self):
         self._remote_container.save_settings_completed()
 
-
     def restore_settings(self, plugin_settings, instance_settings, callback=None):
         # this method should never be called for embedded clients
         assert(False)
@@ -125,7 +122,6 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
 
     def emit_restore_settings_completed(self):
         self._remote_container.restore_settings_completed()
-
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')

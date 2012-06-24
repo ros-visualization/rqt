@@ -28,8 +28,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtGui import QColor, QGraphicsItemGroup
+
 
 class GraphItem(QGraphicsItemGroup):
 
@@ -43,4 +44,3 @@ class GraphItem(QGraphicsItemGroup):
     def __init__(self, highlight_level, parent=None):
         super(GraphItem, self).__init__(parent)
         self._highlight_level = highlight_level
-

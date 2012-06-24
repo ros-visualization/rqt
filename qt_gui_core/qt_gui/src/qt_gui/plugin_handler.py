@@ -30,13 +30,14 @@
 
 import traceback
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import qCritical, QObject, Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget
 
 from .dock_widget import DockWidget
 from .dock_widget_title_bar import DockWidgetTitleBar
 from .window_title_changed_signaler import WindowTitleChangedSignaler
+
 
 class PluginHandler(QObject):
 
@@ -69,7 +70,6 @@ class PluginHandler(QObject):
 
     def instance_id(self):
         return self._instance_id
-
 
     def load(self, plugin_provider, callback=None):
         """
@@ -105,7 +105,6 @@ class PluginHandler(QObject):
         elif exception is not None:
             qCritical('PluginHandler.load() failed%s' % (':\n%s' % str(exception) if exception != True else ''))
 
-
     def shutdown_plugin(self, callback):
         """
         Shutdown plugin (`Plugin.shutdown_settings()`) and remove all added widgets.
@@ -133,7 +132,6 @@ class PluginHandler(QObject):
     def _delete_widget(self, widget):
         del widget
 
-
     def unload(self, callback=None):
         """
         Unload plugin.
@@ -154,7 +152,6 @@ class PluginHandler(QObject):
             callback = self.__callback
             self.__callback = None
             callback(self._instance_id)
-
 
     def save_settings(self, plugin_settings, instance_settings, callback=None):
         """
@@ -192,7 +189,6 @@ class PluginHandler(QObject):
             except Exception:
                 qCritical('PluginHandler._call_method_on_all_dock_widgets(%s) failed:\n%s' % (method_name, traceback.format_exc()))
 
-
     def restore_settings(self, plugin_settings, instance_settings, callback=None):
         """
         Restore settings of the plugin (`Plugin.restore_settings()`) and all dock widget title bars.
@@ -219,7 +215,6 @@ class PluginHandler(QObject):
             callback = self.__callback
             self.__callback = None
             callback(self._instance_id)
-
 
     def _create_dock_widget(self):
         dock_widget = DockWidget(self._container_manager)
@@ -278,16 +273,13 @@ class PluginHandler(QObject):
                 self._main_window.removeDockWidget(old_dock_widget)
             self._main_window.addDockWidget(Qt.BottomDockWidgetArea, dock_widget)
 
-
     def _on_widget_title_changed(self, widget):
         dock_widget, _ = self._widgets[widget]
         dock_widget.setWindowTitle(widget.windowTitle())
 
-
     def _update_widget_title(self, widget, title):
         dock_widget, _ = self._widgets[widget]
         dock_widget.setWindowTitle(title)
-
 
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
@@ -307,7 +299,6 @@ class PluginHandler(QObject):
             dock_widget.parent().removeDockWidget(dock_widget)
             dock_widget.setParent(None)
             dock_widget.deleteLater()
-
 
     def _emit_close_plugin(self):
         self.close_signal.emit(str(self._instance_id))

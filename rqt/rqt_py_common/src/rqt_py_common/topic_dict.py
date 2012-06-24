@@ -32,15 +32,14 @@ import roslib
 roslib.load_manifest('rqt_py_common')
 import rospy
 
+
 class TopicDict(object):
 
     def __init__(self):
         self.update_topics()
 
-
     def get_topics(self):
         return self.topic_dict
-
 
     def update_topics(self):
         self.topic_dict = {}
@@ -48,7 +47,6 @@ class TopicDict(object):
         for topic_name, topic_type in topic_list:
             message = roslib.message.get_message_class(topic_type)()
             self.topic_dict.update(self._recursive_create_field_dict(topic_name, message))
-
 
     def _recursive_create_field_dict(self, topic_name, field):
         field_dict = {}

@@ -28,11 +28,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import QEvent, QPoint, QRect, Qt
-from QtGui import QApplication, QDockWidget, QMainWindow, QMouseEvent, QRegion, QWidget
+from QtGui import QApplication, QDockWidget, QMainWindow, QMouseEvent
 
 from .reparent_event import ReparentEvent
+
 
 class DockWidget(QDockWidget):
 

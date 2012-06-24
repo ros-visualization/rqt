@@ -28,11 +28,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QPointF, Qt
 from QtGui import QBrush, QGraphicsPathItem, QGraphicsPolygonItem, QGraphicsSimpleTextItem, QPainterPath, QPen, QPolygonF
 
 from .graph_item import GraphItem
+
 
 class EdgeItem(GraphItem):
 
@@ -72,17 +73,14 @@ class EdgeItem(GraphItem):
             parts = coordinates.pop(0)[2:].split(',')
             end_point = QPointF(float(parts[0]), -float(parts[1]))
         # extract optional start_point
-        start_point = None
         if (coordinates[0].startswith('s,')):
             parts = coordinates.pop(0).split(',')
-            start_point = QPointF(float(parts[0]), -float(parts[1]))
 
         # first point
         parts = coordinates.pop(0).split(',')
         point = QPointF(float(parts[0]), -float(parts[1]))
         path = QPainterPath(point)
 
-        last_point = point
         while len(coordinates) > 2:
             # extract triple of points for a cubic spline
             parts = coordinates.pop(0).split(',')
@@ -92,7 +90,6 @@ class EdgeItem(GraphItem):
             parts = coordinates.pop(0).split(',')
             point3 = QPointF(float(parts[0]), -float(parts[1]))
             path.cubicTo(point1, point2, point3)
-            last_point = point3
 
         self._arrow = None
         if end_point is not None:
@@ -177,4 +174,3 @@ class EdgeItem(GraphItem):
         if self._highlight_level > 2:
             for sibling_edge in self._sibling_edges:
                 sibling_edge.set_color()
-

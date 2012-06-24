@@ -28,17 +28,18 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import qDebug
 
 from dbus.service import BusName, Object
 import dbus
 
+
 class PluginManagerDBusInterface(Object):
 
     """DBus service of the `PluginManager` available on the unique bus name."""
 
-    def __init__(self, plugin_manager , application_context):
+    def __init__(self, plugin_manager, application_context):
         bus_name = BusName(application_context.dbus_unique_bus_name, dbus.SessionBus())
         super(PluginManagerDBusInterface, self).__init__(bus_name, '/PluginManager')
         self._plugin_manager = plugin_manager

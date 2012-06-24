@@ -45,6 +45,7 @@ from rostopic import get_topic_type
 from .mat_data_plot import MatDataPlot
 from rqt_py_common.topic_completer import TopicCompleter
 
+
 # main class inherits from the ui window class
 class MatPlot(QWidget):
 
@@ -78,13 +79,11 @@ class MatPlot(QWidget):
         self._update_plot_timer.timeout.connect(self.update_plot)
         self._update_plot_timer.start(40)
 
-
     def update_plot(self):
         for topic_name, rosdata in self._rosdata.items():
             data_x, data_y = rosdata.next()
             self.data_plot.update_value(topic_name, data_x, data_y)
         self.data_plot.draw_plot()
-
 
     def _get_field_type(self, topic_name):
         # get message
@@ -103,7 +102,6 @@ class MatPlot(QWidget):
             field_type = type(message)
 
         return field_type
-
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
@@ -131,7 +129,6 @@ class MatPlot(QWidget):
         else:
             qDebug('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
 
-
     @Slot('QDropEvent*')
     def dropEvent(self, event):
         if event.mimeData().hasText():
@@ -141,10 +138,9 @@ class MatPlot(QWidget):
             topic_name = str(droped_item.data(0, Qt.UserRole))
         self.add_topic(topic_name)
 
-
     @Slot(str)
     def on_topic_edit_textChanged(self, topic_name):
-        # on empty topic name, update topics 
+        # on empty topic name, update topics
         if topic_name in ('', '/'):
             self._topic_completer.update_topics()
 
@@ -157,11 +153,9 @@ class MatPlot(QWidget):
             self.subscribe_topic_button.setEnabled(False)
             self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
 
-
     @Slot()
     def on_subscribe_topic_button_clicked(self):
         self.add_topic(str(self.topic_edit.text()))
-
 
     def add_topic(self, topic_name):
         if topic_name in self._rosdata:
@@ -172,12 +166,9 @@ class MatPlot(QWidget):
         data_x, data_y = self._rosdata[topic_name].next()
         self.data_plot.add_curve(topic_name, data_x, data_y)
 
-
-
     @Slot()
     def on_clear_button_clicked(self):
         self.clean_up_subscribers()
-
 
     @Slot(bool)
     def on_pause_button_clicked(self, checked):
@@ -186,24 +177,20 @@ class MatPlot(QWidget):
         else:
             self._update_plot_timer.start(40)
 
-
     def clean_up_subscribers(self):
         for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.remove_curve(topic_name)
         self._rosdata = {}
 
-
     def set_name(self, name):
         self.setWindowTitle(name)
-
 
     # override Qt's closeEvent() method to trigger plugin unloading
     def closeEvent(self, event):
         event.ignore()
         self.deleteLater()
 
-
     def close_plugin(self):
         self.clean_up_subscribers()
-        QDockWidget.close(self)
+        QWidget.close(self)

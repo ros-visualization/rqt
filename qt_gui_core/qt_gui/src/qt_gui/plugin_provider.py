@@ -28,7 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import QObject
 
 class PluginProvider(QObject):

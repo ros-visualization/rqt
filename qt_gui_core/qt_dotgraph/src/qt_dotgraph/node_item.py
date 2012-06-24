@@ -28,11 +28,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
-from QtCore import Qt, QRectF
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import Qt
 from QtGui import QBrush, QGraphicsEllipseItem, QGraphicsRectItem, QGraphicsSimpleTextItem, QPen, QPainterPath
 
 from .graph_item import GraphItem
+
 
 class NodeItem(GraphItem):
 
@@ -73,15 +74,15 @@ class NodeItem(GraphItem):
 
     def set_hovershape(self, newhovershape):
         self.hovershape = newhovershape
-        
+
     def shape(self):
         if self.hovershape is not None:
             path = QPainterPath()
-            path.addRect(self.hovershape);
+            path.addRect(self.hovershape)
             return path
         else:
             return super(self.__class__, self).shape()
-        
+
     def add_incoming_edge(self, edge):
         self._incoming_edges.add(edge)
 
@@ -145,4 +146,3 @@ class NodeItem(GraphItem):
                 outgoing_edge.set_color()
                 if self._highlight_level > 2 and outgoing_edge.to_node != self:
                     outgoing_edge.to_node.set_color()
-

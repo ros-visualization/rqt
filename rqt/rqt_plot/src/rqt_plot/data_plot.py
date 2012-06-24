@@ -32,14 +32,16 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import division
-import math, sys
+import math
+import sys
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QEvent, QPointF, QTimer, Qt, SIGNAL, Signal, Slot
 from QtGui import QPen, QVector2D
 import Qwt
 
 from numpy import arange, zeros, concatenate
+
 
 # create real DataPlot class
 class DataPlot(Qwt.QwtPlot):
@@ -75,7 +77,6 @@ class DataPlot(Qwt.QwtPlot):
 
         #self.setAxisTitle(Qwt.QwtPlot.xBottom, "Time")
         #self.setAxisTitle(Qwt.QwtPlot.yLeft, "Value")
-
 
         self.picker = Qwt.QwtPlotPicker(
             Qwt.QwtPlot.xBottom, Qwt.QwtPlot.yLeft, Qwt.QwtPicker.PolygonSelection,
@@ -185,7 +186,7 @@ class DataPlot(Qwt.QwtPlot):
 
     def redraw(self):
         for curveId in self.curves.keys():
-            self.curves[curveId]['object'].setData(self.timeAxis, self.curves[curveId]['data'][self.dataOffsetX : self.dataOffsetX + len(self.timeAxis)])
+            self.curves[curveId]['object'].setData(self.timeAxis, self.curves[curveId]['data'][self.dataOffsetX: self.dataOffsetX + len(self.timeAxis)])
             #self.curves[curveId]['object'].setStyle(Qwt.QwtPlotCurve.CurveStyle(3))
         self.replot()
 
@@ -235,7 +236,7 @@ class DataPlot(Qwt.QwtPlot):
             deltaX = self.lastCanvasX - canvasX
             deltaY = canvasY - self.lastCanvasY
             self.moveCanvas(deltaX, deltaY)
-        elif event.buttons() & Qt.RightButton: # right button zooms
+        elif event.buttons() & Qt.RightButton:   # right button zooms
             zoomFactor = max(-0.6, min(0.6, (self.lastCanvasY - canvasY) / 20.0 / 2.0))
             deltaY = (self.canvas().height() / 2.0) - self.pressedCanvasY
             self.moveCanvas(0, zoomFactor * deltaY * 1.0225)
@@ -244,7 +245,7 @@ class DataPlot(Qwt.QwtPlot):
         self.lastCanvasX = canvasX
         self.lastCanvasY = canvasY
 
-    def wheelEvent(self, event): # mouse wheel zooms the y-axis
+    def wheelEvent(self, event):  # mouse wheel zooms the y-axis
         canvasY = event.y() - self.canvas().y()
         zoomFactor = max(-0.6, min(0.6, (event.delta() / 120) / 6.0))
         deltaY = (self.canvas().height() / 2.0) - canvasY

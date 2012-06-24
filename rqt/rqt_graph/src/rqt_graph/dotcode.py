@@ -36,6 +36,7 @@ import re
 import copy
 
 import rosgraph.impl.graph
+import roslib
 
 # node/node connectivity
 NODE_NODE_GRAPH = 'node_node'
@@ -44,9 +45,8 @@ NODE_TOPIC_GRAPH = 'node_topic'
 # all node/topic connections, even if no actual network connection
 NODE_TOPIC_ALL_GRAPH = 'node_topic_all'
 
-import urllib
-
 QUIET_NAMES = ['/diag_agg', '/runtime_logger', '/pr2_dashboard', '/rviz', '/rosout', '/cpu_monitor', '/monitor', '/hd_monitor', '/rxloggerlevel', '/clock', '/rqt']
+
 
 def matches_any(name, patternlist):
     if patternlist is None or len(patternlist) == 0:
@@ -58,6 +58,7 @@ def matches_any(name, patternlist):
             if re.match(str(pattern), name.strip()) is not None:
                 return True
     return False
+
 
 class NodeConnections:
     def __init__(self, incoming=None, outgoing=None):
@@ -72,10 +73,10 @@ class RosGraphDotcodeGenerator:
 
     def _add_edge(self, edge, dotcode_factory, dotgraph, is_topic=False):
         if is_topic:
-            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label, url = 'topic:%s' % edge.label)
+            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label=edge.label, url='topic:%s' % edge.label)
         else:
-            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label = edge.label)
-            
+            dotcode_factory.add_edge_to_graph(dotgraph, edge.start, edge.end, label=edge.label)
+
     def _add_node(self, node, rosgraphinst, dotcode_factory, dotgraph, quiet):
         if node in rosgraphinst.bad_nodes:
             if quiet:
@@ -83,30 +84,29 @@ class RosGraphDotcodeGenerator:
             bn = rosgraphinst.bad_nodes[node]
             if bn.type == rosgraph.impl.graph.BadNode.DEAD:
                 dotcode_factory.add_node_to_graph(dotgraph,
-                                                  nodename = node,
-                                                  shape = "doublecircle",
+                                                  nodename=node,
+                                                  shape="doublecircle",
                                                   url=node,
-                                                  color = "red")
+                                                  color="red")
             else:
                 dotcode_factory.add_node_to_graph(dotgraph,
-                                                  nodename = node,
-                                                  shape = "doublecircle",
+                                                  nodename=node,
+                                                  shape="doublecircle",
                                                   url=node,
-                                                  color = "orange")
+                                                  color="orange")
         else:
             dotcode_factory.add_node_to_graph(dotgraph,
-                                              nodename = node,
-                                              shape = 'ellipse',
+                                              nodename=node,
+                                              shape='ellipse',
                                               url=node)
-            
+
     def _add_topic_node(self, node, dotcode_factory, dotgraph, quiet):
         label = rosgraph.impl.graph.node_topic(node)
         dotcode_factory.add_node_to_graph(dotgraph,
-                                          nodename = label,
-                                          nodelabel = label,
-                                          shape = 'box',
-                                          url="topic:%s"%label)
-    
+                                          nodename=label,
+                                          nodelabel=label,
+                                          shape='box',
+                                          url="topic:%s" % label)
 
     def _quiet_filter(self, name):
         # ignore viewers
@@ -114,28 +114,28 @@ class RosGraphDotcodeGenerator:
             if n in name:
                 return False
         return True
-    
+
     def quiet_filter_topic_edge(self, edge):
         for quiet_label in ['/time', '/clock', '/rosout']:
             if quiet_label == edge.label:
                 return False
         return self._quiet_filter(edge.start) and self._quiet_filter(edge.end)
-    
-    def generate_namespaces(self, rosgraph, graph_mode, quiet=False):
+
+    def generate_namespaces(self, graph, graph_mode, quiet=False):
         """
         Determine the namespaces of the nodes being displayed
         """
         namespaces = []
         if graph_mode == NODE_NODE_GRAPH:
-            nodes = rosgraph.nn_nodes
+            nodes = graph.nn_nodes
             if quiet:
                 nodes = [n for n in nodes if not n in QUIET_NAMES]
             namespaces = list(set([roslib.names.namespace(n) for n in nodes]))
-    
+
         elif graph_mode == NODE_TOPIC_GRAPH or \
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
-            nn_nodes = rosgraph.nn_nodes
-            nt_nodes = rosgraph.nt_nodes
+            nn_nodes = graph.nn_nodes
+            nt_nodes = graph.nt_nodes
             if quiet:
                 nn_nodes = [n for n in nn_nodes if not n in QUIET_NAMES]
                 nt_nodes = [n for n in nt_nodes if not n in QUIET_NAMES]
@@ -147,7 +147,7 @@ class RosGraphDotcodeGenerator:
             namespaces.extend([roslib.names.namespace(n[1:]) for n in nt_nodes])
 
         return list(set(namespaces))
-    
+
     def _filter_orphaned_edges(self, edges, nodes):
         nodenames = [str(n).strip() for n in nodes]
         # currently using and rule as the or rule generates orphan nodes with the current logic
@@ -264,33 +264,33 @@ class RosGraphDotcodeGenerator:
                             edges.remove(e)
                     action_nodes[prefix] = {'topics': action_topic_nodes,
                                             'outgoing': action_topic_edges_out,
-                                            'incoming' : action_topic_edges_in}
+                                            'incoming': action_topic_edges_in}
         for n in removal_nodes:
             nodes.remove(n)
         return nodes, edges, action_nodes
-    
+
     def generate_dotgraph(self,
                          rosgraphinst,
                          ns_filter,
                          topic_filter,
                          graph_mode,
                          dotcode_factory,
-                         hide_single_connection_topics = False,
-                         hide_dead_end_topics = False,
-                         cluster_namespaces_level = 0,
-                         accumulate_actions = True,
-                         orientation = 'LR',
-                         rank = 'same',   # None, same, min, max, source, sink
-                         ranksep = 0.2,   # vertical distance between layers
-                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
-                         simplify = True, # remove double edges
+                         hide_single_connection_topics=False,
+                         hide_dead_end_topics=False,
+                         cluster_namespaces_level=0,
+                         accumulate_actions=True,
+                         orientation='LR',
+                         rank='same',  # None, same, min, max, source, sink
+                         ranksep=0.2,  # vertical distance between layers
+                         rankdir='TB',  # direction of layout (TB top > bottom, LR left > right)
+                         simplify=True,  # remove double edges
                          quiet=False):
         """
         See generate_dotcode
         """
         includes, excludes = self._split_filter_string(ns_filter)
         topic_includes, topic_excludes = self._split_filter_string(topic_filter)
-                
+
         nn_nodes = []
         nt_nodes = []
         # create the node definitions
@@ -299,7 +299,7 @@ class RosGraphDotcodeGenerator:
             nn_nodes = [n for n in nn_nodes if matches_any(n, includes) and not matches_any(n, excludes)]
             edges = rosgraphinst.nn_edges
             edges = [e for e in edges if matches_any(e.label, topic_includes) and not matches_any(e.label, topic_excludes)]
-            
+
         elif graph_mode == NODE_TOPIC_GRAPH or \
                  graph_mode == NODE_TOPIC_ALL_GRAPH:
             nn_nodes = rosgraphinst.nn_nodes
@@ -312,13 +312,12 @@ class RosGraphDotcodeGenerator:
                 edges = [e for e in rosgraphinst.nt_edges]
             else:
                 edges = [e for e in rosgraphinst.nt_all_edges]
-            
+
         if quiet:
             nn_nodes = filter(self._quiet_filter, nn_nodes)
             nt_nodes = filter(self._quiet_filter, nt_nodes)
             if graph_mode == NODE_NODE_GRAPH:
                 edges = filter(self.quiet_filter_topic_edge, edges)
-
 
         # for accumulating actions topics
         action_nodes = {}
@@ -340,12 +339,11 @@ class RosGraphDotcodeGenerator:
         nt_nodes = self._filter_orphaned_topics(nt_nodes, edges)
 
         # create the graph
-            
         # result = "digraph G {\n  rankdir=%(orientation)s;\n%(nodes_str)s\n%(edges_str)s}\n" % vars()
-        dotgraph = dotcode_factory.get_graph(rank = rank,
-                                          ranksep = ranksep,
-                                          simplify = simplify,
-                                          rankdir = orientation)
+        dotgraph = dotcode_factory.get_graph(rank=rank,
+                                             ranksep=ranksep,
+                                             simplify=simplify,
+                                             rankdir=orientation)
 
         ACTION_TOPICS_SUFFIX = '/action_topics'
         namespace_clusters = {}
@@ -386,23 +384,21 @@ class RosGraphDotcodeGenerator:
                     dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
         return dotgraph
 
-
-
     def generate_dotcode(self,
                          rosgraphinst,
                          ns_filter,
                          topic_filter,
                          graph_mode,
                          dotcode_factory,
-                         hide_single_connection_topics = False,
-                         hide_dead_end_topics = False,
-                         cluster_namespaces_level = 0,
-                         accumulate_actions = True,
-                         orientation = 'LR',
-                         rank = 'same',   # None, same, min, max, source, sink
-                         ranksep = 0.2,   # vertical distance between layers
-                         rankdir = 'TB',  # direction of layout (TB top > bottom, LR left > right)
-                         simplify = True, # remove double edges
+                         hide_single_connection_topics=False,
+                         hide_dead_end_topics=False,
+                         cluster_namespaces_level=0,
+                         accumulate_actions=True,
+                         orientation='LR',
+                         rank='same',  # None, same, min, max, source, sink
+                         ranksep=0.2,  # vertical distance between layers
+                         rankdir='TB',  # direction of layout (TB top > bottom, LR left > right)
+                         simplify=True,  # remove double edges
                          quiet=False):
         """
         @param rosgraphinst: RosGraph instance
@@ -439,4 +435,3 @@ class RosGraphDotcodeGenerator:
                          quiet=quiet)
         dotcode = dotcode_factory.create_dot(dotgraph)
         return dotcode
-        

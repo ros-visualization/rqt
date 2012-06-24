@@ -35,7 +35,7 @@ import pydot
 import roslib
 roslib.load_manifest('qt_dotgraph')
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QRectF, QPointF
 from QtGui import QColor
 
@@ -43,6 +43,7 @@ from .edge_item import EdgeItem
 from .node_item import NodeItem
 
 POINTS_PER_INCH = 72
+
 
 # hack required by pydot
 def get_unquoted(item, name):
@@ -58,14 +59,18 @@ def get_unquoted(item, name):
 # approximately, for workarounds (TODO: get this from dotfile somehow)
 LABEL_HEIGHT = 30
 
+
 # Class generating Qt Elements from doctcode
 class DotToQtGenerator():
+
+    def __init__(self):
+        pass
 
     def getNodeItemForSubgraph(self, subgraph, highlight_level):
         # let pydot imitate pygraphviz api
         attr = {}
         for name in subgraph.get_attributes().iterkeys():
-            value = get_unquoted(node, name)
+            value = get_unquoted(subgraph, name)
             attr[name] = value
         obj_dic = subgraph.__getattribute__("obj_dict")
         for name in obj_dic:
@@ -78,19 +83,19 @@ class DotToQtGenerator():
 
         bb = subgraph.attr['bb'].strip('"').split(',')
         if len(bb) < 4:
-            raise ValueError('bounding box has too few elements %s'%subgraph.attr)
-        bounding_box = QRectF(0, 0, float(bb[2]) - float(bb[0]), float(bb[3]) -float(bb[1]))
+            raise ValueError('bounding box has too few elements %s' % subgraph.attr)
+        bounding_box = QRectF(0, 0, float(bb[2]) - float(bb[0]), float(bb[3]) - float(bb[1]))
         if 'lp' in subgraph.attr:
             label_pos = subgraph.attr['lp'].strip('"').split(',')
         else:
-            label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, float(bb[1]) + (float(bb[3]) -float(bb[1])) - LABEL_HEIGHT / 2)
-        bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) -float(bb[1]))/2))
+            label_pos = (float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, float(bb[1]) + (float(bb[3]) - float(bb[1])) - LABEL_HEIGHT / 2)
+        bounding_box.moveCenter(QPointF(float(bb[0]) + (float(bb[2]) - float(bb[0])) / 2, - float(bb[1]) - (float(bb[3]) - float(bb[1])) / 2))
         name = subgraph.attr['label']
         color = QColor(subgraph.attr['color']) if 'color' in subgraph.attr else None
         subgraph_nodeitem = NodeItem(highlight_level,
                                      bounding_box,
-                                     label = name,
-                                     shape = 'box',
+                                     label=name,
+                                     shape='box',
                                      color=color,
                                      label_pos=QPointF(float(label_pos[0]), -float(label_pos[1])))
         bounding_box = QRectF(bounding_box)
@@ -128,11 +133,11 @@ class DotToQtGenerator():
         elif 'name' in node.attr:
             name = node.attr['name']
         else:
-            print("Error, no label defined for node with attr: %s"%node.attr)
+            print("Error, no label defined for node with attr: %s" % node.attr)
             return None
         if name is None:
             # happens on Lucid pygraphviz version
-            print("Error, label is None for node %s, pygraphviz version may be too old."%node)
+            print("Error, label is None for node %s, pygraphviz version may be too old." % node)
         else:
             name = name.decode('string_escape')
 
@@ -203,7 +208,7 @@ class DotToQtGenerator():
         if same_label_siblings:
             if label is None:
                 # for sibling detection
-                label = "%s_%s"%(source_node, destination_node)
+                label = "%s_%s" % (source_node, destination_node)
             # symmetrically add all sibling edges with same label
             if label in edges:
                 for sibling in edges[label]:
@@ -214,7 +219,6 @@ class DotToQtGenerator():
             edges[label] = []
         edges[label].append(edge_item)
 
-
     def dotcode_to_qt_items(self, dotcode, highlight_level, same_label_siblings=False):
         """
         takes dotcode, runs layout, and creates qt items based on the dot layout.
@@ -224,7 +228,7 @@ class DotToQtGenerator():
         # layout graph
         if dotcode is None:
             return {}, {}
-        graph = pydot.graph_from_dot_data(dotcode.encode("ascii","ignore"))
+        graph = pydot.graph_from_dot_data(dotcode.encode("ascii", "ignore"))
 
         #graph = pygraphviz.AGraph(string=self._current_dotcode, strict=False, directed=True)
         #graph.layout(prog='dot')

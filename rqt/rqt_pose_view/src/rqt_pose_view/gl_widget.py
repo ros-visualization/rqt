@@ -32,7 +32,7 @@ from __future__ import division
 import math
 import numpy
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QPoint, Qt
 from QtOpenGL import QGLFormat, QGLWidget
 
@@ -40,6 +40,7 @@ import OpenGL
 OpenGL.ERROR_CHECKING = True
 from OpenGL.GL import glClear, glClearColor, glEnable, glGetDoublev, glLoadIdentity, glLoadMatrixd, glMatrixMode, glMultMatrixd, glRotated, glTranslated, glTranslatef, glViewport, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_MODELVIEW, GL_MODELVIEW_MATRIX, GL_PROJECTION
 from OpenGL.GLU import gluPerspective
+
 
 class GLWidget(QGLWidget):
 
@@ -129,7 +130,7 @@ class GLWidget(QGLWidget):
         self._modelview_matrix = glGetDoublev(GL_MODELVIEW_MATRIX)
 
     def view_all(self):
-        self.translate([ -self._modelview_matrix[0][3], -self._modelview_matrix[1][3], -self._modelview_matrix[2][3] - self._radius / 2.0])
+        self.translate([-self._modelview_matrix[0][3], -self._modelview_matrix[1][3], -self._modelview_matrix[2][3] - self._radius / 2.0])
 
     def wheelEvent(self, event):
         # only zoom when no mouse buttons are pressed, to prevent interference with other user interactions

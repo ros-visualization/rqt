@@ -38,6 +38,7 @@ from QtGui import QMessageBox
 
 from .ros_package_helper import get_package_path
 
+
 class AboutHandler(QObject):
 
     """Handler for the about action in the menu bar showing a message box with details on the used libraries and their versions."""

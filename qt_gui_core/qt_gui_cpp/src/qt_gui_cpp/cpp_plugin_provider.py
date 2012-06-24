@@ -38,13 +38,14 @@ from ros_pluginlib_plugin_provider import RosPluginlibPluginProvider
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 
+
 class CppPluginProvider(CompositePluginProvider):
 
     def __init__(self):
         plugin_providers = None
         if qt_gui_cpp is not None:
             plugin_providers = [
-                RosPluginlibPluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPlugins('qt_gui', 'qt_gui_cpp::Plugin')),
-                RosPluginlibPluginProvider(qt_gui_cpp.RecursivePluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPluginProviders.create_instance('qt_gui', 'qt_gui_cpp::PluginProvider'))),
+                RosPluginlibPluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPlugins('qt_gui', 'qt_gui_cpp::Plugin')),  # @UndefinedVariable
+                RosPluginlibPluginProvider(qt_gui_cpp.RecursivePluginProvider(qt_gui_cpp.RosPluginlibPluginProvider_ForPluginProviders.create_instance('qt_gui', 'qt_gui_cpp::PluginProvider'))),  # @UndefinedVariable
             ]
         super(CppPluginProvider, self).__init__(plugin_providers)

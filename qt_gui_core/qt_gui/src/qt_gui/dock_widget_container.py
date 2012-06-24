@@ -28,10 +28,11 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtGui import QMainWindow
 
 from .dock_widget import DockWidget
+
 
 class DockWidgetContainer(DockWidget):
 
@@ -53,7 +54,6 @@ class DockWidgetContainer(DockWidget):
         super(DockWidget, self).setObjectName(name)
         self.main_window.setObjectName(name + '__MainWindow')
 
-
     def save_settings(self, settings):
         mw_settings = settings.get_settings('mainwindow')
         self._save_geometry(mw_settings)
@@ -73,7 +73,6 @@ class DockWidgetContainer(DockWidget):
     def _save_state(self, settings):
         if self._settings is not None:
             self._settings.set_value('state', self.main_window.saveState())
-
 
     def restore_settings(self, settings):
         print 'DockWidgetContainer.restore_settings()'

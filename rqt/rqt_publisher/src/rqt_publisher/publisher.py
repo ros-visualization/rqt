@@ -31,15 +31,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import division
-import math, random, time # used for the expression eval context
+import math
+import random
+import time
 
-import qt_gui.qt_binding_helper #@UnusedImport
-from QtCore import Slot, qDebug, QObject, QSignalMapper, Qt, QTimer, qWarning
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import Slot, qDebug, QObject, QSignalMapper, QTimer, qWarning
 
 import roslib
 roslib.load_manifest('rqt_publisher')
 import rospy
 from .publisher_widget import PublisherWidget
+
 
 class Publisher(QObject):
 
@@ -73,7 +76,6 @@ class Publisher(QObject):
         # add our self to the main window
         context.add_widget(self._widget)
 
-
     @Slot(str, str, float, bool)
     def add_publisher(self, topic_name, type_name, rate, enabled):
         publisher_info = {
@@ -83,7 +85,6 @@ class Publisher(QObject):
             'enabled': bool(enabled),
         }
         self._add_publisher(publisher_info)
-
 
     def _add_publisher(self, publisher_info):
         publisher_info['publisher_id'] = self._id_counter
@@ -100,7 +101,7 @@ class Publisher(QObject):
         publisher_info['publisher'] = rospy.Publisher(publisher_info['topic_name'], type(publisher_info['message_instance']))
         publisher_info['timer'] = QTimer(self)
 
-        # add publisher info to _publishers dict and create signal mapping  
+        # add publisher info to _publishers dict and create signal mapping
         self._publishers[publisher_info['publisher_id']] = publisher_info
         self._timeout_mapper.setMapping(publisher_info['timer'], publisher_info['publisher_id'])
         publisher_info['timer'].timeout.connect(self._timeout_mapper.map)
@@ -108,7 +109,6 @@ class Publisher(QObject):
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
 
         self._widget.publisher_tree_widget.model().add_publisher(publisher_info)
-
 
     @Slot(int, str, str, str, object)
     def change_publisher(self, publisher_id, topic_name, column_name, new_value, setter_callback):
@@ -118,7 +118,6 @@ class Publisher(QObject):
             if new_text is not None:
                 setter_callback(new_text)
 
-
     def _change_publisher_enabled(self, publisher_info, topic_name, new_value):
         publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
         qDebug('Publisher._change_publisher_enabled(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
@@ -127,7 +126,6 @@ class Publisher(QObject):
         else:
             publisher_info['timer'].stop()
         return '%s' % publisher_info['enabled']
-
 
     def _change_publisher_type(self, publisher_info, topic_name, new_value):
         type_name = new_value
@@ -154,7 +152,6 @@ class Publisher(QObject):
 
             self._widget.publisher_tree_widget.model().update_publisher(publisher_info)
 
-
     def _change_publisher_rate(self, publisher_info, topic_name, new_value):
         try:
             rate = float(new_value)
@@ -169,7 +166,6 @@ class Publisher(QObject):
         # make sure the column value reflects the actual rate
         return '%.2f' % publisher_info['rate']
 
-
     def _change_publisher_expression(self, publisher_info, topic_name, new_value):
         if len(new_value) == 0:
             if topic_name in publisher_info['expressions']:
@@ -178,7 +174,6 @@ class Publisher(QObject):
         else:
             publisher_info['expressions'][topic_name] = new_value
             qDebug('Publisher._change_publisher_expression(): %s expression: %s' % (topic_name, new_value))
-
 
     def _extract_array_info(self, type_str):
         array_size = None
@@ -192,7 +187,6 @@ class Publisher(QObject):
 
         return type_str, array_size
 
-
     def _create_message_instance(self, type_str):
         base_type_str, array_size = self._extract_array_info(type_str)
 
@@ -204,7 +198,6 @@ class Publisher(QObject):
         else:
             message = base_message_type()
         return message
-
 
     def _evaluate_expression(self, expression, slot_type):
         successful_eval = True
@@ -233,7 +226,6 @@ class Publisher(QObject):
 
         return None
 
-
     def _fill_message_slots(self, message, topic_name, expressions, counter):
         if topic_name in expressions and len(expressions[topic_name]) > 0:
 
@@ -260,7 +252,6 @@ class Publisher(QObject):
 
         return None
 
-
     @Slot(int)
     def publish_once(self, publisher_id):
         publisher_info = self._publishers.get(publisher_id, None)
@@ -269,7 +260,6 @@ class Publisher(QObject):
             self._fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
             publisher_info['publisher'].publish(publisher_info['message_instance'])
 
-
     @Slot(int)
     def remove_publisher(self, publisher_id):
         publisher_info = self._publishers.get(publisher_id, None)
@@ -277,7 +267,6 @@ class Publisher(QObject):
             publisher_info['timer'].stop()
             publisher_info['publisher'].unregister()
             del self._publishers[publisher_id]
-
 
     def save_settings(self, plugin_settings, instance_settings):
         publisher_copies = []
@@ -291,12 +280,10 @@ class Publisher(QObject):
             publisher_copies.append(publisher_copy)
         instance_settings.set_value('publishers', repr(publisher_copies))
 
-
     def restore_settings(self, plugin_settings, instance_settings):
         publishers = eval(instance_settings.value('publishers', '[]'))
         for publisher in publishers:
             self._add_publisher(publisher)
-
 
     def clean_up_publishers(self):
         self._widget.publisher_tree_widget.model().clear()
@@ -304,7 +291,6 @@ class Publisher(QObject):
             publisher_info['timer'].stop()
             publisher_info['publisher'].unregister()
         self._publishers = {}
-
 
     def shutdown_plugin(self):
         self.clean_up_publishers()

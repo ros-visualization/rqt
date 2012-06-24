@@ -28,12 +28,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Qt
 
 from .dock_widget import DockWidget
 from .plugin_descriptor import PluginDescriptor
 from .reparent_event import ReparentEvent
+
 
 class ContainerManager(QObject):
 
@@ -46,7 +47,6 @@ class ContainerManager(QObject):
         self._container_descriptor.set_action_attributes(self.tr('Container'), self.tr('Container for other dock widgets'))
         self._containers = {}
 
-
     def get_root_main_window(self):
         return self._root_main_window
 
@@ -55,7 +55,6 @@ class ContainerManager(QObject):
 
     def add_to_plugin_menu(self, plugin_menu):
         plugin_menu.add_plugin_prefix(self._container_descriptor)
-
 
     def add_container(self, container):
         self._containers[container.serial_number()] = container
@@ -71,7 +70,6 @@ class ContainerManager(QObject):
     def get_containers(self):
         return self._containers.values()
 
-
     def move_container_children_to_parent(self, container):
         floating = container.isFloating()
         for child in container.main_window.children():
@@ -81,11 +79,9 @@ class ContainerManager(QObject):
                 if floating:
                     child.setFloating(floating)
 
-
     def restore_state_of_containers(self):
         for container in self._containers.values():
             container.restore_state()
-
 
     def event(self, e):
         if e.type() == ReparentEvent.reparent_event_type:

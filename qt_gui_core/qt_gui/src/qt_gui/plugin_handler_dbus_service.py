@@ -31,6 +31,7 @@
 from dbus.service import Object
 import dbus
 
+
 class PluginHandlerDBusService(Object):
 
     """DBus service for an indirect plugin handler, i.e. `PluginHandlerXEmbedContainer`."""

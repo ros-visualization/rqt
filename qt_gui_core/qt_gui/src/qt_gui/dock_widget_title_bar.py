@@ -31,8 +31,9 @@
 import os
 
 from .qt_binding_helper import loadUi
-from QtCore import qDebug, QEvent, QObject, Qt, Slot
+from QtCore import qDebug, QEvent, QObject, Qt
 from QtGui import QDockWidget, QIcon, QWidget
+
 
 class DockWidgetTitleBar(QWidget):
 
@@ -75,7 +76,6 @@ class DockWidgetTitleBar(QWidget):
         }
         dock_widget.installEventFilter(self)
 
-
     def connect_button(self, button_id, callback):
         button = self._extra_buttons.get(button_id, None)
         if button is None:
@@ -83,15 +83,12 @@ class DockWidgetTitleBar(QWidget):
             return
         button.clicked.connect(callback)
 
-
     def connect_close_button(self, callback):
         self._close_callbacks.append(callback)
-
 
     def _close_clicked(self):
         for callback in self._close_callbacks:
             callback(self.parent())
-
 
     def show_button(self, button_id, visibility=True):
         button = self._extra_buttons.get(button_id, None)
@@ -100,10 +97,8 @@ class DockWidgetTitleBar(QWidget):
             return
         button.setVisible(visibility)
 
-
     def hide_button(self, button_id):
         self.show_button(button_id, False)
-
 
     def eventFilter(self, obj, event):
         if event.type() in self._event_callbacks:
@@ -112,10 +107,8 @@ class DockWidgetTitleBar(QWidget):
                 return ret_val
         return QObject.eventFilter(self, obj, event)
 
-
     def _update_title(self, *args):
         self.title_label.setText(self.parentWidget().windowTitle())
-
 
     def _toggle_dockable(self, enabled):
         dock_widget = self.parentWidget()
@@ -124,11 +117,9 @@ class DockWidgetTitleBar(QWidget):
         else:
             dock_widget.setAllowedAreas(Qt.NoDockWidgetArea)
 
-
     def _toggle_floating(self):
         dock_widget = self.parentWidget()
         dock_widget.setFloating(not dock_widget.isFloating())
-
 
     def _features_changed(self, features=None):
         if features is None:
@@ -136,10 +127,8 @@ class DockWidgetTitleBar(QWidget):
         self.close_button.setVisible(bool(features & QDockWidget.DockWidgetClosable))
         self.float_button.setVisible(bool(features & QDockWidget.DockWidgetFloatable))
 
-
     def save_settings(self, settings):
         settings.set_value('dockable', self.dockable_button.isChecked())
-
 
     def restore_settings(self, settings):
         self.dockable_button.setChecked(settings.value('dockable', True) in [True, 'true'])

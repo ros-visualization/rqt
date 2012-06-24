@@ -33,6 +33,7 @@ from qt_gui.plugin_provider import PluginProvider
 
 from cpp_binding_helper import qt_gui_cpp
 
+
 class RosPluginlibPluginProvider(PluginProvider):
 
     def __init__(self, plugin_provider):
@@ -60,8 +61,8 @@ class RosPluginlibPluginProvider(PluginProvider):
             return None
         cpp_plugin_context = None
         if plugin_context is not None:
-            cpp_plugin_context = qt_gui_cpp.PluginContext(plugin_context._handler, plugin_context.serial_number())
-        bridge = qt_gui_cpp.PluginBridge()
+            cpp_plugin_context = qt_gui_cpp.PluginContext(plugin_context._handler, plugin_context.serial_number())  # @UndefinedVariable
+        bridge = qt_gui_cpp.PluginBridge()  # @UndefinedVariable
         loaded = bridge.load_plugin(self._plugin_provider, plugin_id, cpp_plugin_context)
         if not loaded:
             raise ImportError('RosPluginlibPluginProvider.load() could not load plugin "%s"' % plugin_id)

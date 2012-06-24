@@ -37,12 +37,12 @@ import rospy
 from .message_tree_model import MessageTreeModel
 from .tree_model_completer import TreeModelCompleter
 
+
 class TopicCompleter(TreeModelCompleter):
 
     def __init__(self, parent=None):
         super(TopicCompleter, self).__init__(parent)
         self.setModel(MessageTreeModel())
-
 
     def update_topics(self):
         self.model().clear()
@@ -55,7 +55,7 @@ class TopicCompleter(TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    import qt_gui.qt_binding_helper #@UnusedImport
+    import qt_gui.qt_binding_helper  # @UnusedImport
     from QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     mw = QMainWindow()

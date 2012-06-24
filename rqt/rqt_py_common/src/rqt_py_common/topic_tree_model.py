@@ -34,12 +34,12 @@ import rospy
 
 from .message_tree_model import MessageTreeModel
 
+
 class TopicTreeModel(MessageTreeModel):
 
     def __init__(self, parent=None):
         super(TopicTreeModel, self).__init__(parent)
         self.refresh()
-
 
     def refresh(self):
         self.clear()

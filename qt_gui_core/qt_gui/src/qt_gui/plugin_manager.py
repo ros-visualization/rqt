@@ -30,7 +30,7 @@
 
 import traceback
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import qCritical, qDebug, QObject, Qt, Signal, Slot
 
 from .container_manager import ContainerManager
@@ -39,11 +39,12 @@ from .plugin_handler_direct import PluginHandlerDirect
 from .plugin_instance_id import PluginInstanceId
 from .plugin_menu import PluginMenu
 
+
 class PluginManager(QObject):
 
     """
     Manager of plugin life cycle.
-    It creates a specific `PluginHandler` for each plugin instance and maintains the perspective specific set of running plugins 
+    It creates a specific `PluginHandler` for each plugin instance and maintains the perspective specific set of running plugins.
     """
 
     plugins_about_to_change_signal = Signal()
@@ -73,7 +74,7 @@ class PluginManager(QObject):
 
         if self._application_context.options.multi_process or self._application_context.options.embed_plugin:
             try:
-                from .plugin_handler_xembed import PluginHandlerXEmbed #@UnusedImport
+                from .plugin_handler_xembed import PluginHandlerXEmbed  # @UnusedImport
             except ImportError:
                 qCritical('PluginManager.__init__() multiprocess-mode only available under linux')
                 exit(-1)

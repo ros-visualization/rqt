@@ -30,8 +30,9 @@
 
 import webbrowser
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Slot
+
 
 class HelpProvider(QObject):
 

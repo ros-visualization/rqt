@@ -44,6 +44,7 @@ from tf.transformations import quaternion_matrix, quaternion_about_axis
 from OpenGL.GL import glBegin, glColor3f, glEnd, glLineWidth, glMultMatrixf, glTranslatef, glVertex3f, GL_LINES, GL_QUADS
 from .gl_widget import GLWidget
 
+
 # main class inherits from the ui window class
 class PoseViewWidget(QWidget):
 
@@ -58,7 +59,7 @@ class PoseViewWidget(QWidget):
         self._topic_name = None
         self._subscriber = None
 
-        # create GL view         
+        # create GL view
         self._gl_view = GLWidget()
         self._gl_view.setAcceptDrops(True)
 
@@ -70,7 +71,7 @@ class PoseViewWidget(QWidget):
         self._gl_view.mouseReleaseEvent_original = self._gl_view.mouseReleaseEvent
         self._gl_view.mouseReleaseEvent = self._gl_view_mouseReleaseEvent
 
-        # add GL view to widget layout        
+        # add GL view to widget layout
         self.layout().addWidget(self._gl_view)
 
         # init and start update timer with 40ms (25fps)
@@ -78,11 +79,9 @@ class PoseViewWidget(QWidget):
         self._update_timer.timeout.connect(self.update_timeout)
         self._update_timer.start(40)
 
-
     def save_settings(self, plugin_settings, instance_settings):
         view_matrix_string = repr(self._gl_view.get_view_matrix())
         instance_settings.set_value('view_matrix', view_matrix_string)
-
 
     def restore_settings(self, plugin_settings, instance_settings):
         view_matrix_string = instance_settings.value('view_matrix')
@@ -96,7 +95,6 @@ class PoseViewWidget(QWidget):
         else:
             self._set_default_view()
 
-
     def _set_default_view(self):
         self._gl_view.makeCurrent()
         self._gl_view.reset_view()
@@ -104,16 +102,13 @@ class PoseViewWidget(QWidget):
         self._gl_view.rotate((1, 0, 0), -45)
         self._gl_view.translate((0, -3, -15))
 
-
     def message_callback(self, message):
         self._position = (message.position.x, message.position.y, message.position.z)
         self._orientation = (message.orientation.x, message.orientation.y, message.orientation.z, message.orientation.w)
 
-
     def update_timeout(self):
         self._gl_view.makeCurrent()
         self._gl_view.updateGL()
-
 
     def _gl_view_paintGL(self):
         self._gl_view.paintGL_original()
@@ -121,53 +116,51 @@ class PoseViewWidget(QWidget):
         self._paintGLCoorsystem()
         self._paintGLBox()
 
-
     def _paintGLBox(self):
-        self._position = (2.0, 2.0, 2.0)    # Set fixed translation for now
+        self._position = (2.0, 2.0, 2.0)  # Set fixed translation for now
         glTranslatef(*self._position)     # Translate Box
 
-        matrix = quaternion_matrix(self._orientation) # convert quaternion to translation matrix
-        glMultMatrixf(matrix)             # Rotate Box 
+        matrix = quaternion_matrix(self._orientation)  # convert quaternion to translation matrix
+        glMultMatrixf(matrix)             # Rotate Box
 
         glBegin(GL_QUADS)                 # Start Drawing The Box
 
         glColor3f(0.0, 1.0, 0.0)
         glVertex3f(1.0, 1.0, -1.0)        # Top Right Of The Quad (Top)
-        glVertex3f(-1.0, 1.0, -1.0)        # Top Left Of The Quad (Top)
+        glVertex3f(-1.0, 1.0, -1.0)       # Top Left Of The Quad (Top)
         glVertex3f(-1.0, 1.0, 1.0)        # Bottom Left Of The Quad (Top)
-        glVertex3f(1.0, 1.0, 1.0)        # Bottom Right Of The Quad (Top)
+        glVertex3f(1.0, 1.0, 1.0)         # Bottom Right Of The Quad (Top)
 
         glColor3f(0.5, 1.0, 0.5)
         glVertex3f(1.0, -1.0, 1.0)        # Top Right Of The Quad (Bottom)
-        glVertex3f(-1.0, -1.0, 1.0)        # Top Left Of The Quad (Bottom)
-        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Bottom)
-        glVertex3f(1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Bottom)
+        glVertex3f(-1.0, -1.0, 1.0)       # Top Left Of The Quad (Bottom)
+        glVertex3f(-1.0, -1.0, -1.0)      # Bottom Left Of The Quad (Bottom)
+        glVertex3f(1.0, -1.0, -1.0)       # Bottom Right Of The Quad (Bottom)
 
         glColor3f(0.0, 0.0, 1.0)
-        glVertex3f(1.0, 1.0, 1.0)        # Top Right Of The Quad (Front)
+        glVertex3f(1.0, 1.0, 1.0)         # Top Right Of The Quad (Front)
         glVertex3f(-1.0, 1.0, 1.0)        # Top Left Of The Quad (Front)
-        glVertex3f(-1.0, -1.0, 1.0)        # Bottom Left Of The Quad (Front)
+        glVertex3f(-1.0, -1.0, 1.0)       # Bottom Left Of The Quad (Front)
         glVertex3f(1.0, -1.0, 1.0)        # Bottom Right Of The Quad (Front)
 
         glColor3f(0.5, 0.5, 1.0)
-        glVertex3f(1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Back)
-        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Back)
-        glVertex3f(-1.0, 1.0, -1.0)        # Top Right Of The Quad (Back)
+        glVertex3f(1.0, -1.0, -1.0)       # Bottom Left Of The Quad (Back)
+        glVertex3f(-1.0, -1.0, -1.0)      # Bottom Right Of The Quad (Back)
+        glVertex3f(-1.0, 1.0, -1.0)       # Top Right Of The Quad (Back)
         glVertex3f(1.0, 1.0, -1.0)        # Top Left Of The Quad (Back)
 
         glColor3f(1.0, 0.5, 0.5)
         glVertex3f(-1.0, 1.0, 1.0)        # Top Right Of The Quad (Left)
-        glVertex3f(-1.0, 1.0, -1.0)        # Top Left Of The Quad (Left)
-        glVertex3f(-1.0, -1.0, -1.0)        # Bottom Left Of The Quad (Left)
-        glVertex3f(-1.0, -1.0, 1.0)        # Bottom Right Of The Quad (Left)
+        glVertex3f(-1.0, 1.0, -1.0)       # Top Left Of The Quad (Left)
+        glVertex3f(-1.0, -1.0, -1.0)      # Bottom Left Of The Quad (Left)
+        glVertex3f(-1.0, -1.0, 1.0)       # Bottom Right Of The Quad (Left)
 
         glColor3f(1.0, 0.0, 0.0)
         glVertex3f(1.0, 1.0, -1.0)        # Top Right Of The Quad (Right)
-        glVertex3f(1.0, 1.0, 1.0)        # Top Left Of The Quad (Right)
+        glVertex3f(1.0, 1.0, 1.0)         # Top Left Of The Quad (Right)
         glVertex3f(1.0, -1.0, 1.0)        # Bottom Left Of The Quad (Right)
-        glVertex3f(1.0, -1.0, -1.0)        # Bottom Right Of The Quad (Right)
+        glVertex3f(1.0, -1.0, -1.0)       # Bottom Right Of The Quad (Right)
         glEnd()                           # Done Drawing The Quad
-
 
     def _paintGLGrid(self):
         resolutionMillimeters = 1
@@ -199,7 +192,6 @@ class PoseViewWidget(QWidget):
 
         glEnd()
 
-
     def _paintGLCoorsystem(self):
         glLineWidth(10.0)
 
@@ -219,7 +211,6 @@ class PoseViewWidget(QWidget):
 
         glEnd()
 
-
     def _gl_view_mouseReleaseEvent(self, event):
         if event.button() == Qt.RightButton:
             menu = QMenu(self._gl_view)
@@ -227,7 +218,6 @@ class PoseViewWidget(QWidget):
             menu.addAction(action)
             action.triggered.connect(self._set_default_view)
             menu.exec_(self._gl_view.mapToGlobal(event.pos()))
-
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
@@ -243,7 +233,6 @@ class PoseViewWidget(QWidget):
         # TODO: do some checks for valid topic here
         event.acceptProposedAction()
 
-
     @Slot('QDropEvent*')
     def dropEvent(self, event):
         if event.mimeData().hasText():
@@ -255,17 +244,14 @@ class PoseViewWidget(QWidget):
         self.unregister_topic()
         self.subscribe_topic(topic_name)
 
-
     def unregister_topic(self):
         if self._subscriber:
             self._subscriber.unregister()
-
 
     def subscribe_topic(self, topic_name):
         qDebug('subscribing: %s' % topic_name)
         msg_class, self._topic_name, _ = get_topic_class(topic_name)
         self._subscriber = rospy.Subscriber(self._topic_name, msg_class, self.message_callback)
-
 
     def shutdown_plugin(self):
         self.unregister_topic()

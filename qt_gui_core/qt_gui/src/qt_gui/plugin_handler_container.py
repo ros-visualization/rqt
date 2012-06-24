@@ -31,6 +31,7 @@
 from .dock_widget_container import DockWidgetContainer
 from .plugin_handler import PluginHandler
 
+
 class PluginHandlerContainer(PluginHandler):
 
     """Handler for creating a container."""

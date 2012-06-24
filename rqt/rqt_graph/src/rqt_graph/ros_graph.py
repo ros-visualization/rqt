@@ -32,13 +32,15 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal, QAbstractListModel
-from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from QtCore import QFile, QIODevice, QObject, Qt, Signal, QAbstractListModel
+from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rqt_graph')
-import rosgraph.impl.graph, rostopic, rosnode, rosservice
+import rosgraph.impl.graph
+import rosservice
+import rostopic
 
 from .dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
 # pydot requires some hacks
@@ -49,6 +51,7 @@ from qt_dotgraph.pydotfactory import PydotFactory
 from .interactive_graphics_view import InteractiveGraphicsView
 
 from qt_dotgraph.dot_to_qt import DotToQtGenerator
+
 
 class RepeatedWordCompleter(QCompleter):
     """A completer that completes multiple times from a list"""
@@ -66,24 +69,28 @@ class RepeatedWordCompleter(QCompleter):
         path = str(path.split(',')[-1]).lstrip(' ')
         return [path]
 
+
 class NamespaceCompletionModel(QAbstractListModel):
     """Ros package and stacknames"""
     def __init__(self, linewidget, topics_only):
         super(QAbstractListModel, self).__init__(linewidget)
         self.names = []
-        
+
     def refresh(self, names):
         namesset = set()
         for n in names:
             namesset.add(str(n).strip())
-            namesset.add("-%s"%(str(n).strip()))
+            namesset.add("-%s" % (str(n).strip()))
         self.names = sorted(namesset)
+
     def rowCount(self, parent):
         return len(self.names)
+
     def data(self, index, role):
         if index.isValid() and (role == Qt.DisplayRole or role == Qt.EditRole):
             return self.names[index.row()]
         return None
+
 
 class RosGraph(QObject):
 
@@ -126,7 +133,7 @@ class RosGraph(QObject):
         completer = RepeatedWordCompleter(self.node_completionmodel, self)
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setWrapAround(True)
-        completer.setCaseSensitivity(Qt.CaseInsensitive);
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
         self._widget.filter_line_edit.setCompleter(completer)
 
@@ -134,10 +141,9 @@ class RosGraph(QObject):
         topic_completer = RepeatedWordCompleter(self.topic_completionmodel, self)
         topic_completer.setCompletionMode(QCompleter.PopupCompletion)
         topic_completer.setWrapAround(True)
-        topic_completer.setCaseSensitivity(Qt.CaseInsensitive);
+        topic_completer.setCaseSensitivity(Qt.CaseInsensitive)
         self._widget.topic_filter_line_edit.editingFinished.connect(self._refresh_rosgraph)
         self._widget.topic_filter_line_edit.setCompleter(topic_completer)
-        
 
         self._widget.namespace_cluster_check_box.clicked.connect(self._refresh_rosgraph)
         self._widget.actionlib_check_box.clicked.connect(self._refresh_rosgraph)
@@ -231,19 +237,19 @@ class RosGraph(QObject):
         hide_dead_end_topics = self._widget.dead_sinks_check_box.isChecked()
         hide_single_connection_topics = self._widget.leaf_topics_check_box.isChecked()
         quiet = self._widget.quiet_check_box.isChecked()
-        
+
         return self.dotcode_generator.generate_dotcode(
-            rosgraphinst = self._graph,
-            ns_filter = ns_filter,
-            topic_filter = topic_filter,
-            graph_mode = graph_mode,
-            hide_single_connection_topics = hide_single_connection_topics,
-            hide_dead_end_topics = hide_dead_end_topics,
-            cluster_namespaces_level = namespace_cluster,
-            accumulate_actions = accumulate_actions,
-            dotcode_factory = self.dotcode_factory,
-            orientation = orientation,
-            quiet = quiet)
+            rosgraphinst=self._graph,
+            ns_filter=ns_filter,
+            topic_filter=topic_filter,
+            graph_mode=graph_mode,
+            hide_single_connection_topics=hide_single_connection_topics,
+            hide_dead_end_topics=hide_dead_end_topics,
+            cluster_namespaces_level=namespace_cluster,
+            accumulate_actions=accumulate_actions,
+            dotcode_factory=self.dotcode_factory,
+            orientation=orientation,
+            quiet=quiet)
 
     def _update_graph_view(self, dotcode):
         if dotcode == self._current_dotcode:
@@ -282,7 +288,7 @@ class RosGraph(QObject):
         # layout graph and create qt items
         (nodes, edges) = self.dot_to_qt.dotcode_to_qt_items(self._current_dotcode,
                                                             highlight_level=highlight_level,
-                                                            same_label_siblings = True)
+                                                            same_label_siblings=True)
 
         for node_item in nodes.itervalues():
             self._scene.addItem(node_item)
@@ -327,12 +333,12 @@ class RosGraph(QObject):
         if file_name is None or file_name == '':
             return
 
-        file = QFile(file_name)
-        if not file.open(QIODevice.WriteOnly | QIODevice.Text):
+        handle = QFile(file_name)
+        if not handle.open(QIODevice.WriteOnly | QIODevice.Text):
             return
 
-        file.write(self._current_dotcode)
-        file.close()
+        handle.write(self._current_dotcode)
+        handle.close()
 
     def _save_svg(self):
         file_name, _ = QFileDialog.getSaveFileName(self._widget, self.tr('Save as SVG'), 'rosgraph.svg', self.tr('Scalable Vector Graphic (*.svg)'))

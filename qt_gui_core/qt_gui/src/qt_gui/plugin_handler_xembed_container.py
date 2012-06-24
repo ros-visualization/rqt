@@ -81,7 +81,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         cmd = sys.executable + ' -u'
         cmd += ' %s' % Main.main_filename
         cmd += ' --qt-binding=%s' % QT_BINDING
-        cmd += ' --embed-plugin=%s --embed-plugin-serial=%s --embed-plugin-address=%s' % (self.instance_id().plugin_id , self.instance_id().serial_number, self._dbus_server.address)
+        cmd += ' --embed-plugin=%s --embed-plugin-serial=%s --embed-plugin-address=%s' % (self.instance_id().plugin_id, self.instance_id().serial_number, self._dbus_server.address)
         #qDebug('PluginHandlerXEmbedContainer._load() starting command: %s' % cmd)
         self._process.start(cmd)
         started = self._process.waitForStarted(3000)

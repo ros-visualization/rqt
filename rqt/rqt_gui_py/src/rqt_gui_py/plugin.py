@@ -35,6 +35,7 @@ roslib.load_manifest('rqt_gui_py')
 
 import qt_gui.plugin.Plugin as Base
 
+
 class Plugin(Base):
 
     """

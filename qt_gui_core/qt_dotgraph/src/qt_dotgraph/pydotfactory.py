@@ -34,48 +34,51 @@ import pydot
 import urllib
 from distutils.version import LooseVersion
 
-# Reference implementation for a dotcode factory
 
+# Reference implementation for a dotcode factory
 class PydotFactory():
+
+    def __init__(self):
+        pass
 
     def escape_label(self, name):
         if name in ['graph', 'subgraph', 'node', 'edge']:
-            ret = "%s_"%name
+            ret = "%s_" % name
         else:
             ret = name
         return ret
-            
+
     def escape_name(self, name):
         ret = urllib.quote(name.strip())
         ret = ret.replace('/', '_')
         ret = ret.replace('%', '_')
         ret = ret.replace('-', '_')
         return self.escape_label(ret)
-    
-    def get_graph(self, graph_type = 'digraph', rank = 'same', simplify = True, rankdir = "TB", ranksep = 0.2, compound = True):
+
+    def get_graph(self, graph_type='digraph', rank='same', simplify=True, rankdir='TB', ranksep=0.2, compound=True):
         # Lucid version of pydot bugs with certain settings, not sure which version exactly fixes those
         if LooseVersion(pydot.__version__) > LooseVersion('1.0.10'):
             graph = pydot.Dot('graphname',
-                              graph_type = graph_type,
-                              rank = rank,
-                              rankdir = rankdir,
-                              simplify = simplify
+                              graph_type=graph_type,
+                              rank=rank,
+                              rankdir=rankdir,
+                              simplify=simplify
                               )
-            graph.set_ranksep(ranksep);
+            graph.set_ranksep(ranksep)
             graph.set_compound(compound)
         else:
             graph = pydot.Dot('graphname',
-                              graph_type = graph_type,
-                              rank = rank,
-                              rankdir = rankdir)
+                              graph_type=graph_type,
+                              rank=rank,
+                              rankdir=rankdir)
         return graph
-    
+
     def add_node_to_graph(self,
                           graph,
                           nodename,
-                          nodelabel = None,
-                          shape = 'box',
-                          color = None,
+                          nodelabel=None,
+                          shape='box',
+                          color=None,
                           url=None):
         """
         creates a node item for this factory, adds it to the graph.
@@ -93,17 +96,17 @@ class PydotFactory():
         if color is not None:
             node.set_color(color)
         graph.add_node(node)
-    
+
     def add_subgraph_to_graph(self,
                               graph,
                               subgraphlabel,
-                              rank = 'same',
-                              simplify = True,
-                              rankdir = "TB",
-                              ranksep = 0.2,                              
-                              compound = True,
-                              color = None,
-                              shape = 'box',
+                              rank='same',
+                              simplify=True,
+                              rankdir='TB',
+                              ranksep=0.2,
+                              compound=True,
+                              color=None,
+                              shape='box',
                               style='bold'):
         """
         creates a cluster subgraph  item for this factory, adds it to the graph.
@@ -112,7 +115,7 @@ class PydotFactory():
         """
         if subgraphlabel is None or subgraphlabel == '':
             raise ValueError('Empty subgraph label')
-        g = pydot.Cluster(self.escape_name(subgraphlabel), rank = rank, rankdir = rankdir, simplify = simplify)
+        g = pydot.Cluster(self.escape_name(subgraphlabel), rank=rank, rankdir=rankdir, simplify=simplify)
         if 'set_style' in g.__dict__:
             g.set_style(style)
         if 'set_shape' in g.__dict__:
@@ -127,7 +130,7 @@ class PydotFactory():
         graph.add_subgraph(g)
         return g
 
-    def add_edge_to_graph(self, graph, nodename1, nodename2, label = None, url = None, simplify = True, style=None):
+    def add_edge_to_graph(self, graph, nodename1, nodename2, label=None, url=None, simplify=True, style=None):
         if simplify and LooseVersion(pydot.__version__) < LooseVersion('1.0.10'):
             if graph.get_edge(self.escape_name(nodename1), self.escape_name(nodename2)) != []:
                 return

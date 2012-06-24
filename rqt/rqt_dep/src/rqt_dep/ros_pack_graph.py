@@ -7,12 +7,14 @@ import os
 import rospkg
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QEvent, QFile, QIODevice, QObject, QPointF, QRectF, Qt, QTextStream, Signal, QAbstractListModel, SIGNAL
-from QtGui import QColor, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from QtCore import QFile, QIODevice, QObject, Qt, Signal, QAbstractListModel
+from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rqt_dep')
+import rosservice
+import rostopic
 
 from .dotcode_pack import RosPackageGraphDotcodeGenerator
 from qt_dotgraph.pydotfactory import PydotFactory
@@ -106,7 +108,7 @@ class RosPackGraph(QObject):
         completer.setCompletionMode(QCompleter.PopupCompletion)
         completer.setWrapAround(True)
 
-        completer.setCaseSensitivity(Qt.CaseInsensitive);
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
         self._widget.filter_line_edit.editingFinished.connect(self._refresh_rospackgraph)
         self._widget.filter_line_edit.setCompleter(completer)
 
@@ -160,7 +162,6 @@ class RosPackGraph(QObject):
         self._widget.highlight_connections_check_box.setChecked(instance_settings.value('highlight_connections_check_box_state', True) in [True, 'true'])
         self.initialized = True
         self._refresh_rospackgraph()
-
 
     def _update_rospackgraph(self):
         # re-enable controls customizing fetched ROS graph
@@ -292,12 +293,12 @@ class RosPackGraph(QObject):
         if file_name is None or file_name == '':
             return
 
-        file = QFile(file_name)
-        if not file.open(QIODevice.WriteOnly | QIODevice.Text):
+        handle = QFile(file_name)
+        if not handle.open(QIODevice.WriteOnly | QIODevice.Text):
             return
 
-        file.write(self._current_dotcode)
-        file.close()
+        handle.write(self._current_dotcode)
+        handle.close()
 
     def _save_svg(self):
         file_name, _ = QFileDialog.getSaveFileName(self._widget, self.tr('Save as SVG'), 'rospackgraph.svg', self.tr('Scalable Vector Graphic (*.svg)'))

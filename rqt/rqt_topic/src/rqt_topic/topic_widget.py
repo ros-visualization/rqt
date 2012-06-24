@@ -71,7 +71,6 @@ class TopicWidget(QWidget):
         self._timer_refresh_topics.timeout.connect(self.refresh_topics)
         self._timer_refresh_topics.start(1000)
 
-
     @Slot()
     def refresh_topics(self):
         # refresh tree view items
@@ -112,7 +111,6 @@ class TopicWidget(QWidget):
 
         self._update_topics_data()
 
-
     def _update_topics_data(self):
         for topic in self._topics.values():
             topic_info = topic['info']
@@ -145,7 +143,6 @@ class TopicWidget(QWidget):
             self._tree_items[topic_info._topic_name].setText(self._column_index['bandwidth'], bandwidth_text)
             self._tree_items[topic_info._topic_name].setText(self._column_index['value'], value_text)
 
-
     def update_value(self, topic_name, message):
         if hasattr(message, '__slots__'):
             for slot_name in message.__slots__:
@@ -163,7 +160,6 @@ class TopicWidget(QWidget):
             if topic_name in self._tree_items:
                 self._tree_items[topic_name].setText(self._column_index['value'], repr(message))
 
-
     def _extract_array_info(self, type_str):
         array_size = None
         if '[' in type_str and type_str[-1] == ']':
@@ -175,7 +171,6 @@ class TopicWidget(QWidget):
                 array_size = 0
 
         return type_str, array_size
-
 
     def _recursive_create_widget_items(self, parent, topic_name, type_name, message):
         if parent is self.topics_tree_widget:
@@ -205,7 +200,6 @@ class TopicWidget(QWidget):
                     self._recursive_create_widget_items(item, topic_name + '[%d]' % index, base_type_str, base_instance)
         return item
 
-
     @Slot('QPoint')
     def handle_header_view_customContextMenuRequested(self, pos):
         header = self.topics_tree_widget.header()
@@ -221,7 +215,6 @@ class TopicWidget(QWidget):
                 header.setResizeMode(QHeaderView.Interactive)
             else:
                 header.setResizeMode(QHeaderView.ResizeToContents)
-
 
     @Slot('QPoint')
     def on_topics_tree_widget_customContextMenuRequested(self, pos):
@@ -246,12 +239,12 @@ class TopicWidget(QWidget):
 
         elif action in (action_item_expand, action_item_collapse):
             expanded = (action is action_item_expand)
+
             def recursive_set_expanded(item):
                 item.setExpanded(expanded)
                 for index in range(item.childCount()):
                     recursive_set_expanded(item.child(index))
             recursive_set_expanded(item)
-
 
     def shutdown_plugin(self):
         for topic in self._topics.values():

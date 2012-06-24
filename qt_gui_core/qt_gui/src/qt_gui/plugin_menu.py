@@ -30,11 +30,12 @@
 
 import os
 
-from . import qt_binding_helper #@UnusedImport
+from . import qt_binding_helper  # @UnusedImport
 from QtCore import QObject, QSignalMapper, Signal
 from QtGui import QAction, QIcon, QMenu
 
 from .menu_manager import MenuManager
+
 
 class PluginMenu(QObject):
 

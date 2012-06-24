@@ -36,4 +36,4 @@ import sys
 from .ros_package_helper import get_package_path
 sys.path.append(os.path.realpath(os.path.join(get_package_path('python_qt_binding'), 'src')))
 
-from python_qt_binding.QtBindingHelper import loadUi, QT_BINDING, QT_BINDING_VERSION
+from python_qt_binding.QtBindingHelper import loadUi, QT_BINDING, QT_BINDING_VERSION  # @UnusedImport

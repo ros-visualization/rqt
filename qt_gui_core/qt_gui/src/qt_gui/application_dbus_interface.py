@@ -33,6 +33,7 @@ import os
 from dbus.service import BusName, Object
 import dbus
 
+
 class ApplicationDBusInterface(Object):
 
     """

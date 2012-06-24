@@ -30,6 +30,7 @@
 
 import dbus
 
+
 class SettingsProxyDBusService(dbus.service.Object):
 
     """DBus service of a 'Settings' instance."""
@@ -39,7 +40,6 @@ class SettingsProxyDBusService(dbus.service.Object):
         self._settings_proxy = None
         self._group = None
 
-
     def set_settings(self, settings):
         if settings is not None:
             self._settings_proxy = settings._settings_proxy
@@ -47,7 +47,6 @@ class SettingsProxyDBusService(dbus.service.Object):
         else:
             self._settings_proxy = None
             self._group = None
-
 
     @dbus.service.method('org.ros.qt_gui.Settings', in_signature='s', out_signature='av')
     def all_keys(self, group):

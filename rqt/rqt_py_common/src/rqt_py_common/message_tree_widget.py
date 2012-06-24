@@ -30,9 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
-from QtCore import Signal, Slot, qDebug, QMimeData, QModelIndex, Qt
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import Slot, qDebug, QMimeData, QModelIndex, Qt
 from QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
+
 
 class MessageTreeWidget(QTreeView):
 
@@ -50,7 +51,6 @@ class MessageTreeWidget(QTreeView):
         self._action_item_collapse = QAction(QIcon.fromTheme('zoom-out'), 'Collapse Selected', self)
         self._action_item_collapse.triggered.connect(self._handle_action_item_collapse)
         self.customContextMenuRequested.connect(self.handle_customContextMenuRequested)
-
 
     def startDrag(self, supportedActions):
         index = self.currentIndex()
@@ -71,7 +71,6 @@ class MessageTreeWidget(QTreeView):
         drag.setMimeData(data)
         drag.exec_()
 
-
     @Slot('QPoint')
     def handle_customContextMenuRequested(self, pos):
         # show context menu
@@ -79,20 +78,16 @@ class MessageTreeWidget(QTreeView):
         self._context_menu_add_actions(menu, pos)
         menu.exec_(self.mapToGlobal(pos))
 
-
     def _context_menu_add_actions(self, menu, pos):
         if self.selectionModel().hasSelection():
             menu.addAction(self._action_item_expand)
             menu.addAction(self._action_item_collapse)
 
-
     def _handle_action_item_collapse(self):
         self._handle_action_set_expanded(False)
 
-
     def _handle_action_item_expand(self):
         self._handle_action_set_expanded(True)
-
 
     def _handle_action_set_expanded(self, expanded):
         def recursive_set_expanded(index):
@@ -101,7 +96,6 @@ class MessageTreeWidget(QTreeView):
                 recursive_set_expanded(index.child(0, 0))
         for index in self.selectedIndexes():
             recursive_set_expanded(index)
-
 
     @Slot('QPoint')
     def handle_header_view_customContextMenuRequested(self, pos):
