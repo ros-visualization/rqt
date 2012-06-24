@@ -30,9 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Qt
 from QtGui import QComboBox, QCompleter, QSortFilterProxyModel
+
 
 class ExtendedComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -56,27 +57,23 @@ class ExtendedComboBox(QComboBox):
         self.lineEdit().textEdited[unicode].connect(self.filter_model.setFilterFixedString)
         self.completer.activated.connect(self.on_completer_activated)
 
-
-    # on selection of an item from the completer, select the corresponding item from combobox 
+    # on selection of an item from the completer, select the corresponding item from combobox
     def on_completer_activated(self, text):
         if text:
             index = self.findText(text)
             self.setCurrentIndex(index)
 
-
-    # on model change, update the models of the filter and completer as well 
+    # on model change, update the models of the filter and completer as well
     def setModel(self, model):
         super(ExtendedComboBox, self).setModel(model)
         self.filter_model.setSourceModel(model)
         self.completer.setModel(self.filter_model)
-
 
     # on model column change, update the model column of the filter and completer as well
     def setModelColumn(self, column):
         self.completer.setCompletionColumn(column)
         self.filter_model.setFilterKeyColumn(column)
         super(ExtendedComboBox, self).setModelColumn(column)
-
 
 
 if __name__ == "__main__":

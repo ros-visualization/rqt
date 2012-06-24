@@ -1,6 +1,6 @@
-import qt_gui.qt_binding_helper #@UnusedImport
-from QtCore import qDebug
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtGui import QStandardItem, QStandardItemModel
+
 
 class MessageTreeModel(QStandardItemModel):
 
@@ -9,12 +9,10 @@ class MessageTreeModel(QStandardItemModel):
         #super(MessageTreeModel, self).__init__(parent)
         QStandardItemModel.__init__(self, parent)
 
-
     def add_message(self, message_instance, message_name='', message_type='', message_path=''):
         if message_instance is None:
             return
         self._recursive_create_items(self, message_instance, message_name, message_type, message_path)
-
 
     def _get_toplevel_items(self, index_list):
         items = [self.itemFromIndex(index) for index in index_list]
@@ -26,10 +24,8 @@ class MessageTreeModel(QStandardItemModel):
                 uniqueItems[item.row()] = item
         return uniqueItems.values()
 
-
     def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         return (slot_name, slot_type_name, slot_path)
-
 
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
         row = []

@@ -30,8 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper #@UnusedImport
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtGui import QCompleter
+
 
 class TreeModelCompleter(QCompleter):
     separator = '/'
@@ -39,12 +40,10 @@ class TreeModelCompleter(QCompleter):
     def __init__(self, parent=None):
         super(TreeModelCompleter, self).__init__(parent)
 
-
     def splitPath(self, path):
         path = path.lstrip(self.separator)
         path_list = path.split(self.separator)
         return path_list
-
 
     def pathFromIndex(self, index):
         return self.model().itemFromIndex(index)._path
