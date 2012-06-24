@@ -44,16 +44,17 @@ import roslib
 roslib.load_manifest('rqt_service_caller')
 import rospy
 import rosservice
+
+from rqt_gui_py.plugin import Plugin
 from rqt_py_common.extended_combo_box import ExtendedComboBox
 
 
-# main class inherits from the ui window class
-class ServiceCaller(QWidget):
+class ServiceCallerWidget(QWidget):
     column_names = ['service', 'type', 'expression']
 
-    def __init__(self, context):
-        super(ServiceCaller, self).__init__()
-        self.setObjectName('ServiceCaller')
+    def __init__(self):
+        super(ServiceCallerWidget, self).__init__()
+        self.setObjectName('ServiceCallerWidget')
 
         # create context for the expression eval statement
         self._eval_locals = {}
@@ -68,9 +69,6 @@ class ServiceCaller(QWidget):
         self.refresh_services_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.call_service_button.setIcon(QIcon.fromTheme('call-start'))
 
-        if context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
-
         self._column_index = {}
         for column_name in self.column_names:
             self._column_index[column_name] = len(self._column_index)
@@ -79,9 +77,6 @@ class ServiceCaller(QWidget):
         self.on_refresh_services_button_clicked()
 
         self.request_tree_widget.itemChanged.connect(self.request_tree_widget_itemChanged)
-
-        # add our self to the main window
-        context.add_widget(self)
 
     @Slot()
     def on_refresh_services_button_clicked(self):
@@ -273,3 +268,15 @@ class ServiceCaller(QWidget):
                 for index in range(item.childCount()):
                     recursive_set_expanded(item.child(index))
             recursive_set_expanded(item)
+
+
+class ServiceCaller(Plugin):
+
+    def __init__(self, context):
+        super(ServiceCaller, self).__init__(context)
+        self.setObjectName('ServiceCaller')
+
+        self._widget = ServiceCallerWidget()
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)

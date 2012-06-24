@@ -44,21 +44,18 @@ from rostopic import get_topic_type
 
 from .data_plot import DataPlot
 
+from rqt_gui_py.plugin import Plugin
 from rqt_py_common.topic_completer import TopicCompleter
 
 
-# main class inherits from the ui window class
-class Plot(QWidget):
+class PlotWidget(QWidget):
 
-    def __init__(self, context):
-        super(Plot, self).__init__()
-        self.setObjectName('Plot')
+    def __init__(self):
+        super(PlotWidget, self).__init__()
+        self.setObjectName('PlotWidget')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
         loadUi(ui_file, self, {'DataPlot': DataPlot})
-
-        if context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self.subscribe_topic_button.setEnabled(False)
 
@@ -75,9 +72,6 @@ class Plot(QWidget):
         # setup data plot
         self.data_plot.redrawManually = True
         self.pause_button.clicked[bool].connect(self.data_plot.togglePause)
-
-        # add our self to the main window
-        context.add_widget(self)
 
         # init and start update timer for plot
         self._update_plot_timer = QTimer(self)
@@ -187,5 +181,17 @@ class Plot(QWidget):
             self.data_plot.removeCurve(topic_name)
         self._rosdata = {}
 
+
+class Plot(Plugin):
+
+    def __init__(self, context):
+        super(Plot, self).__init__(context)
+        self.setObjectName('Plot')
+
+        self._widget = PlotWidget()
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)
+
     def shutdown_plugin(self):
-        self.clean_up_subscribers()
+        self._widget.clean_up_subscribers()

@@ -48,7 +48,7 @@ from .publisher_widget import PublisherWidget
 class Publisher(Plugin):
 
     def __init__(self, context):
-        super(Publisher, self).__init__()
+        super(Publisher, self).__init__(context)
         self.setObjectName('Publisher')
 
         # create widget

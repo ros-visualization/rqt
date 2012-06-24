@@ -43,21 +43,18 @@ from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
 from .mat_data_plot import MatDataPlot
+from rqt_gui_py.plugin import Plugin
 from rqt_py_common.topic_completer import TopicCompleter
 
 
-# main class inherits from the ui window class
-class MatPlot(QWidget):
+class MatPlotWidget(QWidget):
 
-    def __init__(self, context):
-        super(MatPlot, self).__init__()
-        self.setObjectName('MatPlot')
+    def __init__(self):
+        super(MatPlotWidget, self).__init__()
+        self.setObjectName('MatPlotWidget')
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'MatPlot.ui')
         loadUi(ui_file, self, {'MatDataPlot': MatDataPlot})
-
-        if context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
 
         self.subscribe_topic_button.setEnabled(False)
 
@@ -70,9 +67,6 @@ class MatPlot(QWidget):
         # setup drag 'n drop
         self.data_plot.dropEvent = self.dropEvent
         self.data_plot.dragEnterEvent = self.dragEnterEvent
-
-        # add our self to the main window
-        context.add_widget(self)
 
         # init and start update timer for plot
         self._update_plot_timer = QTimer(self)
@@ -183,14 +177,17 @@ class MatPlot(QWidget):
             self.data_plot.remove_curve(topic_name)
         self._rosdata = {}
 
-    def set_name(self, name):
-        self.setWindowTitle(name)
 
-    # override Qt's closeEvent() method to trigger plugin unloading
-    def closeEvent(self, event):
-        event.ignore()
-        self.deleteLater()
+class MatPlot(Plugin):
+
+    def __init__(self, context):
+        super(MatPlot, self).__init__()
+        self.setObjectName('MatPlot')
+
+        self._widget = MatPlotWidget()
+        if context.serial_number() > 1:
+            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)
 
     def close_plugin(self):
-        self.clean_up_subscribers()
-        QWidget.close(self)
+        self._widget.clean_up_subscribers()
