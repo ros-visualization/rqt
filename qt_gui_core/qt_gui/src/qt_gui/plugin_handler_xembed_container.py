@@ -39,6 +39,7 @@ from QtGui import QX11EmbedContainer
 from .main import Main
 from .settings_proxy_dbus_service import SettingsProxyDBusService
 
+
 class PluginHandlerXEmbedContainer(PluginHandler):
 
     """
@@ -127,7 +128,6 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._update_title_bars()
         self._emit_load_completed(exception)
 
-
     def _shutdown_plugin(self):
         qDebug('PluginHandlerXEmbedContainer._shutdown_plugin()')
         self._process.finished.disconnect(self._emit_close_plugin)
@@ -145,7 +145,6 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._process = None
 
         super(PluginHandlerXEmbedContainer, self).emit_shutdown_plugin_completed()
-
 
     def _unload(self):
         #qDebug('PluginHandlerXEmbedContainer._unload()')
@@ -173,10 +172,8 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         self._dbus_instance_settings_service.set_settings(None)
         super(PluginHandlerXEmbedContainer, self).emit_restore_settings_completed()
 
-
     def _trigger_configuration(self):
         self._dbus_container_service.trigger_configuration()
-
 
     def embed_widget(self, pid, widget_object_name):
         dock_widget = self._create_dock_widget()

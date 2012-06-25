@@ -40,11 +40,9 @@ class PluginHandlerDBusService(Object):
         super(PluginHandlerDBusService, self).__init__(object_path)
         self._plugin_handler = plugin_handler
 
-
     @dbus.service.method('org.ros.qt_gui.PluginHandlerContainer', in_signature='bb', out_signature='')
     def load_completed(self, loaded, has_configuration):
         self._plugin_handler.load_completed(loaded, has_configuration)
-
 
     @dbus.service.method('org.ros.qt_gui.PluginHandlerContainer', in_signature='is', out_signature='i')
     def embed_widget(self, pid, widget_object_name):
@@ -62,7 +60,6 @@ class PluginHandlerDBusService(Object):
     def close_plugin(self):
         self._plugin_handler.close_plugin()
 
-
     @dbus.service.signal('org.ros.qt_gui.PluginHandlerContainer', signature='')
     def shutdown_plugin(self):
         pass
@@ -71,7 +68,6 @@ class PluginHandlerDBusService(Object):
     def shutdown_plugin_completed(self):
         self._plugin_handler.emit_shutdown_plugin_completed()
 
-
     @dbus.service.signal('org.ros.qt_gui.PluginHandlerContainer', signature='')
     def save_settings(self):
         pass
@@ -79,7 +75,6 @@ class PluginHandlerDBusService(Object):
     @dbus.service.method('org.ros.qt_gui.PluginHandlerContainer', in_signature='', out_signature='')
     def save_settings_completed(self):
         self._plugin_handler.emit_save_settings_completed()
-
 
     @dbus.service.signal('org.ros.qt_gui.PluginHandlerContainer', signature='')
     def restore_settings(self):

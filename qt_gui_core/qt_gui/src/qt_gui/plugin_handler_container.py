@@ -54,27 +54,22 @@ class PluginHandlerContainer(PluginHandler):
         self._container_manager.add_container(self._container)
         self._emit_load_completed()
 
-
     def _shutdown_plugin(self):
         self._container_manager.move_container_children_to_parent(self._container)
         self._container_manager.remove_container(self._container)
         self.emit_shutdown_plugin_completed()
-
 
     def _unload(self):
         self._container.deleteLater()
         self._container = None
         self._emit_unload_completed()
 
-
     def _save_settings(self, plugin_settings, instance_settings):
         self.emit_save_settings_completed()
-
 
     def _restore_settings(self, plugin_settings, instance_settings):
         print 'PluginHandlerContainer._restore_settings()'
         self.emit_restore_settings_completed()
-
 
     def _close_dock_widget(self, dock_widget):
         self._emit_close_plugin()

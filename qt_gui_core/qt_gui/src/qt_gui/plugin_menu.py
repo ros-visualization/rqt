@@ -59,7 +59,6 @@ class PluginMenu(QObject):
 
         self._instances = {}
 
-
     def add_plugin(self, plugin_descriptor):
         base_path = plugin_descriptor.attributes().get('plugin_path')
 
@@ -91,7 +90,6 @@ class PluginMenu(QObject):
         # add action to menu
         menu_manager.add_item(action)
 
-
     def add_plugin_prefix(self, plugin_descriptor):
         action_attributes = plugin_descriptor.action_attributes()
         action = QAction(action_attributes['label'], self._plugin_menu_manager.menu)
@@ -99,7 +97,6 @@ class PluginMenu(QObject):
         self._plugin_mapper.setMapping(action, plugin_descriptor.plugin_id())
         action.triggered.connect(self._plugin_mapper.map)
         self._plugin_menu_manager.add_prefix(action)
-
 
     def add_instance(self, plugin_descriptor, instance_id):
         action_attributes = plugin_descriptor.action_attributes()
@@ -117,12 +114,10 @@ class PluginMenu(QObject):
         self._running_menu_manager.add_item(action)
         self._instances[instance_id] = action
 
-
     def remove_instance(self, instance_id):
         action = self._instances[instance_id]
         self._running_mapper.removeMappings(action)
         self._running_menu_manager.remove_item(action)
-
 
     def _enrich_action(self, action, action_attributes, base_path=None):
         icontype = action_attributes.get('icontype', 'file')

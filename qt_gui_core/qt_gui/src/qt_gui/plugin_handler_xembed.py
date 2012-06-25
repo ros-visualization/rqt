@@ -31,6 +31,7 @@
 from .plugin_handler_xembed_client import PluginHandlerXEmbedClient
 from .plugin_handler_xembed_container import PluginHandlerXEmbedContainer
 
+
 class PluginHandlerXEmbed():
 
     """

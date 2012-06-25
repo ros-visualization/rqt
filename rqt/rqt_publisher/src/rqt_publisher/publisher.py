@@ -36,7 +36,7 @@ import random
 import time
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Slot, qDebug, QObject, QSignalMapper, QTimer, qWarning
+from QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
 
 import roslib
 roslib.load_manifest('rqt_publisher')
