@@ -35,7 +35,7 @@ from QtCore import QObject
 class PluginContext(QObject):
 
     """
-    Plugin context providing information to the plugin and exposing methods for the plugin to interact with the framework.
+    PluginContext providing information to the plugin and exposing methods for the plugin to interact with the framework.
     It relays all methods to the corresponding `PluginHandler`.
     """
 
@@ -49,7 +49,7 @@ class PluginContext(QObject):
         """
         Return the serial number of the plugin.
         For a specific type of plugin each instance gets a serial number (which is the first currently not used positive integer at construction time).
-        @return: the serial number
+        @return: The serial number
         @rtype: int
         """
         return self._handler.instance_id().serial_number
@@ -57,8 +57,9 @@ class PluginContext(QObject):
     def add_widget(self, widget):
         """
         Add a widget to the UI.
-        This method can be called multiple times and at any point in time (until the calling plugin has been shutdown).
-        @param widget: the widget
+        The widget is embedded into a new QDockWidget which itself is added to the QMainWindow.
+        This method can be called once for each widget a plugin would like to add and at any point in time (until the calling plugin has been shutdown).
+        @param widget: The widget to add
         @type widget: QWidget
         """
         self._handler.add_widget(widget)
@@ -66,7 +67,7 @@ class PluginContext(QObject):
     def remove_widget(self, widget):
         """
         Remove a previously added widget from the UI.
-        @param widget: the widget
+        @param widget: The widget to remove
         @type widget: QWidget
         """
         self._handler.remove_widget(widget)

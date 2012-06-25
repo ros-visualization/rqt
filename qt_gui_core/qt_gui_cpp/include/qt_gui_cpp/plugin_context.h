@@ -43,6 +43,10 @@
 namespace qt_gui_cpp
 {
 
+/**
+ * PluginContext providing information to the plugin and exposing methods for the plugin to interact with the framework.
+ * It relays all methods to the corresponding plugin handler.
+ */
 class PluginContext
   : public QObject
 {
@@ -53,12 +57,31 @@ public:
 
   PluginContext(const PluginContext& other);
 
+  /**
+   * Return the serial number of the plugin.
+   * For a specific type of plugin each instance gets a serial number (which is the first currently not used positive integer at construction time).
+   * @return The serial number
+   */
   int serialNumber() const;
 
+  /**
+   * Add a widget to the UI.
+   * The widget is embedded into a new QDockWidget which itself is added to the QMainWindow.
+   * This method can be called once for each widget a plugin would like to add and at any point in time (until the calling plugin has been shutdown).
+   * @param widget The widget to add
+   */
   void addWidget(QWidget* widget);
 
+  /**
+   * Remove a previously added widget from the UI.
+   * @param widget The widget to remove
+   */
   void removeWidget(QWidget* widget);
 
+  /**
+   * Close the plugin.
+   * The framework will call `Plugin.shutdown_plugin()` and unload it afterwards.
+   */
   void closePlugin();
 
 protected:
