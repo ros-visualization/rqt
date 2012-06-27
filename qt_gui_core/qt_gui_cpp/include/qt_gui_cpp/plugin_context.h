@@ -68,14 +68,14 @@ public:
    * Add a widget to the UI.
    * The widget is embedded into a new QDockWidget which itself is added to the QMainWindow.
    * This method can be called once for each widget a plugin would like to add and at any point in time (until the calling plugin has been shutdown).
-   * @note The ownership of the widget pointer is transfered to the callee which will delete it when the plugin is shut down.
+   * @note The ownership of the widget pointer is transferred to the callee which will delete it when the plugin is shut down.
    * @param widget The widget to add
    */
   void addWidget(QWidget* widget);
 
   /**
    * Remove a previously added widget from the UI.
-   * @note The ownership of the widget pointer is transfered back to the caller which is responsible of deleting it.
+   * @note The ownership of the widget pointer is transferred back to the caller which is responsible of deleting it.
    * @param widget The widget to remove
    */
   void removeWidget(QWidget* widget);

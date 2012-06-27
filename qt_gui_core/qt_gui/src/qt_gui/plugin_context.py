@@ -59,7 +59,7 @@ class PluginContext(QObject):
         Add a widget to the UI.
         The widget is embedded into a new QDockWidget which itself is added to the QMainWindow.
         This method can be called once for each widget a plugin would like to add and at any point in time (until the calling plugin has been shutdown).
-        Note: The ownership of the widget is transfered to the callee which will delete it when the plugin is shut down.
+        Note: The ownership of the widget is transferred to the callee which will delete it when the plugin is shut down.
         @param widget: The widget to add
         @type widget: QWidget
         """
@@ -68,7 +68,7 @@ class PluginContext(QObject):
     def remove_widget(self, widget):
         """
         Remove a previously added widget from the UI.
-        Note: The ownership of the widget is transfered to the caller.
+        Note: The ownership of the widget is transferred to the caller.
         @param widget: The widget to remove
         @type widget: QWidget
         """
