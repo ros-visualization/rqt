@@ -31,7 +31,7 @@
 import traceback
 
 from . import qt_binding_helper  # @UnusedImport
-from QtCore import qCritical, QEvent, QObject, Slot
+from QtCore import qCritical, QEvent, QObject, qWarning, Slot
 
 from .plugin_context import PluginContext
 from .plugin_handler import PluginHandler
@@ -122,6 +122,9 @@ class PluginHandlerDirect(PluginHandler):
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def add_widget(self, widget):
+        if widget in self._widgets:
+            qWarning('PluginHandlerDirect.add_widget() widget "%s" already added' % widget.objectName())
+            return
         dock_widget = self._create_dock_widget()
         dock_widget.setWidget(widget)
         # every dock widget needs a unique name for save/restore geometry/state to work

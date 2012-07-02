@@ -34,7 +34,7 @@ import traceback
 from dbus import Interface
 from dbus.connection import Connection
 from .plugin_handler_direct import PluginHandlerDirect
-from QtCore import qCritical, qDebug, Slot
+from QtCore import qCritical, qDebug, qWarning, Slot
 from QtGui import QVBoxLayout, QX11EmbedWidget
 from .settings import Settings
 from .window_title_changed_signaler import WindowTitleChangedSignaler
@@ -126,6 +126,9 @@ class PluginHandlerXEmbedClient(PluginHandlerDirect):
     # pointer to QWidget must be used for PySide to work (at least with 1.0.1)
     @Slot('QWidget*')
     def add_widget(self, widget):
+        if widget in self._embed_widgets:
+            qWarning('PluginHandlerXEmbedClient.add_widget() widget "%s" already added' % widget.objectName())
+            return
         embed_widget = QX11EmbedWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
