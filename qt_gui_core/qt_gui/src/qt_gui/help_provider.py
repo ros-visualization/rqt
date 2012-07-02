@@ -33,6 +33,8 @@ import webbrowser
 from . import qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Slot
 
+from roslib.manifest import load_manifest
+
 
 class HelpProvider(QObject):
 
@@ -43,4 +45,6 @@ class HelpProvider(QObject):
 
     @Slot(object)
     def plugin_help_request(self, plugin_descriptor):
-        webbrowser.open('http://www.ros.org/wiki/fuerte/Planning/ROS%20GUI/plugins/' + plugin_descriptor.plugin_id())
+        plugin_name = plugin_descriptor.attributes()['plugin_name']
+        manifest = load_manifest(plugin_name)
+        webbrowser.open(manifest.url)
