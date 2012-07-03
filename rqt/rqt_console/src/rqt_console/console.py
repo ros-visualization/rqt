@@ -106,8 +106,7 @@ class Console(Plugin):
 
     def shutdown_plugin(self):
         self._setupdialog.unsub_topic()
-        self._setupdialog.close()d
-        pass
+        self._setupdialog.close()
 
     def save_settings(self, plugin_settings, instance_settings):
     #Implement saving to file

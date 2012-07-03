@@ -14,7 +14,7 @@ class TimeDialog(QDialog):
     ignore_button_clicked = Signal()
     def __init__(self):
         super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'timedialog.ui')
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'time_dialog.ui')
         loadUi(ui_file,self)
         def click_handler(button):
             if button == self.button_box.button(QDialogButtonBox.Ignore):
@@ -34,7 +34,7 @@ class MainWindow(QWidget):
 class SetupDialog(QDialog):
     def __init__(self,context, callback):
         super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'setupdialog.ui')
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'setup_dialog.ui')
         loadUi(ui_file,self)
 
         self._currenttopic="/rosout_agg"
