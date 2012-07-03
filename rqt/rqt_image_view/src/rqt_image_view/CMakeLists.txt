@@ -1,4 +1,4 @@
-find_package(Qt4 4.6 COMPONENTS QtCore QtGui REQUIRED)
+find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 include(${QT_USE_FILE})
 
 set(rqt_image_view_SRCS
