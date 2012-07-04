@@ -44,9 +44,12 @@ class MessageDataModel(QAbstractTableModel):
                 #triggers after hover for a second or so
                 pass
             elif role == Qt.StatusTipRole:
-                return 'To delete these rows press the delete key.'
-                #NOTE this will be called when you select multiple rows
-                pass
+                tip = str(self._messages.count()) + ' Messages'
+                if self._messages.count() != self._messages.count(True):
+                    tip = str(self._messages.count(True)) + ' of ' + tip
+                tip = 'Displaying ' + tip
+                return tip
+                #NOTE this will only be called when you select multiple rows
 #        else:
 #            print len(messagelist)
 #            print index.row()
@@ -135,3 +138,18 @@ class MessageDataModel(QAbstractTableModel):
 
     def get_unique_col_data(self, index):
         return self._messages.get_unique_col_data(index)
+
+    def get_data(self, row, col):
+        return self._messages.get_data(row, col)
+
+    def count(self, unfiltered=False):
+        return self._messages.count(unfiltered)
+    
+    def set_filter(self, index, text):
+        self._messages.set_filter(index,text)
+    
+    def get_filter(self, index):
+        return self._messages.get_filter(index)
+
+    def message_members(self):
+        return self._messages.message_members()

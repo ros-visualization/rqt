@@ -34,30 +34,33 @@ class FilteredList(MessageList):
             for member2 in Message()._messagemembers:
                 applys.append((member2, member1 == member2))
             self.append_filter('', dict(applys))
+        self._and = '&'
+        self._or = '|'
+        self._not = '^'
 
     def test_conforms_to_filters(self, msgtext, severity, node, date, topic, location):
         return self.conforms_to_filters(Message(msgtext, severity, node, date, topic, location))
 
     def special_chars(self, text):
-        if text.find('(') != -1 or text.find('AND') != -1 or text.find('OR') != -1:
+        if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1:
             return True
         return False
-
+    
     def bool_recurse(self, filter_, text, message):
         text = text.strip()
-        if text.find('AND') == -1 and text.find('OR') == -1:
+        if text.find(self._and) == -1 and text.find(self._or) == -1:
             for member in message._messagemembers:
                 if filter_._applys[member] is True and getattr(message, member).find(str(text)) is -1:
                     return False
             return True
         else:
-            if text.find('OR') != -1:
-                left = text[:text.find('OR')].strip()
-                right = text[text.find('OR') + 2:].strip()
+            if text.find(self._or) != -1:
+                left = text[:text.find(self._or)].strip()
+                right = text[text.find(self._or) + len(self._or):].strip()
                 return self.bool_recurse(filter_, left, message) or self.bool_recurse(filter_, right, message)
-            elif text.find('AND') != -1:
-                left = text[:text.find('AND')].strip()
-                right = text[text.find('AND') + 3:].strip()
+            elif text.find(self._and) != -1:
+                left = text[:text.find(self._and)].strip()
+                right = text[text.find(self._and) + len(self._and):].strip()
                 return self.bool_recurse(filter_, left, message) and self.bool_recurse(filter_, right, message)
             else:
                 raise Exception('Malformed Boolean expression.')
@@ -77,36 +80,35 @@ class FilteredList(MessageList):
             left_op_or = None
             right_op_or = None
 
-            #find the relevant "AND" or "OR" parts
             if left.strip() != '':
-                if left.find('OR') != -1 and left.find('AND') == -1 :
+                if left.find(self._or) != -1 and left.find(self._and) == -1 :
                     left_op_or = True
-                    left = left[:left.find('OR')]
-                elif left.find('OR') == -1 and left.find('AND') != -1 :
+                    left = left[:left.find(self._or)]
+                elif left.find(self._or) == -1 and left.find(self._and) != -1 :
                     left_op_or = False
-                    left = left[:left.find('AND')]
-                elif left.rfind('OR') > left.rfind('AND'):
+                    left = left[:left.find(self._and)]
+                elif left.rfind(self._or) > left.rfind(self._and):
                     left_op_or = True
-                    left = left[:left.rfind('OR')]
-                elif left.rfind('OR') < left.rfind('AND'):
+                    left = left[:left.rfind(self._or)]
+                elif left.rfind(self._or) < left.rfind(self._and):
                     left_op_or = False
-                    left = left[:left.rfind('AND'):]
+                    left = left[:left.rfind(self._and):]
                 else:
                     raise Exception('Malformed Boolean expression.')
 
             if right.strip() != '':
-                if right.find('OR') != -1 and right.find('AND') == -1 :
+                if right.find(self._or) != -1 and right.find(self._and) == -1 :
                     right_op_or = True
-                    right = right[right.find('OR') + 2:]
-                elif right.find('OR') == -1 and right.find('AND') != -1 :
+                    right = right[right.find(self._or) + len(self._or):]
+                elif right.find(self._or) == -1 and right.find(self._and) != -1 :
                     right_op_or = False
-                    right = right[right.find('AND') + 3:]
-                elif right.find('OR') < right.find('AND'):
+                    right = right[right.find(self._and) + len(self._and):]
+                elif right.find(self._or) < right.find(self._and):
                     right_op_or = True
-                    right = right[right.find('OR') + 2:]
-                elif right.find('OR') > right.find('AND'):
+                    right = right[right.find(self._or) + len(self._or):]
+                elif right.find(self._or) > right.find(self._and):
                     right_op_or = False
-                    right = right[right.find('AND') + 3:]
+                    right = right[right.find(self._and) + len(self._and):]
                 else:
                     raise Exception('Malformed Boolean expression.')
 
@@ -156,8 +158,7 @@ class FilteredList(MessageList):
                 if member == '_time':
                     mintime = filtertext[:filtertext.find(':')]
                     maxtime = filtertext[filtertext.find(':') + 1:]
-
-                    if value < float(mintime) or value > float(maxtime):
+                    if float(value) < float(mintime) or float(value) > float(maxtime):
                         return False
                 elif value.find(filtertext) is -1:
                    return False
@@ -262,3 +263,22 @@ class FilteredList(MessageList):
         for message in self._messagelist:
             uniques_list.add(getattr(message, Message()._messagemembers[index]))
         return list(uniques_list)
+
+    def get_data(self, row, col):
+        #TODO bounds check this and throw IndexError if it is out!
+        message = self._messagelist[row]
+        return getattr(message,Message()._messagemembers[col])
+
+    def count(self, unfiltered=False):
+        if unfiltered:
+            return len(self._filteredlist)
+        else:
+            return len(self._messagelist)
+    
+    def set_filter(self, index, text):
+        self._filters[index]._filtertext = text
+    
+    def get_filter(self, index):
+        return self._filters[index]._filtertext
+
+

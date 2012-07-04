@@ -5,7 +5,7 @@ roslib.load_manifest('rqt_console')
 
 from qt_gui.plugin import Plugin
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QWidget, QDialog, QInputDialog, QTableView, QMessageBox
+from QtGui import QWidget, QDialog, QInputDialog, QTableView, QMessageBox, QHeaderView
 from QtCore import qDebug, Qt, QTimer, Slot
 
 from message_data_model import MessageDataModel
@@ -41,6 +41,7 @@ class Console(Plugin):
         self._mainwindow.table_view.keyPressEvent = self.custom_keypress
         self._mainwindow.keyPressEvent = self.custom_keypress
 
+
         self._setupdialog = SetupDialog(context, self.message_callback)
         self._timedialog = TimeDialog()
 
@@ -48,15 +49,10 @@ class Console(Plugin):
     def message_callback(self, data):
         if self._mainwindow.logging_checkbox.isChecked():
             self._datamodel.insertRows(data)
-
-            #This code will Autoscroll the tableview if the scrollbar is near the bottom
-            #NOTE Known bug QT doesn't set the scrollbar max before the callback and it is impossible to exceed the max
-            # This makes is impossible to scroll to the true bottom of the table in the callback
-#            scrollbar = self._mainwindow.table_view.verticalScrollBar()
-#            if scrollbar.sliderPosition() +30 >= scrollbar.maximum():
-#                self._mainwindow.table_view.scrollToBottom()
-
+            self.reset_status()
+    
     def custom_doubleclick(self, event, old_clickEvent=QTableView.mouseDoubleClickEvent):
+
         columnclicked = self._mainwindow.table_view.columnAt(event.x())
         if columnclicked == 0:
             text, ok = QInputDialog.getText(QWidget(), 'Message filter', 'Enter text (leave blank for no filtering):')
@@ -69,6 +65,25 @@ class Console(Plugin):
             def handle_ignore():
                 self._clear_filter = True
             self._timedialog.ignore_button_clicked.connect(handle_ignore)
+            
+            indexes = self._mainwindow.table_view.selectionModel().selectedIndexes()
+            if len(indexes) == 0:
+                self._timedialog.set_time()
+            else:
+            #get the current selection get the min and max times from this range
+            #and set them as the min/max
+                rowlist = []
+                for current in indexes:
+                    rowlist.append(current.row())
+                rowlist = list(set(rowlist))
+                rowlist.sort()
+                
+                mintime = self._datamodel.get_data(rowlist[0],3)
+                maxtime = self._datamodel.get_data(rowlist[-1],3)
+                mintime = mintime[:mintime.find('.')]
+                maxtime = maxtime[:maxtime.find('.')]
+                self._timedialog.set_time(int(mintime),int(maxtime))
+
             ok = self._timedialog.exec_()
             self._timedialog.ignore_button_clicked.disconnect(handle_ignore)
             ok = (ok == 1)
@@ -91,6 +106,7 @@ class Console(Plugin):
             if text == 'All':
                 text = ''
             self._datamodel.alter_filter_text(columnclicked, text)
+            self.reset_status()
             return event.accept()
         return old_clickEvent(self._mainwindow.table_view, event)
 
@@ -101,6 +117,7 @@ class Console(Plugin):
                 delete = QMessageBox.question(self._mainwindow, 'Message', "Are you sure you want to delete all messages?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if delete == QMessageBox.Yes and event.key() == Qt.Key_Delete and event.modifiers() == Qt.NoModifier:
                 if self._datamodel.remove_rows(self._mainwindow.table_view.selectionModel().selectedIndexes()):
+                    self.reset_status()
                     return event.accept()
         return old_keyPressEvent(self._mainwindow.table_view, event)
 
@@ -109,16 +126,12 @@ class Console(Plugin):
         self._setupdialog.close()
 
     def save_settings(self, plugin_settings, instance_settings):
-    #Implement saving to file
-        # TODO save intrinsic configuration, usually using:
-        # instance_settings.set_value(k, v)
-        pass
+        for index, member in enumerate(self._datamodel.message_members()):
+            instance_settings.set_value(member,self._datamodel.get_filter(index))
 
     def restore_settings(self, plugin_settings, instance_settings):
-    #Implement restore from file
-        # TODO restore intrinsic configuration, usually using:
-        # v = instance_settings.value(k)
-        pass
+        for index, member in enumerate(self._datamodel.message_members()):
+            self._datamodel.set_filter(index, instance_settings.value(member))
 
     def trigger_configuration(self):
         self._setupdialog.refresh_nodes()
@@ -126,4 +139,10 @@ class Console(Plugin):
         self._setupdialog.node_list.item(0).setSelected(True)
         self._setupdialog.node_changed(0)
 
+    def reset_status(self):
+        if self._datamodel.count() == self._datamodel.count(True):
+            tip = self._mainwindow.tr('Displaying %s Messages' % (self._datamodel.count())) 
+        else:
+            tip = self._mainwindow.tr('Displaying %s of %s Messages' % (self._datamodel.count(True),self._datamodel.count())) 
+        self._mainwindow.setStatusTip(tip)
 

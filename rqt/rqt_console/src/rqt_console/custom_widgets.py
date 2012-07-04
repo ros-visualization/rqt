@@ -4,7 +4,7 @@ import rosnode, rosservice
 import math, random, time # used for the expression eval context
 
 from QtGui import QWidget, QDialog, QListWidgetItem, QDialogButtonBox
-from QtCore import qDebug, Qt, QTimer, Signal, Slot
+from QtCore import qDebug, Qt, QTimer, Signal, Slot, QDateTime
 from qt_gui.qt_binding_helper import loadUi
 from rosgraph_msgs.msg import Log
 from PyQt4 import QtCore
@@ -21,8 +21,22 @@ class TimeDialog(QDialog):
                 self.ignore_button_clicked.emit()
                 self.accept()
         self.button_box.clicked.connect(click_handler)
-        self.min_dateedit.setDateTime(datetime.now())
-        self.max_dateedit.setDateTime(datetime.now())
+    
+    def set_time(self, mintime=None, maxtime=None):
+        if maxtime is None:
+            time = datetime.now()
+            self.min_dateedit.setDateTime(time)
+            self.max_dateedit.setDateTime(time)
+        else:
+            print mintime
+            print maxtime
+            dtime = QDateTime()
+            dtime.setTime_t(mintime)
+            self.min_dateedit.setDateTime(dtime)
+            dtime = QDateTime()
+            dtime.setTime_t(maxtime)
+            dtime = dtime.addSecs(1)
+            self.max_dateedit.setDateTime(dtime)
 
 class MainWindow(QWidget):
     def keyPressEvent(self, e):
