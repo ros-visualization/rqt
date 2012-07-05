@@ -53,6 +53,8 @@ class DotcodeGeneratorTest(unittest.TestCase):
             with patch('rospkg.RosStack') as rosstack:
                 factoryMock = Mock()
                 graphMock = Mock()
+                rospack.list.return_value = []
+                rosstack.list.return_value = []
                 factoryMock.get_graph.return_value = graphMock
                 gen = RosPackageGraphDotcodeGenerator(rospack, rosstack)
                 graph = gen.generate_dotcode(factoryMock)
