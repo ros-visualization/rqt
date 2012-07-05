@@ -5,7 +5,7 @@ roslib.load_manifest('rqt_console')
 
 from qt_gui.plugin import Plugin
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QWidget, QDialog, QInputDialog, QTableView, QMessageBox, QHeaderView
+from QtGui import QDialog, QHeaderView, QInputDialog, QMenu, QMessageBox, QTableView, QWidget
 from QtCore import qDebug, Qt, QTimer, Slot
 
 from message_data_model import MessageDataModel
@@ -37,24 +37,16 @@ class Console(Plugin):
 
         self._mainwindow.table_view.setVisible(True)
 
-        self._mainwindow.table_view.mouseDoubleClickEvent = self.custom_doubleclick
+        self._mainwindow.table_view.mouseDoubleClickEvent = self.doubleclick_handler
+        self._mainwindow.table_view.mousePressEvent = self.mouse_press_handler
         self._mainwindow.table_view.keyPressEvent = self.custom_keypress
         self._mainwindow.keyPressEvent = self.custom_keypress
-
 
         self._setupdialog = SetupDialog(context, self.message_callback)
         self._timedialog = TimeDialog()
 
-
-    def message_callback(self, data):
-        if self._mainwindow.logging_checkbox.isChecked():
-            self._datamodel.insertRows(data)
-            self.reset_status()
-            self._mainwindow.table_view.reset()
-    
-    def custom_doubleclick(self, event, old_clickEvent=QTableView.mouseDoubleClickEvent):
-
-        columnclicked = self._mainwindow.table_view.columnAt(event.x())
+    def show_filter_input(self, pos):
+        columnclicked = self._mainwindow.table_view.columnAt(pos.x())
         if columnclicked == 0:
             text, ok = QInputDialog.getText(QWidget(), 'Message filter', 'Enter text (leave blank for no filtering):')
         elif columnclicked == 1:
@@ -106,9 +98,93 @@ class Console(Plugin):
         if ok:
             if text == 'All':
                 text = ''
-            self._datamodel.alter_filter_text(columnclicked, text)
+            self._datamodel.set_filter(columnclicked, text)
             self.reset_status()
+
+    def process_inc_exc(self, col, exclude=False):
+        prevfilter = self._datamodel.get_filter(col)
+        if prevfilter != '':
+            prevfilter = '(' + prevfilter + ')' + self._datamodel.get_and()
+        num_selected = len(self._mainwindow.table_view.selectionModel().selectedIndexes())/6
+        nodetext = ''
+        for index in range(num_selected):
+            addtext = self._mainwindow.table_view.selectionModel().selectedIndexes()[num_selected*col+index].data()
+            if nodetext.find(addtext) == -1:
+                if exclude:
+                    addtext = self._datamodel.get_not() + addtext
+                nodetext += addtext
+                if exclude:
+                    nodetext += self._datamodel.get_and()
+                else:
+                    nodetext += self._datamodel.get_or()
+        nodetext = nodetext[:-1]
+        newfilter = prevfilter + nodetext
+        if prevfilter.find(nodetext) == -1:
+            self._datamodel.set_filter(col,newfilter)
+
+    def rightclick_menu(self, event):
+        # menutext string entries are added as menu items
+        # list entries are added as submenues with the second element as subitems
+        menutext = []
+        menutext.append('Edit Filter')
+        if len(self._mainwindow.table_view.selectionModel().selectedIndexes()) != 0:
+            menutext.append(['Exclude',['Node(s)','Message(s)']])
+            menutext.append(['Include',['Node(s)','Message(s)']])
+        menutext.append('Clear Filter')
+        menutext.append('Copy')
+        
+        actions = []
+        menu = QMenu()
+        submenus = []
+        submenuindex = -1
+        for index, item in enumerate(menutext):
+            if isinstance(item, basestring):
+                actions.append((item, menu.addAction(item)))
+            else:
+                submenus.append(QMenu())
+                for subitem in item[1]:
+                    actions.append((item[0] + '>' + subitem, submenus[-1].addAction(subitem)))
+                submenus[-1].setTitle(item[0])
+                menu.addMenu(submenus[-1])
+                                
+        actions = dict(actions)
+        action = menu.exec_(event.globalPos())
+
+        #actions are accessed by dict index menutext>submenutext
+        columnclicked = self._mainwindow.table_view.columnAt(event.pos().x())
+        if action is None or action == 0:
+            return 
+        elif action == actions['Clear Filter']:
+            self._datamodel.set_filter(columnclicked,'')
+        elif action == actions['Edit Filter']:
+            self.show_filter_input(event.pos())
+        elif action == actions['Copy']:
+            print 'copy event' #should copy the "pretty print" text to the clipboard
+        elif action == actions['Include>Node(s)']:
+            self.process_inc_exc(2)
+        elif action == actions['Include>Message(s)']:
+            self.process_inc_exc(0)
+        elif action == actions['Exclude>Node(s)']:
+            self.process_inc_exc(2,True)
+        elif action == actions['Exclude>Message(s)']:
+            self.process_inc_exc(0,True)
+        else:
+            raise
+
+    def message_callback(self, data):
+        if self._mainwindow.logging_checkbox.isChecked():
+            self._datamodel.insertRows(data)
+            self.reset_status()
+            self._mainwindow.table_view.reset()
+    
+    def mouse_press_handler(self, event,
+                                  old_pressEvent=QTableView.mousePressEvent):
+        if event.buttons()&Qt.RightButton and event.modifiers() == Qt.NoModifier:
+            self.rightclick_menu(event)
             return event.accept()
+        return old_pressEvent(self._mainwindow.table_view, event)
+        
+    def doubleclick_handler(self, event, old_clickEvent=QTableView.mouseDoubleClickEvent):
         return old_clickEvent(self._mainwindow.table_view, event)
 
     def custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
@@ -132,7 +208,10 @@ class Console(Plugin):
 
     def restore_settings(self, plugin_settings, instance_settings):
         for index, member in enumerate(self._datamodel.message_members()):
-            self._datamodel.set_filter(index, instance_settings.value(member))
+            text = instance_settings.value(member)
+            if type(text) is type(None):
+                text=''
+            self._datamodel.set_filter(index, text)
 
     def trigger_configuration(self):
         self._setupdialog.refresh_nodes()

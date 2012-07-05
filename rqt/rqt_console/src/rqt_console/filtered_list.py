@@ -48,21 +48,24 @@ class FilteredList(MessageList):
     
     def bool_recurse(self, filter_, text, message):
         text = text.strip()
-        if text.find(self._and) == -1 and text.find(self._or) == -1:
-            if text.find(self._not) != -1:
-                return not self.bool_recurse(filter_, text[text.find(self._not)+len(self._not):], message)
+        or_pos = text.find(self._or)
+        and_pos = text.find(self._and)
+        not_pos = text.find(self._not)
+        if and_pos == -1 and or_pos == -1:
+            if not_pos != -1:
+                return not self.bool_recurse(filter_, text[not_pos+len(self._not):], message)
             for member in message._messagemembers:
                 if filter_._applys[member] is True and getattr(message, member).find(str(text)) is -1:
                     return False
             return True
         else:
-            if text.find(self._or) != -1:
-                left = text[:text.find(self._or)].strip()
-                right = text[text.find(self._or) + len(self._or):].strip()
+            if or_pos != -1:
+                left = text[:or_pos].strip()
+                right = text[or_pos + len(self._or):].strip()
                 return self.bool_recurse(filter_, left, message) or self.bool_recurse(filter_, right, message)
-            elif text.find(self._and) != -1:
-                left = text[:text.find(self._and)].strip()
-                right = text[text.find(self._and) + len(self._and):].strip()
+            elif and_pos != -1:
+                left = text[:and_pos].strip()
+                right = text[and_pos + len(self._and):].strip()
                 return self.bool_recurse(filter_, left, message) and self.bool_recurse(filter_, right, message)
             else:
                 raise Exception('Malformed Boolean expression.')
@@ -72,7 +75,7 @@ class FilteredList(MessageList):
         if not_:
             return not self.paren_recurse(filter_, text, message)
         else:
-            return self.parenn_recurse(filter_, text, message)
+            return self.paren_recurse(filter_, text, message)
 
     def paren_recurse(self, filter_, text, message):
         if text is None:
@@ -80,7 +83,6 @@ class FilteredList(MessageList):
         if text.find('(') == -1:
             return self.bool_recurse(filter_, text, message)
         elif text.find('(') != -1:
-            #shave off the parts
             left = text[:text.find('(')].strip()
             mid = text[text.find('(') + 1:text.find(')')].strip()
             right = text[text.find(')') + 1:].strip()
@@ -93,34 +95,38 @@ class FilteredList(MessageList):
                 not_before_paren = True
                 left = left[:left.find(self._not)]
             if left.strip() != '':
-                if left.find(self._or) != -1 and left.find(self._and) == -1:
+                or_pos = left.find(self._or)
+                and_pos = left.find(self._and)
+                if or_pos != -1 and and_pos == -1:
                     left_op_or = True
-                    left = left[:left.find(self._or)]
-                elif left.find(self._or) == -1 and left.find(self._and) != -1:
+                    left = left[:or_pos]
+                elif or_pos == -1 and and_pos != -1:
                     left_op_or = False
-                    left = left[:left.find(self._and)]
-                elif left.rfind(self._or) > left.rfind(self._and):
+                    left = left[:and_pos]
+                elif or_pos > and_pos:
                     left_op_or = True
-                    left = left[:left.rfind(self._or)]
-                elif left.rfind(self._or) < left.rfind(self._and):
+                    left = left[:or_pos]
+                elif or_pos < and_pos:
                     left_op_or = False
-                    left = left[:left.rfind(self._and):]
+                    left = left[:and_pos]
                 else:
                     raise Exception('Malformed Boolean expression.')
 
             if right.strip() != '':
-                if right.find(self._or) != -1 and right.find(self._and) == -1 :
+                or_pos = right.find(self._or)
+                and_pos = right.find(self._and)
+                if or_pos != -1 and and_pos == -1 :
                     right_op_or = True
-                    right = right[right.find(self._or) + len(self._or):]
-                elif right.find(self._or) == -1 and right.find(self._and) != -1 :
+                    right = right[or_pos + len(self._or):]
+                elif or_pos == -1 and and_pos != -1 :
                     right_op_or = False
-                    right = right[right.find(self._and) + len(self._and):]
-                elif right.find(self._or) < right.find(self._and):
+                    right = right[and_pos + len(self._and):]
+                elif or_pos < and_pos:
                     right_op_or = True
-                    right = right[right.find(self._or) + len(self._or):]
-                elif right.find(self._or) > right.find(self._and):
+                    right = right[or_pos + len(self._or):]
+                elif or_pos > and_pos:
                     right_op_or = False
-                    right = right[right.find(self._and) + len(self._and):]
+                    right = right[and_pos + len(self._and):]
                 else:
                     raise Exception('Malformed Boolean expression.')
 
@@ -155,14 +161,14 @@ class FilteredList(MessageList):
         filtertext = afilter._filtertext
         if filtertext == '':
             return True
-        try:
-            if self.special_chars(filtertext):
-                if filtertext.count('(') == filtertext.count(')'):
-                    return self.paren_recurse(afilter, None, message)
-                else:
-                    raise Exception('Contains unmatched parentheses. ')
-        except Exception as e:
-            print afilter._filtertext + ': ' + str(e) + ' Processing as text filter.'
+        #try:
+        if self.special_chars(filtertext):
+            if filtertext.count('(') == filtertext.count(')'):
+                return self.paren_recurse(afilter, None, message)
+            else:
+                raise Exception('Contains unmatched parentheses. ')
+        #except Exception as e:
+        #    print afilter._filtertext + ': ' + str(e) + ' Processing as text filter.'
 
         for member in message._messagemembers:
             if afilter._applys[member] is True:
@@ -233,11 +239,6 @@ class FilteredList(MessageList):
     def get_message_list(self):
         return self._filteredlist
 
-    def alter_filter_text(self, index, text):
-        if index >= 0 and index < len(self._filters):
-            self._filters[index]._filtertext = text
-            self.rebuild_filtered_list()
-
     def sort(self, col, order):
         MessageList.sort(self, col, order)
         self.rebuild_filtered_list()
@@ -288,9 +289,19 @@ class FilteredList(MessageList):
             return len(self._messagelist)
     
     def set_filter(self, index, text):
-        self._filters[index]._filtertext = text
+        if index >= 0 and index < len(self._filters):
+            self._filters[index]._filtertext = text
+            self.rebuild_filtered_list()
     
     def get_filter(self, index):
         return self._filters[index]._filtertext
 
+    def get_and(self):
+        return self._and
+
+    def get_or(self):
+        return self._or
+
+    def get_not(self):
+        return self._not 
 

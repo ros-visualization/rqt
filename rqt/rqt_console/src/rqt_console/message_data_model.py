@@ -124,10 +124,6 @@ class MessageDataModel(QAbstractTableModel):
         self._messages.delete_filter(index)
         self.reset()
 
-    def alter_filter_text(self, index, filtertext):
-        self._messages.alter_filter_text(index, filtertext)
-        self.reset()
-
     def move_filter_down(self, index):
         self._messages.move_filter_down(index)
         self.reset()
@@ -147,9 +143,19 @@ class MessageDataModel(QAbstractTableModel):
     
     def set_filter(self, index, text):
         self._messages.set_filter(index,text)
+        self.reset()
     
     def get_filter(self, index):
         return self._messages.get_filter(index)
 
     def message_members(self):
         return self._messages.message_members()
+
+    def get_and(self):
+        return self._messages.get_and()
+
+    def get_or(self):
+        return self._messages.get_or()
+
+    def get_not(self):
+        return self._messages.get_not() 
