@@ -34,7 +34,7 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Signal, Slot
+from QtCore import Signal, Slot, QThread
 from QtGui import QIcon, QWidget
 
 import roslib
@@ -57,6 +57,8 @@ class PublisherWidget(QWidget):
 
     def __init__(self, parent=None):
         super(PublisherWidget, self).__init__(parent)
+        self._topic_dict = {}
+        self._update_thread = None
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox, 'PublisherTreeWidget': PublisherTreeWidget})
@@ -76,20 +78,20 @@ class PublisherWidget(QWidget):
 
     @Slot()
     def refresh_combo_boxes(self):
-        self._topic_dict = {}
-        self._update_topic_combo_box()
-        self._update_type_combo_box()
-        self.on_topic_combo_box_currentIndexChanged(self.topic_combo_box.currentText())
+        if self._update_thread is not None and self._update_thread.isRunning():
+            return
+        self.type_combo_box.setEnabled(False)
+        self.topic_combo_box.setEnabled(False)
+        self.type_combo_box.setEditText('updating...')
+        self.topic_combo_box.setEditText('updating...')
+        self._update_thread = QThread(self)
+        self._update_thread.run = self._update_thread_run
+        self._update_thread.finished.connect(self._updated_finished)
+        self._update_thread.start()
 
-    def _update_topic_combo_box(self):
-        _, _, topic_types = rospy.get_master().getTopicTypes()
-        topic_dict = dict(topic_types)
-        if topic_dict != self._topic_dict:
-            self._topic_dict = topic_dict
-            self.topic_combo_box.clear()
-            self.topic_combo_box.addItems(sorted(topic_dict.keys()))
-
-    def _update_type_combo_box(self):
+    # this runs in a non-gui thread, so don't access widgets here directly
+    def _update_thread_run(self):
+        # update type_combo_box
         message_type_names = []
         try:
             # this only works on fuerte and up
@@ -104,8 +106,17 @@ class PublisherWidget(QWidget):
                 if message_class is not None:
                     message_type_names.append(base_type_str)
 
-        self.type_combo_box.clear()
-        self.type_combo_box.addItems(sorted(message_type_names))
+        self.type_combo_box.setItems.emit(sorted(message_type_names))
+
+        # update topic_combo_box
+        _, _, topic_types = rospy.get_master().getTopicTypes()
+        self._topic_dict = dict(topic_types)
+        self.topic_combo_box.setItems.emit(sorted(self._topic_dict.keys()))
+
+    @Slot()
+    def _updated_finished(self):
+        self.type_combo_box.setEnabled(True)
+        self.topic_combo_box.setEnabled(True)
 
     @Slot(str)
     def on_topic_combo_box_currentIndexChanged(self, topic_name):

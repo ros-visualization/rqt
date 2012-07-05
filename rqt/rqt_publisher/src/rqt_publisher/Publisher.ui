@@ -62,11 +62,6 @@
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
        </property>
-       <item>
-        <property name="text">
-         <string>/example</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
