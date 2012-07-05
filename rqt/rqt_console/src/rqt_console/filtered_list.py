@@ -228,7 +228,7 @@ class FilteredList(MessageList):
         if self.conforms_to_filters(newmessage) is True:
             self._filteredlist.append(newmessage)
             self.manualsort()
-            self.rebuild_filtered_list()
+#            self.rebuild_filtered_list()
 
     def get_message_list(self):
         return self._filteredlist

@@ -50,6 +50,7 @@ class Console(Plugin):
         if self._mainwindow.logging_checkbox.isChecked():
             self._datamodel.insertRows(data)
             self.reset_status()
+            self._mainwindow.table_view.reset()
     
     def custom_doubleclick(self, event, old_clickEvent=QTableView.mouseDoubleClickEvent):
 

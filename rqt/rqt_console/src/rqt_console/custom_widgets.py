@@ -28,8 +28,6 @@ class TimeDialog(QDialog):
             self.min_dateedit.setDateTime(time)
             self.max_dateedit.setDateTime(time)
         else:
-            print mintime
-            print maxtime
             dtime = QDateTime()
             dtime.setTime_t(mintime)
             self.min_dateedit.setDateTime(dtime)
@@ -82,7 +80,6 @@ class SetupDialog(QDialog):
         self._eval_locals.update(time.__dict__)
         del self._eval_locals['__name__']
         del self._eval_locals['__doc__']
-        print 'init complete'
 
 # function from service_caller to fill arbitrary messages with a list of slotname/key combos
     def fill_message_slots(self, message, topic_name, expressions, counter):
@@ -156,7 +153,6 @@ class SetupDialog(QDialog):
         return self._current_loggers
 
     def refresh_loggers(self, node):
-        print 'calling: refresh_loggers'
         self._current_loggers = []
         self._current_levels = {}
         servicename = node + '/get_loggers'
@@ -183,7 +179,6 @@ class SetupDialog(QDialog):
         return ['Debug', 'Info', 'Warn', 'Error', 'Fatal']
 
     def node_changed(self, newrow):
-        print 'calling: node_changed: ' + str(newrow)
         if self._first_call:
             self._first_call = False
             return
@@ -202,7 +197,6 @@ class SetupDialog(QDialog):
             self.logger_list.setCurrentRow(0)
 
     def logger_changed(self, newrow):
-        print 'calling: logger_changed: ' + str(newrow)
         self._logger_index = newrow
 
         if self.level_list.count() == 0:
@@ -211,11 +205,8 @@ class SetupDialog(QDialog):
         for index in range(self.level_list.count()):
             if self.level_list.item(index).text().lower() == self._current_levels[self.logger_list.item(newrow).text()].lower():
                 self.level_list.setCurrentRow(index)
-        print self._current_levels
 
     def level_changed(self, newrow):
-        print 'calling: level_changed: ' + str(newrow)
-
         if self.logger_list.count() is 0 or self.level_list.count() is 0:
             return
         self._level_index = newrow
@@ -226,8 +217,6 @@ class SetupDialog(QDialog):
             return
 
         service = rosservice.get_service_class_by_name(servicename)
-        print servicename + ':' + currentlogger + ':' + currentlevel
-
         request = service._request_class()
         self.fill_message_slots(request, servicename, {servicename + '/logger':currentlogger, servicename + '/level':currentlevel}, 0)
         proxy = rospy.ServiceProxy(str(servicename), service)
@@ -237,4 +226,3 @@ class SetupDialog(QDialog):
         except rospy.ServiceException, e:
             qDebug('SetupDialog.level_changed(): request:\n%r' % (request))
             qDebug('SetupDialog.level_changed() "%s":\n%s' % (servicename, e))
-        print self._current_levels
