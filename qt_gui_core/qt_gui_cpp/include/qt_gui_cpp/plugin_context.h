@@ -39,6 +39,7 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
+#include <QWidget>
 
 namespace qt_gui_cpp
 {
