@@ -42,13 +42,15 @@ class FilteredList(MessageList):
         return self.conforms_to_filters(Message(msgtext, severity, node, date, topic, location))
 
     def special_chars(self, text):
-        if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1:
+        if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1 or text.find(self._not) != -1:
             return True
         return False
     
     def bool_recurse(self, filter_, text, message):
         text = text.strip()
         if text.find(self._and) == -1 and text.find(self._or) == -1:
+            if text.find(self._not) != -1:
+                return not self.bool_recurse(filter_, text[text.find(self._not)+len(self._not):], message)
             for member in message._messagemembers:
                 if filter_._applys[member] is True and getattr(message, member).find(str(text)) is -1:
                     return False
@@ -65,6 +67,12 @@ class FilteredList(MessageList):
             else:
                 raise Exception('Malformed Boolean expression.')
             #do a recurse on just the bool bits
+    
+    def paren_not_wrapper(self, filter_, text, message, not_):
+        if not_:
+            return not self.paren_recurse(filter_, text, message)
+        else:
+            return self.parenn_recurse(filter_, text, message)
 
     def paren_recurse(self, filter_, text, message):
         if text is None:
@@ -79,12 +87,16 @@ class FilteredList(MessageList):
 
             left_op_or = None
             right_op_or = None
-
+            
+            not_before_paren = False
+            if left.find(self._not) != -1:
+                not_before_paren = True
+                left = left[:left.find(self._not)]
             if left.strip() != '':
-                if left.find(self._or) != -1 and left.find(self._and) == -1 :
+                if left.find(self._or) != -1 and left.find(self._and) == -1:
                     left_op_or = True
                     left = left[:left.find(self._or)]
-                elif left.find(self._or) == -1 and left.find(self._and) != -1 :
+                elif left.find(self._or) == -1 and left.find(self._and) != -1:
                     left_op_or = False
                     left = left[:left.find(self._and)]
                 elif left.rfind(self._or) > left.rfind(self._and):
@@ -121,20 +133,20 @@ class FilteredList(MessageList):
                     return self.paren_recurse(filter_, mid, message) and self.paren_recurse(filter_, right, message)
             elif right_op_or is None:
                 if left_op_or:
-                    return self.paren_recurse(filter_, left, message) or self.paren_recurse(filter_, mid, message)
+                    return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message)
                 else:
-                    return self.paren_recurse(filter_, left, message) and self.paren_recurse(filter_, mid, message)
+                    return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message)
             else:
                 if left_op_or:
                     if right_op_or:
-                        return self.paren_recurse(filter_, left, message) or self.paren_recurse(filter_, mid, message) or self.paren_recurse(filter_, right, message)
+                        return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message, not_before_paren) or self.paren_recurse(filter_, right, message)
                     else:
-                        return self.paren_recurse(filter_, left, message) or self.paren_recurse(filter_, mid, message) and self.paren_recurse(filter_, right, message)
+                        return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message, not_before_paren) and self.paren_recurse(filter_, right, message)
                 else:
                     if right_op_or:
-                        return self.paren_recurse(filter_, left, message) and self.paren_recurse(filter_, mid, message) or self.paren_recurse(filter_, right, message)
+                        return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message, not_before_paren) or self.paren_recurse(filter_, right, message)
                     else:
-                        return self.paren_recurse(filter_, left, message) and self.paren_recurse(filter_, mid, message) and self.paren_recurse(filter_, right, message)
+                        return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message, not_before_paren) and self.paren_recurse(filter_, right, message)
 
 
     def match_filter(self, afilter, message):
