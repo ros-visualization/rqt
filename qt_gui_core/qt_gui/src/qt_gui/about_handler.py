@@ -48,8 +48,10 @@ class AboutHandler(QObject):
 
     def show(self):
         # append folder of 'qt_gui_cpp/lib' to module search path
-        sys.path.append(os.path.realpath(os.path.join(get_package_path('qt_gui_cpp'), 'lib')))
-        from cpp_binding_helper import qt_gui_cpp
+        qt_gui_cpp_path = os.path.realpath(get_package_path('qt_gui_cpp'))
+        sys.path.append(os.path.join(qt_gui_cpp_path, 'lib'))
+        sys.path.append(os.path.join(qt_gui_cpp_path, 'src'))
+        from qt_gui_cpp.cpp_binding_helper import qt_gui_cpp
 
         _rospkg_version = None
         try:
