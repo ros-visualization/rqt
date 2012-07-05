@@ -36,6 +36,7 @@
 #include <OGRE/OgreLogManager.h>
 
 #include <QCloseEvent>
+#include <QMenuBar>
 
 namespace rqt_rviz {
 
@@ -71,7 +72,39 @@ void RViz::initPlugin(qt_gui_cpp::PluginContext& context)
   log_ = log_manager->createLog(filename.toStdString().c_str(), false, false);
 
   widget_ = new rviz::VisualizationFrame();
+
+  // create own menu bar to disable native menu bars on Unity and Mac
+  QMenuBar* menu_bar = new QMenuBar();
+  menu_bar->setNativeMenuBar(false);
+  widget_->setMenuBar(menu_bar);
+
   widget_->initialize();
+
+  // disable quit action in menu bar
+  QMenu* menu = 0;
+  {
+    // find first menu in menu bar
+    const QObjectList& children = menu_bar->children();
+    qDebug("children %d", children.count());
+    for (QObjectList::const_iterator it = children.begin(); !menu && it != children.end(); it++)
+    {
+      menu = dynamic_cast<QMenu*>(*it);
+      qDebug("menu %d", menu);
+    }
+  }
+  if (menu)
+  {
+    // hide last action in menu
+    const QObjectList& children = menu->children();
+    if (!children.empty())
+    {
+      QAction* action = dynamic_cast<QAction*>(children.last());
+      if (action)
+      {
+        action->setVisible(false);
+      }
+    }
+  }
 
   widget_->setWindowTitle("RViz[*]");
   if (context.serialNumber() != 1)
