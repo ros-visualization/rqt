@@ -34,10 +34,14 @@
 import unittest
 import rospkg
 
+import os
+import roslib
+roslib.load_manifest('rqt_graph')
 from rqt_graph.dotcode import RosGraphDotcodeGenerator
 
+PKG='rqt_graph'
 
-class FilterSplitTest(unittest.TestCase):
+class DotcodeTest(unittest.TestCase):
 
     def test_split_filter_empty(self):
         gen = RosGraphDotcodeGenerator()
@@ -72,8 +76,6 @@ class FilterSplitTest(unittest.TestCase):
         inc, exc = gen._split_filter_string('-foo , bar ,baz, -bam')
         self.assertEqual(['bar', 'baz'], inc)
         self.assertEqual(['foo', 'bam'], exc)
-
-class GraphUtilsTest(unittest.TestCase):
 
     class MockEdge():
         def __init__(self, start, end):
@@ -194,3 +196,8 @@ class GraphUtilsTest(unittest.TestCase):
         self.assertEqual(1, len(raction_nodes))
         self.assertEqual(['foo/feedback', 'foo/goal', 'foo/cancel', 'foo/result', 'foo/status', 'bar'], topic_nodes)
         self.assertEqual([e1, e2, e3, e4, e5, e6], edges)
+
+
+if __name__ == '__main__':
+    import rosunit
+    rosunit.unitrun(PKG, 'dotcode_test', DotcodeTest)

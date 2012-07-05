@@ -3,3 +3,5 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 rosbuild_init()
 
+
+rosbuild_add_pyunit(test/dotcode_test.py)

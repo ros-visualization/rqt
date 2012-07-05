@@ -33,12 +33,18 @@
 
 import unittest
 import rospkg
+import sys, os
 
 # get mock from pypi as 'mock'
 from mock import Mock, MagicMock, patch
 
+import roslib
+roslib.load_manifest('rqt_dep')
+
 from rqt_dep.dotcode_pack import RosPackageGraphDotcodeGenerator
 
+
+PKG='rqt_deps'
 
 class DotcodeGeneratorTest(unittest.TestCase):
 
@@ -48,7 +54,6 @@ class DotcodeGeneratorTest(unittest.TestCase):
                 factoryMock = Mock()
                 graphMock = Mock()
                 factoryMock.get_graph.return_value = graphMock
-                
                 gen = RosPackageGraphDotcodeGenerator(rospack, rosstack)
                 graph = gen.generate_dotcode(factoryMock)
 
@@ -56,3 +61,9 @@ class DotcodeGeneratorTest(unittest.TestCase):
                 rosstack.list.assert_called()
                 factoryMock.get_graph.assert_called_with(simplify=True, rank='same', ranksep=0.2, rankdir='TB')
                 factoryMock.create_dot.assert_called_with(graphMock)
+
+
+if __name__ == '__main__':
+    import rosunit
+    rosunit.unitrun(PKG, 'test_packages_only', DotcodeGeneratorTest)
+

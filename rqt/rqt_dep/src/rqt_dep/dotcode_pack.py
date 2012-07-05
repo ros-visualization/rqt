@@ -33,6 +33,7 @@
 from __future__ import with_statement, print_function
 
 import re
+import roslib
 
 from rospkg.common import ResourceNotFound
 from qt_dotgraph.colors import get_color_for_string
