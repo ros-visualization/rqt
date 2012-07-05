@@ -181,7 +181,7 @@ class MatPlotWidget(QWidget):
 class MatPlot(Plugin):
 
     def __init__(self, context):
-        super(MatPlot, self).__init__()
+        super(MatPlot, self).__init__(context)
         self.setObjectName('MatPlot')
 
         self._widget = MatPlotWidget()
