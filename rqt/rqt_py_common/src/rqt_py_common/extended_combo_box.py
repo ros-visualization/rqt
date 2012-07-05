@@ -31,11 +31,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Qt
+from QtCore import Qt, Signal, Slot
 from QtGui import QComboBox, QCompleter, QSortFilterProxyModel
 
 
 class ExtendedComboBox(QComboBox):
+    setItems = Signal(list)
+
     def __init__(self, parent=None):
         super(ExtendedComboBox, self).__init__(parent)
 
@@ -56,6 +58,7 @@ class ExtendedComboBox(QComboBox):
         # connect signals
         self.lineEdit().textEdited[unicode].connect(self.filter_model.setFilterFixedString)
         self.completer.activated.connect(self.on_completer_activated)
+        self.setItems.connect(self.onSetItems)
 
     # on selection of an item from the completer, select the corresponding item from combobox
     def on_completer_activated(self, text):
@@ -74,6 +77,11 @@ class ExtendedComboBox(QComboBox):
         self.completer.setCompletionColumn(column)
         self.filter_model.setFilterKeyColumn(column)
         super(ExtendedComboBox, self).setModelColumn(column)
+
+    @Slot(list)
+    def onSetItems(self, items):
+        self.clear()
+        self.addItems(items)
 
 
 if __name__ == "__main__":
