@@ -50,7 +50,7 @@ class PluginHandlerContainer(PluginHandler):
         self._container.setWindowTitle(title)
         self._add_dock_widget_to_main_window(self._container)
         self._update_title_bar(self._container, True, True)
-        self._widgets[self._container.main_window] = self._container
+        self._widgets[self._container.main_window] = [self._container, None]
         self._container_manager.add_container(self._container)
         self._emit_load_completed()
 

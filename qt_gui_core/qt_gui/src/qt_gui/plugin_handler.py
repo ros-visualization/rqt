@@ -285,7 +285,8 @@ class PluginHandler(QObject):
     @Slot('QWidget*')
     def remove_widget(self, widget):
         dock_widget, signaler = self._widgets[widget]
-        signaler.window_title_changed_signal.disconnect(self._on_widget_title_changed)
+        if signaler is not None:
+            signaler.window_title_changed_signal.disconnect(self._on_widget_title_changed)
         self._remove_dock_widget_from_parent(dock_widget)
         # do not delete the widget, only the dock widget
         widget.setParent(None)
