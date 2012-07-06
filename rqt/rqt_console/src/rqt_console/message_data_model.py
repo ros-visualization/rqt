@@ -85,7 +85,7 @@ class MessageDataModel(QAbstractTableModel):
                 sections = self._messages.message_members()
                 retval = sections[section][1:].capitalize()
                 filtertext = self._messages._filters[section]._filtertext
-                if filtertext != '':
+                if filtertext is not None and len(filtertext) > 0:
                     if retval == 'Time':
                         mintime = filtertext[:filtertext.find(':')]
                         maxtime = filtertext[filtertext.find(':') + 1:]
@@ -135,11 +135,11 @@ class MessageDataModel(QAbstractTableModel):
 
     def count(self, unfiltered=False):
         return self._messages.count(unfiltered)
-    
+
     def set_filter(self, index, text):
-        self._messages.set_filter(index,text)
+        self._messages.set_filter(index, text)
         self.reset()
-    
+
     def get_filter(self, index):
         return self._messages.get_filter(index)
 
@@ -162,7 +162,7 @@ class MessageDataModel(QAbstractTableModel):
 
     def load_from_file(self, filehandle):
         line = filehandle.readline()
-        if line !='rqt_console output file':
+        if line != 'rqt_console output file':
             while 1:
                 line = filehandle.readline()
                 if not line:
