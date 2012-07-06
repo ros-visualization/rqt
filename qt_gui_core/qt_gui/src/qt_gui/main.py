@@ -30,6 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import print_function
+
 import os
 import signal
 import sys
@@ -66,6 +68,8 @@ class Main(object):
                           help='reload every imported module')
         parser.add_option('-s', '--stand-alone', dest='standalone_plugin', type='str', metavar='PLUGIN',
                           help='start only this plugin (implies -l)')
+        parser.add_option('-v', '--verbose', dest='verbose', default=False, action='store_true',
+                          help='output qDebug messages')
 
         group = OptionGroup(parser, 'Options to query information without starting a GUI instance',
                             'These options can be used to query information about valid arguments for various options.')
@@ -222,7 +226,7 @@ class Main(object):
                 remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PerspectiveManager')
                 remote_interface = Interface(remote_object, 'org.ros.qt_gui.PerspectiveManager')
                 remote_interface.switch_perspective(self._options.command_switch_perspective)
-                print 'qt_gui_main() switched to perspective "%s" in GUI "%s"' % (self._options.command_switch_perspective, context.dbus_host_bus_name)
+                print('qt_gui_main() switched to perspective "%s" in GUI "%s"' % (self._options.command_switch_perspective, context.dbus_host_bus_name))
                 return 0
             raise RuntimeError('Unknown command not handled')
 
@@ -230,7 +234,7 @@ class Main(object):
         setattr(sys, 'SELECT_QT_BINDING', self._options.qt_binding)
         from .qt_binding_helper import QT_BINDING
 
-        from QtCore import qDebug, QSettings, Qt, QTimer
+        from QtCore import qDebug, qInstallMsgHandler, QSettings, Qt, QtCriticalMsg, QtDebugMsg, QtFatalMsg, QTimer, QtWarningMsg
         from QtGui import QAction, QApplication, QIcon, QMenuBar
 
         from .about_handler import AboutHandler
@@ -239,6 +243,21 @@ class Main(object):
         from .main_window import MainWindow
         from .perspective_manager import PerspectiveManager
         from .plugin_manager import PluginManager
+
+        def message_handler(type_, msg):
+            yellow_color = '\033[33m'
+            red_color = '\033[31m'
+            reset_color = '\033[0m'
+            if type_ == QtDebugMsg and self._options.verbose:
+                print(msg, file=sys.stderr)
+            elif type_ == QtWarningMsg:
+                print(yellow_color + msg + reset_color, file=sys.stderr)
+            elif type_ == QtCriticalMsg:
+                print(red_color + msg + reset_color, file=sys.stderr)
+            elif type_ == QtFatalMsg:
+                print(red_color + msg + reset_color, file=sys.stderr)
+                sys.exit(1)
+        qInstallMsgHandler(message_handler)
 
         app = QApplication(argv)
         app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
