@@ -86,7 +86,7 @@ class PublisherWidget(QWidget):
         self.topic_combo_box.setEditText('updating...')
         self._update_thread = QThread(self)
         self._update_thread.run = self._update_thread_run
-        self._update_thread.finished.connect(self._updated_finished)
+        self._update_thread.finished.connect(self._update_finished)
         self._update_thread.start()
 
     # this runs in a non-gui thread, so don't access widgets here directly
@@ -114,7 +114,7 @@ class PublisherWidget(QWidget):
         self.topic_combo_box.setItems.emit(sorted(self._topic_dict.keys()))
 
     @Slot()
-    def _updated_finished(self):
+    def _update_finished(self):
         self.type_combo_box.setEnabled(True)
         self.topic_combo_box.setEnabled(True)
 
