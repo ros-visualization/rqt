@@ -32,7 +32,9 @@
 
 import os
 
-from qt_gui.qt_binding_helper import loadUi
+from qt_gui.qt_binding_helper import loadUi, QT_BINDING
+if QT_BINDING != 'pyqt':
+    raise RuntimeError('MatPlot only works with PyQt')
 from QtCore import qDebug, Qt, QTimer, Slot
 from QtGui import QWidget
 
