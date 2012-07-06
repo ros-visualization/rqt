@@ -156,8 +156,6 @@ class FilteredList(MessageList):
 
 
     def match_filter(self, afilter, message):
-        #TODO implement time range filtering
-        #TODO implement regex filtering
         filtertext = afilter._filtertext
         if filtertext == '':
             return True
@@ -194,14 +192,12 @@ class FilteredList(MessageList):
         return returnbool
 
     def rebuild_filtered_list(self):
-        #TODO consider smarter rebuild methods that don't have to trash the whole list
         self._filteredlist = []
         self._deleteindexes = []
         for index, message in enumerate(self._messagelist):
             if self.conforms_to_filters(message):
                 self._filteredlist.append(message)
                 self._deleteindexes.append(index)
-
     def append_filter(self, filtertext, filterdict):
         newfilter = Filter()
         newfilter._filtertext = filtertext
@@ -213,20 +209,9 @@ class FilteredList(MessageList):
         if index < len(self._filters) and index >= 0:
             del self._filters[index]
             self.rebuild_filtered_list()
-
-    def move_filter_down(self, index):
-        if index < len(self._filters) - 1:
-            temp = self._filters[index]
-            self._filters[index] = self._filters[index + 1]
-            self._filters[index + 1] = temp
-            self.rebuild_filtered_list()
-
-    def move_filter_up(self, index):
-        if index > 0:
-            temp = self._filters[index]
-            self._filters[index] = self._filters[index - 1]
-            self._filters[index - 1] = temp
-            self.rebuild_filtered_list()
+    
+    def add_message_object(self, messageobject):
+        self.add_message(messageobject._message, messageobject._severity, messageobject._node, messageobject._time, messageobject._topics, messageobject._location)
 
     def add_message(self, message, severity, node, time, topics, location):
         newmessage = Message(message, severity, node, time, topics, location)
@@ -234,7 +219,6 @@ class FilteredList(MessageList):
         if self.conforms_to_filters(newmessage) is True:
             self._filteredlist.append(newmessage)
             self.manualsort()
-#            self.rebuild_filtered_list()
 
     def get_message_list(self):
         return self._filteredlist
@@ -242,9 +226,21 @@ class FilteredList(MessageList):
     def sort(self, col, order):
         MessageList.sort(self, col, order)
         self.rebuild_filtered_list()
+    
+    def get_selected_text(self, selection):
+        text = None
+        if len(selection) != 0:
+            text = ''
+            rowlist = []
+            for current in selection:
+                rowlist.append(current.row())
+            rowlist = list(set(rowlist))
+            for row in rowlist:
+                text += self._filteredlist[row].pretty_print()
+        return text
 
     def remove_rows(self, datamodel, selection):
-        if len(selection) is 0:
+        if len(selection) == 0:
             if len(self.get_message_list()) > 0:
                 datamodel.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()) - 1)
                 del self.get_message_list()[0:len(self.get_message_list()) - 1]
@@ -278,9 +274,11 @@ class FilteredList(MessageList):
         return list(uniques_list)
 
     def get_data(self, row, col):
-        #TODO bounds check this and throw IndexError if it is out!
-        message = self._messagelist[row]
-        return getattr(message,Message()._messagemembers[col])
+        if row >= 0 and row < len(self._filteredlist) and col >= 0 and col < 6:
+            message = self._messagelist[row]
+            return getattr(message,Message()._messagemembers[col])
+        else:
+            raise IndexError
 
     def count(self, unfiltered=False):
         if unfiltered:
@@ -304,4 +302,9 @@ class FilteredList(MessageList):
 
     def get_not(self):
         return self._not 
+    
+    def append_from_text(self, text):
+        newmessage = Message()
+        newmessage.file_load(text)
+        self.add_message_object(newmessage)
 

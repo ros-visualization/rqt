@@ -13,6 +13,54 @@ class Message(object):
 
     def CountElements(self):
         return 6 #returns the number of data elements contained in this object
+    
+    def file_print(self):
+        text = self._node + ';'
+        text += self._time + ';'
+        text += self._severity + ';'
+        text += self._topics + ';'
+        text += self._location + ';'
+        altered_message = self._message.replace('"','\\"')
+        text += '"' + altered_message + '"\n'
+        return text
+
+    def file_load(self, text):
+        sc_index = text.find(';') 
+        if sc_index == -1:
+            raise
+        self._node = text[:sc_index]
+        text = text[text.find(';')+1:]
+        sc_index = text.find(';') 
+        if sc_index == -1:
+            raise
+        self._time = text[:sc_index]
+        text = text[text.find(';')+1:]
+        sc_index = text.find(';') 
+        if sc_index == -1:
+            raise
+        self._severity = text[:sc_index]
+        text = text[text.find(';')+1:]
+        sc_index = text.find(';') 
+        if sc_index == -1:
+            raise
+        self._topics = text[:sc_index]
+        text = text[text.find(';')+1:]
+        sc_index = text.find(';') 
+        if sc_index == -1:
+            raise 
+        self._location = text[:sc_index]
+        text = text[sc_index+1:]
+        text = text.replace('\\"','"')
+        self._message = text[1:-2]
+        return
+
+    def pretty_print(self):
+        text = 'Node: ' + self._node + '\n'
+        text += 'Time: ' + self._time + '\n'
+        text += 'Severity: ' + self._severity + '\n'
+        text += 'Published Topics: ' + self._topics + '\n'
+        text += '\n' + self._message + '\n'
+        return text
 
 class MessageList(object):
     def __init__(self):

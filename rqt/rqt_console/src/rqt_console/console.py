@@ -5,11 +5,11 @@ roslib.load_manifest('rqt_console')
 
 from qt_gui.plugin import Plugin
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QDialog, QHeaderView, QInputDialog, QMenu, QMessageBox, QTableView, QWidget
-from QtCore import qDebug, Qt, QTimer, Slot
+from QtGui import QApplication, QDialog, QHeaderView, QInputDialog, QMenu, QMessageBox, QTableView, QWidget, QFileDialog
+from QtCore import qDebug, Qt, QTimer, Slot, QEvent
 
 from message_data_model import MessageDataModel
-from custom_widgets import MainWindow, SetupDialog, TimeDialog
+from custom_widgets import MainWindow, SetupDialog, TimeDialog, ComboDialog
 
 class Console(Plugin):
     def __init__(self, context):
@@ -50,7 +50,12 @@ class Console(Plugin):
         if columnclicked == 0:
             text, ok = QInputDialog.getText(QWidget(), 'Message filter', 'Enter text (leave blank for no filtering):')
         elif columnclicked == 1:
-            text, ok = QInputDialog.getItem(QWidget(), 'Severity filter', 'Include only:', ['All', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'], 0, False)
+            dlg = ComboDialog('Severity filter', 'Include only:',['All', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'])
+            ok = dlg.exec_()
+            ok = (ok == 1)
+            text = dlg.combo_box.currentText()
+
+            #text, ok = QInputDialog.getItem(QWidget(), 'Severity filter', 'Include only:', ['All', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'], 0, False)
         elif columnclicked == 2:
             text, ok = QInputDialog.getItem(QWidget(), 'Node filter', 'Include only:', ['All'] + self._datamodel.get_unique_col_data(columnclicked), 0, False)
         elif columnclicked == 3:
@@ -76,7 +81,6 @@ class Console(Plugin):
                 mintime = mintime[:mintime.find('.')]
                 maxtime = maxtime[:maxtime.find('.')]
                 self._timedialog.set_time(int(mintime),int(maxtime))
-
             ok = self._timedialog.exec_()
             self._timedialog.ignore_button_clicked.disconnect(handle_ignore)
             ok = (ok == 1)
@@ -132,6 +136,9 @@ class Console(Plugin):
             menutext.append(['Include',['Node(s)','Message(s)']])
         menutext.append('Clear Filter')
         menutext.append('Copy')
+        menutext.append('Save to File')
+        menutext.append('Load from File')
+
         
         actions = []
         menu = QMenu()
@@ -159,7 +166,22 @@ class Console(Plugin):
         elif action == actions['Edit Filter']:
             self.show_filter_input(event.pos())
         elif action == actions['Copy']:
-            print 'copy event' #should copy the "pretty print" text to the clipboard
+            copytext = self._datamodel.get_selected_text(self._mainwindow.table_view.selectionModel().selectedIndexes())
+            if copytext is not None:
+                clipboard = QApplication.clipboard()
+                clipboard.setText(copytext)
+        elif action == actions['Save to File']:
+            filename = QFileDialog.getOpenFileName(self._mainwindow, 'Save to File', '.')
+            if filename[0] != '':
+                fileHandle = open(filename[0], 'w')
+                self._datamodel.save_to_file(fileHandle)
+                fileHandle.close()
+        elif action == actions['Load from File']:
+            filename = QFileDialog.getOpenFileName(self._mainwindow, 'Load File', '.')
+            if filename[0] != '':
+                fileHandle = open(filename[0])
+                self._datamodel.load_from_file(fileHandle)
+                fileHandle.close()
         elif action == actions['Include>Node(s)']:
             self.process_inc_exc(2)
         elif action == actions['Include>Message(s)']:

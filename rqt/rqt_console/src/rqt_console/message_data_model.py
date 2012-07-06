@@ -1,8 +1,8 @@
 import time
-from PyQt4.QtCore import * #TODO figure out what i am supposed to import to use the "SIGNAL" keyword
 from filtered_list import FilteredList
 
-from QtCore import QAbstractTableModel, QByteArray, QMimeData, QModelIndex, Qt, Signal, QDateTime, pyqtSignal
+from QtCore import QAbstractTableModel, QByteArray, QMimeData, QModelIndex, Qt, QDateTime, pyqtSignal, Signal
+from QtGui import QWidget
 
 class MessageDataModel(QAbstractTableModel):
 
@@ -28,9 +28,7 @@ class MessageDataModel(QAbstractTableModel):
             if index.column() < 0 or index.column() >= messagelist[index.row()].CountElements():
                 raise IndexError
             if role == Qt.DisplayRole:
-            #TODO This implementation is not ideal. the names of 
-            #the members of Message should be hidden at this level
-                elements = ('_message', '_severity', '_node', '_time', '_topics', '_location')
+                elements = self._messages.message_members()
                 if elements[index.column()] == '_time':
                     time = getattr(messagelist[index.row()], elements[index.column()])
                     time , nano = time.split('.')
@@ -41,6 +39,7 @@ class MessageDataModel(QAbstractTableModel):
                 #implement editable first row as editable
                 raise  #editing not yet implemented
             elif role == Qt.ToolTipRole:
+                return QWidget().tr('Right click for menu.')
                 #triggers after hover for a second or so
                 pass
             elif role == Qt.StatusTipRole:
@@ -50,17 +49,15 @@ class MessageDataModel(QAbstractTableModel):
                 tip = 'Displaying ' + tip
                 return tip
                 #NOTE this will only be called when you select multiple rows
-#        else:
-#            print len(messagelist)
-#            print index.row()
-#            raise IndexError
+        else:
+            raise IndexError
+    def get_selected_text(self, selection):
+        return self._messages.get_selected_text(selection)
 
     def remove_rows(self, selection):
         return self._messages.remove_rows(self, selection)
 
     def insertRows(self, msg):
-        # ignore row and always append 
-        # need to know BEFOREHAND how many rows will be added!
         AddDisplayRow = False
         if self._messages.test_conforms_to_filters(
                 msg.msg, self._severity[msg.level], msg.name,
@@ -72,9 +69,6 @@ class MessageDataModel(QAbstractTableModel):
             self.beginInsertRows(QModelIndex(),
                                  len(self._messages.get_message_list()),
                                  len(self._messages.get_message_list()))
-        #TODO this line needs to be prettier!
-        #TODO This implementation is not ideal. 
-        #the names of the members of Message should be hidden at this level
         self._messages.add_message(msg.msg, self._severity[msg.level], msg.name,
                                    str(msg.header.stamp.secs) + '.' +
                                    str(msg.header.stamp.nsecs),
@@ -115,10 +109,11 @@ class MessageDataModel(QAbstractTableModel):
             pass
 
         return None
+
     def sort(self, Ncol, order):
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        self.layoutAboutToBeChanged.emit()
         self._messages.sort(Ncol, order)
-        self.emit(SIGNAL("layoutChanged()"))
+        self.layoutChanged.emit()
 
     def delete_filter(self, index):
         self._messages.delete_filter(index)
@@ -158,4 +153,19 @@ class MessageDataModel(QAbstractTableModel):
         return self._messages.get_or()
 
     def get_not(self):
-        return self._messages.get_not() 
+        return self._messages.get_not()
+
+    def save_to_file(self, filehandle):
+        filehandle.write('rqt_console output file')
+        for message in self._messages.get_message_list():
+            filehandle.write(message.file_print())
+
+    def load_from_file(self, filehandle):
+        line = filehandle.readline()
+        if line !='rqt_console output file':
+            while 1:
+                line = filehandle.readline()
+                if not line:
+                    break
+                self._messages.append_from_text(line)
+            self.reset()
