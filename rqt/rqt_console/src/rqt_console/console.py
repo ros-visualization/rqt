@@ -5,7 +5,7 @@ roslib.load_manifest('rqt_console')
 
 from qt_gui.plugin import Plugin
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QApplication, QDialog, QHeaderView, QInputDialog, QMenu, QMessageBox, QTableView, QWidget, QFileDialog
+from QtGui import QApplication, QDialog, QHeaderView, QIcon, QInputDialog, QMenu, QMessageBox, QTableView, QWidget, QFileDialog
 from QtCore import qDebug, Qt, QTimer, Slot, QEvent
 
 from message_data_model import MessageDataModel
@@ -41,8 +41,41 @@ class Console(Plugin):
         self._mainwindow.table_view.mousePressEvent = self.mouse_press_handler
         self._mainwindow.table_view.keyPressEvent = self.custom_keypress
 
+        self._mainwindow.pause_button.clicked[bool].connect(self.pause_press)
+        self._mainwindow.open_button.clicked[bool].connect(self.open_press)
+        self._mainwindow.save_button.clicked[bool].connect(self.save_press)
+
         self._setupdialog = SetupDialog(context, self.message_callback)
         self._timedialog = TimeDialog()
+        self._paused = False
+        self._mainwindow.table_view.sortByColumn(3,Qt.DescendingOrder)
+        self._mainwindow.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
+        self._mainwindow.open_button.setIcon(QIcon.fromTheme('document-open'))
+        self._mainwindow.save_button.setIcon(QIcon.fromTheme('document-save'))
+
+    def pause_press(self, b):
+        self._paused = not self._paused
+        if self._paused:
+            self._mainwindow.pause_button.setIcon(QIcon.fromTheme('media-record'))
+            self._mainwindow.pause_button.setText('Resume')
+        else:
+            self._mainwindow.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
+            self._mainwindow.pause_button.setText('Pause')
+            
+
+    def open_press(self, b):
+        filename = QFileDialog.getOpenFileName(self._mainwindow, 'Load File', '.')
+        if filename[0] != '':
+            fileHandle = open(filename[0])
+            self._datamodel.open_from_file(fileHandle)
+            fileHandle.close()
+    
+    def save_press(self, b):
+        filename = QFileDialog.getOpenFileName(self._mainwindow, 'Save to File', '.')
+        if filename[0] != '':
+            fileHandle = open(filename[0], 'w')
+            self._datamodel.save_to_file(fileHandle)
+            fileHandle.close()
 
     def show_combo_dialog(self, titletext, labeltext, itemlist):
         dlg = ComboDialog(titletext, labeltext, itemlist)
@@ -141,9 +174,6 @@ class Console(Plugin):
             menutext.append(['Include',['Node(s)','Message(s)']])
         menutext.append(['Clear Filter'])
         menutext.append(['Copy'])
-        menutext.append(['Save to File'])
-        menutext.append(['Load from File'])
-
         
         actions = []
         menu = QMenu()
@@ -175,18 +205,6 @@ class Console(Plugin):
             if copytext is not None:
                 clipboard = QApplication.clipboard()
                 clipboard.setText(copytext)
-        elif action == actions['Save to File']:
-            filename = QFileDialog.getOpenFileName(self._mainwindow, 'Save to File', '.')
-            if filename[0] != '':
-                fileHandle = open(filename[0], 'w')
-                self._datamodel.save_to_file(fileHandle)
-                fileHandle.close()
-        elif action == actions['Load from File']:
-            filename = QFileDialog.getOpenFileName(self._mainwindow, 'Load File', '.')
-            if filename[0] != '':
-                fileHandle = open(filename[0])
-                self._datamodel.load_from_file(fileHandle)
-                fileHandle.close()
         elif action == actions['Include>Node(s)']:
             self.process_inc_exc(2)
         elif action == actions['Include>Message(s)']:
@@ -199,7 +217,7 @@ class Console(Plugin):
             raise
 
     def message_callback(self, data):
-        if self._mainwindow.logging_checkbox.isChecked():
+        if not self._paused:
             self._datamodel.insertRows(data)
             self.reset_status()
             self._mainwindow.table_view.reset()

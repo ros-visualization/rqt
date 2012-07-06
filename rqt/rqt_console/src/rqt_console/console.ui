@@ -23,11 +23,34 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QCheckBox" name="logging_checkbox">
-       <property name="text">
-        <string>Logging Enabled</string>
+      <widget class="QPushButton" name="open_button">
+       <property name="toolTip">
+        <string>Open a Message file</string>
        </property>
-       <property name="checked">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save_button">
+       <property name="toolTip">
+        <string>Save currently displayed messages to a file</string>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pause_button">
+       <property name="toolTip">
+        <string>Pause the message stream</string>
+       </property>
+       <property name="text">
+        <string>Pause</string>
+       </property>
+       <property name="checkable">
         <bool>true</bool>
        </property>
       </widget>

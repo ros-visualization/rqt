@@ -158,7 +158,7 @@ class MessageDataModel(QAbstractTableModel):
         for message in self._messages.get_message_list():
             filehandle.write(message.file_print())
 
-    def load_from_file(self, filehandle):
+    def open_from_file(self, filehandle):
         line = filehandle.readline()
         if line != 'rqt_console output file':
             while 1:
