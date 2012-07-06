@@ -35,7 +35,14 @@ import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Slot
 from QtGui import QWidget, QVBoxLayout, QSizePolicy
 
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+try:
+    from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+except ImportError:
+    # work around bug in dateutil
+    import sys
+    import thread
+    sys.modules['_thread'] = thread
+    from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from matplotlib.figure import Figure
 
