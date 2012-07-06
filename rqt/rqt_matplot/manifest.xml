@@ -14,6 +14,7 @@
   <rosdep name="python-matplotlib"/>
 
   <export>
-    <rqt_gui plugin="${prefix}/plugin.xml"/>
+    <!-- disable for now as the current matplotlib packages do not support API version 2 which is used in ROS GUI
+    <rqt_gui plugin="${prefix}/plugin.xml"/> -->
   </export>
 </package>
