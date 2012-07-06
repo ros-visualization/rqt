@@ -4,7 +4,7 @@
   </description>
   <author>Dirk Thomas</author>
   <license>BSD</license>
-  <review status="unreviewed" notes=""/>
+  <review status="API cleared" notes="2012-06-20"/>
   <url>http://ros.org/wiki/rqt_gui_py</url>
 
   <depend package="rqt_gui"/>

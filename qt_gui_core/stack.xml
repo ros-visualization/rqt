@@ -4,6 +4,6 @@
   </description>
   <author>Maintained by Dirk Thomas</author>
   <license>BSD</license>
-  <review status="unreviewed" notes=""/>
+  <review status="API cleared" notes="2012-06-20"/>
   <url>http://ros.org/wiki/qt_gui_core</url>
 </stack>
