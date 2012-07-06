@@ -11,12 +11,13 @@ from PyQt4 import QtCore
 from datetime import datetime
 
 class ComboDialog(QDialog):
-    def __init__(self, windowtitle, text, comboboxlist):
+    def __init__(self, windowtitle, text, boxlist):
         super(QDialog, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'combo_input_dialog.ui')
         loadUi(ui_file, self)
-        self.combo_box.addItems(comboboxlist)
+        self.list_box.addItems(boxlist)
         self.setWindowTitle(windowtitle)
+
 class TimeDialog(QDialog):
     ignore_button_clicked = Signal()
     def __init__(self):

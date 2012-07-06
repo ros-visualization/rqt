@@ -83,10 +83,24 @@ class FilteredList(MessageList):
         if text.find('(') == -1:
             return self.bool_recurse(filter_, text, message)
         elif text.find('(') != -1:
-            left = text[:text.find('(')].strip()
-            mid = text[text.find('(') + 1:text.find(')')].strip()
-            right = text[text.find(')') + 1:].strip()
+            unmatchedparens = 0
+            leftindex = -1
+            rightindex = -1
+            for index, char in enumerate(text):
+                if char == ')':
+                    unmatchedparens -= 1
+                    if unmatchedparens == 0:
+                        rightindex = index
+                elif char == '(':
+                    unmatchedparens += 1
+                    if unmatchedparens == 1:
+                        leftindex = index
+                if rightindex != -1:
+                    break
 
+            left = text[:leftindex].strip()
+            mid = text[leftindex + 1:rightindex].strip()
+            right = text[rightindex + 1:].strip()
             left_op_or = None
             right_op_or = None
             
@@ -159,14 +173,11 @@ class FilteredList(MessageList):
         filtertext = afilter._filtertext
         if filtertext == '':
             return True
-        #try:
         if self.special_chars(filtertext):
             if filtertext.count('(') == filtertext.count(')'):
                 return self.paren_recurse(afilter, None, message)
             else:
                 raise Exception('Contains unmatched parentheses. ')
-        #except Exception as e:
-        #    print afilter._filtertext + ': ' + str(e) + ' Processing as text filter.'
 
         for member in message._messagemembers:
             if afilter._applys[member] is True:

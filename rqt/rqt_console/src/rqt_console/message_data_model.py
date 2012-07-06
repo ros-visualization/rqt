@@ -100,13 +100,11 @@ class MessageDataModel(QAbstractTableModel):
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
         elif role == Qt.ToolTipRole:
-            return 'Double click on a header to filter the column'
+            return 'Right click header for filter'
             #NOTE triggers after hover for a second or so
-            pass
-        elif role == Qt.StatusTipRole:
-            #NOTE Doesn't seem to trigger would prefer this to the tooltip
-            return 'Double click a column header to filter the column'
-            pass
+#        elif role == Qt.StatusTipRole:
+#            #NOTE Doesn't seem to trigger would prefer this to the tooltip
+#            return 'Double click a column header to filter the column'
 
         return None
 
@@ -156,7 +154,7 @@ class MessageDataModel(QAbstractTableModel):
         return self._messages.get_not()
 
     def save_to_file(self, filehandle):
-        filehandle.write('rqt_console output file')
+        filehandle.write('rqt_console output file\n')
         for message in self._messages.get_message_list():
             filehandle.write(message.file_print())
 

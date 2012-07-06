@@ -40,24 +40,30 @@ class Console(Plugin):
         self._mainwindow.table_view.mouseDoubleClickEvent = self.doubleclick_handler
         self._mainwindow.table_view.mousePressEvent = self.mouse_press_handler
         self._mainwindow.table_view.keyPressEvent = self.custom_keypress
-        self._mainwindow.keyPressEvent = self.custom_keypress
 
         self._setupdialog = SetupDialog(context, self.message_callback)
         self._timedialog = TimeDialog()
+
+    def show_combo_dialog(self, titletext, labeltext, itemlist):
+        dlg = ComboDialog(titletext, labeltext, itemlist)
+        ok = dlg.exec_()
+        ok = (ok == 1)
+        textlist = dlg.list_box.selectedItems()
+        text = ''
+        for item in textlist:
+            text += item.text() + self._datamodel.get_or()
+        text = text[:-1]
+        return (text, ok)
 
     def show_filter_input(self, pos):
         columnclicked = self._mainwindow.table_view.columnAt(pos.x())
         if columnclicked == 0:
             text, ok = QInputDialog.getText(QWidget(), 'Message filter', 'Enter text (leave blank for no filtering):')
         elif columnclicked == 1:
-            dlg = ComboDialog('Severity filter', 'Include only:',['All', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'])
-            ok = dlg.exec_()
-            ok = (ok == 1)
-            text = dlg.combo_box.currentText()
-
-            #text, ok = QInputDialog.getItem(QWidget(), 'Severity filter', 'Include only:', ['All', 'Debug', 'Info', 'Warning', 'Error', 'Fatal'], 0, False)
+            text, ok = self.show_combo_dialog('Severity filter', 'Include only:', ['Debug', 'Info', 'Warning', 'Error', 'Fatal'])
         elif columnclicked == 2:
-            text, ok = QInputDialog.getItem(QWidget(), 'Node filter', 'Include only:', ['All'] + self._datamodel.get_unique_col_data(columnclicked), 0, False)
+#            text, ok = QInputDialog.getItem(QWidget(), 'Node filter', 'Include only:', ['All'] + self._datamodel.get_unique_col_data(columnclicked), 0, False)
+            text, ok = self.show_combo_dialog('Node filter', 'Include only:', self._datamodel.get_unique_col_data(columnclicked))
         elif columnclicked == 3:
             self._clear_filter = False
             def handle_ignore():
@@ -94,7 +100,7 @@ class Console(Plugin):
                 for item in topiclists.split(','):
                     unique_list.add(item.strip())
             unique_list = list(unique_list)
-            text, ok = QInputDialog.getItem(QWidget(), 'Topic filter', 'Include only:', ['All'] + unique_list , 0, False)
+            text, ok = self.show_combo_dialog('Topic filter', 'Include only:', unique_list )
         elif columnclicked == 5:
             text, ok = QInputDialog.getText(QWidget(), 'Location Filter', 'Enter text (leave blank for no filtering:')
         else:
@@ -113,14 +119,13 @@ class Console(Plugin):
         nodetext = ''
         for index in range(num_selected):
             addtext = self._mainwindow.table_view.selectionModel().selectedIndexes()[num_selected*col+index].data()
-            if nodetext.find(addtext) == -1:
-                if exclude:
-                    addtext = self._datamodel.get_not() + addtext
-                nodetext += addtext
-                if exclude:
-                    nodetext += self._datamodel.get_and()
-                else:
-                    nodetext += self._datamodel.get_or()
+            if exclude:
+                addtext = self._datamodel.get_not() + addtext
+            nodetext += addtext
+            if exclude:
+                nodetext += self._datamodel.get_and()
+            else:
+                nodetext += self._datamodel.get_or()
         nodetext = nodetext[:-1]
         newfilter = prevfilter + nodetext
         if prevfilter.find(nodetext) == -1:
@@ -130,14 +135,14 @@ class Console(Plugin):
         # menutext string entries are added as menu items
         # list entries are added as submenues with the second element as subitems
         menutext = []
-        menutext.append('Edit Filter')
+        menutext.append(['Edit Filter'])
         if len(self._mainwindow.table_view.selectionModel().selectedIndexes()) != 0:
             menutext.append(['Exclude',['Node(s)','Message(s)']])
             menutext.append(['Include',['Node(s)','Message(s)']])
-        menutext.append('Clear Filter')
-        menutext.append('Copy')
-        menutext.append('Save to File')
-        menutext.append('Load from File')
+        menutext.append(['Clear Filter'])
+        menutext.append(['Copy'])
+        menutext.append(['Save to File'])
+        menutext.append(['Load from File'])
 
         
         actions = []
@@ -145,8 +150,8 @@ class Console(Plugin):
         submenus = []
         submenuindex = -1
         for index, item in enumerate(menutext):
-            if isinstance(item, basestring):
-                actions.append((item, menu.addAction(item)))
+            if len(item) == 1:
+                actions.append((item[0], menu.addAction(item[0])))
             else:
                 submenus.append(QMenu())
                 for subitem in item[1]:
@@ -199,9 +204,10 @@ class Console(Plugin):
             self.reset_status()
             self._mainwindow.table_view.reset()
     
-    def mouse_press_handler(self, event,
-                                  old_pressEvent=QTableView.mousePressEvent):
-        if event.buttons()&Qt.RightButton and event.modifiers() == Qt.NoModifier:
+    def mouse_press_handler(self, 
+                            event,
+                            old_pressEvent=QTableView.mousePressEvent):
+        if event.buttons() & Qt.RightButton and event.modifiers() == Qt.NoModifier:
             self.rightclick_menu(event)
             return event.accept()
         return old_pressEvent(self._mainwindow.table_view, event)
