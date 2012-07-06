@@ -155,12 +155,12 @@ class ServiceCallerWidget(QWidget):
     def request_tree_widget_itemChanged(self, item, column):
         column_name = self.column_names[column]
         new_value = str(item.text(column))
-        qDebug('ServiceCaller.request_tree_widget_itemChanged(): %s : %s' % (column_name, new_value))
+        #qDebug('ServiceCaller.request_tree_widget_itemChanged(): %s : %s' % (column_name, new_value))
 
         if column_name == 'expression':
             topic_name = str(item.data(0, Qt.UserRole))
             self._service_info['expressions'][topic_name] = new_value
-            qDebug('ServiceCaller.request_tree_widget_itemChanged(): %s expression: %s' % (topic_name, new_value))
+            #qDebug('ServiceCaller.request_tree_widget_itemChanged(): %s expression: %s' % (topic_name, new_value))
 
     def fill_message_slots(self, message, topic_name, expressions, counter):
         if not hasattr(message, '__slots__'):
@@ -225,8 +225,8 @@ class ServiceCallerWidget(QWidget):
         try:
             response = self._service_info['service_proxy'](request)
         except rospy.ServiceException, e:
-            qDebug('ServiceCaller.on_call_service_button_clicked(): request:\n%r' % (request))
-            qDebug('ServiceCaller.on_call_service_button_clicked(): error calling service "%s":\n%s' % (self._service_info['service_name'], e))
+            qWarning('ServiceCaller.on_call_service_button_clicked(): request:\n%r' % (request))
+            qWarning('ServiceCaller.on_call_service_button_clicked(): error calling service "%s":\n%s' % (self._service_info['service_name'], e))
             top_level_item = QTreeWidgetItem()
             top_level_item.setText(self._column_index['service'], 'ERROR')
             top_level_item.setText(self._column_index['type'], 'rospy.ServiceException')

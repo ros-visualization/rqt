@@ -68,7 +68,6 @@ class PluginHandlerContainer(PluginHandler):
         self.emit_save_settings_completed()
 
     def _restore_settings(self, plugin_settings, instance_settings):
-        print 'PluginHandlerContainer._restore_settings()'
         self.emit_restore_settings_completed()
 
     def _close_dock_widget(self, dock_widget):

@@ -75,7 +75,6 @@ class DockWidgetContainer(DockWidget):
             self._settings.set_value('state', self.main_window.saveState())
 
     def restore_settings(self, settings):
-        print 'DockWidgetContainer.restore_settings()'
         super(DockWidgetContainer, self).restore_settings(settings)
         mw_settings = settings.get_settings('mainwindow')
         self._settings = mw_settings
@@ -87,6 +86,5 @@ class DockWidgetContainer(DockWidget):
             self.main_window.restoreGeometry(settings.value('geometry'))
 
     def restore_state(self):
-        print 'DockWidgetContainer.restore_state()'
         if self._settings.contains('state'):
             self.main_window.restoreState(self._settings.value('state'))

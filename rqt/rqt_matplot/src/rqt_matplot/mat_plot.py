@@ -35,7 +35,7 @@ import os
 from qt_gui.qt_binding_helper import loadUi, QT_BINDING
 if QT_BINDING != 'pyqt':
     raise RuntimeError('MatPlot only works with PyQt')
-from QtCore import qDebug, Qt, QTimer, Slot
+from QtCore import Qt, QTimer, qWarning, Slot
 from QtGui import QWidget
 
 import roslib
@@ -103,12 +103,12 @@ class MatPlotWidget(QWidget):
     def dragEnterEvent(self, event):
         if not event.mimeData().hasText():
             if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
-                qDebug('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
+                qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
                 return
             item = event.source().selectedItems()[0]
             ros_topic_name = item.data(0, Qt.UserRole)
             if ros_topic_name == None:
-                qDebug('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
+                qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
 
         # get topic name
@@ -123,7 +123,7 @@ class MatPlotWidget(QWidget):
         if field_type in (int, float):
             event.acceptProposedAction()
         else:
-            qDebug('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
+            qWarning('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
 
     @Slot('QDropEvent*')
     def dropEvent(self, event):
@@ -155,7 +155,7 @@ class MatPlotWidget(QWidget):
 
     def add_topic(self, topic_name):
         if topic_name in self._rosdata:
-            qDebug('Plot.add_topic(): topic already subscribed: %s' % topic_name)
+            qWarning('Plot.add_topic(): topic already subscribed: %s' % topic_name)
             return
 
         self._rosdata[topic_name] = ROSData(topic_name, self._start_time)

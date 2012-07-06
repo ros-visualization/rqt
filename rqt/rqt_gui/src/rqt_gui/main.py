@@ -62,7 +62,6 @@ class Main(Base):
             from .rospkg_plugin_provider import RospkgPluginProvider
             ActualRosPluginProvider = RospkgPluginProvider
         except ImportError:
-            #qDebug('rospkg not found - falling back to roslib')
             from .roslib_plugin_provider import RoslibPluginProvider
             ActualRosPluginProvider = RoslibPluginProvider
 

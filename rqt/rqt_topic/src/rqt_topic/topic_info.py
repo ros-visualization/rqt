@@ -35,7 +35,7 @@ import time
 from StringIO import StringIO
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import qDebug
+from QtCore import qWarning
 
 import roslib
 roslib.load_manifest('rqt_topic')
@@ -54,7 +54,7 @@ class TopicInfo(ROSTopicHz):
             self.message_class, self._topic_name, _ = get_topic_class(topic_name)
         except Exception:
             self._topic_name = None
-            qDebug('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
+            qWarning('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
             return
 
     def _reset_data(self):

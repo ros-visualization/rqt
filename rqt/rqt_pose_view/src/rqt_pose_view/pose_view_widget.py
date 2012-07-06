@@ -32,7 +32,7 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import qDebug, Qt, QTimer, Slot
+from QtCore import Qt, QTimer, qWarning, Slot
 from QtGui import QAction, QMenu, QWidget
 
 import roslib
@@ -223,12 +223,12 @@ class PoseViewWidget(QWidget):
     def dragEnterEvent(self, event):
         if not event.mimeData().hasText():
             if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
-                qDebug('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
+                qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
                 return
             item = event.source().selectedItems()[0]
             ros_topic_name = item.data(0, Qt.UserRole)
             if ros_topic_name is None:
-                qDebug('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
+                qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
         # TODO: do some checks for valid topic here
         event.acceptProposedAction()
@@ -249,7 +249,6 @@ class PoseViewWidget(QWidget):
             self._subscriber.unregister()
 
     def subscribe_topic(self, topic_name):
-        qDebug('subscribing: %s' % topic_name)
         msg_class, self._topic_name, _ = get_topic_class(topic_name)
         self._subscriber = rospy.Subscriber(self._topic_name, msg_class, self.message_callback)
 

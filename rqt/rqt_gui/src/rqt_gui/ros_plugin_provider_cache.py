@@ -52,7 +52,7 @@ class RosPluginProviderCache():
             if ts + self._max_age >= time.time():
                 self._loaded = ts
                 RosPluginProvider._cached_plugins = data['plugins']
-                print 'RosPluginProviderCache.load() using cached list of plugins'
+                print('RosPluginProviderCache.load() using cached list of plugins')
             data.close()
 
     def save(self):
@@ -61,5 +61,5 @@ class RosPluginProviderCache():
         if self._loaded is None or (self._loaded == data['timestamp'] and RosPluginProvider._cached_plugins != data['plugins']):
             data['plugins'] = RosPluginProvider._cached_plugins
             data['timestamp'] = time.time()
-            print 'RosPluginProviderCache.save() written list of plugins to cache'
+            print('RosPluginProviderCache.save() written list of plugins to cache')
         data.close()

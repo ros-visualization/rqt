@@ -54,7 +54,7 @@ NodeletPluginProvider::~NodeletPluginProvider()
 
 void NodeletPluginProvider::unload(void* instance)
 {
-  //qDebug("NodeletPluginProvider::unload()");
+  qDebug("NodeletPluginProvider::unload()");
   if (!instances_.contains(instance))
   {
     qCritical("NodeletPluginProvider::unload() instance not found");
@@ -88,11 +88,11 @@ boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string
   nodelet::V_string my_argv;
   std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serialNumber()).toStdString();
   instance_.reset();
-  //qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
+  qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
   bool loaded = loader_->load(nodelet_name, lookup_name, remappings, my_argv);
   if (loaded)
   {
-    //qDebug("NodeletPluginProvider::create_plugin() loaded");
+    qDebug("NodeletPluginProvider::create_plugin() loaded");
     instances_[&*instance_] = nodelet_name.c_str();
   }
   boost::shared_ptr<rqt_gui_cpp::Plugin> instance = instance_;

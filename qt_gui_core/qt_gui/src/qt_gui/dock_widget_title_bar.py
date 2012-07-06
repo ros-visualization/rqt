@@ -31,7 +31,7 @@
 import os
 
 from .qt_binding_helper import loadUi
-from QtCore import qDebug, QEvent, QObject, Qt
+from QtCore import QEvent, QObject, Qt, qWarning
 from QtGui import QDockWidget, QIcon, QWidget
 
 
@@ -79,7 +79,7 @@ class DockWidgetTitleBar(QWidget):
     def connect_button(self, button_id, callback):
         button = self._extra_buttons.get(button_id, None)
         if button is None:
-            qDebug('DockWidgetTitleBar.connect_button(): unknown button_id: %s' % button_id)
+            qWarning('DockWidgetTitleBar.connect_button(): unknown button_id: %s' % button_id)
             return
         button.clicked.connect(callback)
 
@@ -93,7 +93,7 @@ class DockWidgetTitleBar(QWidget):
     def show_button(self, button_id, visibility=True):
         button = self._extra_buttons.get(button_id, None)
         if button is None:
-            qDebug('DockWidgetTitleBar.show_button(): unknown button_id: %s' % button_id)
+            qWarning('DockWidgetTitleBar.show_button(): unknown button_id: %s' % button_id)
             return
         button.setVisible(visibility)
 

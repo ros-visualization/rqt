@@ -121,7 +121,7 @@ class Publisher(Plugin):
 
     def _change_publisher_enabled(self, publisher_info, topic_name, new_value):
         publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
-        qDebug('Publisher._change_publisher_enabled(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
+        #qDebug('Publisher._change_publisher_enabled(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
         if publisher_info['enabled'] and publisher_info['rate'] > 0:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
         else:
@@ -143,7 +143,7 @@ class Publisher(Plugin):
 
         # restore type if user value was invalid
         if slot_value is None:
-            qDebug('Publisher._change_publisher_type(): could not find type: %s' % (type_name))
+            qWarning('Publisher._change_publisher_type(): could not find type: %s' % (type_name))
             return parent_slot._slot_types[slot_index]
 
         else:
@@ -157,10 +157,10 @@ class Publisher(Plugin):
         try:
             rate = float(new_value)
         except Exception:
-            qDebug('Publisher._change_publisher_rate(): could not parse rate value: %s' % (new_value))
+            qWarning('Publisher._change_publisher_rate(): could not parse rate value: %s' % (new_value))
         else:
             publisher_info['rate'] = rate
-            qDebug('Publisher._change_publisher_rate(): %s rate changed: %fHz' % (publisher_info['topic_name'], publisher_info['rate']))
+            #qDebug('Publisher._change_publisher_rate(): %s rate changed: %fHz' % (publisher_info['topic_name'], publisher_info['rate']))
             publisher_info['timer'].stop()
             if publisher_info['enabled'] and publisher_info['rate'] > 0:
                 publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
@@ -171,10 +171,10 @@ class Publisher(Plugin):
         if len(new_value) == 0:
             if topic_name in publisher_info['expressions']:
                 del publisher_info['expressions'][topic_name]
-                qDebug('Publisher._change_publisher_expression(): removed expression for: %s' % (topic_name))
+                #qDebug('Publisher._change_publisher_expression(): removed expression for: %s' % (topic_name))
         else:
             publisher_info['expressions'][topic_name] = new_value
-            qDebug('Publisher._change_publisher_expression(): %s expression: %s' % (topic_name, new_value))
+            #qDebug('Publisher._change_publisher_expression(): %s expression: %s' % (topic_name, new_value))
 
     def _extract_array_info(self, type_str):
         array_size = None

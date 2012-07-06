@@ -31,7 +31,7 @@
 import traceback
 
 from . import qt_binding_helper  # @UnusedImport
-from QtCore import qCritical, QObject, Qt, qWarning, Signal, Slot
+from QtCore import qCritical, qDebug, QObject, Qt, qWarning, Signal, Slot
 from QtGui import QDockWidget
 
 from .dock_widget import DockWidget
@@ -158,7 +158,7 @@ class PluginHandler(QObject):
         Save settings of the plugin (`Plugin.save_settings()`) and all dock widget title bars.
         Completion is signaled asynchronously if a callback is passed.
         """
-        #qDebug('PluginHandler.save_settings()')
+        qDebug('PluginHandler.save_settings()')
         self.__instance_settings = instance_settings
         self.__callback = callback
         try:
@@ -171,7 +171,7 @@ class PluginHandler(QObject):
         raise NotImplementedError
 
     def emit_save_settings_completed(self):
-        #qDebug('PluginHandler.emit_save_settings_completed()')
+        qDebug('PluginHandler.emit_save_settings_completed()')
         self._call_method_on_all_dock_widgets('save_settings', self.__instance_settings)
         self.__instance_settings = None
         if self.__callback is not None:
@@ -194,7 +194,7 @@ class PluginHandler(QObject):
         Restore settings of the plugin (`Plugin.restore_settings()`) and all dock widget title bars.
         Completion is signaled asynchronously if a callback is passed.
         """
-        #qDebug('PluginHandler.restore_settings()')
+        qDebug('PluginHandler.restore_settings()')
         self.__instance_settings = instance_settings
         self.__callback = callback
         try:
@@ -207,7 +207,7 @@ class PluginHandler(QObject):
         raise NotImplementedError
 
     def emit_restore_settings_completed(self):
-        #qDebug('PluginHandler.emit_restore_settings_completed()')
+        qDebug('PluginHandler.emit_restore_settings_completed()')
         # call after plugin has restored settings as it may spawn additional dock widgets
         self._call_method_on_all_dock_widgets('restore_settings', self.__instance_settings)
         self.__instance_settings = None

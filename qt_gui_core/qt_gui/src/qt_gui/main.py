@@ -155,7 +155,7 @@ class Main(object):
                 raise RuntimeError('Options from different groups (--list, --command, --embed) can not be used together')
 
         except RuntimeError, e:
-            print e
+            print(str(e))
             #parser.parse_args(['--help'])
             # calling --help will exit
             return 1
@@ -214,9 +214,9 @@ class Main(object):
                     remote_interface = Interface(remote_object, 'org.ros.qt_gui.PluginManager')
                     (rc, msg) = remote_interface.start_plugin(self._options.command_start_plugin)
                 if rc == 0:
-                    print 'qt_gui_main() started plugin "%s" in GUI "%s"' % (msg, context.dbus_host_bus_name)
+                    print('qt_gui_main() started plugin "%s" in GUI "%s"' % (msg, context.dbus_host_bus_name))
                 else:
-                    print 'qt_gui_main() could not start plugin "%s" in GUI "%s": %s' % (self._options.command_start_plugin, context.dbus_host_bus_name, msg)
+                    print('qt_gui_main() could not start plugin "%s" in GUI "%s": %s' % (self._options.command_start_plugin, context.dbus_host_bus_name, msg))
                 return rc
             elif self._options.command_switch_perspective is not None:
                 remote_object = SessionBus().get_object(context.dbus_host_bus_name, '/PerspectiveManager')
@@ -224,8 +224,7 @@ class Main(object):
                 remote_interface.switch_perspective(self._options.command_switch_perspective)
                 print 'qt_gui_main() switched to perspective "%s" in GUI "%s"' % (self._options.command_switch_perspective, context.dbus_host_bus_name)
                 return 0
-            print 'unknown command'
-            return 1
+            raise RuntimeError('Unknown command not handled')
 
         # choose selected or default qt binding
         setattr(sys, 'SELECT_QT_BINDING', self._options.qt_binding)
@@ -289,7 +288,7 @@ class Main(object):
 
         if self._options.list_plugins:
             # output available plugins
-            print '\n'.join(sorted(plugin_manager.get_plugins().values()))
+            print('\n'.join(sorted(plugin_manager.get_plugins().values())))
             return 0
 
         help_provider = HelpProvider()
@@ -301,7 +300,7 @@ class Main(object):
 
             if self._options.list_perspectives:
                 # output available perspectives
-                print '\n'.join(sorted(perspective_manager.perspectives))
+                print('\n'.join(sorted(perspective_manager.perspectives)))
                 return 0
         else:
             perspective_manager = None
@@ -366,10 +365,10 @@ class Main(object):
         if plugin is not None:
             plugins = plugin_manager.find_plugins_by_name(plugin)
             if len(plugins) == 0:
-                print 'qt_gui_main() found no plugin matching "%s"' % plugin
+                print('qt_gui_main() found no plugin matching "%s"' % plugin)
                 return 1
             elif len(plugins) > 1:
-                print 'qt_gui_main() found multiple plugins matching "%s"\n%s' % (plugin, '\n'.join(plugins.values()))
+                print('qt_gui_main() found multiple plugins matching "%s"\n%s' % (plugin, '\n'.join(plugins.values())))
                 return 1
             plugin = plugins.keys()[0]
 

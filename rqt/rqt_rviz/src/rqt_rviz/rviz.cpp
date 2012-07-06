@@ -85,11 +85,9 @@ void RViz::initPlugin(qt_gui_cpp::PluginContext& context)
   {
     // find first menu in menu bar
     const QObjectList& children = menu_bar->children();
-    qDebug("children %d", children.count());
     for (QObjectList::const_iterator it = children.begin(); !menu && it != children.end(); it++)
     {
       menu = dynamic_cast<QMenu*>(*it);
-      qDebug("menu %d", menu);
     }
   }
   if (menu)

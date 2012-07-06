@@ -142,7 +142,7 @@ class PluginManager(QObject):
     @Slot(str)
     @Slot(str, int)
     def load_plugin(self, plugin_id, serial_number=None):
-        #qDebug('PluginManager.load_plugin(%s, %s)' % (plugin_id, str(serial_number) if serial_number is not None else ''))
+        qDebug('PluginManager.load_plugin(%s, %s)' % (plugin_id, str(serial_number) if serial_number is not None else ''))
         # save state of top-level widgets
         self.plugins_about_to_change_signal.emit()
         if serial_number is None:
@@ -202,7 +202,7 @@ class PluginManager(QObject):
         self._running_plugins[str(instance_id)] = info
 
     def _load_plugin_restore(self, handler, exception):
-        #qDebug('PluginManager._load_plugin_restore()')
+        qDebug('PluginManager._load_plugin_restore()')
         self._load_plugin_completed(handler, exception)
         if exception is None:
             # restore settings after load
@@ -240,7 +240,7 @@ class PluginManager(QObject):
             callback(instance_id)
 
     def _emit_load_plugin_completed(self, instance_id):
-        #qDebug('PluginManager._emit_load_plugin_completed()')
+        qDebug('PluginManager._emit_load_plugin_completed()')
         # restore state of top-level widgets
         self.plugins_changed_signal.emit()
 
@@ -252,7 +252,7 @@ class PluginManager(QObject):
             self.close_application_signal.emit()
             return
         instance_id = PluginInstanceId(instance_id=instance_id_str)
-        #qDebug('PluginManager.unload_plugin(%s)' % str(instance_id))
+        qDebug('PluginManager.unload_plugin(%s)' % str(instance_id))
         # save state of top-level widgets
         self.plugins_about_to_change_signal.emit()
         # save settings before shutdown and unloading
@@ -269,7 +269,7 @@ class PluginManager(QObject):
             callback(instance_id)
 
     def _unload_plugin_shutdown(self, instance_id):
-        #qDebug('PluginManager._unload_plugin_shutdown(%s)' % str(instance_id))
+        qDebug('PluginManager._unload_plugin_shutdown(%s)' % str(instance_id))
         self._shutdown_plugin(instance_id, self._unload_plugin_unload)
 
     def _shutdown_plugin(self, instance_id, callback):
@@ -280,7 +280,7 @@ class PluginManager(QObject):
         handler.shutdown_plugin(callback)
 
     def _unload_plugin_unload(self, instance_id):
-        #qDebug('PluginManager._unload_plugin_unload(%s)' % str(instance_id))
+        qDebug('PluginManager._unload_plugin_unload(%s)' % str(instance_id))
         self._unload_plugin(instance_id, self._unload_plugin_completed)
 
     def _unload_plugin(self, instance_id, callback=None):
@@ -290,7 +290,7 @@ class PluginManager(QObject):
         handler.unload(callback)
 
     def _unload_plugin_completed(self, instance_id):
-        #qDebug('PluginManager._unload_plugin_completed(%s)' % str(instance_id))
+        qDebug('PluginManager._unload_plugin_completed(%s)' % str(instance_id))
         self._remove_running_plugin(instance_id)
 
     def _remove_running_plugin(self, instance_id):

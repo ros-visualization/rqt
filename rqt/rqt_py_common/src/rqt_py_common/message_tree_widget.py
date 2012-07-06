@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Slot, qDebug, QMimeData, QModelIndex, Qt
+from QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
 from QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
 
 
@@ -60,9 +60,8 @@ class MessageTreeWidget(QTreeView):
         item = self.model().itemFromIndex(index)
         path = getattr(item, '_path', None)
         if path is None:
-            qDebug('MessageTreeWidget.startDrag(): no _path set on item %s' % item)
+            qWarning('MessageTreeWidget.startDrag(): no _path set on item %s' % item)
             return
-        #qDebug('MessageTreeWidget.startDrag(): %s' % item._path)
 
         data = QMimeData()
         data.setText(item._path)

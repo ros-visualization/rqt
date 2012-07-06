@@ -29,7 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from . import qt_binding_helper  # @UnusedImport
-from QtCore import QObject, Qt
+from QtCore import qDebug, QObject, Qt
 
 from .dock_widget import DockWidget
 from .plugin_descriptor import PluginDescriptor
@@ -85,7 +85,7 @@ class ContainerManager(QObject):
 
     def event(self, e):
         if e.type() == ReparentEvent.reparent_event_type:
-            print 'ContainerManager.event()', 'reparent event', 'new parent:', e.new_parent.objectName()
+            qDebug('ContainerManager.event() reparent event: new parent=%s' % e.new_parent.objectName())
             floating = e.dock_widget.isFloating()
             pos = e.dock_widget.pos()
             e.new_parent.addDockWidget(Qt.BottomDockWidgetArea, e.dock_widget)

@@ -29,7 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from . import qt_binding_helper  # @UnusedImport
-from QtCore import qDebug
+from QtCore import qDebug, qWarning
 
 from dbus.service import BusName, Object
 import dbus
@@ -50,11 +50,11 @@ class PluginManagerDBusInterface(Object):
         plugins = self._plugin_manager.find_plugins_by_name(plugin_name)
         if len(plugins) == 0:
             msg = 'PluginManagerDBusInterface.start_plugin() found no plugin matching "%s"' % plugin_name
-            qDebug(msg)
+            qWarning(msg)
             return (1, msg)
         elif len(plugins) > 1:
             msg = 'PluginManagerDBusInterface.start_plugin() found multiple plugins matching "%s"\n%s' % (plugin_name, '\n'.join(plugins.values()))
-            qDebug(msg)
+            qWarning(msg)
             return (1, msg)
         plugin_id = plugins.keys()[0]
         self._plugin_manager.load_plugin(plugin_id)

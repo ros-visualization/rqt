@@ -147,11 +147,11 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         super(PluginHandlerXEmbedContainer, self).emit_shutdown_plugin_completed()
 
     def _unload(self):
-        #qDebug('PluginHandlerXEmbedContainer._unload()')
+        qDebug('PluginHandlerXEmbedContainer._unload()')
         self._emit_unload_completed()
 
     def _save_settings(self, plugin_settings, instance_settings):
-        #qDebug('PluginHandlerXEmbedContainer._save_settings()')
+        qDebug('PluginHandlerXEmbedContainer._save_settings()')
         self._dbus_plugin_settings_service.set_settings(plugin_settings)
         self._dbus_instance_settings_service.set_settings(instance_settings)
         self._dbus_container_service.save_settings()
@@ -162,7 +162,7 @@ class PluginHandlerXEmbedContainer(PluginHandler):
         super(PluginHandlerXEmbedContainer, self).emit_save_settings_completed()
 
     def _restore_settings(self, plugin_settings, instance_settings):
-        #qDebug('PluginHandlerXEmbedContainer._restore_settings()')
+        qDebug('PluginHandlerXEmbedContainer._restore_settings()')
         self._dbus_plugin_settings_service.set_settings(plugin_settings)
         self._dbus_instance_settings_service.set_settings(instance_settings)
         self._dbus_container_service.restore_settings()
