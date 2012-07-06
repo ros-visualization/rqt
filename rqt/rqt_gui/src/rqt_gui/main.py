@@ -43,7 +43,7 @@ from qt_gui.main import Main as Base
 class Main(Base):
 
     def __init__(self, filename=None):
-        super(Main, self).__init__(filename)
+        super(Main, self).__init__(filename, 'rqt_gui')
         self._plugin_cache = None
 
     def _add_options(self, parser):

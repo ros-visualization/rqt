@@ -40,10 +40,13 @@ class Main(object):
 
     main_filename = None
 
-    def __init__(self, filename=None):
-        if filename is None:
-            filename = os.path.abspath(__file__)
-        Main.main_filename = filename
+    def __init__(self, invoked_filename=None, settings_filename=None):
+        if invoked_filename is None:
+            invoked_filename = os.path.abspath(__file__)
+        Main.main_filename = invoked_filename
+        if settings_filename is None:
+            settings_filename = 'qt_gui'
+        self._settings_filename = settings_filename
         self.plugin_providers = []
         self._dbus_available = False
         self._options = None
@@ -242,7 +245,7 @@ class Main(object):
         app.setAttribute(Qt.AA_DontShowIconsInMenus, False)
 
         if len(embed_options_set) == 0:
-            settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', 'qt_gui')
+            settings = QSettings(QSettings.IniFormat, QSettings.UserScope, 'ros.org', self._settings_filename)
             if self._options.clear_config:
                 settings.clear()
 
