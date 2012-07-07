@@ -32,9 +32,7 @@
 
 import os
 
-from qt_gui.qt_binding_helper import loadUi, QT_BINDING
-if QT_BINDING != 'pyqt':
-    raise RuntimeError('MatPlot only works with PyQt')
+from qt_gui.qt_binding_helper import loadUi
 from QtCore import Qt, QTimer, qWarning, Slot
 from QtGui import QWidget
 
@@ -188,7 +186,7 @@ class MatPlot(Plugin):
 
         self._widget = MatPlotWidget()
         if context.serial_number() > 1:
-            self.setWindowTitle(self.windowTitle() + (' (%d)' % context.serial_number()))
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
     def close_plugin(self):
