@@ -66,10 +66,6 @@ class MessageList(object):
     def __init__(self):
         self._messagelist = []
 
-        #default to sorting decending by time
-        self._sortcol = 3
-        self._sortdec = True
-
     def addMessage(self, message, severity, node, time, topics, location):
         self._messagelist.append(Message(message, severity, node, time, topics, location))
 
@@ -78,13 +74,3 @@ class MessageList(object):
 
     def getMessageList(self):
         return self._messagelist
-
-    def sort(self, col, order):
-        self._sortcol = col
-        rev = False
-        if order == Qt.DescendingOrder:
-            rev = True
-        self._sortdec = rev
-        member = Message()._messagemembers[col]
-        self._messagelist = sorted(self._messagelist, key=lambda message: getattr(message, member).lower(), reverse=rev)
-

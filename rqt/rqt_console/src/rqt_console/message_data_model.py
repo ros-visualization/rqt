@@ -90,19 +90,7 @@ class MessageDataModel(QAbstractTableModel):
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
-        elif role == Qt.ToolTipRole:
-            return 'Right click header for filter'
-            #NOTE triggers after hover for a second or so
-#        elif role == Qt.StatusTipRole:
-#            #NOTE Doesn't seem to trigger would prefer this to the tooltip
-#            return 'Double click a column header to filter the column'
-
         return None
-
-    def sort(self, Ncol, order):
-        self.layoutAboutToBeChanged.emit()
-        self._messages.sort(Ncol, order)
-        self.layoutChanged.emit()
 
     def delete_filter(self, index):
         self._messages.delete_filter(index)

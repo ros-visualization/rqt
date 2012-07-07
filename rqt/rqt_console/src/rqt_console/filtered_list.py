@@ -233,10 +233,6 @@ class FilteredList(MessageList):
     def get_message_list(self):
         return self._filteredlist
 
-    def sort(self, col, order):
-        MessageList.sort(self, col, order)
-        self.rebuild_filtered_list()
-    
     def get_selected_text(self, selection):
         text = None
         if len(selection) != 0:
@@ -317,14 +313,4 @@ class FilteredList(MessageList):
         newmessage = Message()
         newmessage.file_load(text)
         self.add_message_object(newmessage)
-    
-
-    def sort(self, col, order):
-        self._sortcol = col
-        rev = False
-        if order == Qt.DescendingOrder:
-            rev = True
-        self._sortdec = rev
-        member = Message()._messagemembers[col]
-        self._filteredlist = sorted(self._filteredlist, key=lambda message: getattr(message, member).lower(), reverse=rev)
 

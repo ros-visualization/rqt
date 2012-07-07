@@ -10,6 +10,7 @@ from QtCore import qDebug, Qt, QTimer, Slot, QEvent
 
 from message_data_model import MessageDataModel
 from custom_widgets import MainWindow, SetupDialog, TimeDialog, ComboDialog
+from message_proxy_model import MessageProxyModel
 
 class Console(Plugin):
     def __init__(self, context):
@@ -28,13 +29,15 @@ class Console(Plugin):
         # add widget to the user interface
         context.add_widget(self._mainwindow)
         self._datamodel = MessageDataModel()
-        self._mainwindow.table_view.setModel(self._datamodel)
+        self._proxymodel = MessageProxyModel()
+
+        self._mainwindow.table_view.setModel(self._proxymodel)
+        self._proxymodel.setSourceModel(self._datamodel)
 
         self._mainwindow.table_view.setVisible(False)
         self._columnwidth = (600, 140, 200, 360, 200, 600)
         for idx, width in enumerate(self._columnwidth):
             self._mainwindow.table_view.horizontalHeader().resizeSection(idx, width)
-
         self._mainwindow.table_view.setVisible(True)
 
         self._mainwindow.table_view.mousePressEvent = self.mouse_press_handler
