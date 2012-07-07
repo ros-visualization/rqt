@@ -4,7 +4,7 @@ import rosnode, rosservice
 import math, random, time # used for the expression eval context
 
 from QtGui import QWidget, QDialog, QListWidgetItem, QDialogButtonBox
-from QtCore import qDebug, Qt, QTimer, Signal, Slot, QDateTime
+from QtCore import qWarning, Qt, QTimer, Signal, Slot, QDateTime
 from qt_gui.qt_binding_helper import loadUi
 from rosgraph_msgs.msg import Log
 from PyQt4 import QtCore
@@ -47,9 +47,6 @@ class TimeDialog(QDialog):
 class MainWindow(QWidget):
     def keyPressEvent(self, e):
         pass
-#        print 'KeyPress' + str(e.key())
-#        if e.key() == Qt.Key_Escape:
-#            parent(self).close()
 
 class SetupDialog(QDialog):
     def __init__(self, context, callback):
@@ -143,12 +140,10 @@ class SetupDialog(QDialog):
         index = self.topic_combo.itemText(self.topic_combo.currentIndex()).find(' (')
         if index is not -1:
             self._currenttopic = self.topic_combo.itemText(self.topic_combo.currentIndex())[:index]
-            print 'Subscribing to: ' + self._currenttopic
             self.unsub_topic()
             self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
 
     def refresh_nodes(self):
-        print 'calling: refresh_nodes'
         self.node_list.clear()
         nodes = rosnode.get_node_names()
         for name in sorted(nodes):
@@ -172,8 +167,8 @@ class SetupDialog(QDialog):
         try:
             response = proxy(request)
         except rospy.ServiceException, e:
-            qDebug('SetupDialog.get_loggers(): request:\n%s' % (type(request)))
-            qDebug('SetupDialog.get_loggers() "%s":\n%s' % (servicename, e))
+            qWarning('SetupDialog.get_loggers(): request:\n%s' % (type(request)))
+            qWarning('SetupDialog.get_loggers() "%s":\n%s' % (servicename, e))
             return []
 
         if response._slot_types[0] == 'roscpp/Logger[]':
@@ -181,7 +176,7 @@ class SetupDialog(QDialog):
                 self._current_loggers.append(getattr(logger, 'name'))
                 self._current_levels[getattr(logger, 'name')] = getattr(logger, 'level')
         else:
-            print repr(response) #got a strange response
+            qWarning(repr(response)) #got a strange response
 
     def get_levels(self):
         return ['Debug', 'Info', 'Warn', 'Error', 'Fatal']
@@ -232,5 +227,5 @@ class SetupDialog(QDialog):
             response = proxy(request)
             self._current_levels[currentlogger] = currentlevel.upper()
         except rospy.ServiceException, e:
-            qDebug('SetupDialog.level_changed(): request:\n%r' % (request))
-            qDebug('SetupDialog.level_changed() "%s":\n%s' % (servicename, e))
+            qWarning('SetupDialog.level_changed(): request:\n%r' % (request))
+            qWarning('SetupDialog.level_changed() "%s":\n%s' % (servicename, e))

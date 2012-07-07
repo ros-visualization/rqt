@@ -1,7 +1,7 @@
 import time
 from filtered_list import FilteredList
 
-from QtCore import QAbstractTableModel, QByteArray, QMimeData, QModelIndex, Qt, QDateTime, pyqtSignal, Signal
+from QtCore import QAbstractTableModel, QByteArray, QDateTime, qDebug, QMimeData, QModelIndex, Qt, qWarning, Signal
 from QtGui import QWidget
 
 class MessageDataModel(QAbstractTableModel):
@@ -26,30 +26,21 @@ class MessageDataModel(QAbstractTableModel):
         messagelist = self._messages.get_message_list()
         if index.row() >= 0 and index.row() < len(messagelist):
             if index.column() < 0 or index.column() >= messagelist[index.row()].CountElements():
+                qWarning('Message Col Index out of bounds %s' % index.col())
                 raise IndexError
             if role == Qt.DisplayRole:
                 elements = self._messages.message_members()
                 if elements[index.column()] == '_time':
                     time = getattr(messagelist[index.row()], elements[index.column()])
-                    time , nano = time.split('.')
-                    return QDateTime.fromTime_t(long(time)).toString(Qt.SystemLocaleLongDate)
+                    time, micro = time.split('.')
+                    return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString('hh:mm:ss.zzz (yyyy-MM-dd)')
                 else:
                     return getattr(messagelist[index.row()], elements[index.column()])
-            elif role == Qt.EditRole:
-                #implement editable first row as editable
-                raise  #editing not yet implemented
             elif role == Qt.ToolTipRole:
                 return QWidget().tr('Right click for menu.')
-                #triggers after hover for a second or so
                 pass
-            elif role == Qt.StatusTipRole:
-                tip = str(self._messages.count()) + ' Messages'
-                if self._messages.count() != self._messages.count(True):
-                    tip = str(self._messages.count(True)) + ' of ' + tip
-                tip = 'Displaying ' + tip
-                return tip
-                #NOTE this will only be called when you select multiple rows
         else:
+            qWarning('Message Row Index out of bounds %s' % index.row())
             raise IndexError
     def get_selected_text(self, selection):
         return self._messages.get_selected_text(selection)

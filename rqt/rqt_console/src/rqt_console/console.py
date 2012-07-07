@@ -37,7 +37,6 @@ class Console(Plugin):
 
         self._mainwindow.table_view.setVisible(True)
 
-        self._mainwindow.table_view.mouseDoubleClickEvent = self.doubleclick_handler
         self._mainwindow.table_view.mousePressEvent = self.mouse_press_handler
         self._mainwindow.table_view.keyPressEvent = self.custom_keypress
 
@@ -69,6 +68,7 @@ class Console(Plugin):
             fileHandle = open(filename[0])
             self._datamodel.open_from_file(fileHandle)
             fileHandle.close()
+            self.reset_status()
     
     def save_press(self, b):
         filename = QFileDialog.getOpenFileName(self._mainwindow, 'Save to File', '.')
@@ -76,6 +76,7 @@ class Console(Plugin):
             fileHandle = open(filename[0], 'w')
             self._datamodel.save_to_file(fileHandle)
             fileHandle.close()
+            self.reset_status()
 
     def show_combo_dialog(self, titletext, labeltext, itemlist):
         dlg = ComboDialog(titletext, labeltext, itemlist)
@@ -95,7 +96,6 @@ class Console(Plugin):
         elif columnclicked == 1:
             text, ok = self.show_combo_dialog('Severity filter', 'Include only:', ['Debug', 'Info', 'Warning', 'Error', 'Fatal'])
         elif columnclicked == 2:
-#            text, ok = QInputDialog.getItem(QWidget(), 'Node filter', 'Include only:', ['All'] + self._datamodel.get_unique_col_data(columnclicked), 0, False)
             text, ok = self.show_combo_dialog('Node filter', 'Include only:', self._datamodel.get_unique_col_data(columnclicked))
         elif columnclicked == 3:
             self._clear_filter = False
@@ -215,12 +215,12 @@ class Console(Plugin):
             self.process_inc_exc(0,True)
         else:
             raise
+        self.reset_status()
 
     def message_callback(self, data):
         if not self._paused:
             self._datamodel.insertRows(data)
             self.reset_status()
-            self._mainwindow.table_view.reset()
     
     def mouse_press_handler(self, 
                             event,
@@ -230,9 +230,6 @@ class Console(Plugin):
             return event.accept()
         return old_pressEvent(self._mainwindow.table_view, event)
         
-    def doubleclick_handler(self, event, old_clickEvent=QTableView.mouseDoubleClickEvent):
-        return old_clickEvent(self._mainwindow.table_view, event)
-
     def custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         if event.key() == Qt.Key_Delete:
             delete = QMessageBox.Yes
@@ -261,14 +258,14 @@ class Console(Plugin):
 
     def trigger_configuration(self):
         self._setupdialog.refresh_nodes()
-        self._setupdialog.show()
         self._setupdialog.node_list.item(0).setSelected(True)
         self._setupdialog.node_changed(0)
+        self._setupdialog.exec_()
 
     def reset_status(self):
         if self._datamodel.count() == self._datamodel.count(True):
             tip = self._mainwindow.tr('Displaying %s Messages' % (self._datamodel.count())) 
         else:
             tip = self._mainwindow.tr('Displaying %s of %s Messages' % (self._datamodel.count(True),self._datamodel.count())) 
-        self._mainwindow.setStatusTip(tip)
+        self._mainwindow.messages_label.setText(tip)
 

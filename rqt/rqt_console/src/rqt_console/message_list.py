@@ -79,9 +79,6 @@ class MessageList(object):
     def getMessageList(self):
         return self._messagelist
 
-    def manualsort(self):
-        self.sort(self._sortcol, self._sortdec)
-
     def sort(self, col, order):
         self._sortcol = col
         rev = False

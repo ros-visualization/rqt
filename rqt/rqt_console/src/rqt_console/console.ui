@@ -45,13 +45,20 @@
      <item>
       <widget class="QPushButton" name="pause_button">
        <property name="toolTip">
-        <string>Pause the message stream</string>
+        <string>Pause/Resume the message stream</string>
        </property>
        <property name="text">
         <string>Pause</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="messages_label">
+       <property name="text">
+        <string>Displaying 0 of 0 messages</string>
        </property>
       </widget>
      </item>

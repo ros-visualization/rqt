@@ -3,7 +3,7 @@ from message_list import MessageList
 #filterlist holds a set of filters and will apply these filters to a
 #dataset returning the reduced list for display
 #It will have a widget when completed
-from QtCore import qDebug, QModelIndex
+from QtCore import qDebug, QModelIndex, Qt
 
 class Filter:
     def __init__(self):
@@ -229,7 +229,6 @@ class FilteredList(MessageList):
         self._messagelist.append(newmessage)
         if self.conforms_to_filters(newmessage) is True:
             self._filteredlist.append(newmessage)
-            self.manualsort()
 
     def get_message_list(self):
         return self._filteredlist
@@ -318,4 +317,14 @@ class FilteredList(MessageList):
         newmessage = Message()
         newmessage.file_load(text)
         self.add_message_object(newmessage)
+    
+
+    def sort(self, col, order):
+        self._sortcol = col
+        rev = False
+        if order == Qt.DescendingOrder:
+            rev = True
+        self._sortdec = rev
+        member = Message()._messagemembers[col]
+        self._filteredlist = sorted(self._filteredlist, key=lambda message: getattr(message, member).lower(), reverse=rev)
 
