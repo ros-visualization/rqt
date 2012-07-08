@@ -45,6 +45,7 @@ from rostopic import get_topic_type
 from .mat_data_plot import MatDataPlot
 from rqt_gui_py.plugin import Plugin
 from rqt_py_common.topic_completer import TopicCompleter
+from rqt_py_common.topic_helpers import is_slot_numeric
 
 
 class MatPlotWidget(QWidget):
@@ -79,34 +80,16 @@ class MatPlotWidget(QWidget):
             self.data_plot.update_value(topic_name, data_x, data_y)
         self.data_plot.draw_plot()
 
-    def _get_field_type(self, topic_name):
-        # get message
-        topic_type, _, message_evaluator = get_topic_type(topic_name)
-        if topic_type is None:
-            return None
-        message = roslib.message.get_message_class(topic_type)()
-
-        # return field type
-        if message_evaluator:
-            try:
-                field_type = type(message_evaluator(message))
-            except Exception:
-                field_type = None
-        else:
-            field_type = type(message)
-
-        return field_type
-
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
         if not event.mimeData().hasText():
             if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
-                qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
+                qWarning('MatPlot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
                 return
             item = event.source().selectedItems()[0]
             ros_topic_name = item.data(0, Qt.UserRole)
             if ros_topic_name == None:
-                qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
+                qWarning('MatPlot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
 
         # get topic name
@@ -117,11 +100,11 @@ class MatPlotWidget(QWidget):
             topic_name = str(droped_item.data(0, Qt.UserRole))
 
         # check for numeric field type
-        field_type = self._get_field_type(topic_name)
-        if field_type in (int, float):
+        is_numeric, message = is_slot_numeric(topic_name)
+        if is_numeric:
             event.acceptProposedAction()
         else:
-            qWarning('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
+            qWarning('MatPlot.dragEnterEvent(): rejecting: "%s"' % (message))
 
     @Slot('QDropEvent*')
     def dropEvent(self, event):
@@ -138,14 +121,9 @@ class MatPlotWidget(QWidget):
         if topic_name in ('', '/'):
             self._topic_completer.update_topics()
 
-        # check for numeric field type
-        field_type = self._get_field_type(topic_name)
-        if field_type in (int, float):
-            self.subscribe_topic_button.setEnabled(True)
-            self.subscribe_topic_button.setToolTip('topic "%s" is numeric: %s' % (topic_name, field_type))
-        else:
-            self.subscribe_topic_button.setEnabled(False)
-            self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
+        is_numeric, message = is_slot_numeric(topic_name)
+        self.subscribe_topic_button.setEnabled(is_numeric)
+        self.subscribe_topic_button.setToolTip(message)
 
     @Slot()
     def on_subscribe_topic_button_clicked(self):
@@ -153,7 +131,7 @@ class MatPlotWidget(QWidget):
 
     def add_topic(self, topic_name):
         if topic_name in self._rosdata:
-            qWarning('Plot.add_topic(): topic already subscribed: %s' % topic_name)
+            qWarning('MatPlot.add_topic(): topic already subscribed: %s' % topic_name)
             return
 
         self._rosdata[topic_name] = ROSData(topic_name, self._start_time)

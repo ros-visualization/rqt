@@ -43,9 +43,9 @@ from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
 from .data_plot import DataPlot
-
 from rqt_gui_py.plugin import Plugin
 from rqt_py_common.topic_completer import TopicCompleter
+from rqt_py_common.topic_helpers import is_slot_numeric
 
 
 class PlotWidget(QWidget):
@@ -86,23 +86,6 @@ class PlotWidget(QWidget):
                 self.data_plot.updateValue(topic_name, value)
         self.data_plot.redraw()
 
-    def _get_field_type(self, topic_name):
-        # get message
-        topic_type, _, message_evaluator = get_topic_type(topic_name)
-        if topic_type is None:
-            return None
-        message = roslib.message.get_message_class(topic_type)()
-
-        # return field type
-        if message_evaluator:
-            try:
-                field_type = type(message_evaluator(message))
-            except Exception:
-                field_type = None
-        else:
-            field_type = type(message)
-
-        return field_type
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
@@ -124,11 +107,11 @@ class PlotWidget(QWidget):
             topic_name = str(droped_item.data(0, Qt.UserRole))
 
         # check for numeric field type
-        field_type = self._get_field_type(topic_name)
-        if field_type in (int, float):
+        is_numeric, message = is_slot_numeric(topic_name)
+        if is_numeric:
             event.acceptProposedAction()
         else:
-            qWarning('Plot.dragEnterEvent(): rejecting topic "%s" of non-numeric type "%s"' % (topic_name, field_type))
+            qWarning('Plot.dragEnterEvent(): rejecting: "%s"' % (message))
 
     @Slot('QDropEvent*')
     def dropEvent(self, event):
@@ -145,19 +128,9 @@ class PlotWidget(QWidget):
         if topic_name in ('', '/'):
             self._topic_completer.update_topics()
 
-        # check for numeric field type
-        topic_base = topic_name.rsplit('[', 1)[0]
-        field_type = self._get_field_type(topic_base)
-
-        if field_type in (int, float):
-            self.subscribe_topic_button.setEnabled(True)
-            self.subscribe_topic_button.setToolTip('topic "%s" is numeric: %s' % (topic_name, field_type))
-        elif field_type in (tuple, list) and topic_name.endswith(']'):
-            self.subscribe_topic_button.setEnabled(True)
-            self.subscribe_topic_button.setToolTip('topic "%s" is a list, hoping for a valid index...' % (topic_name))
-        else:
-            self.subscribe_topic_button.setEnabled(False)
-            self.subscribe_topic_button.setToolTip('topic "%s" is NOT numeric: %s' % (topic_name, field_type))
+        is_numeric, message = is_slot_numeric(topic_name)
+        self.subscribe_topic_button.setEnabled(is_numeric)
+        self.subscribe_topic_button.setToolTip(message)
 
     @Slot()
     def on_subscribe_topic_button_clicked(self):
