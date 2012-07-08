@@ -12,6 +12,10 @@ class MessageDataModel(QAbstractTableModel):
         self._messages = MessageList()
 
         self._severity = {1: 'Debug', 2: 'Info', 4:'Warn', 8:'Error', 16: 'Fatal'}
+        
+        self._header_filter_text = []
+        for item in self._messages.message_members():
+            self._header_filter_text.append('')
 
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
@@ -59,7 +63,9 @@ class MessageDataModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 sections = self._messages.message_members()
-                retval = sections[section][1:].capitalize()
+                retval = sections[section][1:].capitalize() 
+                if self._header_filter_text[section] != '':
+                    retval += ' (' + self._header_filter_text[section] + ')'
 #TODO readd after filters are in proxy                
 #                filtertext = self._messages._filters[section]._filtertext
 #                if filtertext is not None and len(filtertext) > 0:
@@ -139,3 +145,7 @@ class MessageDataModel(QAbstractTableModel):
 
     def get_message_list(self):
         return self._messages.get_message_list()
+
+    def set_header_text(self, index, text):
+        if index >= 0 and index < self._messages.message_members():
+            self._header_filter_text[index] = text

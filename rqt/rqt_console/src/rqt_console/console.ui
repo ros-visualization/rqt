@@ -58,7 +58,7 @@
      <item>
       <widget class="QLabel" name="messages_label">
        <property name="text">
-        <string>Displaying 0 of 0 messages</string>
+        <string>Displaying 0 messages</string>
        </property>
       </widget>
      </item>

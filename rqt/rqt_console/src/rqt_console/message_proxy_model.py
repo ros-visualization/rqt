@@ -254,6 +254,7 @@ class MessageProxyModel(QSortFilterProxyModel):
     def set_filter(self, index, text):
         if index >= 0 and index < len(self._filters):
             self._filters[index]._filtertext = text
+            self.sourceModel().set_header_text(index, text)
         self.reset()
     
     def get_filter(self, index):
