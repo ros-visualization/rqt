@@ -35,6 +35,10 @@ import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Slot
 from QtGui import QWidget, QVBoxLayout, QSizePolicy
 
+import matplotlib
+if matplotlib.__version__ < '1.1.0':
+    raise RuntimeError('A newer matplotlib is required (at least 1.1.0)')
+
 try:
     from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 except ImportError:
