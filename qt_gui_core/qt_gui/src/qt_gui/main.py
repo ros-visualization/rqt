@@ -245,13 +245,15 @@ class Main(object):
         from .plugin_manager import PluginManager
 
         def message_handler(type_, msg):
-            yellow_color = '\033[33m'
-            red_color = '\033[31m'
-            reset_color = '\033[0m'
+            colored_output = 'TERM' in os.environ and 'ANSI_COLORS_DISABLED' not in os.environ
+            cyan_color = '\033[36m' if colored_output else ''
+            yellow_color = '\033[33m' if colored_output else ''
+            red_color = '\033[31m' if colored_output else ''
+            reset_color = '\033[0m' if colored_output else ''
             if type_ == QtDebugMsg and self._options.verbose:
                 print(msg, file=sys.stderr)
             elif type_ == QtWarningMsg:
-                print(yellow_color + msg + reset_color, file=sys.stderr)
+                print(cyan_color + msg + reset_color, file=sys.stderr)
             elif type_ == QtCriticalMsg:
                 print(red_color + msg + reset_color, file=sys.stderr)
             elif type_ == QtFatalMsg:
