@@ -11,11 +11,14 @@ from PyQt4 import QtCore
 from datetime import datetime
 
 class ComboDialog(QDialog):
-    def __init__(self, windowtitle, text, boxlist):
+    def __init__(self, windowtitle, text, boxlist, selected=''):
         super(QDialog, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'combo_input_dialog.ui')
         loadUi(ui_file, self)
         self.list_box.addItems(boxlist)
+        for index, item in enumerate(boxlist):
+            if selected.find(item) != -1: 
+                self.list_box.item(index).setSelected(True)
         self.setWindowTitle(windowtitle)
 
 class TimeDialog(QDialog):
@@ -37,11 +40,12 @@ class TimeDialog(QDialog):
             self.max_dateedit.setDateTime(time)
         else:
             dtime = QDateTime()
-            dtime.setTime_t(mintime)
+            dtime.setTime_t(int(mintime[:mintime.find('.')]))
+            dtime = dtime.addMSecs(int(mintime[mintime.find('.')+1:mintime.find('.')+4]))
             self.min_dateedit.setDateTime(dtime)
             dtime = QDateTime()
-            dtime.setTime_t(maxtime)
-            dtime = dtime.addSecs(1)
+            dtime.setTime_t(int(maxtime[:maxtime.find('.')]))
+            dtime = dtime.addMSecs(int(maxtime[maxtime.find('.')+1:maxtime.find('.')+4]))
             self.max_dateedit.setDateTime(dtime)
 
 class MainWindow(QWidget):

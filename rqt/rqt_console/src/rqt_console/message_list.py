@@ -1,5 +1,5 @@
-from QtCore import Qt
-from rosgraph_msgs.msg import Log #TODO See if we can't make it an array of type Log instead of making an object for it 
+from QtCore import QModelIndex, Qt, qWarning
+from rosgraph_msgs.msg import Log 
 
 class Message(object):
     def __init__(self, message=None, severity=None, node=None, time=None, topics=None, location=None):
@@ -10,6 +10,9 @@ class Message(object):
         self._topics = topics
         self._location = location
         self._messagemembers = ('_message', '_severity', '_node', '_time', '_topics', '_location')
+    
+    def message_members(self):
+        return self._messagemembers
 
     def CountElements(self):
         return 6 #returns the number of data elements contained in this object
@@ -72,5 +75,32 @@ class MessageList(object):
     def columnCount(self):
         return 6
 
-    def getMessageList(self):
+    def get_message_list(self):
         return self._messagelist
+
+    def message_members(self):
+        return Message()._messagemembers
+
+    def append_from_text(self, text):
+        newmessage = Message()
+        newmessage.file_load(text)
+        self._messagelist.append(newmessage)
+
+    def get_data(self, row, col):
+        if row >= 0 and row < len(self.get_message_list()) and col >= 0 and col < 6:
+            message = self.get_message_list()[row]
+            return getattr(message,Message()._messagemembers[col])
+        else:
+            raise IndexError
+
+    def get_unique_col_data(self, index):
+        uniques_list = set()
+        for message in self._messagelist:
+            uniques_list.add(getattr(message, self.message_members()[index]))
+        return list(uniques_list)
+
+
+    def add_message(self, message, severity, node, time, topics, location):
+        newmessage = Message(message, severity, node, time, topics, location)
+        self._messagelist.append(newmessage)
+

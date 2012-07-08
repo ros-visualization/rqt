@@ -27,10 +27,10 @@
    <item>
     <widget class="QDateTimeEdit" name="min_dateedit">
      <property name="currentSection">
-      <enum>QDateTimeEdit::MonthSection</enum>
+      <enum>QDateTimeEdit::MinuteSection</enum>
      </property>
      <property name="displayFormat">
-      <string>M/d/yyyy h:mm:ss AP</string>
+      <string>hh:mm:ss.zzz (yyyy-MM-dd)</string>
      </property>
     </widget>
    </item>
@@ -44,10 +44,10 @@
    <item>
     <widget class="QDateTimeEdit" name="max_dateedit">
      <property name="currentSection">
-      <enum>QDateTimeEdit::MonthSection</enum>
+      <enum>QDateTimeEdit::SecondSection</enum>
      </property>
      <property name="displayFormat">
-      <string>M/d/yyyy h:mm:ss AP</string>
+      <string>hh:mm:ss.zzz (yyyy-MM-dd)</string>
      </property>
     </widget>
    </item>

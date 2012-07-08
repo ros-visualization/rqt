@@ -23,10 +23,6 @@ class FilteredList(MessageList):
         MessageList.__init__(self)
         self._filters = []
 
-        #an array of entries in _messagelist that conform to all _filters
-        self._filteredlist = []
-        self._deleteindexes = []
-
         #one filter for each attribute
         for member1 in Message()._messagemembers:
             applys = []
@@ -202,24 +198,15 @@ class FilteredList(MessageList):
                 break
         return returnbool
 
-    def rebuild_filtered_list(self):
-        self._filteredlist = []
-        self._deleteindexes = []
-        for index, message in enumerate(self._messagelist):
-            if self.conforms_to_filters(message):
-                self._filteredlist.append(message)
-                self._deleteindexes.append(index)
     def append_filter(self, filtertext, filterdict):
         newfilter = Filter()
         newfilter._filtertext = filtertext
         newfilter._applys = filterdict
         self._filters.append(newfilter)
-        self.rebuild_filtered_list()
 
     def delete_filter(self, index):
         if index < len(self._filters) and index >= 0:
             del self._filters[index]
-            self.rebuild_filtered_list()
     
     def add_message_object(self, messageobject):
         self.add_message(messageobject._message, messageobject._severity, messageobject._node, messageobject._time, messageobject._topics, messageobject._location)
@@ -227,11 +214,9 @@ class FilteredList(MessageList):
     def add_message(self, message, severity, node, time, topics, location):
         newmessage = Message(message, severity, node, time, topics, location)
         self._messagelist.append(newmessage)
-        if self.conforms_to_filters(newmessage) is True:
-            self._filteredlist.append(newmessage)
 
     def get_message_list(self):
-        return self._filteredlist
+        return self._messagelist
 
     def get_selected_text(self, selection):
         text = None
@@ -239,35 +224,28 @@ class FilteredList(MessageList):
             text = ''
             rowlist = []
             for current in selection:
-                rowlist.append(current.row())
+                rowlist.append(proxymodel.mapToSource(current).row())
             rowlist = list(set(rowlist))
             for row in rowlist:
-                text += self._filteredlist[row].pretty_print()
+                text += self.get_message_list()[row].pretty_print()
         return text
 
-    def remove_rows(self, datamodel, selection):
+    def remove_rows(self, datamodel, proxymodel, selection):
         if len(selection) == 0:
             if len(self.get_message_list()) > 0:
-                datamodel.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()) - 1)
-                del self.get_message_list()[0:len(self.get_message_list()) - 1]
-                del self._messagelist[0:len(self._messagelist) - 1]
-                datamodel.endRemoveRows()
-                datamodel.beginRemoveRows(QModelIndex(), 0, 0) #NOTE Workaround for phantom table row bug
-                del self.get_message_list()[0]
-                del self._messagelist[0]
+                datamodel.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()) )
+                del self.get_message_list()[0:len(self.get_message_list())]
                 datamodel.endRemoveRows()
         else:
             rowlist = []
             for current in selection:
-                rowlist.append(current.row())
+                rowlist.append(proxymodel.mapToSource(current).row())
             rowlist = list(set(rowlist))
             rowlist.sort(reverse=True)
             for row in rowlist:
                 datamodel.beginRemoveRows(QModelIndex(), row, row)
                 del self.get_message_list()[row]
-                del self._messagelist[self._deleteindexes[row]]
                 datamodel.endRemoveRows()
-        self.rebuild_filtered_list()
         return True
 
     def message_members(self):
@@ -280,22 +258,21 @@ class FilteredList(MessageList):
         return list(uniques_list)
 
     def get_data(self, row, col):
-        if row >= 0 and row < len(self._filteredlist) and col >= 0 and col < 6:
-            message = self._messagelist[row]
+        if row >= 0 and row < len(self.get_message_list()) and col >= 0 and col < 6:
+            message = self.get_message_list[row]
             return getattr(message,Message()._messagemembers[col])
         else:
             raise IndexError
 
     def count(self, unfiltered=False):
         if unfiltered:
-            return len(self._filteredlist)
+            return len(self.get_message_list())
         else:
             return len(self._messagelist)
     
     def set_filter(self, index, text):
         if index >= 0 and index < len(self._filters):
             self._filters[index]._filtertext = text
-            self.rebuild_filtered_list()
     
     def get_filter(self, index):
         return self._filters[index]._filtertext
