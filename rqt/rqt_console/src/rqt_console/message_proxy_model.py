@@ -7,7 +7,6 @@ class Filter:
         self._enabled = True     #enable/disable filter
         self._filtertext = ''
         self._include = True
-        self._regex = False
 
         # These apply locations will be unioned together
         self._applys = []           #list of which _messagemembers this filter applys to
@@ -28,7 +27,6 @@ class MessageProxyModel(QSortFilterProxyModel):
             for member2 in MessageList().message_members():
                 applys.append((member2, member1 == member2))
             self.append_filter('', dict(applys))
-
         self._and = '&'
         self._or = '|'
         self._not = '^'

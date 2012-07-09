@@ -7,13 +7,12 @@ from QtGui import QWidget, QDialog, QListWidgetItem, QDialogButtonBox
 from QtCore import qWarning, Qt, QTimer, Signal, Slot, QDateTime
 from qt_gui.qt_binding_helper import loadUi
 from rosgraph_msgs.msg import Log
-from PyQt4 import QtCore
 from datetime import datetime
 
-class ComboDialog(QDialog):
+class ListDialog(QDialog):
     def __init__(self, windowtitle, text, boxlist, selected=''):
         super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'combo_input_dialog.ui')
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'list_input_dialog.ui')
         loadUi(ui_file, self)
         self.list_box.addItems(boxlist)
         for index, item in enumerate(boxlist):
@@ -23,7 +22,7 @@ class ComboDialog(QDialog):
 
     @staticmethod
     def show(titletext, labeltext, itemlist, selectedlist):
-        dlg = ComboDialog(titletext, labeltext, itemlist, selectedlist)
+        dlg = ListDialog(titletext, labeltext, itemlist, selectedlist)
         ok = dlg.exec_()
         ok = (ok == 1)
         textlist = dlg.list_box.selectedItems()
@@ -73,11 +72,9 @@ class SetupDialog(QDialog):
         self._msgcallback = callback
         self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
 
-        self._first_call = True
-
-        self._node_index = -1
-        self._logger_index = -1
-        self._level_index = -1
+        self._node_index = -1           # captures current list level
+        self._logger_index = -1         # needed for the first calls since "currentItem" is not set 
+        self._level_index = -1          # when programatically calling a callback from a callback
 
         self.node_list.currentRowChanged[int].connect(self.node_changed)
         self.logger_list.currentRowChanged[int].connect(self.logger_changed)
@@ -88,7 +85,7 @@ class SetupDialog(QDialog):
         self._current_loggers = []
         self._current_levels = {}
 
-# Local variables for use in fill_message_slots
+        # variables for use in fill_message_slots
         self._eval_locals = {}
         self._eval_locals.update(math.__dict__)
         self._eval_locals.update(random.__dict__)
@@ -96,7 +93,7 @@ class SetupDialog(QDialog):
         del self._eval_locals['__name__']
         del self._eval_locals['__doc__']
 
-# function from service_caller to fill arbitrary messages with a list of slotname/key combos
+    # function from service_caller to fill arbitrary messages with a list of slotname/key 
     def fill_message_slots(self, message, topic_name, expressions, counter):
         if not hasattr(message, '__slots__'):
             return
@@ -153,6 +150,13 @@ class SetupDialog(QDialog):
             self.unsub_topic()
             self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
 
+    def get_levels(self):
+        return ['Debug', 'Info', 'Warn', 'Error', 'Fatal']
+
+    def get_loggers(self, node):
+        self.refresh_loggers(node)
+        return self._current_loggers
+
     def refresh_nodes(self):
         self.level_list.clear()
         self.logger_list.clear()
@@ -162,10 +166,6 @@ class SetupDialog(QDialog):
             for service in rosservice.get_service_list(name):
                 if service == name + '/set_logger_level':
                     self.node_list.addItem(name)
-
-    def get_loggers(self, node):
-        self.refresh_loggers(node)
-        return self._current_loggers
 
     def refresh_loggers(self, node):
         self._current_loggers = []
@@ -178,7 +178,6 @@ class SetupDialog(QDialog):
             return []
 
         request = service._request_class()
-        #self.fill_message_slots(request, servicename, {}, 0)
         proxy = rospy.ServiceProxy(str(servicename), service)
         try:
             response = proxy(request)
@@ -192,16 +191,10 @@ class SetupDialog(QDialog):
                 self._current_loggers.append(getattr(logger, 'name'))
                 self._current_levels[getattr(logger, 'name')] = getattr(logger, 'level')
         else:
-            qWarning(repr(response)) #got a strange response
-
-    def get_levels(self):
-        return ['Debug', 'Info', 'Warn', 'Error', 'Fatal']
+            qWarning(repr(response)) 
 
     def node_changed(self, newrow):
         if newrow == -1:
-            return
-        if self._first_call:
-            self._first_call = False
             return
         if newrow < 0 or newrow >= self.node_list.count():
             qWarning('Node row %s out of bounds. Current count: %s' % (newrow,self.node_list.count()))

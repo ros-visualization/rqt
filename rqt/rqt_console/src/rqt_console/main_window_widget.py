@@ -1,37 +1,39 @@
 import os
 
-from custom_widgets import ComboDialog, TimeDialog 
 from qt_gui.qt_binding_helper import loadUi
 from QtGui import QFileDialog, QIcon, QInputDialog, QLineEdit, QMenu, QMessageBox, QTableView, QWidget
 from QtCore import Qt
+
+from custom_widgets import ListDialog, TimeDialog 
 
 class MainWindow(QWidget):
     def __init__(self, proxymodel):
         super(MainWindow, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console.ui')
         loadUi(ui_file, self)
-        self.setObjectName('ConsoleUi') 
+        self.setObjectName('ConsoleUi')
         self.table_view.setModel(proxymodel)
         self._proxymodel = proxymodel
         self._datamodel = proxymodel.sourceModel()
+
         self._columnwidth = (600, 140, 200, 430, 200, 600)
         for idx, width in enumerate(self._columnwidth):
             self.table_view.horizontalHeader().resizeSection(idx, width)
         self.table_view.sortByColumn(3,Qt.DescendingOrder)
+
         self.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
         self.open_button.setIcon(QIcon.fromTheme('document-open'))
         self.save_button.setIcon(QIcon.fromTheme('document-save'))
 
-        self.open_button.clicked[bool].connect(self.open_press)
-        self.save_button.clicked[bool].connect(self.save_press)
+        self.open_button.clicked[bool].connect(self.open_press_handler)
+        self.save_button.clicked[bool].connect(self.save_press_handler)
         self.table_view.mousePressEvent = self.mouse_press_handler
-        self.table_view.keyPressEvent = self.custom_keypress
+        self.table_view.keyPressEvent = self.custom_keypress_handler
 
         self._paused = False
-        self.pause_button.clicked[bool].connect(self.pause_press)
- 
+        self.pause_button.clicked[bool].connect(self.pause_press_handler)
 
-    def open_press(self, b):
+    def open_press_handler(self, b):
         filename = QFileDialog.getOpenFileName(self, 'Load from File', '.')
         if filename[0] != '':
             fileHandle = open(filename[0])
@@ -39,7 +41,7 @@ class MainWindow(QWidget):
             fileHandle.close()
             self.update_status()
     
-    def save_press(self, b):
+    def save_press_handler(self, b):
         filename = QFileDialog.getSaveFileName(self, 'Save to File', '.')
         if filename[0] != '':
             fileHandle = open(filename[0], 'w')
@@ -47,7 +49,16 @@ class MainWindow(QWidget):
             fileHandle.close()
             self.update_status()
 
-    def custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
+    def pause_press_handler(self, b):
+        self._paused = not self._paused
+        if self._paused:
+            self.pause_button.setIcon(QIcon.fromTheme('media-record'))
+            self.pause_button.setText('Resume')
+        else:
+            self.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
+            self.pause_button.setText('Pause')
+
+    def custom_keypress_handler(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         if event.key() == Qt.Key_Delete and len(self._datamodel.get_message_list()) > 0:
             delete = QMessageBox.Yes
             if len(self.table_view.selectionModel().selectedIndexes()) == 0:
@@ -70,18 +81,18 @@ class MainWindow(QWidget):
             return event.accept()
         return old_pressEvent(self.table_view, event)
 
-    def show_filter_input(self, pos):
+    def show_filter_input_dialog(self, pos):
         col = self.table_view.columnAt(pos.x())
         if col == 0:
             text, ok = QInputDialog.getText(QWidget(), 'Message filter', 'Enter text (leave blank for no filtering):', QLineEdit.Normal, self._proxymodel.get_filter(col))
         elif col == 1:
-            textlist, ok = ComboDialog.show('Severity filter', 'Include only:', ['Debug', 'Info', 'Warning', 'Error', 'Fatal'], self._proxymodel.get_filter(col))
+            textlist, ok = ListDialog.show('Severity filter', 'Include only:', ['Debug', 'Info', 'Warning', 'Error', 'Fatal'], self._proxymodel.get_filter(col))
             text = ''
             for item in textlist:
                 text += item + self._proxymodel.get_or()
             text = text[:-1]
         elif col == 2:
-            textlist, ok = ComboDialog.show('Node filter', 'Include only:', self._datamodel.get_unique_col_data(col), self._proxymodel.get_filter(col))
+            textlist, ok = ListDialog.show('Node filter', 'Include only:', self._datamodel.get_unique_col_data(col), self._proxymodel.get_filter(col))
             text = ''
             for item in textlist:
                 text += item + self._proxymodel.get_or()
@@ -95,13 +106,10 @@ class MainWindow(QWidget):
             
             indexes = self.table_view.selectionModel().selectedIndexes()
             if self._proxymodel.get_filter(col) != '':
-            #if there is a current filter use it
                 filter_ = self._proxymodel.get_filter(col)
                 mintime, maxtime = filter_.split(':')
                 self._timedialog.set_time(mintime,maxtime)
             elif len(indexes) != 0:
-            #get the current selection get the min and max times from the
-            #selected range and set them as the min/max for the dialog
                 rowlist = []
                 for current in indexes:
                     rowlist.append(self._proxymodel.mapToSource(current).row())
@@ -127,7 +135,7 @@ class MainWindow(QWidget):
                 for item in topiclists.split(','):
                     unique_list.add(item.strip())
             unique_list = list(unique_list)
-            textlist, ok = ComboDialog.show('Topic filter', 'Include only:', unique_list, self._proxymodel.get_filter(col))
+            textlist, ok = ListDialog.show('Topic filter', 'Include only:', unique_list, self._proxymodel.get_filter(col))
             text = ''
             for item in textlist:
                 text += item + self._proxymodel.get_or()
@@ -163,8 +171,8 @@ class MainWindow(QWidget):
             self._proxymodel.set_filter(col,newfilter)
  
     def rightclick_menu(self, event):
-        # menutext string entries are added as menu items
-        # list entries are added as submenues with the second element as subitems
+        # menutext[0] entries are added as Actions if menutext[1] does not exist
+        # otherwise they are added as QMenus and  menutext[1] entries are added as subActions 
         menutext = []
         menutext.append(['Edit Filter'])
         if len(self.table_view.selectionModel().selectedIndexes()) != 0:
@@ -197,7 +205,7 @@ class MainWindow(QWidget):
         elif action == actions['Clear Filter']:
             self._proxymodel.set_filter(col,'')
         elif action == actions['Edit Filter']:
-            self.show_filter_input(event.pos())
+            self.show_filter_input_dialog(event.pos())
         elif action == actions['Copy']:
             rowlist = []
             for current in self.table_view.selectionModel().selectedIndexes():
@@ -217,15 +225,6 @@ class MainWindow(QWidget):
         else:
             raise
         self.update_status()
-
-    def pause_press(self, b):
-        self._paused = not self._paused
-        if self._paused:
-            self.pause_button.setIcon(QIcon.fromTheme('media-record'))
-            self.pause_button.setText('Resume')
-        else:
-            self.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
-            self.pause_button.setText('Pause')
 
     def is_paused(self):
         return self._paused

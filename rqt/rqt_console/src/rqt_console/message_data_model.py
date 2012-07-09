@@ -1,8 +1,7 @@
 import time
-#from filtered_list import FilteredList
 from message_list import MessageList
 
-from QtCore import QAbstractTableModel, QByteArray, QDateTime, qDebug, QMimeData, QModelIndex, Qt, qWarning, Signal
+from QtCore import QAbstractTableModel, QDateTime, qDebug, QModelIndex, Qt, qWarning, Signal
 from QtGui import QWidget
 
 class MessageDataModel(QAbstractTableModel):
@@ -18,20 +17,12 @@ class MessageDataModel(QAbstractTableModel):
         for item in self._messages.message_members():
             self._header_filter_text.append('')
 
+    # BEGIN Required QAbstractTableModel functions
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
 
     def columnCount(self, parent=None):
         return self._messages.column_count()
-
-    def timestring_to_timedata(self, timestring):
-        timeval = QDateTime.fromString(timestring,self._time_format).toTime_t()
-        return str(timeval) + timestring[8:12]   #adds msecs
-
-    def timedata_to_timestring(self, timedata):
-        time = timedata
-        time, micro = time.split('.')
-        return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString(self._time_format)
 
     def data(self, index, role=None):
         if role is None:
@@ -44,8 +35,7 @@ class MessageDataModel(QAbstractTableModel):
             if role == Qt.DisplayRole:
                 elements = self._messages.message_members()
                 if elements[index.column()] == '_time':
-                    sec, nsec = getattr(messagelist[index.row()], elements[index.column()])
-                    return self.timedata_to_timestring(str(sec) + '.' + str(nsec).zfill(9))
+                    return self.timedata_to_timestring(messagelist[index.row()].time_in_seconds())
                 else:
                     return getattr(messagelist[index.row()], elements[index.column()])
             elif role == Qt.ToolTipRole:
@@ -68,6 +58,16 @@ class MessageDataModel(QAbstractTableModel):
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
         return None
+    # END Required QAbstractTableModel functions
+    
+    def timestring_to_timedata(self, timestring):
+        timeval = QDateTime.fromString(timestring,self._time_format).toTime_t()
+        return str(timeval) + timestring[8:12]   #add msecs
+
+    def timedata_to_timestring(self, timedata):
+        time = timedata
+        time, micro = time.split('.')
+        return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString(self._time_format)
 
     def insert_rows(self, msgs):
         if len(msgs) == 0:

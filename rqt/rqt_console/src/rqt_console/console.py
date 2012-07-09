@@ -3,14 +3,14 @@ import roslib
 import rospy
 roslib.load_manifest('rqt_console')
 
-from qt_gui.plugin import Plugin
 import qt_gui.qt_binding_helper  # @UnusedImport
-
+from qt_gui.plugin import Plugin
 from QtCore import QMutex, QTimer
+
 from message_data_model import MessageDataModel
-from custom_widgets import SetupDialog
 from message_proxy_model import MessageProxyModel
 from main_window_widget import MainWindow
+from custom_widgets import SetupDialog
 
 class Console(Plugin):
     def __init__(self, context):
@@ -39,7 +39,6 @@ class Console(Plugin):
         self._mutex.unlock()
         self._datamodel.insert_rows(msgs)
         self._mainwindow.update_status()
-
 
     def message_callback(self, msg):
         if not self._mainwindow.is_paused():
