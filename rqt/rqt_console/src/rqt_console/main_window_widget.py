@@ -37,7 +37,7 @@ class MainWindow(QWidget):
             fileHandle = open(filename[0])
             self._datamodel.open_from_file(fileHandle)
             fileHandle.close()
-            self.reset_status()
+            self.update_status()
     
     def save_press(self, b):
         filename = QFileDialog.getSaveFileName(self, 'Save to File', '.')
@@ -45,7 +45,7 @@ class MainWindow(QWidget):
             fileHandle = open(filename[0], 'w')
             self._datamodel.save_to_file(fileHandle)
             fileHandle.close()
-            self.reset_status()
+            self.update_status()
 
     def custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         if event.key() == Qt.Key_Delete and len(self._datamodel.get_message_list()) > 0:
@@ -58,7 +58,7 @@ class MainWindow(QWidget):
                     rowlist.append(self._proxymodel.mapToSource(current).row())
                 rowlist = list(set(rowlist))
                 if self._datamodel.remove_rows(rowlist):
-                    self.reset_status()
+                    self.update_status()
                     return event.accept()
         return old_keyPressEvent(self.table_view, event)
     
@@ -140,7 +140,7 @@ class MainWindow(QWidget):
             if text == 'All':
                 text = ''
             self._proxymodel.set_filter(col, text)
-            self.reset_status()
+            self.update_status()
 
     def process_inc_exc(self, col, exclude=False):
         prevfilter = self._proxymodel.get_filter(col)
@@ -216,7 +216,7 @@ class MainWindow(QWidget):
             self.process_inc_exc(0,True)
         else:
             raise
-        self.reset_status()
+        self.update_status()
 
     def pause_press(self, b):
         self._paused = not self._paused
@@ -230,8 +230,7 @@ class MainWindow(QWidget):
     def is_paused(self):
         return self._paused
 
-    
-    def reset_status(self):
+    def update_status(self):
         if self._datamodel.rowCount() == self._proxymodel.rowCount():
             tip = self.tr('Displaying %s Messages' % (self._datamodel.rowCount())) 
         else:

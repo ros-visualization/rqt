@@ -11,15 +11,18 @@ class Message(object):
         self._location = location
         self._messagemembers = ('_message', '_severity', '_node', '_time', '_topics', '_location')
     
+    def time_in_seconds(self):
+        return self._time[0] + '.' + str(self._time[1]).zfill(9)
+
     def message_members(self):
         return self._messagemembers
 
-    def CountElements(self):
-        return 6 #returns the number of data elements contained in this object
+    def count(self):
+        return len(self._messagemembers)
     
     def file_print(self):
         text = self._node + ';'
-        text += self._time + ';'
+        text += self.time_in_seconds() + ';'
         text += self._severity + ';'
         text += self._topics + ';'
         text += self._location + ';'
@@ -36,7 +39,8 @@ class Message(object):
         sc_index = text.find(';') 
         if sc_index == -1:
             raise
-        self._time = text[:sc_index]
+        sec, nsec = text[:sc_index].split('.')
+        self._time = (sec, nsec)
         text = text[text.find(';')+1:]
         sc_index = text.find(';') 
         if sc_index == -1:
@@ -59,7 +63,7 @@ class Message(object):
 
     def pretty_print(self):
         text = 'Node: ' + self._node + '\n'
-        text += 'Time: ' + self._time + '\n'
+        text += 'Time: ' + self.time_in_seconds() + '\n'
         text += 'Severity: ' + self._severity + '\n'
         text += 'Published Topics: ' + self._topics + '\n'
         text += '\n' + self._message + '\n'
@@ -72,8 +76,8 @@ class MessageList(object):
     def addMessage(self, message, severity, node, time, topics, location):
         self._messagelist.append(Message(message, severity, node, time, topics, location))
 
-    def columnCount(self):
-        return 6
+    def column_count(self):
+        return len(Message()._messagemembers)
 
     def get_message_list(self):
         return self._messagelist
@@ -100,6 +104,5 @@ class MessageList(object):
         return list(uniques_list)
 
     def add_message(self, message, severity, node, time, topics, location):
-        newmessage = Message(message, severity, node, time, topics, location)
-        self._messagelist.append(newmessage)
+        self._messagelist.append(Message(message, severity, node, time, topics, location))
 
