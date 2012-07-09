@@ -21,6 +21,17 @@ class ComboDialog(QDialog):
                 self.list_box.item(index).setSelected(True)
         self.setWindowTitle(windowtitle)
 
+    @staticmethod
+    def show(titletext, labeltext, itemlist, selectedlist):
+        dlg = ComboDialog(titletext, labeltext, itemlist, selectedlist)
+        ok = dlg.exec_()
+        ok = (ok == 1)
+        textlist = dlg.list_box.selectedItems()
+        retlist = []
+        for item in textlist:
+            retlist.append(item.text())
+        return (retlist, ok)
+
 class TimeDialog(QDialog):
     ignore_button_clicked = Signal()
     def __init__(self):
@@ -48,10 +59,6 @@ class TimeDialog(QDialog):
             dtime = dtime.addMSecs(int(maxtime[maxtime.find('.')+1:maxtime.find('.')+4]))
             self.max_dateedit.setDateTime(dtime)
 
-class MainWindow(QWidget):
-    def keyPressEvent(self, e):
-        pass
-
 class SetupDialog(QDialog):
     def __init__(self, context, callback):
         super(QDialog, self).__init__()
@@ -66,7 +73,6 @@ class SetupDialog(QDialog):
         self._msgcallback = callback
         self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
 
-#        self.refresh_nodes()
         self._first_call = True
 
         self._node_index = -1
@@ -148,6 +154,8 @@ class SetupDialog(QDialog):
             self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
 
     def refresh_nodes(self):
+        self.level_list.clear()
+        self.logger_list.clear()
         self.node_list.clear()
         nodes = rosnode.get_node_names()
         for name in sorted(nodes):
@@ -163,7 +171,11 @@ class SetupDialog(QDialog):
         self._current_loggers = []
         self._current_levels = {}
         servicename = node + '/get_loggers'
-        service = rosservice.get_service_class_by_name(servicename)
+        try:
+            service = rosservice.get_service_class_by_name(servicename)
+        except rosservice.ROSServiceIOException, e:
+            qWarning(str(e))
+            return []
 
         request = service._request_class()
         #self.fill_message_slots(request, servicename, {}, 0)
@@ -186,13 +198,15 @@ class SetupDialog(QDialog):
         return ['Debug', 'Info', 'Warn', 'Error', 'Fatal']
 
     def node_changed(self, newrow):
+        if newrow == -1:
+            return
         if self._first_call:
             self._first_call = False
             return
-        self._node_index = newrow
-
-        if self.node_list.count() is 0:
+        if newrow < 0 or newrow >= self.node_list.count():
+            qWarning('Node row %s out of bounds. Current count: %s' % (newrow,self.node_list.count()))
             return
+        self._node_index = newrow
         self.logger_list.clear()
         self.level_list.clear()
         loggers = self.get_loggers(self.node_list.item(newrow).text())
@@ -204,8 +218,13 @@ class SetupDialog(QDialog):
             self.logger_list.setCurrentRow(0)
 
     def logger_changed(self, newrow):
+        if newrow == -1:
+            return
+        if newrow < 0 or newrow >= self.logger_list.count():
+            qWarning('Logger row %s out of bounds. Current count: %s' % (newrow,self.logger_list.count()))
+            return
         self._logger_index = newrow
-
+        
         if self.level_list.count() == 0:
             for level in self.get_levels():
                 self.level_list.addItem(level)
@@ -214,7 +233,10 @@ class SetupDialog(QDialog):
                 self.level_list.setCurrentRow(index)
 
     def level_changed(self, newrow):
-        if self.logger_list.count() is 0 or self.level_list.count() is 0:
+        if newrow == -1:
+            return
+        if newrow < 0 or newrow >= self.level_list.count():
+            qWarning('Level row %s out of bounds. Current count: %s' % (newrow,self.level_list.count()))
             return
         self._level_index = newrow
         servicename = self.node_list.item(self._node_index).text() + '/set_logger_level'

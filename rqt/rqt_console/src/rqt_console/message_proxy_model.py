@@ -19,6 +19,7 @@ class MessageProxyModel(QSortFilterProxyModel):
     def __init__(self):
         super(QSortFilterProxyModel, self).__init__()
         self._filters = []
+        self.setDynamicSortFilter(True);
 
         #one filter for each attribute
         for member1 in MessageList().message_members():
@@ -32,10 +33,6 @@ class MessageProxyModel(QSortFilterProxyModel):
         self._or = '|'
         self._not = '^'
     
-#    def lessThan(self, left, right):
-        #intercept date entries and be sure to sort them properly
-#        return left < right
-
     def filterAcceptsRow(self, sourcerow, sourceparent):
         rowdata = []
         for index in range(self.sourceModel().columnCount()):
@@ -92,12 +89,11 @@ class MessageProxyModel(QSortFilterProxyModel):
                     unmatchedparens -= 1
                     if unmatchedparens == 0:
                         rightindex = index
+                        break
                 elif char == '(':
                     unmatchedparens += 1
                     if unmatchedparens == 1:
                         leftindex = index
-                if rightindex != -1:
-                    break
 
             left = text[:leftindex].strip()
             mid = text[leftindex + 1:rightindex].strip()
@@ -169,7 +165,6 @@ class MessageProxyModel(QSortFilterProxyModel):
                     else:
                         return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message, not_before_paren) and self.paren_recurse(filter_, right, message)
 
-
     def match_filter(self, afilter, message):
         filtertext = afilter._filtertext
         if filtertext == '':
@@ -179,48 +174,12 @@ class MessageProxyModel(QSortFilterProxyModel):
                 return self.paren_recurse(afilter, None, message)
             else:
                 raise Exception('Contains unmatched parentheses. ')
-
-        for member in message.message_members():
-            if afilter._applys[member] is True:
-                value = getattr(message, member)
-                if member == '_time':
-                    mintime = filtertext[:filtertext.find(':')]
-                    maxtime = filtertext[filtertext.find(':') + 1:]
-                    if float(value) < float(mintime) or float(value) > float(maxtime):
-                        return False
-                elif value.find(filtertext) is -1:
-                   return False
-        return True
-
-    def conforms_to_filters(self, message):
-        #handles iterating over each filter and returns False if any filter doesn't match its include value
-        returnbool = True
-        for afilter in self._filters:
-            if afilter._enabled:
-                if self.match_filter(afilter, message) is not afilter._include:
-                    returnbool = False
-            if returnbool is False:
-                break
-        return returnbool
-
-    def match_filter(self, afilter, message):
-        filtertext = afilter._filtertext
-        if filtertext == '':
-            return True
-        if self.special_chars(filtertext):
-            if filtertext.count('(') == filtertext.count(')'):
-                return self.paren_recurse(afilter, None, message)
-            else:
-                raise Exception('Contains unmatched parentheses. ')
-
         for member in message._messagemembers:
             if afilter._applys[member] is True:
                 value = getattr(message, member)
                 if member == '_time':
-                    mintime = filtertext[:filtertext.find(':')]
-                    maxtime = filtertext[filtertext.find(':') + 1:]
-                    timeval = QDateTime.fromString(value,'hh:mm:ss.zzz (yyyy-MM-dd)').toTime_t()
-                    timeval = str(timeval) + value[8:12]   #adds msecs
+                    mintime, maxtime = filtertext.split(':')
+                    timeval = self.sourceModel().timestring_to_timedata(value)
                     if float(timeval) < float(mintime) or float(timeval) > float(maxtime):
                         return False
                 elif value.find(filtertext) is -1:
@@ -254,6 +213,10 @@ class MessageProxyModel(QSortFilterProxyModel):
     def set_filter(self, index, text):
         if index >= 0 and index < len(self._filters):
             self._filters[index]._filtertext = text
+            if self.sourceModel().message_members()[index] == '_time' and text != '':
+                left, right = text.split(':')
+                text = self.sourceModel().timedata_to_timestring(left) + ':'
+                text += self.sourceModel().timedata_to_timestring(right)
             self.sourceModel().set_header_text(index, text)
         self.reset()
     

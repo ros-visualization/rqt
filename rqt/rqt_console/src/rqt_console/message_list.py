@@ -99,7 +99,6 @@ class MessageList(object):
             uniques_list.add(getattr(message, self.message_members()[index]))
         return list(uniques_list)
 
-
     def add_message(self, message, severity, node, time, topics, location):
         newmessage = Message(message, severity, node, time, topics, location)
         self._messagelist.append(newmessage)

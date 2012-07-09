@@ -13,6 +13,7 @@ class MessageDataModel(QAbstractTableModel):
 
         self._severity = {1: 'Debug', 2: 'Info', 4:'Warn', 8:'Error', 16: 'Fatal'}
         
+        self._time_format = 'hh:mm:ss.zzz (yyyy-MM-dd)'
         self._header_filter_text = []
         for item in self._messages.message_members():
             self._header_filter_text.append('')
@@ -22,6 +23,15 @@ class MessageDataModel(QAbstractTableModel):
 
     def columnCount(self, parent=None):
         return self._messages.columnCount()
+
+    def timestring_to_timedata(self, timestring):
+        timeval = QDateTime.fromString(timestring,self._time_format).toTime_t()
+        return str(timeval) + timestring[8:12]   #adds msecs
+
+    def timedata_to_timestring(self, timedata):
+        time = timedata
+        time, micro = time.split('.')
+        return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString(self._time_format)
 
     def data(self, index, role=None):
         if role is None:
@@ -34,9 +44,7 @@ class MessageDataModel(QAbstractTableModel):
             if role == Qt.DisplayRole:
                 elements = self._messages.message_members()
                 if elements[index.column()] == '_time':
-                    time = getattr(messagelist[index.row()], elements[index.column()])
-                    time, micro = time.split('.')
-                    return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString('hh:mm:ss.zzz (yyyy-MM-dd)')
+                    return self.timedata_to_timestring(getattr(messagelist[index.row()], elements[index.column()]))
                 else:
                     return getattr(messagelist[index.row()], elements[index.column()])
             elif role == Qt.ToolTipRole:
@@ -66,19 +74,6 @@ class MessageDataModel(QAbstractTableModel):
                 retval = sections[section][1:].capitalize() 
                 if self._header_filter_text[section] != '':
                     retval += ' (' + self._header_filter_text[section] + ')'
-#TODO readd after filters are in proxy                
-#                filtertext = self._messages._filters[section]._filtertext
-#                if filtertext is not None and len(filtertext) > 0:
-#                    if retval == 'Time':
-#                        mintime = filtertext[:filtertext.find(':')]
-#                        maxtime = filtertext[filtertext.find(':') + 1:]
-#                        qtime = QDateTime()
-#                        qtime.setTime_t(int(mintime))
-#                        retval += '(' + qtime.toLocalTime().toString()
-#                        qtime.setTime_t(int(maxtime))
-#                        retval += ':' + qtime.toLocalTime().toString() + ')'
-#                    else:
-#                        retval += '(' + filtertext + ')'
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
@@ -135,13 +130,15 @@ class MessageDataModel(QAbstractTableModel):
 
     def open_from_file(self, filehandle):
         line = filehandle.readline()
-        if line != 'rqt_console output file':
+        if line == 'rqt_console output file\n':
             while 1:
                 line = filehandle.readline()
                 if not line:
                     break
                 self._messages.append_from_text(line)
             self.reset()
+        else:
+            qWarning('File does not appear to be a rqt_console message file.')
 
     def get_message_list(self):
         return self._messages.get_message_list()
