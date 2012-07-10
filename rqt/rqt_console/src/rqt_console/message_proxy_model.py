@@ -1,10 +1,11 @@
-from message_list import Message, MessageList
-from QtGui import QSortFilterProxyModel
-from QtCore import QDateTime
+from message import Message
+from message_list import MessageList
+from QtGui import QBrush, QSortFilterProxyModel
+from QtCore import QDateTime, Qt, QVariant
 
 class Filter:
     def __init__(self):
-        self._enabled = True     #enable/disable filter
+        self._enabled = True
         self._filtertext = ''
         self._include = True
 
@@ -20,10 +21,10 @@ class MessageProxyModel(QSortFilterProxyModel):
         self._filters = []
         self.setDynamicSortFilter(True);
 
-        #one filter for each attribute
+        # one filter for each attribute
         for member1 in MessageList().message_members():
             applys = []
-        #one dict entry for each attribute
+        # one dict entry for each attribute
             for member2 in MessageList().message_members():
                 applys.append((member2, member1 == member2))
             self.append_filter('', dict(applys))
@@ -35,21 +36,21 @@ class MessageProxyModel(QSortFilterProxyModel):
         rowdata = []
         for index in range(self.sourceModel().columnCount()):
             rowdata.append(self.sourceModel().index(sourcerow,index,sourceparent).data())
-        return self.conforms_to_filters(Message(rowdata[0],rowdata[1],rowdata[2],rowdata[3],rowdata[4],rowdata[5]))
+        return self._conforms_to_filters(rowdata)
 
-    def special_chars(self, text):
+    def _check_special_chars(self, text):
         if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1 or text.find(self._not) != -1:
             return True
         return False
     
-    def bool_recurse(self, filter_, text, message):
+    def _bool_recurse(self, filter_, text, message):
         text = text.strip()
         or_pos = text.find(self._or)
         and_pos = text.find(self._and)
         not_pos = text.find(self._not)
         if and_pos == -1 and or_pos == -1:
             if not_pos != -1:
-                return not self.bool_recurse(filter_, text[not_pos+len(self._not):], message)
+                return not self._bool_recurse(filter_, text[not_pos+len(self._not):], message)
             for member in message._messagemembers:
                 if filter_._applys[member] is True and getattr(message, member).find(str(text)) is -1:
                     return False
@@ -58,26 +59,26 @@ class MessageProxyModel(QSortFilterProxyModel):
             if or_pos != -1:
                 left = text[:or_pos].strip()
                 right = text[or_pos + len(self._or):].strip()
-                return self.bool_recurse(filter_, left, message) or self.bool_recurse(filter_, right, message)
+                return self._bool_recurse(filter_, left, message) or self._bool_recurse(filter_, right, message)
             elif and_pos != -1:
                 left = text[:and_pos].strip()
                 right = text[and_pos + len(self._and):].strip()
-                return self.bool_recurse(filter_, left, message) and self.bool_recurse(filter_, right, message)
+                return self._bool_recurse(filter_, left, message) and self._bool_recurse(filter_, right, message)
             else:
-                raise Exception('Malformed Boolean expression.')
+                raise Exception(self.tr('Malformed Boolean expression.'))
             #do a recurse on just the bool bits
     
-    def paren_not_wrapper(self, filter_, text, message, not_):
+    def _paren_not_wrapper(self, filter_, text, message, not_):
         if not_:
-            return not self.paren_recurse(filter_, text, message)
+            return not self._paren_recurse(filter_, text, message)
         else:
-            return self.paren_recurse(filter_, text, message)
+            return self._paren_recurse(filter_, text, message)
 
-    def paren_recurse(self, filter_, text, message):
+    def _paren_recurse(self, filter_, text, message):
         if text is None:
             text = filter_._filtertext
         if text.find('(') == -1:
-            return self.bool_recurse(filter_, text, message)
+            return self._bool_recurse(filter_, text, message)
         elif text.find('(') != -1:
             unmatchedparens = 0
             leftindex = -1
@@ -119,7 +120,7 @@ class MessageProxyModel(QSortFilterProxyModel):
                     left_op_or = False
                     left = left[:and_pos]
                 else:
-                    raise Exception('Malformed Boolean expression.')
+                    raise Exception(self.tr('Malformed Boolean expression.'))
 
             if right.strip() != '':
                 or_pos = right.find(self._or)
@@ -137,41 +138,41 @@ class MessageProxyModel(QSortFilterProxyModel):
                     right_op_or = False
                     right = right[and_pos + len(self._and):]
                 else:
-                    raise Exception('Malformed Boolean expression.')
+                    raise Exception(self.tr('Malformed Boolean expression.'))
 
             if left_op_or is None and right_op_or is None:
-                return self.paren_recurse(filter_, mid, message)
+                return self._paren_recurse(filter_, mid, message)
             elif left_op_or is None:
                 if right_op_or:
-                    return self.paren_recurse(filter_, mid, message) or self.paren_recurse(filter_, right, message)
+                    return self._paren_recurse(filter_, mid, message) or self._paren_recurse(filter_, right, message)
                 else:
-                    return self.paren_recurse(filter_, mid, message) and self.paren_recurse(filter_, right, message)
+                    return self._paren_recurse(filter_, mid, message) and self._paren_recurse(filter_, right, message)
             elif right_op_or is None:
                 if left_op_or:
-                    return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message)
+                    return self._paren_recurse(filter_, left, message) or self._paren_not_wrapper(filter_, mid, message)
                 else:
-                    return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message)
+                    return self._paren_recurse(filter_, left, message) and self._paren_not_wrapper(filter_, mid, message)
             else:
                 if left_op_or:
                     if right_op_or:
-                        return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message, not_before_paren) or self.paren_recurse(filter_, right, message)
+                        return self._paren_recurse(filter_, left, message) or self._paren_not_wrapper(filter_, mid, message, not_before_paren) or self._paren_recurse(filter_, right, message)
                     else:
-                        return self.paren_recurse(filter_, left, message) or self.paren_not_wrapper(filter_, mid, message, not_before_paren) and self.paren_recurse(filter_, right, message)
+                        return self._paren_recurse(filter_, left, message) or self._paren_not_wrapper(filter_, mid, message, not_before_paren) and self._paren_recurse(filter_, right, message)
                 else:
                     if right_op_or:
-                        return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message, not_before_paren) or self.paren_recurse(filter_, right, message)
+                        return self._paren_recurse(filter_, left, message) and self._paren_not_wrapper(filter_, mid, message, not_before_paren) or self._paren_recurse(filter_, right, message)
                     else:
-                        return self.paren_recurse(filter_, left, message) and self.paren_not_wrapper(filter_, mid, message, not_before_paren) and self.paren_recurse(filter_, right, message)
+                        return self._paren_recurse(filter_, left, message) and self._paren_not_wrapper(filter_, mid, message, not_before_paren) and self._paren_recurse(filter_, right, message)
 
-    def match_filter(self, afilter, message):
+    def _match_filter(self, afilter, message):
         filtertext = afilter._filtertext
         if filtertext == '':
             return True
-        if self.special_chars(filtertext):
+        if self._check_special_chars(filtertext):
             if filtertext.count('(') == filtertext.count(')'):
-                return self.paren_recurse(afilter, None, message)
+                return self._paren_recurse(afilter, None, message)
             else:
-                raise Exception('Contains unmatched parentheses. ')
+                raise Exception(self.tr('Boolean filter Contains unmatched parentheses.'))
         for member in message._messagemembers:
             if afilter._applys[member] is True:
                 value = getattr(message, member)
@@ -184,12 +185,16 @@ class MessageProxyModel(QSortFilterProxyModel):
                    return False
         return True
 
-    def conforms_to_filters(self, message):
+    def _conforms_to_filters(self, rowdata):
         #handles iterating over each filter and returns False if any filter doesn't match its include value
+        message = Message()
+        rowdata[3] = self.sourceModel().timestring_to_timedata(rowdata[3])
+        message.load_from_array(rowdata)
+
         returnbool = True
         for afilter in self._filters:
             if afilter._enabled:
-                if self.match_filter(afilter, message) is not afilter._include:
+                if self._match_filter(afilter, message) is not afilter._include:
                     returnbool = False
             if returnbool is False:
                 break
@@ -229,5 +234,3 @@ class MessageProxyModel(QSortFilterProxyModel):
 
     def get_not(self):
         return self._not 
-    
-

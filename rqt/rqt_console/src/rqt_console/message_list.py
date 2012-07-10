@@ -1,89 +1,19 @@
-from QtCore import QModelIndex, Qt, qWarning
 from rosgraph_msgs.msg import Log 
 
-class Message(object):
-    def __init__(self, message=None, severity=None, node=None, time=None, topics=None, location=None):
-        self._message = message
-        self._severity = severity
-        self._node = node
-        self._time = time
-        self._topics = topics
-        self._location = location
-        self._messagemembers = ('_message', '_severity', '_node', '_time', '_topics', '_location')
-    
-    def time_in_seconds(self):
-        return self._time[0] + '.' + str(self._time[1]).zfill(9)
-
-    def message_members(self):
-        return self._messagemembers
-
-    def count(self):
-        return len(self._messagemembers)
-    
-    def file_print(self):
-        text = self._node + ';'
-        text += self.time_in_seconds() + ';'
-        text += self._severity + ';'
-        text += self._topics + ';'
-        text += self._location + ';'
-        altered_message = self._message.replace('"','\\"')
-        text += '"' + altered_message + '"\n'
-        return text
-
-    def file_load(self, text):
-        sc_index = text.find(';') 
-        if sc_index == -1:
-            raise
-        self._node = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
-        if sc_index == -1:
-            raise
-        sec, nsec = text[:sc_index].split('.')
-        self._time = (sec, nsec)
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
-        if sc_index == -1:
-            raise
-        self._severity = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
-        if sc_index == -1:
-            raise
-        self._topics = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
-        if sc_index == -1:
-            raise 
-        self._location = text[:sc_index]
-        text = text[sc_index+1:]
-        text = text.replace('\\"','"')
-        self._message = text[1:-2]
-        return
-
-    def pretty_print(self):
-        text = 'Node: ' + self._node + '\n'
-        text += 'Time: ' + self.time_in_seconds() + '\n'
-        text += 'Severity: ' + self._severity + '\n'
-        text += 'Published Topics: ' + self._topics + '\n'
-        text += '\n' + self._message + '\n'
-        return text
+from message import Message
 
 class MessageList(object):
     def __init__(self):
         self._messagelist = []
 
-    def addMessage(self, message, severity, node, time, topics, location):
-        self._messagelist.append(Message(message, severity, node, time, topics, location))
-
     def column_count(self):
-        return len(Message()._messagemembers)
+        return len(Message.get_message_members())
 
     def get_message_list(self):
         return self._messagelist
 
     def message_members(self):
-        return Message()._messagemembers
+        return Message.get_message_members()
 
     def append_from_text(self, text):
         newmessage = Message()
@@ -103,6 +33,8 @@ class MessageList(object):
             uniques_list.add(getattr(message, self.message_members()[index]))
         return list(uniques_list)
 
-    def add_message(self, message, severity, node, time, topics, location):
-        self._messagelist.append(Message(message, severity, node, time, topics, location))
+    def add_message(self, msg):
+        self._messagelist.append(Message(msg))
 
+    def header_print(self):
+        return Message.header_print()

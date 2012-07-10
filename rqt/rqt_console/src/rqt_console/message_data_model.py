@@ -5,17 +5,17 @@ from QtCore import QAbstractTableModel, QDateTime, qDebug, QModelIndex, Qt, qWar
 from QtGui import QWidget
 
 class MessageDataModel(QAbstractTableModel):
-
     def __init__(self, editable=False):
+        super(MessageDataModel, self).__init__()
         QAbstractTableModel.__init__(self)
         self._messages = MessageList()
 
-        self._severity = {1: 'Debug', 2: 'Info', 4:'Warn', 8:'Error', 16: 'Fatal'}
-        
         self._time_format = 'hh:mm:ss.zzz (yyyy-MM-dd)'
         self._header_filter_text = []
         for item in self._messages.message_members():
             self._header_filter_text.append('')
+        self._insert_message_queue = []
+        self._paused = False
 
     # BEGIN Required QAbstractTableModel functions
     def rowCount(self, parent=None):
@@ -30,7 +30,7 @@ class MessageDataModel(QAbstractTableModel):
         messagelist = self._messages.get_message_list()
         if index.row() >= 0 and index.row() < len(messagelist):
             if index.column() < 0 or index.column() >= messagelist[index.row()].count():
-                qWarning('Message Col Index out of bounds %s' % index.col())
+                qWarning(self.tr('Message Column Index out of bounds %s' % index.col()))
                 raise IndexError
             if role == Qt.DisplayRole:
                 elements = self._messages.message_members()
@@ -39,10 +39,9 @@ class MessageDataModel(QAbstractTableModel):
                 else:
                     return getattr(messagelist[index.row()], elements[index.column()])
             elif role == Qt.ToolTipRole:
-                return QWidget().tr('Right click for menu.')
-                pass
+                return self.tr('Right click for menu.')
         else:
-            qWarning('Message Row Index out of bounds %s' % index.row())
+            qWarning(self.tr('Message Row Index out of bounds %s' % index.row()))
             raise IndexError
 
     def headerData(self, section, orientation, role=None):
@@ -53,29 +52,33 @@ class MessageDataModel(QAbstractTableModel):
                 sections = self._messages.message_members()
                 retval = sections[section][1:].capitalize() 
                 if self._header_filter_text[section] != '':
-                    retval += ' (' + self._header_filter_text[section] + ')'
+                    retval += '*'
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
+        elif role == Qt.ToolTipRole:
+            if self._header_filter_text[section] != '':
+                return self.tr('Filter: ') + self._header_filter_text[section]
+            else:
+                return self.tr('Column not filtered. \nA "*" will indicate a filtered column.')
         return None
     # END Required QAbstractTableModel functions
-    
+
     def timestring_to_timedata(self, timestring):
         timeval = QDateTime.fromString(timestring,self._time_format).toTime_t()
-        return str(timeval) + timestring[8:12]   #add msecs
+        return str(timeval) + '.' + timestring[9:12]   # append '.(msecs)'
 
     def timedata_to_timestring(self, timedata):
-        time = timedata
-        time, micro = time.split('.')
-        return QDateTime.fromTime_t(long(time)).addMSecs(int(micro[:3])).toString(self._time_format)
+        sec, fraction = timedata.split('.')
+        if len(fraction) < 3:
+            raise RuntimeError(self.tr('Malformed timestring in timedata_to_timestring()'))
+        micro = int(fraction[:3])
+        return QDateTime.fromTime_t(long(sec)).addMSecs(micro).toString(self._time_format)
 
     def insert_rows(self, msgs):
         if len(msgs) == 0:
             return
-
-        self.beginInsertRows(QModelIndex(),
-                                 len(self._messages.get_message_list()),
-                                 len(self._messages.get_message_list())+len(msgs)-1)
+        self.beginInsertRows(QModelIndex(), len(self._messages.get_message_list()), len(self._messages.get_message_list()) + len(msgs)-1)
         for msg in msgs:
             self.insert_row(msg,False)
         self.endInsertRows()
@@ -85,10 +88,7 @@ class MessageDataModel(QAbstractTableModel):
             self.beginInsertRows(QModelIndex(),
                                  len(self._messages.get_message_list()),
                                  len(self._messages.get_message_list()))
-        self._messages.add_message(msg.msg, self._severity[msg.level], msg.name,
-                                   (msg.header.stamp.secs, msg.header.stamp.nsecs),
-                                   ', '.join(msg.topics), msg.file +
-                                   ':' + msg.function + ':' + str(msg.line))
+        self._messages.add_message(msg)
         if notify_model:
             self.endInsertRows()
 
@@ -102,9 +102,17 @@ class MessageDataModel(QAbstractTableModel):
         else:
             rowlist = list(set(rowlist))
             rowlist.sort(reverse=True)
-            for row in rowlist:
-                self.beginRemoveRows(QModelIndex(), row, row)
-                del self.get_message_list()[row]
+            dellist = [rowlist[0]]
+            for row in rowlist[1:]:
+                if dellist[-1] - 1 > row:
+                    self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
+                    del self.get_message_list()[dellist[-1]:dellist[0]+1]
+                    self.endRemoveRows()
+                    dellist = []
+                dellist.append(row)
+            if len(dellist) > 0:
+                self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
+                del self.get_message_list()[dellist[-1]:dellist[0]+1]
                 self.endRemoveRows()
         return True
 
@@ -138,21 +146,27 @@ class MessageDataModel(QAbstractTableModel):
         return self._messages.message_members()
 
     def save_to_file(self, filehandle):
-        filehandle.write('rqt_console output file\n')
-        for message in self._messages.get_message_list():
-            filehandle.write(message.file_print())
-
-    def open_from_file(self, filehandle):
+        try:
+            filehandle.write(self._messages.header_print())
+            for message in self._messages.get_message_list():
+                filehandle.write(message.file_print())
+            return True
+        except:
+            qWarning(self.tr('File save failed.'))
+            return False
+    def load_from_file(self, filehandle):
         line = filehandle.readline()
-        if line == 'rqt_console output file\n':
+        if line == self._messages.header_print():
             while 1:
                 line = filehandle.readline()
                 if not line:
                     break
                 self._messages.append_from_text(line)
             self.reset()
+            return True
         else:
-            qWarning('File does not appear to be a rqt_console message file.')
+            qWarning(self.tr('File does not appear to be a rqt_console message file.'))
+            return False
 
     def get_message_list(self):
         return self._messages.get_message_list()
