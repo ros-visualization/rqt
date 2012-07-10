@@ -88,8 +88,7 @@ class ConsoleWidget(QWidget):
             return event.accept()
         return old_pressEvent(self.table_view, event)
 
-    def _show_filter_input_dialog(self, pos):
-        col = self.table_view.columnAt(pos.x())
+    def _show_filter_input_dialog(self, col):
         if col == 0:
             text, ok = QInputDialog.getText(QWidget(), self.tr('Message filter'), self.tr('Enter text (leave blank for no filtering):'), QLineEdit.Normal, self._proxymodel.get_filter(col))
         elif col == 1:
@@ -228,12 +227,16 @@ class ConsoleWidget(QWidget):
                 temp = temp + topic.split(', ')
         topics = list(set(temp))
 
+        columns = list(self._datamodel.message_members())
+        for index in range(len(columns)):
+            columns[index] = [columns[index][1:].capitalize()]
+
         menutext = []
         menutext.append([self.tr('Exclude'),[[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Include'),[[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
-        menutext.append([self.tr('Clear Filter')])
-        menutext.append([self.tr('Copy')])
-        menutext.append([self.tr('Edit Filter')])
+        menutext.append([self.tr('Clear Filter'), columns])
+        menutext.append([self.tr('Edit Filter'), columns])
+        menutext.append([self.tr('Copy Selected')])
         
         menu = QMenu()
         submenus = []
@@ -254,14 +257,9 @@ class ConsoleWidget(QWidget):
                 menu.addAction(item[0])
         action = menu.exec_(event.globalPos())
 
-        col = self.table_view.columnAt(event.pos().x())
         if action is None or action == 0:
             return 
-        elif action.text() == self.tr('Clear Filter'):
-            self._proxymodel.set_filter(col,'')
-        elif action.text() == self.tr('Edit Filter'):
-            self._show_filter_input_dialog(event.pos())
-        elif action.text() == self.tr('Copy'):
+        elif action.text() == self.tr('Copy Selected'):
             rowlist = []
             for current in self.table_view.selectionModel().selectedIndexes():
                 rowlist.append(self._proxymodel.mapToSource(current).row())
@@ -277,7 +275,15 @@ class ConsoleWidget(QWidget):
             else:
                 raise RuntimeError(self.tr("Menu format corruption in ConsoleWidget._rightclick_menu()"))
                 return
-
+        elif [action.text()] in columns:
+            if action.parentWidget().title() == self.tr('Edit Filter'):
+                for index, col in enumerate(columns):
+                    if action.text() == col[0]:
+                        self._show_filter_input_dialog(index)
+            else:
+                for index, col in enumerate(columns):
+                    if action.text() == col[0]:
+                        self._proxymodel.set_filter(index,'')
         else:
             try:
                 roottitle = action.parentWidget().parentWidget().title()
