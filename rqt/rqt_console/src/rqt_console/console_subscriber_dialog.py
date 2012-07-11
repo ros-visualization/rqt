@@ -1,3 +1,35 @@
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2012, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 import os
 
 import qt_gui.qt_binding_helper  # @UnusedImport
@@ -6,6 +38,10 @@ from QtCore import qWarning
 from qt_gui.qt_binding_helper import loadUi
 
 class ConsoleSubscriberDialog(QDialog):
+    """
+    Dialog for use with ConsoleSubscriber class to alter the loggerlevel and
+    change the subscribed topic.
+    """
     def __init__(self, caller, topics):
         super(QDialog, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_subscriber_dialog.ui')
@@ -17,11 +53,6 @@ class ConsoleSubscriberDialog(QDialog):
 
         self._caller = caller
 
-        # captures current list level needed for the first calls since "currentItem" is not set 
-        # when programatically calling a callback from a callback
-        self._node_index = -1  
-        self._logger_index = -1  
-        self._level_index = -1  
         self.node_list.currentRowChanged[int].connect(self.node_changed)
         self.logger_list.currentRowChanged[int].connect(self.logger_changed)
         self.level_list.currentRowChanged[int].connect(self.level_changed)
@@ -30,8 +61,7 @@ class ConsoleSubscriberDialog(QDialog):
 
         self.refresh_nodes()
         if self.node_list.count() > 0:
-            self.node_list.item(0).setSelected(True)
-            self.node_changed(0)
+            self.node_list.setCurrentRow(0)
 
     def refresh_nodes(self):
         self.level_list.clear()
@@ -51,11 +81,10 @@ class ConsoleSubscriberDialog(QDialog):
         if row < 0 or row >= self.node_list.count():
             qWarning(self.tr('Node row %s out of bounds. Current count: %s' % (row,self.node_list.count())))
             return
-        self._node_index = row
         self.logger_list.clear()
         self.level_list.clear()
         loggers = self._caller.get_loggers(self.node_list.item(row).text())
-        if len(loggers) is 0:
+        if len(loggers) == 0:
             return
         for logger in sorted(loggers):
             self.logger_list.addItem(logger)
@@ -68,13 +97,11 @@ class ConsoleSubscriberDialog(QDialog):
         if row < 0 or row >= self.logger_list.count():
             qWarning(self.tr('Logger row %s out of bounds. Current count: %s' % (row,self.logger_list.count())))
             return
-        self._logger_index = row
-        
         if self.level_list.count() == 0:
             for level in self._caller.get_levels():
                 self.level_list.addItem(level)
         for index in range(self.level_list.count()):
-            if self.level_list.item(index).text().lower() == self._caller._current_levels[self.logger_list.item(row).text()].lower():
+            if self.level_list.item(index).text().lower() == self._caller._current_levels[self.logger_list.currentItem().text()].lower():
                 self.level_list.setCurrentRow(index)
 
     def level_changed(self, row):
@@ -83,6 +110,5 @@ class ConsoleSubscriberDialog(QDialog):
         if row < 0 or row >= self.level_list.count():
             qWarning(self.tr('Level row %s out of bounds. Current count: %s' % (row,self.level_list.count())))
             return
-        self._level_index = row
-        self._caller.send_logger_change_message(self.node_list.item(self._node_index).text(), self.logger_list.item(self._logger_index).text(), self.level_list.item(row).text())
+        self._caller.send_logger_change_message(self.node_list.currentItem().text(), self.logger_list.currentItem().text(), self.level_list.item(row).text())
 

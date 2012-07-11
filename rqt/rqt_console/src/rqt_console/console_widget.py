@@ -1,3 +1,35 @@
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2012, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 import os
 
 from qt_gui.qt_binding_helper import loadUi
@@ -8,6 +40,9 @@ from list_dialog import ListDialog
 from time_dialog import TimeDialog 
 
 class ConsoleWidget(QWidget):
+    """
+    Primary widget for the rqt_console plugin.
+    """
     def __init__(self, proxymodel):
         super(ConsoleWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console.ui')
@@ -68,6 +103,10 @@ class ConsoleWidget(QWidget):
             self.pause_button.setText(self.tr('Pause'))
 
     def custom_keypress_handler(self, event, old_keyPressEvent=QTableView.keyPressEvent):
+        """
+        Handles the delete key.
+        The delete key removes the tableview's selected rows from the datamodel
+        """
         if event.key() == Qt.Key_Delete and len(self._datamodel.get_message_list()) > 0:
             delete = QMessageBox.Yes
             if len(self.table_view.selectionModel().selectedIndexes()) == 0:
@@ -89,6 +128,9 @@ class ConsoleWidget(QWidget):
         return old_pressEvent(self.table_view, event)
 
     def _show_filter_input_dialog(self, col):
+        """
+        Displays the correct filtering dialog based on the col variable.
+        """
         if col == 0:
             text, ok = QInputDialog.getText(QWidget(), self.tr('Message filter'), self.tr('Enter text (leave blank for no filtering):'), QLineEdit.Normal, self._proxymodel.get_filter(col))
         elif col == 1:
@@ -158,6 +200,10 @@ class ConsoleWidget(QWidget):
             self.update_status()
 
     def _process_include_exclude_filter(self, selection, selectiontype, exclude=False):
+        """
+        Modifies the relevant filters (based on selectiontype) to remove (exclude=True) 
+        or include (exclude=False) the selection from the dataset in the tableview 
+        """
         types = {self.tr('Node'):2, self.tr('Topic'):4, self.tr('Severity'):1, self.tr('Message'):0}
         try:
             col = types[selectiontype]
@@ -216,6 +262,10 @@ class ConsoleWidget(QWidget):
                 self._proxymodel.set_filter(col,newfilter)
  
     def _rightclick_menu(self, event):
+        """
+        Dynamically builds the rightclick menu based on the unique column data
+        from the passed in datamodel and then launches it modally
+        """
         severities = self._datamodel.get_unique_col_data(1)
         nodes = self._datamodel.get_unique_col_data(2)
         topics = self._datamodel.get_unique_col_data(4)
@@ -230,7 +280,8 @@ class ConsoleWidget(QWidget):
         columns = list(self._datamodel.message_members())
         for index in range(len(columns)):
             columns[index] = [columns[index][1:].capitalize()]
-
+        
+        # menutext entries turned into 
         menutext = []
         menutext.append([self.tr('Exclude'),[[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Include'),[[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
@@ -276,15 +327,20 @@ class ConsoleWidget(QWidget):
                 raise RuntimeError(self.tr("Menu format corruption in ConsoleWidget._rightclick_menu()"))
                 return
         elif [action.text()] in columns:
+            # This processes the clear and edit filter menu items
             if action.parentWidget().title() == self.tr('Edit Filter'):
                 for index, col in enumerate(columns):
                     if action.text() == col[0]:
                         self._show_filter_input_dialog(index)
-            else:
+            elif action.parentWidget().title() == self.tr('Edit Filter'):
                 for index, col in enumerate(columns):
                     if action.text() == col[0]:
                         self._proxymodel.set_filter(index,'')
+            else:
+                raise RuntimeError(self.tr("Menu format corruption in ConsoleWidget._rightclick_menu()"))
+                return
         else:
+            # This processes the dynamic list entries (severity, node and topic)
             try:
                 roottitle = action.parentWidget().parentWidget().title()
             except:
@@ -301,6 +357,9 @@ class ConsoleWidget(QWidget):
         self.update_status()
 
     def update_status(self):
+        """
+        Sets the message display label to the current value
+        """
         if self._datamodel.rowCount() == self._proxymodel.rowCount():
             tip = self.tr(self.tr('Displaying %s Messages' % (self._datamodel.rowCount())))
         else:
