@@ -85,6 +85,8 @@ class ConsoleWidget(QWidget):
             except IOError, e:
                 qWarning(str(e))
                 return
+            self.pause_button.setChecked(True)
+            self.pause_clicked_handler(True)
             self._datamodel.load_from_file(handle)
             handle.close()
             self.update_status()

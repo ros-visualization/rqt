@@ -222,6 +222,7 @@ class MessageDataModel(QAbstractTableModel):
                     break
                 self._messages.append_from_text(line)
             self.reset()
+            self._paused = True
             return True
         else:
             qWarning(self.tr('File does not appear to be a rqt_console message file.'))

@@ -36,6 +36,7 @@ from qt_gui.qt_binding_helper import loadUi
 
 class TextBrowseDialog(QDialog):
     """
+    Simple text brower Dialog that sets itself from the passed in text.
     """
     def __init__(self, text):
         super(QDialog, self).__init__()
