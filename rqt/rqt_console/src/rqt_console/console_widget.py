@@ -37,7 +37,8 @@ from QtGui import QApplication, QFileDialog, QIcon, QInputDialog, QLineEdit, QMe
 from QtCore import Qt, qWarning
 
 from list_dialog import ListDialog
-from time_dialog import TimeDialog 
+from time_dialog import TimeDialog
+from text_browse_dialog import TextBrowseDialog
 
 class ConsoleWidget(QWidget):
     """
@@ -66,8 +67,15 @@ class ConsoleWidget(QWidget):
         self.pause_button.clicked[bool].connect(self.pause_clicked_handler)
         self.load_button.clicked[bool].connect(self.load_clicked_handler)
         self.save_button.clicked[bool].connect(self.save_clicked_handler)
+        self.table_view.mouseDoubleClickEvent = self.mouse_double_click_handler
         self.table_view.mousePressEvent = self.mouse_press_handler
         self.table_view.keyPressEvent = self.custom_keypress_handler
+        # A list of TextBrowserDialogs to close when we go out of scope
+        self._browsers = []
+
+    def cleanup_on_close(self):
+        for browser in self._browsers:
+            browser.close()
 
     def load_clicked_handler(self, checked):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file ".csv" (*.csv)'))
@@ -121,10 +129,16 @@ class ConsoleWidget(QWidget):
                     return event.accept()
         return old_keyPressEvent(self.table_view, event)
     
+    def mouse_double_click_handler(self, event, old_doubleclickevent=QTableView.mouseDoubleClickEvent):
+        if event.buttons() & Qt.LeftButton and event.modifiers() == Qt.NoModifier:
+            self.show_browsers()
+            event.accept()
+        return old_doubleclickevent(self.table_view, event)
+
     def mouse_press_handler(self, event, old_pressEvent=QTableView.mousePressEvent):
         if event.buttons() & Qt.RightButton and event.modifiers() == Qt.NoModifier:
             self._rightclick_menu(event)
-            return event.accept()
+            event.accept()
         return old_pressEvent(self.table_view, event)
 
     def _show_filter_input_dialog(self, col):
@@ -288,6 +302,7 @@ class ConsoleWidget(QWidget):
         menutext.append([self.tr('Clear Filter'), columns])
         menutext.append([self.tr('Edit Filter'), columns])
         menutext.append([self.tr('Copy Selected')])
+        menutext.append([self.tr('Browse Selected')])
         
         menu = QMenu()
         submenus = []
@@ -310,6 +325,8 @@ class ConsoleWidget(QWidget):
 
         if action is None or action == 0:
             return 
+        elif action.text() == self.tr('Browse Selected'):
+            self.show_browsers()
         elif action.text() == self.tr('Copy Selected'):
             rowlist = []
             for current in self.table_view.selectionModel().selectedIndexes():
@@ -365,4 +382,13 @@ class ConsoleWidget(QWidget):
         else:
             tip = self.tr(self.tr('Displaying %s of %s Messages' % (self._proxymodel.rowCount(),self._datamodel.rowCount())))
         self.messages_label.setText(tip)
+
+    def show_browsers(self):
+        rowlist = []
+        for current in self.table_view.selectionModel().selectedIndexes():
+            rowlist.append(self._proxymodel.mapToSource(current).row())
+        browsetext = self._datamodel.get_selected_text(rowlist)
+        if browsetext is not None:
+            self._browsers.append(TextBrowseDialog(browsetext))
+        self._browsers[-1].show()
 
