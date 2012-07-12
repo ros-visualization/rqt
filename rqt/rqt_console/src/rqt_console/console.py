@@ -109,5 +109,8 @@ class Console(Plugin):
             self._proxymodel.set_filter(index, text)
 
     def trigger_configuration(self):
-        self._consolesubscriber.show_dialog()
+        self._consolesubscriber.set_message_limit(self._datamodel._message_limit)
+        ok = self._consolesubscriber.show_dialog()
+        if ok:
+            self._datamodel._message_limit = self._consolesubscriber.get_message_limit()
 
