@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="LoggerLevel" type="rqt_logger_level.logger_level.LoggerLevel" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin for displaying and changing logger levels.
+    </description>
+    <qtgui>
+      	<label>Logger Level</label>
+      	<icon type="theme">accessories-text-editor</icon>
+	<statustip>A Python GUI plugin for displaying and changing logger levels.</statustip>
+    </qtgui>
+  </class>
+</library>
