@@ -63,25 +63,15 @@ class MessageProxyModel(QSortFilterProxyModel):
         match = self._highlight_filters.test_message_array(rowdata)
         return not self._show_highlighted_only or match
 
-#TODO THIS FUNCTION IS FOR TESTING DELETE BEFORE COMMIT
-#    def lessThan_(self, left, right):
-#        l = left.data(QtCore.Qt.DisplayRole).toDouble()
-#        r = right.data(QtCore.Qt.DisplayRole).toDouble()
-#        if not l[1] and not r[1]:
-#            return QtGui.QSortFilterProxyModel.lessThan(self, left, right)
-#        if l[1] ^ r[1]: return l[1]
-#        return l[0] < r[0]
-
-# TODO If uncommented this function breaks sorting. figure out why
-#    def data(self, index, role=None):
-#        messagelist = self.sourceModel()._messages.get_message_list()
-#        if index.row() >= 0 and index.row() < len(messagelist):
-#            if index.column() >= 0 and index.column() < messagelist[index.row()].count():
-#                if role == Qt.ForegroundRole and self._highlight_filters.count_enabled_filters() > 0:
-#                    match = self._highlight_filters.message_test(messagelist[index.row()])
-#                    if not match:
-#                        return QBrush(Qt.gray)
-#        return self.sourceModel().data(index, role)
+    def data(self, index, role=None):
+        messagelist = self.sourceModel()._messages.get_message_list()
+        index = self.mapToSource(index)
+        if index.row() >= 0 or index.row() < len(messagelist):
+            if index.column() >= 0 or index.column() < messagelist[index.row()].count():
+                if role == Qt.ForegroundRole and self._highlight_filters.count_enabled_filters() > 0:
+                    if not self._highlight_filters.message_test(messagelist[index.row()]):
+                        return QBrush(Qt.gray)
+        return self.sourceModel().data(index, role)
 
     def _check_special_chars(self, text):
         """
@@ -125,6 +115,5 @@ class MessageProxyModel(QSortFilterProxyModel):
     
     def set_show_highlighted_only(self, show_highlighted_only):
         self._show_highlighted_only = not show_highlighted_only
-#        print 'show_highlighted_only: ', self._show_highlighted_only
         self.reset()
 
