@@ -31,42 +31,34 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-from QtGui import QDialog, QDialogButtonBox
-from QtCore import QDateTime, Signal
+
+from QtGui import QIcon, QWidget
+from QtCore import Qt
 from qt_gui.qt_binding_helper import loadUi
-from datetime import datetime
 
-class TimeDialog(QDialog):
-    """
-    Dialog for returning a time range. To implement the ignore button a callback
-    function in the caller must be connected to the ignore button. This way you
-    can set a variable to check if the ignore button was clicked and behave
-    accordingly. This functionality appears to be a bug with QT modal dialogs
-    """
-    ignore_button_clicked = Signal()
-    def __init__(self):
-        super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'time_dialog.ui')
+
+class ListFilterWidget(QWidget):
+    def __init__(self, parentfilter, display_list_args):
+        super(ListFilterWidget, self).__init__()
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'list_filter_widget.ui')
         loadUi(ui_file, self)
-        def click_handler(button):
-            if button == self.button_box.button(QDialogButtonBox.Ignore):
-                self.ignore_button_clicked.emit()
-                self.accept()
-        self.button_box.clicked.connect(click_handler)
-    
-    def set_time(self, mintime=None, maxtime=None):
-        if maxtime is None:
-            time = datetime.now()
-            self.min_dateedit.setDateTime(time)
-            self.max_dateedit.setDateTime(time)
-        else:
-            dtime = QDateTime()
-            dtime.setTime_t(int(mintime[:mintime.find('.')]))
-            dtime = dtime.addMSecs(int(mintime[mintime.find('.')+1:mintime.find('.')+4]))
-            self.min_dateedit.setDateTime(dtime)
-            dtime = QDateTime()
-            dtime.setTime_t(int(maxtime[:maxtime.find('.')]))
-            dtime = dtime.addMSecs(int(maxtime[maxtime.find('.')+1:maxtime.find('.')+4]))
-            self.max_dateedit.setDateTime(dtime)
+        self.setObjectName('ListFilterWidget')
+        self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
+        
+        self._list_populate_function = display_list_args[0]
+        self._function_argument = display_list_args[1]
+        self.list_widget.itemSelectionChanged.connect(self.handle_item_changed)
+        self.display_list = [] 
+        
+        self.repopulate()
 
+    def handle_item_changed(self):
+        self._parentfilter.set_list(self.list_widget.selectedItems())
 
+    def repopulate(self):
+        newlist =  self._list_populate_function(self._function_argument)
+        if len(newlist) != len(self.display_list):
+            for item in newlist:
+                if not item in self.display_list:
+                    self.list_widget.addItem(item)
+        self.display_list = list(set(newlist + self.display_list))

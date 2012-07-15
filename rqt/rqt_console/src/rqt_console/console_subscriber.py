@@ -55,7 +55,7 @@ class ConsoleSubscriber(QObject):
             self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
         
     def show_dialog(self):
-        dialog = ConsoleSubscriberDialog(rospy.get_published_topics(),self._messagelimit)
+        dialog = ConsoleSubscriberDialog(rospy.get_published_topics(), self._messagelimit)
         for index in range(dialog.topic_combo.count()):
             if str(dialog.topic_combo.itemText(index)).find(self._currenttopic) != -1:
                 dialog.topic_combo.setCurrentIndex(index)

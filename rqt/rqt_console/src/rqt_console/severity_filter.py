@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to stoporse or promote products derived
+#    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -29,29 +29,47 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, QRegExp, Signal
+from QtCore import QObject, Signal
 
 from message import Message
 
-class MessageFilter(QObject):
+class SeverityFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(MessageFilter, self).__init__()
+        super(SeverityFilter, self).__init__()
+        #self._widget = SeverityFilterWidget()
+        self._debug = False
+        self._info = False
+        self._warning = False
+        self._error = False
+        self._fatal = False
         self._enabled = True
 
-        self._text = ''
-        self._regex = False
-
-    def set_text(self, text):
-        self._text = text
+    def set_debug(self, checked):
+        self._debug = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
-    def set_regex(self, checked):
-        self._regex = checked
+    def set_info(self, checked):
+        self._info = checked
+        if self._enabled:
+            self.filter_changed_signal.emit()
+
+    def set_warning(self, checked):
+        self._warning = checked
+        if self._enabled:
+            self.filter_changed_signal.emit()
+
+    def set_error(self, checked):
+        self._error = checked
+        if self._enabled:
+            self.filter_changed_signal.emit()
+
+    def set_fatal(self, checked):
+        self._fatal = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
@@ -70,11 +88,15 @@ class MessageFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        
-        if self._regex:
-            if QRegExp(self._text).exactMatch(message._message):
-                return True
-        else:
-            if message._message.find(self._text) != -1:
-                return True
+        if self._debug and message._severity.lower() == 'debug':
+            return True
+        if self._info and message._severity.lower() == 'info':
+            return True
+        if self._warning and message._severity.lower() == 'warning':
+            return True
+        if self._error and message._severity.lower() == 'error':
+            return True
+        if self._fatal and message._severity.lower() == 'fatal':
+            return True
         return False
+

@@ -29,39 +29,30 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-import os
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QDialog
 
-class ListDialog(QDialog):
-    """
-    Simple dialog box that contains a QListWidget. The static method show
-    is used to display the dialog and set the values
-    """
-    def __init__(self, windowtitle, text, boxlist, selected=''):
-        super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'list_dialog.ui')
-        loadUi(ui_file, self)
-        self.list_box.addItems(boxlist)
-        for index, item in enumerate(boxlist):
-            if selected.find(item) != -1: 
-                self.list_box.item(index).setSelected(True)
-        self.setWindowTitle(windowtitle)
+from filter_wrapper_widget import FilterWrapperWidget
+from severity_filter import SeverityFilter
 
-    @staticmethod
-    def show(titletext, labeltext, itemlist, selectedtext=''):
-        """
-        The item list will be inserted into the QListWidget and 
-        an item will be selected if its text is present in selectedtext
-        """
-        dlg = ListDialog(titletext, labeltext, itemlist, selectedtext)
-        ok = dlg.exec_()
-        ok = (ok == 1)
-        textlist = dlg.list_box.selectedItems()
-        retlist = []
-        for item in textlist:
-            retlist.append(item.text())
-        return (retlist, ok)
+# This class knows how to talk to all the available filter types and load the
+# non-specific ui elements
+class FilterWrapper:
+    def __init__(self):
+        #TODO it needs to get a param with the type of filter
+        #Once we get more than one we are going to need some logic and a factory
+        self._widget = FilterWrapperWidget()
+        self._filter = SeverityFilter()
+        self._widget.layout_frame.insertWidget(1, self._filter.get_widget())
+        
+        #TODO link the delete_button to a signal that will delete this filter entirely
+        # and delete the row the catcher in filter_interface should in turn emit
+        # a signal so we can remove it from the table in console_widget
 
+    def message_test(self, message):
+        return self._filter.message_test(message)
 
+    def get_widget(self):
+        return self._widget
+
+    def is_enabled(self):
+        return self._widget.enabled_checkbox.isChecked()

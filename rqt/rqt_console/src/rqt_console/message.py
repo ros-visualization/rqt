@@ -32,7 +32,7 @@
 
 import qt_gui.qt_binding_helper  #@ UnusedImport
 
-from QtCore import QObject
+from QtCore import QDateTime, QObject
 from rosgraph_msgs.msg import Log 
 
 class Message(QObject):
@@ -74,6 +74,12 @@ class Message(QObject):
     def time_in_seconds(self):
         return str(self._time[0]) + '.' + str(self._time[1]).zfill(9)
 
+    def time_as_qdatetime(self):
+        time = QDateTime()
+        time.setTime_t(int(self._time[0]))
+        time = time.addMSecs(int(str(self._time[1]).zfill(9)[:3]))
+        return time
+
     def load_from_array(self, rowdata):
         self._message = rowdata[0]
         self._severity = rowdata[1]
@@ -81,7 +87,7 @@ class Message(QObject):
         self._time = rowdata[3].split('.')
         self._topics = rowdata[4]
         self._location = rowdata[5]
-        return
+        return self
 
     def file_print(self):
         text = self._node + ';'
@@ -89,7 +95,7 @@ class Message(QObject):
         text += self._severity + ';'
         text += self._topics + ';'
         text += self._location + ';'
-        altered_message = self._message.replace('"','\\"')
+        altered_message = self._message.replace('"', '\\"')
         text += '"' + altered_message + '"\n'
         return text
 
@@ -120,7 +126,7 @@ class Message(QObject):
             raise 
         self._location = text[:sc_index]
         text = text[sc_index+1:]
-        text = text.replace('\\"','"')
+        text = text.replace('\\"', '"')
         self._message = text[1:-2]
         return
 
@@ -133,5 +139,5 @@ class Message(QObject):
         return text
 
     def get_data(self, col):
-        return getattr(self,Message.message_members()[col])
+        return getattr(self, Message.message_members()[col])
 

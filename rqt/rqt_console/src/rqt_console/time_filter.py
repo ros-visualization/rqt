@@ -29,34 +29,44 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, QRegExp, Signal
+from QtCore import QDateTime, QObject, Signal
 
 from message import Message
 
-class MessageFilter(QObject):
+class TimeFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(MessageFilter, self).__init__()
+        super(TimeFilter, self).__init__()
         self._enabled = True
+        self._start_time = QDateTime()
+        self._stop_time = QDateTime()
+        self._stop_time_enabled = True
 
-        self._text = ''
-        self._regex = False
-
-    def set_text(self, text):
-        self._text = text
+    def set_start_time(self, time):
+        self._start_time = time
         if self._enabled:
             self.filter_changed_signal.emit()
 
-    def set_regex(self, checked):
-        self._regex = checked
+    def set_stop_time(self, time):
+        self._stop_time = time
+        if self._enabled:
+            self.filter_changed_signal.emit()
+
+    def set_stop_time_enabled(self, checked):
+        self._stop_time_enabled = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked
+        if self._enabled:
+            self.filter_changed_signal.emit()
+
+    def set_stop_time_enabled(self, checked):
+        self._stop_time_enabled = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
@@ -70,11 +80,10 @@ class MessageFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        
-        if self._regex:
-            if QRegExp(self._text).exactMatch(message._message):
-                return True
-        else:
-            if message._message.find(self._text) != -1:
-                return True
-        return False
+
+        message_time = message.time_as_qdatetime()
+        if message_time < self._start_time:
+            return False
+        if self._stop_time_enabled and self._stop_time < message_time:
+            return False
+        return True

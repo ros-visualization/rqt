@@ -98,15 +98,17 @@ class Console(Plugin):
         self._mainwindow.cleanup_on_close()
 
     def save_settings(self, plugin_settings, instance_settings):
-        for index, member in enumerate(self._datamodel.message_members()):
-            instance_settings.set_value(member,self._proxymodel.get_filter(index))
+        pass
+#        for index, member in enumerate(self._datamodel.message_members()):
+#            instance_settings.set_value(member, self._proxymodel.get_filter(index))
 
     def restore_settings(self, plugin_settings, instance_settings):
-        for index, member in enumerate(self._datamodel.message_members()):
-            text = instance_settings.value(member)
-            if text is None:
-                text=''
-            self._proxymodel.set_filter(index, text)
+        pass
+#        for index, member in enumerate(self._datamodel.message_members()):
+#            text = instance_settings.value(member)
+#            if text is None:
+#                text=''
+#            self._proxymodel.set_filter(index, text)
 
     def trigger_configuration(self):
         self._consolesubscriber.set_message_limit(self._datamodel._message_limit)

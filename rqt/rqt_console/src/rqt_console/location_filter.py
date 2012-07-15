@@ -33,13 +33,13 @@ from QtCore import QDateTime, QObject, QRegExp, Signal
 
 from message import Message
 
-class MessageFilter(QObject):
+class LocationFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(MessageFilter, self).__init__()
+        super(LocationFilter, self).__init__()
         self._enabled = True
 
         self._text = ''
@@ -50,13 +50,13 @@ class MessageFilter(QObject):
         if self._enabled:
             self.filter_changed_signal.emit()
 
-    def set_regex(self, checked):
-        self._regex = checked
+    def set_enabled(self, checked):
+        self._enabled = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
-    def set_enabled(self, checked):
-        self._enabled = checked
+    def set_regex(self, checked):
+        self._regex = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
@@ -72,9 +72,10 @@ class MessageFilter(QObject):
         """
         
         if self._regex:
-            if QRegExp(self._text).exactMatch(message._message):
+            if QRegExp(self._text).exactMatch(message._location):
                 return True
         else:
             if message._message.find(self._text) != -1:
                 return True
         return False
+

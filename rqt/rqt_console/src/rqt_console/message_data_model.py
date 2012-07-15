@@ -61,20 +61,15 @@ class MessageDataModel(QAbstractTableModel):
             role = Qt.DisplayRole
         messagelist = self._messages.get_message_list()
         if index.row() >= 0 and index.row() < len(messagelist):
-            if index.column() < 0 or index.column() >= messagelist[index.row()].count():
-                qWarning(self.tr('Message Column Index out of bounds %s' % index.col()))
-                raise IndexError
-            if role == Qt.DisplayRole:
-                elements = self._messages.message_members()
-                if elements[index.column()] == '_time':
-                    return self.timedata_to_timestring(messagelist[index.row()].time_in_seconds())
-                else:
-                    return getattr(messagelist[index.row()], elements[index.column()])
-            elif role == Qt.ToolTipRole:
-                return self.tr('Right click for menu.')
-        else:
-            qWarning(self.tr('Message Row Index out of bounds %s' % index.row()))
-            raise IndexError
+            if index.column() >= 0 and index.column() < messagelist[index.row()].count():
+                if role == Qt.DisplayRole:
+                    elements = self._messages.message_members()
+                    if elements[index.column()] == '_time':
+                        return self.timedata_to_timestring(messagelist[index.row()].time_in_seconds())
+                    else:
+                        return getattr(messagelist[index.row()], elements[index.column()])
+                elif role == Qt.ToolTipRole:
+                    return self.tr('Right click for menu.')
 
     def headerData(self, section, orientation, role=None):
         if role is None:
@@ -101,7 +96,7 @@ class MessageDataModel(QAbstractTableModel):
         Converts a time string in the format of _time_format into a string 
         of format '(unix timestamp).(fraction of second)'
         """
-        timeval = QDateTime.fromString(timestring,self._time_format).toTime_t()
+        timeval = QDateTime.fromString(timestring, self._time_format).toTime_t()
         return str(timeval) + '.' + timestring[9:12]   # append '.(msecs)'
 
     def timedata_to_timestring(self, timedata):
@@ -120,7 +115,7 @@ class MessageDataModel(QAbstractTableModel):
             return
         self.beginInsertRows(QModelIndex(), len(self._messages.get_message_list()), len(self._messages.get_message_list()) + len(msgs) - 1)
         for msg in msgs:
-            self.insert_row(msg,False)
+            self.insert_row(msg, False)
         self.endInsertRows()
 
         if len(self.get_message_list()) > self._message_limit:
@@ -186,7 +181,13 @@ class MessageDataModel(QAbstractTableModel):
                 min_ = item
         return min_, max_
 
-    def get_unique_col_data(self, index):
+    def get_unique_col_data(self, index, separate_topics=True):
+        if index == 4 and separate_topics:
+            unique_list = set()
+            for topiclists in self._messages.get_unique_col_data(index):
+                for item in topiclists.split(','):
+                    unique_list.add(item.strip())
+            return list(unique_list)
         return self._messages.get_unique_col_data(index)
 
     def get_data(self, row, col):
