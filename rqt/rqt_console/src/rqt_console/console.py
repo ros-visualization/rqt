@@ -45,7 +45,7 @@ from message_data_model import MessageDataModel
 from message_proxy_model import MessageProxyModel
 from console_widget import ConsoleWidget
 from console_subscriber import ConsoleSubscriber
-
+#TODO redo commenting and documentation
 class Console(Plugin):
     """
     rqt_console plugin's main class. Handles communication with ros_gui and contains
@@ -97,6 +97,7 @@ class Console(Plugin):
         self._timer.stop()
         self._mainwindow.cleanup_browsers_on_close()
 
+#TODO redo save and restore!
     def save_settings(self, plugin_settings, instance_settings):
         pass
 #        for index, member in enumerate(self._datamodel.message_members()):

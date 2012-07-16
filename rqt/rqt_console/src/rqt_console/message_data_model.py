@@ -208,13 +208,18 @@ class MessageDataModel(QAbstractTableModel):
         If successful it returns True. Otherwise False
         """
         line = filehandle.readline()
+        lines = []
         if line == self._messages.header_print():
             while 1:
                 line = filehandle.readline()
                 if not line:
                     break
+                lines.append(line)
+            self.beginInsertRows(QModelIndex(), len(self._messages.get_message_list()), len(self._messages.get_message_list()) + len(lines) - 1)
+            for line in lines:
                 self._messages.append_from_text(line)
-            self.reset()
+            self.endInsertRows()
+#            self.reset()
             self._paused = True
             return True
         else:
