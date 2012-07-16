@@ -43,8 +43,8 @@ class SeverityFilter(QObject):
         self._list = []
         self._enabled = True
 
-    def set_list(self, topic_list):
-        self._list = topic_list
+    def set_list(self, severity_list):
+        self._list = severity_list
         if self._enabled:
             self.filter_changed_signal.emit()
 

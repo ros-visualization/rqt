@@ -38,16 +38,10 @@ from severity_filter import SeverityFilter
 # non-specific ui elements
 class FilterWrapper:
     def __init__(self):
-        #TODO it needs to get a param with the type of filter
-        #Once we get more than one we are going to need some logic and a factory
         self._widget = FilterWrapperWidget()
         self._filter = SeverityFilter()
         self._widget.layout_frame.insertWidget(1, self._filter.get_widget())
         
-        #TODO link the delete_button to a signal that will delete this filter entirely
-        # and delete the row the catcher in filter_interface should in turn emit
-        # a signal so we can remove it from the table in console_widget
-
     def message_test(self, message):
         return self._filter.message_test(message)
 

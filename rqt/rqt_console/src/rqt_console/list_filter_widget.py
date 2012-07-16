@@ -50,7 +50,7 @@ class ListFilterWidget(QWidget):
         if len(display_list_args) > 1:
             self._function_argument = display_list_args[1]
         self.list_widget.itemSelectionChanged.connect(self.handle_item_changed)
-        self.display_list = [] 
+        self._display_list = [] 
         
         self.repopulate()
     
@@ -69,8 +69,8 @@ class ListFilterWidget(QWidget):
         else:
             newlist =  self._list_populate_function()
 
-        if len(newlist) != len(self.display_list):
+        if len(newlist) != len(self._display_list):
             for item in newlist:
-                if not item in self.display_list:
+                if not item in self._display_list:
                     self.list_widget.addItem(item)
-        self.display_list = list(set(newlist + self.display_list))
+        self._display_list = list(set(newlist + self._display_list))

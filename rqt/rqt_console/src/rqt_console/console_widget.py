@@ -42,18 +42,17 @@ from text_browse_dialog import TextBrowseDialog
 
 # For Filter Factory
 from filter_wrapper_widget import FilterWrapperWidget
-from severity_filter_widget import SeverityFilterWidget
 from list_filter_widget import ListFilterWidget
 from time_filter_widget import TimeFilterWidget
 from text_filter_widget import TextFilterWidget
+from custom_filter_widget import CustomFilterWidget
 from severity_filter import SeverityFilter
 from topic_filter import TopicFilter
 from node_filter import NodeFilter
 from time_filter import TimeFilter
 from message_filter import MessageFilter
 from location_filter import LocationFilter
-
-# TODO construct and list more filters
+from custom_filter import CustomFilter
 
 class ConsoleWidget(QWidget):
     """
@@ -101,14 +100,17 @@ class ConsoleWidget(QWidget):
         
         self.add_highlight_button.clicked.connect(self.add_highlight_filter)
         self.add_exclude_button.clicked.connect(self.add_exclude_filter)
+
+        # Filter factory dictionary:
+        # index 0 is a label describing the widget, index 1 is the class that provides filtering logic
+        # index 2 is the widget that sets the data in the filter class, index 3 are the arguments for the widget class constructor
         self.filter_factory = {0: (self.tr('Message Filter'), MessageFilter, TextFilterWidget, []),
                                1: (self.tr('Severity Filter'), SeverityFilter, ListFilterWidget, [self._datamodel.get_severity_list]),
-                               2: (self.tr('Node Filter'), NodeFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 2 ]),
+                               2: (self.tr('Node Filter'), NodeFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 2]),
                                3: (self.tr('Time Filter'), TimeFilter, TimeFilterWidget, [self.get_time_range_from_selection]),
-                               4: (self.tr('Topic Filter'), TopicFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 4 ]),
-                               5: (self.tr('Location Filter'), MessageFilter, TextFilterWidget, [])}
-
-#TODO these calls aren't going to work need to find a way to make it work
+                               4: (self.tr('Topic Filter'), TopicFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 4]),
+                               5: (self.tr('Location Filter'), MessageFilter, TextFilterWidget, []),
+                               6: (self.tr('Custom Filter'), CustomFilter, CustomFilterWidget, [self._datamodel.get_severity_list, self._datamodel.get_unique_col_data, 2, self._datamodel.get_unique_col_data, 4])}
 
         # list of TextBrowserDialogs to close when cleaning up
         self._browsers = []
@@ -151,7 +153,6 @@ class ConsoleWidget(QWidget):
             item[1].setEnabled(True)
             item[1].enable_all_children()
 
-# TODO combine highlight/exclude duplicated code functions
     def delete_highlight_filter(self):
         for index, item in enumerate(self._highlight_filters):
             if item[1].delete_button.isChecked():
@@ -162,7 +163,6 @@ class ConsoleWidget(QWidget):
                     item[1].delete_button.clicked.disconnect(self.delete_highlight_filter)
                     del self._highlight_filters[index]
 
-#TODO delete checked filters
     def delete_exclude_filter(self):
         for index, item in enumerate(self._exclude_filters):
             if item[1].delete_button.isChecked():
@@ -184,7 +184,7 @@ class ConsoleWidget(QWidget):
                 # flattens the _highlight filters list and only adds the item if it doesn't already exist
                 if self.filter_factory[index][0] == self.tr('Message Filter') or not self.filter_factory[index][1] in [type(item) for sublist in self._highlight_filters for item in sublist]:
                     filter_select_menu.addAction(self.filter_factory[index][0])
-            action = filter_select_menu.exec_(QCursor.pos()) #  TODO get a handle on the mouse position, pass it in 
+            action = filter_select_menu.exec_(QCursor.pos())
             if action is None:
                 return
             for index in range(len(self.filter_factory)):
@@ -221,7 +221,7 @@ class ConsoleWidget(QWidget):
                 # flattens the _exclude filters list and only adds the item if it doesn't already exist
                 if self.filter_factory[index][0] == self.tr('Message Filter') or not self.filter_factory[index][1] in [type(item) for sublist in self._exclude_filters for item in sublist]:
                     filter_select_menu.addAction(self.filter_factory[index][0])
-            action = filter_select_menu.exec_(QCursor.pos()) #  TODO get a handle on the mouse position, pass it in 
+            action = filter_select_menu.exec_(QCursor.pos())
             if action is None:
                 return
             for index in range(len(self.filter_factory)):
@@ -260,9 +260,6 @@ class ConsoleWidget(QWidget):
             raise RuntimeError(self.tr("Bad Column name in ConsoleWidget._process_highlight_exclude_filter()"))
             return
 
-        # TODO look for the items you have. If they are already there set them
-        # if they are message you need to just add them
-
         if col == 0:
             unique_messages = set()
             nodetext = ''
@@ -272,7 +269,6 @@ class ConsoleWidget(QWidget):
                 unique_messages.add(selected_indexes[num_selected*col+index].data())
             unique_messages = list(unique_messages)
             for message in unique_messages:
-                # TODO insert new message filter (set to regex and '^message$')
                 message = message.replace('.','\\.')
                 message = message.replace('\\','\\\\.')
                 if exclude:
@@ -307,11 +303,9 @@ class ConsoleWidget(QWidget):
             if exclude:
                 filter_widget = self._exclude_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                 filter_widget.select_item(selection)
-
             else:
                 filter_widget = self._highlight_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                 filter_widget.select_item(selection)
-            #TODO set the relevant data into the filter
 
  
     def _rightclick_menu(self, event):
@@ -319,7 +313,6 @@ class ConsoleWidget(QWidget):
         Dynamically builds the rightclick menu based on the unique column data
         from the passed in datamodel and then launches it modally
         """
-        #TODO FIX THIS FUNCTION FOR USE WITH NEW FILTERS
         severities = self._datamodel.get_unique_col_data(1)
         nodes = self._datamodel.get_unique_col_data(2)
         topics = self._datamodel.get_unique_col_data(4)
@@ -337,7 +330,6 @@ class ConsoleWidget(QWidget):
         
         # menutext entries turned into 
         menutext = []
-# TODO make this functionality work again
         menutext.append([self.tr('Exclude'), [[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Highlight'), [[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Copy Selected')])
@@ -420,7 +412,7 @@ class ConsoleWidget(QWidget):
         browsetext = self._datamodel.get_selected_text(rowlist)
         if browsetext is not None:
             self._browsers.append(TextBrowseDialog(browsetext))
-        self._browsers[-1].show()
+            self._browsers[-1].show()
 
     def load_clicked_handler(self, checked):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file ".csv" (*.csv)'))

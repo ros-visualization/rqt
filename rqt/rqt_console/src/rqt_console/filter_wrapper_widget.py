@@ -47,8 +47,8 @@ class FilterWrapperWidget(QWidget):
         self.layout_frame.setStretch(2, stretch)
         # Hack to hide the placeholder widget since removing it caused problems
         self.layout_frame.setStretch(3, 0)
-#TODO why does this call make other widgets stop working?
-#        self.layout_frame.removeWidget(self.layout_frame.itemAt(2).widget())
+#TODO Figure out why this makes the enable button stop working
+#        self.layout_frame.removeWidget(self.layout_frame.itemAt(3).widget())
         self._widget = widget
         self.enabled_checkbox.stateChanged[int].connect(self.enabled_callback)
         self.filter_name_label.setText(filter_name + ':')
