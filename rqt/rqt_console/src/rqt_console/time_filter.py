@@ -62,8 +62,7 @@ class TimeFilter(QObject):
 
     def set_enabled(self, checked):
         self._enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        self.filter_changed_signal.emit()
 
     def set_stop_time_enabled(self, checked):
         self._stop_time_enabled = checked

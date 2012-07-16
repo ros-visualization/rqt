@@ -43,9 +43,6 @@ class MessageDataModel(QAbstractTableModel):
         self._messages = MessageList()
 
         self._time_format = 'hh:mm:ss.zzz (yyyy-MM-dd)'
-        self._header_tooltip_text = []
-        for item in self._messages.message_members():
-            self._header_tooltip_text.append('')
         self._insert_message_queue = []
         self._paused = False
         self._message_limit = 20000
@@ -78,17 +75,9 @@ class MessageDataModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 sections = self._messages.message_members()
                 retval = sections[section][1:].capitalize() 
-                if self._header_tooltip_text[section] != '':
-                    retval += '*'
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
-        elif role == Qt.ToolTipRole:
-            if self._header_tooltip_text[section] != '':
-                return self.tr('Filter: ') + self._header_tooltip_text[section]
-            else:
-                return self.tr('Column not filtered. \nA "*" will indicate a filtered column.')
-        return None
     # END Required QAbstractTableModel functions
 
     def timestring_to_timedata(self, timestring):
@@ -190,6 +179,9 @@ class MessageDataModel(QAbstractTableModel):
             return list(unique_list)
         return self._messages.get_unique_col_data(index)
 
+    def get_severity_list(self):
+        return [self.tr('Debug'), self.tr('Info'), self.tr('Warning'), self.tr('Error'), self.tr('Fatal')]
+
     def get_data(self, row, col):
         return self._messages.get_data(row, col)
 
@@ -231,7 +223,3 @@ class MessageDataModel(QAbstractTableModel):
 
     def get_message_list(self):
         return self._messages.get_message_list()
-
-    def set_header_text(self, index, text):
-        if index >= 0 and index < self._messages.message_members():
-            self._header_tooltip_text[index] = text

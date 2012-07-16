@@ -45,7 +45,8 @@ class NodeFilter(QObject):
 
     def set_list(self, topic_list):
         self._list = topic_list
-        self.filter_changed_signal.emit()
+        if self._enabled:
+            self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked

@@ -69,13 +69,26 @@ class MessageProxyModel(QSortFilterProxyModel):
         if index.row() >= 0 or index.row() < len(messagelist):
             if index.column() >= 0 or index.column() < messagelist[index.row()].count():
                 if role == Qt.ForegroundRole and self._highlight_filters.count_enabled_filters() > 0:
+                    if index.column() == 1:
+                        data = index.data()
+                        if data == 'Debug':
+                            return QBrush(Qt.cyan)
+                        elif data == 'Info':
+                            return QBrush(Qt.darkCyan)
+                        elif data == 'Warning':
+                            return QBrush(Qt.yellow)
+                        elif data == 'Error':
+                            return QBrush(Qt.darkRed)
+                        elif data == 'Fatal':
+                            return QBrush(Qt.darkRed)
                     if not self._highlight_filters.message_test(messagelist[index.row()]):
                         return QBrush(Qt.gray)
+
         return self.sourceModel().data(index, role)
 
     def _check_special_chars(self, text):
         """
-        Returns true if text contains a '(' or the variables _and, _or, _not
+        Returns true if text contains a '(' or  the variables _and, _or, _not
         """
         if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1 or text.find(self._not) != -1:
             return True

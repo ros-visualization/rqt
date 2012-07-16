@@ -50,8 +50,7 @@ class TopicFilter(QObject):
 
     def set_enabled(self, checked):
         self._enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled

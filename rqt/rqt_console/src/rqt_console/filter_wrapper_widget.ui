@@ -18,7 +18,7 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="layout_frame" stretch="0,1,0">
+    <layout class="QHBoxLayout" name="layout_frame" stretch="0,0,1,0">
      <item>
       <widget class="QCheckBox" name="enabled_checkbox">
        <property name="toolTip">
@@ -30,10 +30,23 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="filter_name_label">
+       <property name="text">
+        <string>Name</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QWidget" name="widget" native="true"/>
      </item>
      <item>
       <widget class="QPushButton" name="delete_button">
+       <property name="maximumSize">
+        <size>
+         <width>27</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="text">
         <string/>
        </property>

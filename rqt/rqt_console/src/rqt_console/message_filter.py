@@ -57,8 +57,7 @@ class MessageFilter(QObject):
 
     def set_enabled(self, checked):
         self._enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
@@ -70,11 +69,11 @@ class MessageFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        
-        if self._regex:
-            if QRegExp(self._text).exactMatch(message._message):
-                return True
-        else:
-            if message._message.find(self._text) != -1:
-                return True
+        if self._text != '':
+            if self._regex:
+                if QRegExp(self._text).exactMatch(message._message):
+                    return True
+            else:
+                if message._message.find(self._text) != -1:
+                    return True
         return False

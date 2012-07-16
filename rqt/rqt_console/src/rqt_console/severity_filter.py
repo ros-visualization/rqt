@@ -40,43 +40,17 @@ class SeverityFilter(QObject):
     filter_changed_signal = Signal()
     def __init__(self):
         super(SeverityFilter, self).__init__()
-        #self._widget = SeverityFilterWidget()
-        self._debug = False
-        self._info = False
-        self._warning = False
-        self._error = False
-        self._fatal = False
+        self._list = []
         self._enabled = True
 
-    def set_debug(self, checked):
-        self._debug = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_info(self, checked):
-        self._info = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_warning(self, checked):
-        self._warning = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_error(self, checked):
-        self._error = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_fatal(self, checked):
-        self._fatal = checked
+    def set_list(self, topic_list):
+        self._list = topic_list
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
@@ -88,15 +62,8 @@ class SeverityFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        if self._debug and message._severity.lower() == 'debug':
-            return True
-        if self._info and message._severity.lower() == 'info':
-            return True
-        if self._warning and message._severity.lower() == 'warning':
-            return True
-        if self._error and message._severity.lower() == 'error':
-            return True
-        if self._fatal and message._severity.lower() == 'fatal':
-            return True
+        for item in self._list:
+            if message._severity == item.text():
+                return True
         return False
 

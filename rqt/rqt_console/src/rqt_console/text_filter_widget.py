@@ -49,6 +49,13 @@ class TextFilterWidget(QWidget):
         self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
 
         self.handle_text_changed()
+    
+    def set_text(self, text):
+        self.text_edit.setText(text)
+
+    def set_regex(self, checked):
+        self.regex_check_box.setChecked(checked)
+        self.handle_regex_clicked(checked)
 
     def handle_text_changed(self):
         self._parentfilter.set_text(self.text_edit.text())

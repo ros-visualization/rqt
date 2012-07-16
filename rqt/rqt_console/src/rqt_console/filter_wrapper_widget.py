@@ -36,24 +36,25 @@ from qt_gui.qt_binding_helper import loadUi
 from QtCore import QRegExp, Qt
 
 class FilterWrapperWidget(QWidget):
-    def __init__(self, widget):
+    def __init__(self, widget, filter_name):
         super(FilterWrapperWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'filter_wrapper_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('FilterWrapperWidget')
-        self.delete_button.setIcon(QIcon.fromTheme('media-record'))
-        stretch = self.layout_frame.stretch(1)
-        self.layout_frame.insertWidget(1, widget)
-        self.layout_frame.setStretch(1, stretch)
+        self.delete_button.setIcon(QIcon.fromTheme('list-remove'))
+        stretch = self.layout_frame.stretch(2)
+        self.layout_frame.insertWidget(2, widget)
+        self.layout_frame.setStretch(2, stretch)
         # Hack to hide the placeholder widget since removing it caused problems
-        self.layout_frame.setStretch(2, 0)
+        self.layout_frame.setStretch(3, 0)
 #TODO why does this call make other widgets stop working?
 #        self.layout_frame.removeWidget(self.layout_frame.itemAt(2).widget())
         self._widget = widget
         self.enabled_checkbox.stateChanged[int].connect(self.enabled_callback)
+        self.filter_name_label.setText(filter_name + ':')
 
     def enabled_callback(self, checked):
-        self._widget._parentfilter.set_enabled(checked == Qt.Checked)
+        self._widget._parentfilter.set_enabled(checked)
     
     def enable_all_children(self):
         for child in self.findChildren(QWidget, QRegExp('.*')):

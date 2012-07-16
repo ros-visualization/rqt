@@ -52,8 +52,7 @@ class LocationFilter(QObject):
 
     def set_enabled(self, checked):
         self._enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        self.filter_changed_signal.emit()
 
     def set_regex(self, checked):
         self._regex = checked
@@ -71,11 +70,12 @@ class LocationFilter(QObject):
         :returns: True if the message matches, ''bool''
         """
         
-        if self._regex:
-            if QRegExp(self._text).exactMatch(message._location):
-                return True
-        else:
-            if message._message.find(self._text) != -1:
-                return True
+        if self._text != '':
+            if self._regex:
+                if QRegExp(self._text).exactMatch(message._location):
+                    return True
+            else:
+                if message._message.find(self._text) != -1:
+                    return True
         return False
 

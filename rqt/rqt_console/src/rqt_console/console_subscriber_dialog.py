@@ -48,5 +48,6 @@ class ConsoleSubscriberDialog(QDialog):
         loadUi(ui_file, self)
         topics.sort(reverse=True)
         for topic in topics:
-            self.topic_combo.addItem(topic[0] + ' (' + topic[1] + ')')
+            if topic[1].find('Log') != -1:
+                self.topic_combo.addItem(topic[0] + ' (' + topic[1] + ')')
         self.buffer_size_spin.setValue(limit)

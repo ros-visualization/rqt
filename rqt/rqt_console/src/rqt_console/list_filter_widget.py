@@ -46,17 +46,29 @@ class ListFilterWidget(QWidget):
         self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
         
         self._list_populate_function = display_list_args[0]
-        self._function_argument = display_list_args[1]
+        self._function_argument = False
+        if len(display_list_args) > 1:
+            self._function_argument = display_list_args[1]
         self.list_widget.itemSelectionChanged.connect(self.handle_item_changed)
         self.display_list = [] 
         
         self.repopulate()
+    
+    def select_item(self, item):
+        items = self.list_widget.findItems(item, Qt.MatchExactly)
+        for item in items:
+            item.setSelected(True)
+        self.handle_item_changed()
 
     def handle_item_changed(self):
         self._parentfilter.set_list(self.list_widget.selectedItems())
 
     def repopulate(self):
-        newlist =  self._list_populate_function(self._function_argument)
+        if not self._function_argument is False:
+            newlist =  self._list_populate_function(self._function_argument)
+        else:
+            newlist =  self._list_populate_function()
+
         if len(newlist) != len(self.display_list):
             for item in newlist:
                 if not item in self.display_list:

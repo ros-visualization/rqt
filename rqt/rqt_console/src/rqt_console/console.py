@@ -95,7 +95,7 @@ class Console(Plugin):
     def shutdown_plugin(self):
         self._consolesubscriber.unsubscribe_topic()
         self._timer.stop()
-        self._mainwindow.cleanup_on_close()
+        self._mainwindow.cleanup_browsers_on_close()
 
     def save_settings(self, plugin_settings, instance_settings):
         pass

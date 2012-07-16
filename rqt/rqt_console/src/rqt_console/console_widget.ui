@@ -162,8 +162,14 @@
           </item>
           <item>
            <widget class="QPushButton" name="add_exclude_button">
+            <property name="maximumSize">
+             <size>
+              <width>27</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Add</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -223,8 +229,14 @@
           </item>
           <item>
            <widget class="QPushButton" name="add_highlight_button">
+            <property name="maximumSize">
+             <size>
+              <width>27</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Add</string>
+             <string/>
             </property>
            </widget>
           </item>
