@@ -30,9 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+
 def pack(data):
     """
-    Packs 'data' into a form that can be easily and readibly written to an ini
+    Packs 'data' into a form that can be easily and readably written to an ini
     file
     :param data: A list of strings or a list of QAbstractTableItems to be
     flattened into a string ''list''
@@ -40,20 +41,22 @@ def pack(data):
     """
     if len(data) == 0:
         return ''
+
     def _get_str(item):
         try:
             return item.text()
         except:
             return item
+
     data = [_get_str(value) for value in data]
     if len(data) == 1:
         return data[0]
     return data
 
+
 def unpack(data):
     """
-    Unpacks the values read from an ini file 
-
+    Unpacks the values read from an ini file
     :param data: An entry taken from an ini file ''list or string''
     :return: A list of strings ''list''
     """
@@ -62,5 +65,3 @@ def unpack(data):
     elif isinstance(data, basestring):
         data = [data]
     return data
-
-

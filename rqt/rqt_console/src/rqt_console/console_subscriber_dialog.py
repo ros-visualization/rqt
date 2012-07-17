@@ -32,10 +32,9 @@
 
 import os
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QDialog
-from QtCore import qWarning
 from qt_gui.qt_binding_helper import loadUi
+from QtGui import QDialog
+
 
 class ConsoleSubscriberDialog(QDialog):
     """

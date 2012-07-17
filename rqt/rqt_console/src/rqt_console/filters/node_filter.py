@@ -29,9 +29,10 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Signal
 
-from ..message import Message
 
 class NodeFilter(QObject):
     """
@@ -40,6 +41,7 @@ class NodeFilter(QObject):
     then it is considered a match.
     """
     filter_changed_signal = Signal()
+
     def __init__(self):
         super(NodeFilter, self).__init__()
         self._enabled = True
@@ -79,4 +81,3 @@ class NodeFilter(QObject):
             if message._node == item.text():
                 return True
         return False
-

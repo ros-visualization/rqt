@@ -30,13 +30,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from message import Message
+from .message import Message
+
 
 class FilterCollection:
     """
     This class provides an interface to filter Message objects based on
     of a set of filters which will be boolean combined with either 'or'
-    or 'and' based on the combination type passed by the user. 
+    or 'and' based on the combination type passed by the user.
     ''True'' for and combine and ''False'' for or combine
     """
     def __init__(self, proxymodel):
@@ -48,10 +49,10 @@ class FilterCollection:
 
     def test_message_array(self, message):
         """
-        overload of test_message function for an array 
+        overload of test_message function for an array
         :param message: array of the message member data in order ''list'':
-                        message text ''str'', severity ''str'', node ''str'', 
-                        time in seconds with decimals ''str'', topic ''str'', 
+                        message text ''str'', severity ''str'', node ''str'',
+                        time in seconds with decimals ''str'', topic ''str'',
         """
         newmessage = Message()
         message[3] = self._proxymodel.sourceModel().timestring_to_timedata(message[3])
@@ -85,13 +86,12 @@ class FilterCollection:
             if item.is_enabled():
                 enabled += 1
         return enabled
-    
+
     def __len__(self):
         return len(self._filters)
 
     def count(self):
         return len(self._filters)
-    
+
     def __delitem__(self, index):
         del self._filters[index]
-

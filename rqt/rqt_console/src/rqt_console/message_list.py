@@ -30,9 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from rosgraph_msgs.msg import Log 
+from .message import Message
 
-from message import Message
 
 class MessageList(object):
     """

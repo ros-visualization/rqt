@@ -31,8 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-from QtGui import QDialog, QDialogButtonBox
+
 from qt_gui.qt_binding_helper import loadUi
+from QtGui import QDialog
+
 
 class TextBrowseDialog(QDialog):
     """

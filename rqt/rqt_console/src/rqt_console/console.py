@@ -30,21 +30,20 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-
 import roslib
-import rospy
 roslib.load_manifest('rqt_console')
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from qt_gui.plugin import Plugin
 from QtCore import QMutex, QTimer
-from QtGui import QWidget
 
-from message_data_model import MessageDataModel
-from message_proxy_model import MessageProxyModel
-from console_widget import ConsoleWidget
-from console_subscriber import ConsoleSubscriber
+from qt_gui.plugin import Plugin
+
+from .console_subscriber import ConsoleSubscriber
+from .console_widget import ConsoleWidget
+from .message_data_model import MessageDataModel
+from .message_proxy_model import MessageProxyModel
+
+
 #TODO redo commenting and documentation
 class Console(Plugin):
     """
@@ -78,18 +77,18 @@ class Console(Plugin):
         """
         self._mutex.lock()
         msgs = self._datamodel._insert_message_queue
-        self._datamodel._insert_message_queue=[]
+        self._datamodel._insert_message_queue = []
         self._mutex.unlock()
         self._datamodel.insert_rows(msgs)
         self._mainwindow.update_status()
-    
+
     def message_callback(self, msg):
         """
         Callback for adding an incomming message to the queue
         """
         if not self._datamodel._paused:
             self._mutex.lock()
-            self._datamodel._insert_message_queue.append(msg)     
+            self._datamodel._insert_message_queue.append(msg)
             self._mutex.unlock()
 
     def shutdown_plugin(self):
@@ -108,4 +107,3 @@ class Console(Plugin):
         ok = self._consolesubscriber.show_dialog()
         if ok:
             self._datamodel._message_limit = self._consolesubscriber.get_message_limit()
-

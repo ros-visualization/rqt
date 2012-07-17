@@ -33,26 +33,25 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QApplication, QCursor, QFileDialog, QIcon, QInputDialog, QLineEdit, QMenu, QMessageBox, QTableView, QTableWidgetItem, QWidget
+from QtGui import QApplication, QCursor, QFileDialog, QIcon, QMenu, QMessageBox, QTableView, QWidget
 from QtCore import QRegExp, Qt, qWarning
 
-#from list_dialog import ListDialog
-#from time_dialog import TimeDialog
-from text_browse_dialog import TextBrowseDialog
+from .filters.custom_filter import CustomFilter
+from .filters.location_filter import LocationFilter
+from .filters.message_filter import MessageFilter
+from .filters.node_filter import NodeFilter
+from .filters.severity_filter import SeverityFilter
+from .filters.time_filter import TimeFilter
+from .filters.topic_filter import TopicFilter
 
-# For Filter Factory
-from filters.filter_wrapper_widget import FilterWrapperWidget
-from filters.list_filter_widget import ListFilterWidget
-from filters.time_filter_widget import TimeFilterWidget
-from filters.text_filter_widget import TextFilterWidget
-from filters.custom_filter_widget import CustomFilterWidget
-from filters.severity_filter import SeverityFilter
-from filters.topic_filter import TopicFilter
-from filters.node_filter import NodeFilter
-from filters.time_filter import TimeFilter
-from filters.message_filter import MessageFilter
-from filters.location_filter import LocationFilter
-from filters.custom_filter import CustomFilter
+from .filters.custom_filter_widget import CustomFilterWidget
+from .filters.filter_wrapper_widget import FilterWrapperWidget
+from .filters.list_filter_widget import ListFilterWidget
+from .filters.text_filter_widget import TextFilterWidget
+from .filters.time_filter_widget import TimeFilterWidget
+
+from .text_browse_dialog import TextBrowseDialog
+
 
 class ConsoleWidget(QWidget):
     """
@@ -90,13 +89,13 @@ class ConsoleWidget(QWidget):
         self.table_view.mousePressEvent = self._handle_mouse_press
         self.table_view.keyPressEvent = self._handle_custom_keypress
         self.severitylist = self._datamodel.get_severity_list()
-        
+
         # These are lists of Tuples = (,)
         self._exclude_filters = []
         self._highlight_filters = []
-        
+
         self.highlight_exclude_button.clicked[bool].connect(self._proxymodel.set_show_highlighted_only)
-        
+
         self.add_highlight_button.clicked.connect(self._add_highlight_filter)
         self.add_exclude_button.clicked.connect(self._add_exclude_filter)
 
@@ -125,16 +124,16 @@ class ConsoleWidget(QWidget):
         """
         rowlist = []
         indexes = self.table_view.selectionModel().selectedIndexes()
-        
+
         if len(indexes) != 0:
             for current in indexes:
                 rowlist.append(self._proxymodel.mapToSource(current).row())
             rowlist = list(set(rowlist))
             rowlist.sort()
-            
+
             mintime, maxtime = self._datamodel.get_time_range(rowlist)
             return (mintime, maxtime)
-        return (-1,-1)
+        return (-1, -1)
 
     def _delete_highlight_filter(self):
         """
@@ -181,7 +180,7 @@ class ConsoleWidget(QWidget):
             for index, item in self.filter_factory.items():
                 if self.filter_factory[index][0] == action.text():
                     filter_index = index
-            if filter_index == -1:   
+            if filter_index == -1:
                 return
 
         index = len(self._highlight_filters)
@@ -222,7 +221,7 @@ class ConsoleWidget(QWidget):
             for index, item in self.filter_factory.items():
                 if self.filter_factory[index][0] == action.text():
                     filter_index = index
-            if filter_index == -1:   
+            if filter_index == -1:
                 return None
 
         index = len(self._exclude_filters)
@@ -235,7 +234,7 @@ class ConsoleWidget(QWidget):
         newfilter.filter_changed_signal.connect(self._proxymodel.handle_filters_changed)
         self._exclude_filters[index][1].delete_button.clicked.connect(self._delete_exclude_filter)
         self._datamodel.rowsInserted.connect(self._exclude_filters[index][1].repopulate)
-        
+
         # place the widget in the proper location
         self.exclude_table.insertRow(index)
         self.exclude_table.setCellWidget(index, 0, self._exclude_filters[index][1])
@@ -246,28 +245,26 @@ class ConsoleWidget(QWidget):
 
     def _process_highlight_exclude_filter(self, selection, selectiontype, exclude=False):
         """
-        Modifies the relevant filters (based on selectiontype) to remove (exclude=True) 
-        or highlight (exclude=False) the selection from the dataset in the tableview 
+        Modifies the relevant filters (based on selectiontype) to remove (exclude=True)
+        or highlight (exclude=False) the selection from the dataset in the tableview.
         """
 
-        types = {self.tr('Node'):2, self.tr('Topic'):4, self.tr('Severity'):1, self.tr('Message'):0}
+        types = {self.tr('Node'): 2, self.tr('Topic'): 4, self.tr('Severity'): 1, self.tr('Message'): 0}
         try:
             col = types[selectiontype]
         except:
-            raise RuntimeError(self.tr("Bad Column name in ConsoleWidget._process_highlight_exclude_filter()"))
-            return
+            raise RuntimeError("Bad Column name in ConsoleWidget._process_highlight_exclude_filter()")
 
         if col == 0:
             unique_messages = set()
-            nodetext = ''
             selected_indexes = self.table_view.selectionModel().selectedIndexes()
-            num_selected = len(selected_indexes)/6
+            num_selected = len(selected_indexes) / 6
             for index in range(num_selected):
-                unique_messages.add(selected_indexes[num_selected*col+index].data())
+                unique_messages.add(selected_indexes[num_selected * col + index].data())
             unique_messages = list(unique_messages)
             for message in unique_messages:
-                message = message.replace('\\','\\\\')
-                message = message.replace('.','\\.')
+                message = message.replace('\\', '\\\\')
+                message = message.replace('.', '\\.')
                 if exclude:
                     filter_index = self._add_exclude_filter(selectiontype.lower())
                     filter_widget = self._exclude_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
@@ -278,7 +275,7 @@ class ConsoleWidget(QWidget):
                     filter_widget = self._highlight_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                     filter_widget.set_regex(True)
                     filter_widget.set_text('^' + message + '$')
- 
+
         else:
             if exclude:
                 # Test if the filter we are adding already exists if it does use the existing filter
@@ -296,7 +293,7 @@ class ConsoleWidget(QWidget):
                     for index, item in enumerate(self._highlight_filters):
                         if type(item[0]) == self.filter_factory[selectiontype.lower()][1]:
                             filter_index = index
-            
+
             if exclude:
                 filter_widget = self._exclude_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                 filter_widget.select_item(selection)
@@ -304,7 +301,6 @@ class ConsoleWidget(QWidget):
                 filter_widget = self._highlight_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                 filter_widget.select_item(selection)
 
- 
     def _rightclick_menu(self, event):
         """
         Dynamically builds the rightclick menu based on the unique column data
@@ -324,14 +320,14 @@ class ConsoleWidget(QWidget):
         columns = list(self._datamodel.message_members())
         for index in range(len(columns)):
             columns[index] = [columns[index][1:].capitalize()]
-        
-        # menutext entries turned into 
+
+        # menutext entries turned into
         menutext = []
         menutext.append([self.tr('Exclude'), [[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Highlight'), [[self.tr('Severity'), severities], [self.tr('Node'), nodes], [self.tr('Topic'), topics], [self.tr('Selected Message(s)')]]])
         menutext.append([self.tr('Copy Selected')])
         menutext.append([self.tr('Browse Selected')])
-        
+
         menu = QMenu()
         submenus = []
         subsubmenus = []
@@ -352,7 +348,7 @@ class ConsoleWidget(QWidget):
         action = menu.exec_(event.globalPos())
 
         if action is None or action == 0:
-            return 
+            return
         elif action.text() == self.tr('Browse Selected'):
             self._show_browsers()
         elif action.text() == self.tr('Copy Selected'):
@@ -369,23 +365,20 @@ class ConsoleWidget(QWidget):
             elif action.parentWidget().title() == self.tr('Exclude'):
                 self._process_highlight_exclude_filter(action.text(), 'Message', True)
             else:
-                raise RuntimeError(self.tr("Menu format corruption in ConsoleWidget._rightclick_menu()"))
-                return
+                raise RuntimeError("Menu format corruption in ConsoleWidget._rightclick_menu()")
         else:
             # This processes the dynamic list entries (severity, node and topic)
             try:
                 roottitle = action.parentWidget().parentWidget().title()
             except:
-                raise RuntimeError(self.tr("Menu format corruption in ConsoleWidget._rightclick_menu()"))
-                return
+                raise RuntimeError("Menu format corruption in ConsoleWidget._rightclick_menu()")
 
             if roottitle == self.tr('Highlight'):
                 self._process_highlight_exclude_filter(action.text(), action.parentWidget().title(), False)
             elif roottitle == self.tr('Exclude'):
                 self._process_highlight_exclude_filter(action.text(), action.parentWidget().title(), True)
             else:
-                raise RuntimeError(self.tr("Unknown Root Action %s selected in ConsoleWidget._rightclick_menu()" % roottitle))
-                return
+                raise RuntimeError("Unknown Root Action %s selected in ConsoleWidget._rightclick_menu()" % roottitle)
         self.update_status()
 
     def update_status(self):
@@ -424,7 +417,7 @@ class ConsoleWidget(QWidget):
             self._datamodel.load_from_file(handle)
             handle.close()
             self.update_status()
-    
+
     def _handle_save_clicked(self, checked):
         filename = QFileDialog.getSaveFileName(self, 'Save to File', '.', self.tr('rqt_console msg file ".csv" (*.csv)'))
         if filename[0] != '':
@@ -450,7 +443,6 @@ class ConsoleWidget(QWidget):
     def _handle_column_resize_clicked(self):
         self.table_view.resizeColumnsToContents()
 
-
     def _handle_custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         """
         Handles the delete key.
@@ -469,7 +461,7 @@ class ConsoleWidget(QWidget):
                     self.update_status()
                     return event.accept()
         return old_keyPressEvent(self.table_view, event)
-    
+
     def _handle_mouse_double_click(self, event, old_doubleclickevent=QTableView.mouseDoubleClickEvent):
         if event.buttons() & Qt.LeftButton and event.modifiers() == Qt.NoModifier:
             self._show_browsers()
@@ -484,10 +476,10 @@ class ConsoleWidget(QWidget):
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('settings_exist', True)
-        
+
         instance_settings.set_value('table_splitter', self.table_splitter.saveState())
         instance_settings.set_value('filter_splitter', self.filter_splitter.saveState())
-        
+
         instance_settings.set_value('paused', self.pause_button.isChecked())
         instance_settings.set_value('show_highlighted_only', self.highlight_exclude_button.isChecked())
 
@@ -497,7 +489,7 @@ class ConsoleWidget(QWidget):
             filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
             item[1].save_settings(filter_settings)
         instance_settings.set_value('exclude_filters', exclude_filters)
-        
+
         highlight_filters = []
         for index, item in enumerate(self._highlight_filters):
             highlight_filters.append(item[2])
@@ -509,7 +501,6 @@ class ConsoleWidget(QWidget):
         if instance_settings.contains('table_splitter'):
             self.table_splitter.restoreState(instance_settings.value('table_splitter'))
         else:
-            tablesizes = self.table_splitter.sizes()
             self.table_splitter.setSizes([1000, 100])
         if instance_settings.contains('filter_splitter'):
             self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
@@ -538,4 +529,3 @@ class ConsoleWidget(QWidget):
             self._add_highlight_filter('message')
         if len(self._exclude_filters) == 0:
             self._add_exclude_filter('severity')
-

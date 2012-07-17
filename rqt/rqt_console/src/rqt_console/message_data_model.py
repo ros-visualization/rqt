@@ -30,11 +30,11 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import time
 from message_list import MessageList
 
-from QtCore import QAbstractTableModel, QDateTime, qDebug, QModelIndex, Qt, qWarning, Signal
-from QtGui import QWidget
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import QAbstractTableModel, QDateTime, QModelIndex, Qt, qWarning
+
 
 class MessageDataModel(QAbstractTableModel):
     def __init__(self, editable=False):
@@ -75,7 +75,7 @@ class MessageDataModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 sections = self._messages.message_members()
-                retval = sections[section][1:].capitalize() 
+                retval = sections[section][1:].capitalize()
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
@@ -83,7 +83,7 @@ class MessageDataModel(QAbstractTableModel):
 
     def timestring_to_timedata(self, timestring):
         """
-        Converts a time string in the format of _time_format into a string 
+        Converts a time string in the format of _time_format into a string
         of format '(unix timestamp).(fraction of second)'
         :param timestring: formatted time string ''str''
         :returns: seconds and fractions thereof ''str''
@@ -100,7 +100,7 @@ class MessageDataModel(QAbstractTableModel):
         """
         sec, fraction = timedata.split('.')
         if len(fraction) < 3:
-            raise RuntimeError(self.tr('Malformed timestring in timedata_to_timestring()'))
+            raise RuntimeError('Malformed timestring in timedata_to_timestring()')
         micro = int(fraction[:3])
         return QDateTime.fromTime_t(long(sec)).addMSecs(micro).toString(self._time_format)
 
@@ -117,7 +117,7 @@ class MessageDataModel(QAbstractTableModel):
 
         if len(self.get_message_list()) > self._message_limit:
             self.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()) - self._message_limit - 1)
-            del self.get_message_list()[0:len(self.get_message_list()) - self._message_limit ]
+            del self.get_message_list()[0:len(self.get_message_list()) - self._message_limit]
             self.endRemoveRows()
 
     def insert_row(self, msg, notify_model=True):
@@ -127,11 +127,10 @@ class MessageDataModel(QAbstractTableModel):
         if notify_model:
             self.endInsertRows()
 
-
     def remove_rows(self, rowlist):
         if len(rowlist) == 0:
             if len(self.get_message_list()) > 0:
-                self.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()) )
+                self.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()))
                 del self.get_message_list()[0:len(self.get_message_list())]
                 self.endRemoveRows()
         else:
@@ -141,13 +140,13 @@ class MessageDataModel(QAbstractTableModel):
             for row in rowlist[1:]:
                 if dellist[-1] - 1 > row:
                     self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
-                    del self.get_message_list()[dellist[-1]:dellist[0]+1]
+                    del self.get_message_list()[dellist[-1]:dellist[0] + 1]
                     self.endRemoveRows()
                     dellist = []
                 dellist.append(row)
             if len(dellist) > 0:
                 self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
-                del self.get_message_list()[dellist[-1]:dellist[0]+1]
+                del self.get_message_list()[dellist[-1]:dellist[0] + 1]
                 self.endRemoveRows()
         return True
 
@@ -173,7 +172,7 @@ class MessageDataModel(QAbstractTableModel):
         min_ = float("inf")
         max_ = float("-inf")
         for row in rowlist:
-            item = self.get_message_list()[row].time_in_seconds() 
+            item = self.get_message_list()[row].time_in_seconds()
             if float(item) > float(max_):
                 max_ = item
             if float(item) < float(min_):
@@ -224,7 +223,7 @@ class MessageDataModel(QAbstractTableModel):
             self._paused = True
             return True
         else:
-            qWarning(self.tr('File does not appear to be a rqt_console message file.'))
+            qWarning('File does not appear to be a rqt_console message file.')
             return False
 
     def get_message_list(self):

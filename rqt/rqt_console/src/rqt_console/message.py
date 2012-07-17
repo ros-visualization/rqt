@@ -30,10 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper  #@ UnusedImport
-
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QDateTime, QObject
-from rosgraph_msgs.msg import Log 
+
 
 class Message(QObject):
     """
@@ -44,7 +43,7 @@ class Message(QObject):
     def __init__(self, msg=None):
         super(Message, self).__init__()
         self._messagemembers = self.get_message_members()
-        self._severity = {1: self.tr('Debug'), 2: self.tr('Info'), 4:self.tr('Warn'), 8:self.tr('Error'), 16: self.tr('Fatal')}
+        self._severity = {1: self.tr('Debug'), 2: self.tr('Info'), 4: self.tr('Warn'), 8: self.tr('Error'), 16: self.tr('Fatal')}
         if msg is not None:
             self._message = msg.msg
             self._severity = self._severity[msg.level]
@@ -52,7 +51,7 @@ class Message(QObject):
             self._time = (msg.header.stamp.secs, msg.header.stamp.nsecs)
             self._topics = ', '.join(msg.topics)
             self._location = msg.file + ':' + msg.function + ':' + str(msg.line)
-    
+
     @staticmethod
     def get_message_members():
         return ('_message', '_severity', '_node', '_time', '_topics', '_location')
@@ -104,32 +103,32 @@ class Message(QObject):
 
     def file_load(self, text):
         text = text[1:]
-        sc_index = text.find('";"') 
+        sc_index = text.find('";"')
         if sc_index == -1:
             raise
         self._node = text[:sc_index]
-        text = text[text.find('";"')+3:]
-        sc_index = text.find('";"') 
+        text = text[text.find('";"') + 3:]
+        sc_index = text.find('";"')
         if sc_index == -1:
             raise
         sec, nsec = text[:sc_index].split('.')
         self._time = (sec, nsec)
-        text = text[text.find('";"')+3:]
-        sc_index = text.find('";"') 
+        text = text[text.find('";"') + 3:]
+        sc_index = text.find('";"')
         if sc_index == -1:
             raise
         self._severity = text[:sc_index]
-        text = text[text.find('";"')+3:]
-        sc_index = text.find('";"') 
+        text = text[text.find('";"') + 3:]
+        sc_index = text.find('";"')
         if sc_index == -1:
             raise
         self._topics = text[:sc_index]
-        text = text[text.find('";"')+3:]
-        sc_index = text.find('";"') 
+        text = text[text.find('";"') + 3:]
+        sc_index = text.find('";"')
         if sc_index == -1:
-            raise 
+            raise
         self._location = text[:sc_index]
-        text = text[sc_index+1:]
+        text = text[sc_index + 1:]
         text = text.replace('\\"', '"')
         self._message = text[1:-2]
         return
@@ -144,4 +143,3 @@ class Message(QObject):
 
     def get_data(self, col):
         return getattr(self, Message.message_members()[col])
-

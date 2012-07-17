@@ -33,7 +33,6 @@
 from __future__ import with_statement, print_function
 
 import re
-import roslib
 
 from rospkg.common import ResourceNotFound
 from qt_dotgraph.colors import get_color_for_string
@@ -99,14 +98,14 @@ class RosPackageGraphDotcodeGenerator:
         # update arguments
 
         selection_args = {
-            "dotcode_factory" : dotcode_factory,
-            "with_stacks" : with_stacks,
-            "depth" : depth,
-            "hide_transitives" : hide_transitives,
-            "selected_names" : selected_names,
-            "excludes" : excludes,
-            "ancestors" : ancestors,
-            "descendants" : descendants
+            "dotcode_factory": dotcode_factory,
+            "with_stacks": with_stacks,
+            "depth": depth,
+            "hide_transitives": hide_transitives,
+            "selected_names": selected_names,
+            "excludes": excludes,
+            "ancestors": ancestors,
+            "descendants": descendants
             }
 
         # if selection did not change, we need not build up the graph again
@@ -145,12 +144,12 @@ class RosPackageGraphDotcodeGenerator:
 
         drawing_args = {
             'dotcode_factory': dotcode_factory,
-            "rank" : rank,
-            "rankdir" : rankdir,
-            "ranksep" : ranksep,
-            "simplify" : simplify,
+            "rank": rank,
+            "rankdir": rankdir,
+            "ranksep": ranksep,
+            "simplify": simplify,
             "colortheme": colortheme,
-            "mark_selected" : mark_selected
+            "mark_selected": mark_selected
             }
 
         # if selection and display args did not change, no need to generate dotcode
@@ -315,5 +314,3 @@ class RosPackageGraphDotcodeGenerator:
                                                          depth=depth - 1,
                                                          implicit=implicit,
                                                          parent=package_name)
-
-

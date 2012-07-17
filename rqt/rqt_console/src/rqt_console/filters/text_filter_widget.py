@@ -32,15 +32,14 @@
 
 import os
 
-from QtGui import QIcon, QWidget
-from QtCore import QDateTime, Qt
 from qt_gui.qt_binding_helper import loadUi
-from datetime import datetime
+from QtGui import QWidget
+
 
 class TextFilterWidget(QWidget):
-    def __init__(self, parentfilter, display_list_args=[]):
+    def __init__(self, parentfilter, display_list_args=None):
         """
-        Widget for displaying interactive data related to text filtering. 
+        Widget for displaying interactive data related to text filtering.
         :param parentfilter: buddy filter were data is stored, ''TimeFilter''
         :param display_list_args: empty list, ''list''
         """
@@ -54,7 +53,7 @@ class TextFilterWidget(QWidget):
         self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
 
         self.handle_text_changed()
-    
+
     def set_text(self, text):
         """
         Setter for the text edit widget

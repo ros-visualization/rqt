@@ -30,21 +30,20 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from rosgraph_msgs.msg import Log
 import rospy
-import rosnode, rosservice
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QObject, qWarning
-from qt_gui.qt_binding_helper import loadUi
-from rosgraph_msgs.msg import Log
+from QtCore import QObject
 
-from console_subscriber_dialog import ConsoleSubscriberDialog
+from .console_subscriber_dialog import ConsoleSubscriberDialog
+
 
 class ConsoleSubscriber(QObject):
     """
-    Subscribes to the /rosout_agg topic if a callback is provided and allows 
+    Subscribes to the /rosout_agg topic if a callback is provided and allows
     the user to change the currently subscribed topic.
-    Also holds the messagelimit value from ConsolesubscriberDialog
+    Also holds the message limit from ConsolesubscriberDialog
     """
     def __init__(self, callback=None):
         super(ConsoleSubscriber, self).__init__()
@@ -53,7 +52,7 @@ class ConsoleSubscriber(QObject):
         self._messagelimit = 20000
         if callback is not None:
             self._sub = rospy.Subscriber(self._currenttopic, Log, self._msgcallback)
-        
+
     def show_dialog(self):
         dialog = ConsoleSubscriberDialog(rospy.get_published_topics(), self._messagelimit)
         for index in range(dialog.topic_combo.count()):
@@ -67,11 +66,11 @@ class ConsoleSubscriber(QObject):
             self.subscribe_topic(temp[:temp.find(' (')].strip())
             self._messagelimit = dialog.buffer_size_spin.value()
         return ok
-            
+
     def unsubscribe_topic(self):
         if self._msgcallback is not None:
             self._sub.unregister()
-    
+
     def subscribe_topic(self, topic):
         if self._msgcallback is not None:
             self.unsubscribe_topic()

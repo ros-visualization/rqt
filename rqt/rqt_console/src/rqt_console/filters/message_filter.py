@@ -29,14 +29,15 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, QRegExp, Signal
 
-from ..message import Message
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import QObject, QRegExp, Signal
+
 
 class MessageFilter(QObject):
     """
     Contains filter logic for a single message filter. If the regex flag is False
-    simple 'is this in that' text matching is used on _text. If the regex flag is True 
+    simple 'is this in that' text matching is used on _text. If the regex flag is True
     _text is treated as a regular expression with one exception. If it does not
     start with a ^ a .* is appended, and if it does not end with a $ then a .*
     is added to the end.
@@ -44,6 +45,7 @@ class MessageFilter(QObject):
     overall filtering system that it needs to reevaluate all entries.
     """
     filter_changed_signal = Signal()
+
     def __init__(self):
         super(MessageFilter, self).__init__()
         self._enabled = True
@@ -86,11 +88,10 @@ class MessageFilter(QObject):
     def test_message(self, message):
         """
         Tests if the message matches the filter.
-        If the regex flag is False simple 'is this in that' text matching is used 
-        on _text. If the regex flag is True _text is treated as a regular expression 
-        with one exception. If it does not start with a ^ a .* is appended, and if 
+        If the regex flag is False simple 'is this in that' text matching is used
+        on _text. If the regex flag is True _text is treated as a regular expression
+        with one exception. If it does not start with a ^ a .* is appended, and if
         it does not end with a $ then a .* is added to the end.
-        
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """

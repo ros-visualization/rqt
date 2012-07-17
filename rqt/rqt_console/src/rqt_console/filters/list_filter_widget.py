@@ -32,10 +32,11 @@
 
 import os
 
-from QtGui import QIcon, QWidget
-from QtCore import Qt
 from qt_gui.qt_binding_helper import loadUi
-from filter_utils import pack, unpack
+from QtCore import Qt
+from QtGui import QWidget
+
+from .filter_utils import pack, unpack
 
 
 class ListFilterWidget(QWidget):
@@ -45,7 +46,6 @@ class ListFilterWidget(QWidget):
     """
     def __init__(self, parentfilter, display_list_args):
         """
-
         :param parentfilter: The filter object, must implement set_list and
         contain _list ''QObject''
         :param display_list_args: list of arguments which must contain a
@@ -57,21 +57,19 @@ class ListFilterWidget(QWidget):
         loadUi(ui_file, self)
         self.setObjectName('ListFilterWidget')
         self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
-        
+
         self._list_populate_function = display_list_args[0]
         self._function_argument = False
         if len(display_list_args) > 1:
             self._function_argument = display_list_args[1]
         self.list_widget.itemSelectionChanged.connect(self.handle_item_changed)
-        self._display_list = [] 
+        self._display_list = []
         self.repopulate()
-    
+
     def select_item(self, text):
         """
         All items matching text will be selected in the list_widget
-
         :param item: a string to be matched against the list ''str''
-
         """
         items = self.list_widget.findItems(text, Qt.MatchExactly)
         for item in items:
@@ -87,9 +85,9 @@ class ListFilterWidget(QWidget):
         in during initialization
         """
         if not self._function_argument is False:
-            newlist =  self._list_populate_function(self._function_argument)
+            newlist = self._list_populate_function(self._function_argument)
         else:
-            newlist =  self._list_populate_function()
+            newlist = self._list_populate_function()
 
         if len(newlist) != len(self._display_list):
             for item in newlist:
@@ -99,8 +97,7 @@ class ListFilterWidget(QWidget):
 
     def save_settings(self, settings):
         """
-        Saves the settings for this filter. 
-
+        Saves the settings for this filter.
         :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
         """
         settings.set_value('displist', pack(self._display_list))
@@ -108,8 +105,7 @@ class ListFilterWidget(QWidget):
 
     def restore_settings(self, settings):
         """
-        Restores the settings for this filter from an ini file. 
-
+        Restores the settings for this filter from an ini file.
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
         if not settings.contains('displist'):

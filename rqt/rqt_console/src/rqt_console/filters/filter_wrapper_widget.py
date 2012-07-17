@@ -29,11 +29,12 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 import os
 
-from QtGui import QIcon, QWidget
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QRegExp, Qt
+from QtGui import QIcon, QWidget
+
 
 class FilterWrapperWidget(QWidget):
     """
@@ -51,7 +52,7 @@ class FilterWrapperWidget(QWidget):
         self.setObjectName('FilterWrapperWidget')
         self.delete_button.setIcon(QIcon.fromTheme('list-remove'))
         self._widget = widget
-        
+
         # Replace the placeholder QWidget with the passed in object
         stretch = self.layout_frame.stretch(2)
         self.layout_frame.insertWidget(2, widget)
@@ -67,7 +68,7 @@ class FilterWrapperWidget(QWidget):
     def enabled_callback(self, checked):
         self._widget._parentfilter.set_enabled(checked)
         self._widget.setEnabled(checked)
-    
+
     def repopulate(self):
         self._widget.repopulate()
 
@@ -78,14 +79,12 @@ class FilterWrapperWidget(QWidget):
 
         :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
         """
-        if settings.contains('enabled'):
-            settings.set_value('enabled', self._widget._parentfilter._enabled)
+        settings.set_value('enabled', self._widget._parentfilter._enabled)
         self._widget.save_settings(settings)
 
     def restore_settings(self, settings):
         """
-        Handles reading the enabled flag from the ini file. 
-
+        Handles reading the enabled flag from the ini file.
         :param settings: used to read the settings to an ini file ''qt_gui.settings.Settings''
         """
         checked = settings.value('enabled') in [True, 'true']

@@ -32,10 +32,12 @@
 
 import os
 
-from filter_utils import pack, unpack
-from QtGui import QIcon, QWidget
-from QtCore import Qt
 from qt_gui.qt_binding_helper import loadUi
+from QtCore import Qt
+from QtGui import QWidget
+
+from .filter_utils import pack, unpack
+
 
 class CustomFilterWidget(QWidget):
     def __init__(self, parentfilter, display_list_args):
@@ -49,10 +51,10 @@ class CustomFilterWidget(QWidget):
         self.text_edit.textChanged.connect(self.handle_text_changed)
         self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
         self.handle_text_changed()
-        
+
         # Severity Filter Initialization
         self.severity_list.itemSelectionChanged.connect(self.handle_severity_item_changed)
-        newlist =  display_list_args[0]()
+        newlist = display_list_args[0]()
         for item in newlist:
             self.severity_list.addItem(item)
 
@@ -62,7 +64,7 @@ class CustomFilterWidget(QWidget):
         self._node_function_argument = display_list_args[2]
         self.node_list.itemSelectionChanged.connect(self.handle_node_item_changed)
         self._node_display_list = []
-        
+
         # Topic Filter Initialization
         self._topic_list_populate_function = display_list_args[3]
         self._topic_function_argument = False
@@ -92,24 +94,23 @@ class CustomFilterWidget(QWidget):
         Repopulates the display widgets based on the function arguments passed
         in during initialization
         """
-        newlist =  self._topic_list_populate_function(self._topic_function_argument)
+        newlist = self._topic_list_populate_function(self._topic_function_argument)
         if len(newlist) != len(self._topic_display_list):
             for item in newlist:
                 if not item in self._topic_display_list:
                     self.topic_list.addItem(item)
         self._topic_display_list = list(set(newlist + self._topic_display_list))
 
-        newlist =  self._node_list_populate_function(self._node_function_argument)
+        newlist = self._node_list_populate_function(self._node_function_argument)
         if len(newlist) != len(self._node_display_list):
             for item in newlist:
                 if not item in self._node_display_list:
                     self.node_list.addItem(item)
         self._node_display_list = list(set(newlist + self._node_display_list))
-    
+
     def save_settings(self, settings):
         """
-        Saves the settings for this filter to an ini file. 
-
+        Saves the settings for this filter to an ini file.
         :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
         """
         settings.set_value('text', self._parentfilter._message._text)
@@ -119,16 +120,15 @@ class CustomFilterWidget(QWidget):
 
         settings.set_value('topicdisplaylist', pack(self._topic_display_list))
         settings.set_value('topicitemlist', pack(self._parentfilter._topic._list))
-        
+
         settings.set_value('nodedisplaylist', pack(self._node_display_list))
         settings.set_value('nodeitemlist', pack(self._parentfilter._node._list))
- 
+
         return
 
     def restore_settings(self, settings):
         """
-        Restores the settings for this filter from an ini file. 
-
+        Restores the settings for this filter from an ini file.
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
         if settings.contains('text'):
@@ -182,4 +182,3 @@ class CustomFilterWidget(QWidget):
                 for item in items:
                     item.setSelected(True)
                 self.handle_node_item_changed()
-

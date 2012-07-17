@@ -8,14 +8,15 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Signal
 
-from ..message import Message
+from .message_filter import MessageFilter
+from .node_filter import NodeFilter
+from .severity_filter import SeverityFilter
+from .topic_filter import TopicFilter
 
-from severity_filter import SeverityFilter
-from topic_filter import TopicFilter
-from node_filter import NodeFilter
-from message_filter import MessageFilter
 
 class CustomFilter(QObject):
     """
@@ -24,10 +25,11 @@ class CustomFilter(QObject):
     together or the custom filter does not match
     """
     filter_changed_signal = Signal()
+
     def __init__(self):
         super(CustomFilter, self).__init__()
         self._enabled = True
-        
+
         self._message = MessageFilter()
         self._message.filter_changed_signal.connect(self.relay_emit_signal)
         self._severity = SeverityFilter()
@@ -48,7 +50,7 @@ class CustomFilter(QObject):
         self._node.set_enabled(checked)
         self._topic.set_enabled(checked)
         self.filter_changed_signal.emit()
-    
+
     def relay_emit_signal(self):
         """
         Passes any signals emitted by the child filters along
@@ -61,9 +63,7 @@ class CustomFilter(QObject):
     def test_message(self, message):
         """
         Tests if the message matches the filter.
-        
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches all child filters, ''bool''
         """
         return self._message.test_message(message) and self._severity.test_message(message) and self._node.test_message(message) and self._topic.test_message(message)
-

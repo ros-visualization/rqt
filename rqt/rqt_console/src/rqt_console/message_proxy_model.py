@@ -30,13 +30,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from message import Message
-from message_list import MessageList
+import qt_gui.qt_binding_helper  # @UnusedImport
+from QtCore import Qt, qWarning
 from QtGui import QBrush, QSortFilterProxyModel
-from QtCore import QDateTime, Qt, QVariant, qWarning
 
-from filters.message_filter import MessageFilter
-from filter_collection import FilterCollection
+from .filter_collection import FilterCollection
+
 
 class MessageProxyModel(QSortFilterProxyModel):
     """
@@ -52,7 +51,7 @@ class MessageProxyModel(QSortFilterProxyModel):
 
         self._exclude_filters = FilterCollection(self)
         self._highlight_filters = FilterCollection(self)
-    
+
     def filterAcceptsRow(self, sourcerow, sourceparent):
         """
         Filters items based on the _exclude_filters and
@@ -61,7 +60,7 @@ class MessageProxyModel(QSortFilterProxyModel):
         rowdata = []
         for index in range(self.sourceModel().columnCount()):
             rowdata.append(self.sourceModel().index(sourcerow, index, sourceparent).data())
-        
+
         if self._exclude_filters.test_message_array(rowdata):
             return False
         if self._highlight_filters.count_enabled_filters() == 0:
@@ -98,13 +97,13 @@ class MessageProxyModel(QSortFilterProxyModel):
 
     def handle_filters_changed(self):
         self.reset()
-    
+
     def add_exclude_filter(self, newfilter):
         self._exclude_filters.append(newfilter)
 
     def add_highlight_filter(self, newfilter):
         self._highlight_filters.append(newfilter)
-    
+
     def delete_exclude_filter(self, index):
         if index < self._exclude_filters.count() and index >= 0:
             del self._exclude_filters[index]
@@ -118,7 +117,7 @@ class MessageProxyModel(QSortFilterProxyModel):
             self.reset()
             return True
         return False
-    
+
     def set_show_highlighted_only(self, show_highlighted_only):
         self._show_highlighted_only = not show_highlighted_only
         self.reset()
@@ -130,12 +129,11 @@ class MessageProxyModel(QSortFilterProxyModel):
         """
         try:
             filehandle.write(self.sourceModel()._messages.header_print())
-            
+
             for index in range(self.rowCount()):
                 row = self.mapToSource(self.index(index, 0)).row()
                 filehandle.write(self.sourceModel()._messages.get_message_list()[row].file_print())
             return True
         except:
-            qWarning(self.tr('File save failed.'))
+            qWarning('File save failed.')
             return False
-

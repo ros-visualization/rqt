@@ -29,9 +29,10 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QDateTime, QObject, Signal
 
-from ..message import Message
 
 class TimeFilter(QObject):
     """
@@ -41,6 +42,7 @@ class TimeFilter(QObject):
     If _stop_time_enabled is false then the time must simply be after _start_time
     """
     filter_changed_signal = Signal()
+
     def __init__(self):
         super(TimeFilter, self).__init__()
         self._enabled = True

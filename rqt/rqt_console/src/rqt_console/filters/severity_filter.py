@@ -29,9 +29,10 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import QObject, Signal
 
-from ..message import Message
 
 class SeverityFilter(QObject):
     """
@@ -40,6 +41,7 @@ class SeverityFilter(QObject):
     then it is considered a match.
     """
     filter_changed_signal = Signal()
+
     def __init__(self):
         super(SeverityFilter, self).__init__()
         self._list = []
@@ -79,4 +81,3 @@ class SeverityFilter(QObject):
             if message._severity == item.text():
                 return True
         return False
-
