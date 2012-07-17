@@ -128,7 +128,7 @@ class Message(QObject):
         if sc_index == -1:
             raise
         self._location = text[:sc_index]
-        text = text[sc_index + 1:]
+        text = text[sc_index + 2:]
         text = text.replace('\\"', '"')
         self._message = text[1:-2]
         return

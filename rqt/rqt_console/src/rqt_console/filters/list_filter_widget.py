@@ -91,7 +91,7 @@ class ListFilterWidget(QWidget):
 
         if len(newlist) != len(self._display_list):
             for item in newlist:
-                if not item in self._display_list:
+                if item not in self._display_list:
                     self.list_widget.addItem(item)
         self._display_list = list(set(newlist + self._display_list))
 

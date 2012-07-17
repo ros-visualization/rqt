@@ -279,7 +279,7 @@ class ConsoleWidget(QWidget):
         else:
             if exclude:
                 # Test if the filter we are adding already exists if it does use the existing filter
-                if not self.filter_factory[selectiontype.lower()][1] in [type(item) for sublist in self._exclude_filters for item in sublist]:
+                if self.filter_factory[selectiontype.lower()][1] not in [type(item) for sublist in self._exclude_filters for item in sublist]:
                     filter_index = self._add_exclude_filter(selectiontype.lower())
                 else:
                     for index, item in enumerate(self._exclude_filters):
@@ -287,7 +287,7 @@ class ConsoleWidget(QWidget):
                             filter_index = index
             else:
                 # Test if the filter we are adding already exists if it does use the existing filter
-                if not self.filter_factory[selectiontype.lower()][1] in [type(item) for sublist in self._highlight_filters for item in sublist]:
+                if self.filter_factory[selectiontype.lower()][1] not in [type(item) for sublist in self._highlight_filters for item in sublist]:
                     filter_index = self._add_highlight_filter(col)
                 else:
                     for index, item in enumerate(self._highlight_filters):

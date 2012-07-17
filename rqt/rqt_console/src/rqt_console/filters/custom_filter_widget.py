@@ -97,14 +97,14 @@ class CustomFilterWidget(QWidget):
         newlist = self._topic_list_populate_function(self._topic_function_argument)
         if len(newlist) != len(self._topic_display_list):
             for item in newlist:
-                if not item in self._topic_display_list:
+                if item not in self._topic_display_list:
                     self.topic_list.addItem(item)
         self._topic_display_list = list(set(newlist + self._topic_display_list))
 
         newlist = self._node_list_populate_function(self._node_function_argument)
         if len(newlist) != len(self._node_display_list):
             for item in newlist:
-                if not item in self._node_display_list:
+                if item not in self._node_display_list:
                     self.node_list.addItem(item)
         self._node_display_list = list(set(newlist + self._node_display_list))
 
