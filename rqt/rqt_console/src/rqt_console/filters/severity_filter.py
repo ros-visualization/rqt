@@ -31,20 +31,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from QtCore import QObject, Signal
 
-from message import Message
+from ..message import Message
 
-class NodeFilter(QObject):
+class SeverityFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(NodeFilter, self).__init__()
-        self._enabled = True
+        super(SeverityFilter, self).__init__()
         self._list = []
+        self._enabled = True
 
-    def set_list(self, topic_list):
-        self._list = topic_list
+    def set_list(self, severity_list):
+        self._list = severity_list
         if self._enabled:
             self.filter_changed_signal.emit()
 
@@ -63,7 +63,7 @@ class NodeFilter(QObject):
         :returns: True if the message matches, ''bool''
         """
         for item in self._list:
-            if message._node == item.text():
+            if message._severity == item.text():
                 return True
         return False
 

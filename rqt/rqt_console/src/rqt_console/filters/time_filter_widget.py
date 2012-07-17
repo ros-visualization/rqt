@@ -84,9 +84,12 @@ class TimeFilterWidget(QWidget):
         settings.set_value('_stop_time_enabled', self._parentfilter._stop_time_enabled)
 
     def restore_settings(self, settings):
-        self.handle_stop_enabled_changed(settings.value('_stop_time_enabled') in [True, 'true'])
-        self.handle_start_changed(QDateTime.fromString(settings.value('_start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
-        self.handle_stop_changed(QDateTime.fromString(settings.value('_stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        if settings.contains('_stop_time_enabled'):
+            self.handle_stop_enabled_changed(settings.value('_stop_time_enabled') in [True, 'true'])
+        if settings.contains('_start_time'):
+            self.handle_start_changed(QDateTime.fromString(settings.value('_start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        if settings.contains('_stop_time'):
+            self.handle_stop_changed(QDateTime.fromString(settings.value('_stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
         
         self.stop_datetime.setDateTime(self._parentfilter._stop_time)
         self.start_datetime.setDateTime(self._parentfilter._start_time)

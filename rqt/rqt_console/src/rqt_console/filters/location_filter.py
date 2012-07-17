@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to endorse or promote products derived
+#    contributors may be used to stoporse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -29,28 +29,35 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QObject, Signal
+from QtCore import QDateTime, QObject, QRegExp, Signal
 
-from message import Message
+from ..message import Message
 
-class TopicFilter(QObject):
+class LocationFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(TopicFilter, self).__init__()
+        super(LocationFilter, self).__init__()
         self._enabled = True
-        self._list = []
 
-    def set_list(self, topic_list):
-        self._list = topic_list
+        self._text = ''
+        self._regex = False
+
+    def set_text(self, text):
+        self._text = text
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked
         self.filter_changed_signal.emit()
+
+    def set_regex(self, checked):
+        self._regex = checked
+        if self._enabled:
+            self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
@@ -62,8 +69,17 @@ class TopicFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        for item in self._list:
-            if item.text() in message._topics.split(', '):
-                return True
+        if self._text != '':
+            if self._regex:
+                temp = self._text
+                if temp[0] != '^':
+                    temp = '.*' + temp
+                if temp[-1] != '$':
+                    temp += '.*'
+                if QRegExp(temp).exactMatch(message._location):
+                    return True
+            else:
+                if message._location.find(self._text) != -1:
+                    return True
         return False
 

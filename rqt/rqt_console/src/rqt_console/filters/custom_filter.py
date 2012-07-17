@@ -10,7 +10,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from QtCore import QObject, Signal
 
-from message import Message
+from ..message import Message
 
 from severity_filter import SeverityFilter
 from topic_filter import TopicFilter

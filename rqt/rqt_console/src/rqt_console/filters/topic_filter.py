@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to stoporse or promote products derived
+#    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -29,45 +29,28 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, Signal
+from QtCore import QObject, Signal
 
-from message import Message
+from ..message import Message
 
-class TimeFilter(QObject):
+class TopicFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(TimeFilter, self).__init__()
+        super(TopicFilter, self).__init__()
         self._enabled = True
-        self._start_time = QDateTime()
-        self._stop_time = QDateTime()
-        self._stop_time_enabled = True
+        self._list = []
 
-    def set_start_time(self, time):
-        self._start_time = time
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_stop_time(self, time):
-        self._stop_time = time
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_stop_time_enabled(self, checked):
-        self._stop_time_enabled = checked
+    def set_list(self, topic_list):
+        self._list = topic_list
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked
         self.filter_changed_signal.emit()
-
-    def set_stop_time_enabled(self, checked):
-        self._stop_time_enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
@@ -79,10 +62,8 @@ class TimeFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
+        for item in self._list:
+            if item.text() in message._topics.split(', '):
+                return True
+        return False
 
-        message_time = message.time_as_qdatetime()
-        if message_time < self._start_time:
-            return False
-        if self._stop_time_enabled and self._stop_time < message_time:
-            return False
-        return True

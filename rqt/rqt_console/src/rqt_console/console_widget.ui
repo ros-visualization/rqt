@@ -128,6 +128,9 @@
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
             <property name="columnCount">
              <number>1</number>
             </property>
@@ -182,6 +185,9 @@
             </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
             </property>
             <property name="columnCount">
              <number>1</number>

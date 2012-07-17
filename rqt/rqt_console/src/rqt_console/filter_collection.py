@@ -76,13 +76,6 @@ class FilterCollection:
         """
         self._filters.append(newfilter)
 
-    def get_widget(self, index):
-        """
-        :param index: The index of the desired filter widget, ''int''
-        :returns: the widget at the provided index, ''FilterWidget''
-        """
-        return self._filters[index].get_widget()
-
     def count_enabled_filters(self):
         enabled = 0
         for item in self._filters:

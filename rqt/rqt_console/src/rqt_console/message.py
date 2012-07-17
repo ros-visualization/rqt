@@ -90,38 +90,39 @@ class Message(QObject):
         return self
 
     def file_print(self):
-        text = self._node + ';'
-        text += self.time_in_seconds() + ';'
-        text += self._severity + ';'
-        text += self._topics + ';'
-        text += self._location + ';'
+        text = '"' + self._node + '";'
+        text += '"' + self.time_in_seconds() + '";'
+        text += '"' + self._severity + '";'
+        text += '"' + self._topics + '";'
+        text += '"' + self._location + '";'
         altered_message = self._message.replace('"', '\\"')
         text += '"' + altered_message + '"\n'
         return text
 
     def file_load(self, text):
-        sc_index = text.find(';') 
+        text = text[1:]
+        sc_index = text.find('";"') 
         if sc_index == -1:
             raise
         self._node = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
+        text = text[text.find('";"')+3:]
+        sc_index = text.find('";"') 
         if sc_index == -1:
             raise
         sec, nsec = text[:sc_index].split('.')
         self._time = (sec, nsec)
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
+        text = text[text.find('";"')+3:]
+        sc_index = text.find('";"') 
         if sc_index == -1:
             raise
         self._severity = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
+        text = text[text.find('";"')+3:]
+        sc_index = text.find('";"') 
         if sc_index == -1:
             raise
         self._topics = text[:sc_index]
-        text = text[text.find(';')+1:]
-        sc_index = text.find(';') 
+        text = text[text.find('";"')+3:]
+        sc_index = text.find('";"') 
         if sc_index == -1:
             raise 
         self._location = text[:sc_index]

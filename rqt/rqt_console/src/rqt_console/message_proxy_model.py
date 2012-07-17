@@ -35,7 +35,7 @@ from message_list import MessageList
 from QtGui import QBrush, QSortFilterProxyModel
 from QtCore import QDateTime, Qt, QVariant, qWarning
 
-from message_filter import MessageFilter
+from filters.message_filter import MessageFilter
 from filter_collection import FilterCollection
 
 class MessageProxyModel(QSortFilterProxyModel):
@@ -60,7 +60,10 @@ class MessageProxyModel(QSortFilterProxyModel):
         
         if self._exclude_filters.test_message_array(rowdata):
             return False
+        if self._highlight_filters.count_enabled_filters() == 0:
+            return True
         match = self._highlight_filters.test_message_array(rowdata)
+
         return not self._show_highlighted_only or match
 
     def data(self, index, role=None):
@@ -94,7 +97,7 @@ class MessageProxyModel(QSortFilterProxyModel):
             return True
         return False
     
-    def filters_changed_handler(self):
+    def handle_filters_changed(self):
         """
         This callback
         """
@@ -129,4 +132,20 @@ class MessageProxyModel(QSortFilterProxyModel):
     def set_show_highlighted_only(self, show_highlighted_only):
         self._show_highlighted_only = not show_highlighted_only
         self.reset()
+
+    def save_to_file(self, filehandle):
+        """
+        Saves to an already open filehandle.
+        If successful it returns True. Otherwise False
+        """
+        try:
+            filehandle.write(self.sourceModel()._messages.header_print())
+            
+            for index in range(self.rowCount()):
+                row = self.mapToSource(self.index(index, 0)).row()
+                filehandle.write(self.sourceModel()._messages.get_message_list()[row].file_print())
+            return True
+        except:
+            qWarning(self.tr('File save failed.'))
+            return False
 

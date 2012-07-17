@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to stoporse or promote products derived
+#    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -29,51 +29,24 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, QRegExp, Signal
+def pack(data):
+    if len(data) == 0:
+        return ''
+    def _get_str(item):
+        try:
+            return item.text()
+        except:
+            return item
+    data = [_get_str(value) for value in data]
+    if len(data) == 1:
+        return data[0]
+    return data
 
-from message import Message
+def unpack(data):
+    if data is None or data == '':
+        data = []
+    elif isinstance(data, basestring):
+        data = [data]
+    return data
 
-class MessageFilter(QObject):
-    """
-    Contains filter logic for a single filter
-    """
-    filter_changed_signal = Signal()
-    def __init__(self):
-        super(MessageFilter, self).__init__()
-        self._enabled = True
 
-        self._text = ''
-        self._regex = False
-
-    def set_text(self, text):
-        self._text = text
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_regex(self, checked):
-        self._regex = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_enabled(self, checked):
-        self._enabled = checked
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
-
-    def message_test(self, message):
-        """
-        Tests if the message matches the filter.
-        
-        :param message: the message to be tested against the filters, ''Message''
-        :returns: True if the message matches, ''bool''
-        """
-        if self._text != '':
-            if self._regex:
-                if QRegExp(self._text).exactMatch(message._message):
-                    return True
-            else:
-                if message._message.find(self._text) != -1:
-                    return True
-        return False

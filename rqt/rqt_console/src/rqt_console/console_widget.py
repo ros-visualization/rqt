@@ -41,18 +41,18 @@ from QtCore import QRegExp, Qt, qWarning
 from text_browse_dialog import TextBrowseDialog
 
 # For Filter Factory
-from filter_wrapper_widget import FilterWrapperWidget
-from list_filter_widget import ListFilterWidget
-from time_filter_widget import TimeFilterWidget
-from text_filter_widget import TextFilterWidget
-from custom_filter_widget import CustomFilterWidget
-from severity_filter import SeverityFilter
-from topic_filter import TopicFilter
-from node_filter import NodeFilter
-from time_filter import TimeFilter
-from message_filter import MessageFilter
-from location_filter import LocationFilter
-from custom_filter import CustomFilter
+from filters.filter_wrapper_widget import FilterWrapperWidget
+from filters.list_filter_widget import ListFilterWidget
+from filters.time_filter_widget import TimeFilterWidget
+from filters.text_filter_widget import TextFilterWidget
+from filters.custom_filter_widget import CustomFilterWidget
+from filters.severity_filter import SeverityFilter
+from filters.topic_filter import TopicFilter
+from filters.node_filter import NodeFilter
+from filters.time_filter import TimeFilter
+from filters.message_filter import MessageFilter
+from filters.location_filter import LocationFilter
+from filters.custom_filter import CustomFilter
 
 class ConsoleWidget(QWidget):
     """
@@ -71,7 +71,6 @@ class ConsoleWidget(QWidget):
         for idx, width in enumerate(self._columnwidth):
             self.table_view.horizontalHeader().resizeSection(idx, width)
         self.table_view.sortByColumn(3, Qt.DescendingOrder)
-        
 
         self.add_exclude_button.setIcon(QIcon.fromTheme('list-add'))
         self.add_highlight_button.setIcon(QIcon.fromTheme('list-add'))
@@ -82,14 +81,14 @@ class ConsoleWidget(QWidget):
         self.save_button.setIcon(QIcon.fromTheme('document-save'))
         self.highlight_exclude_button.setIcon(QIcon.fromTheme('format-text-strikethrough'))
 
-        self.pause_button.clicked[bool].connect(self.pause_clicked_handler)
-        self.load_button.clicked[bool].connect(self.load_clicked_handler)
-        self.save_button.clicked[bool].connect(self.save_clicked_handler)
-        self.column_resize_button.clicked[bool].connect(self.column_resize_clicked_handler)
+        self.pause_button.clicked[bool].connect(self._handle_pause_clicked)
+        self.load_button.clicked[bool].connect(self._handle_load_clicked)
+        self.save_button.clicked[bool].connect(self._handle_save_clicked)
+        self.column_resize_button.clicked[bool].connect(self._handle_column_resize_clicked)
 
-        self.table_view.mouseDoubleClickEvent = self.mouse_double_click_handler
-        self.table_view.mousePressEvent = self.mouse_press_handler
-        self.table_view.keyPressEvent = self.custom_keypress_handler
+        self.table_view.mouseDoubleClickEvent = self._handle_mouse_double_click
+        self.table_view.mousePressEvent = self._handle_mouse_press
+        self.table_view.keyPressEvent = self._handle_custom_keypress
         self.severitylist = self._datamodel.get_severity_list()
         
         # These are lists of Tuples = (,)
@@ -98,19 +97,19 @@ class ConsoleWidget(QWidget):
         
         self.highlight_exclude_button.clicked[bool].connect(self._proxymodel.set_show_highlighted_only)
         
-        self.add_highlight_button.clicked.connect(self.add_highlight_filter)
-        self.add_exclude_button.clicked.connect(self.add_exclude_filter)
+        self.add_highlight_button.clicked.connect(self._add_highlight_filter)
+        self.add_exclude_button.clicked.connect(self._add_exclude_filter)
 
         # Filter factory dictionary:
         # index 0 is a label describing the widget, index 1 is the class that provides filtering logic
         # index 2 is the widget that sets the data in the filter class, index 3 are the arguments for the widget class constructor
-        self.filter_factory = {0: (self.tr('Message Filter'), MessageFilter, TextFilterWidget, []),
-                               1: (self.tr('Severity Filter'), SeverityFilter, ListFilterWidget, [self._datamodel.get_severity_list]),
-                               2: (self.tr('Node Filter'), NodeFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 2]),
-                               3: (self.tr('Time Filter'), TimeFilter, TimeFilterWidget, [self.get_time_range_from_selection]),
-                               4: (self.tr('Topic Filter'), TopicFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 4]),
-                               5: (self.tr('Location Filter'), MessageFilter, TextFilterWidget, []),
-                               6: (self.tr('Custom Filter'), CustomFilter, CustomFilterWidget, [self._datamodel.get_severity_list, self._datamodel.get_unique_col_data, 2, self._datamodel.get_unique_col_data, 4])}
+        self.filter_factory = {'message': (self.tr('Message Filter'), MessageFilter, TextFilterWidget, []),
+                               'severity': (self.tr('Severity Filter'), SeverityFilter, ListFilterWidget, [self._datamodel.get_severity_list]),
+                               'node': (self.tr('Node Filter'), NodeFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 2]),
+                               'time': (self.tr('Time Filter'), TimeFilter, TimeFilterWidget, [self.get_time_range_from_selection]),
+                               'topic': (self.tr('Topic Filter'), TopicFilter, ListFilterWidget, [self._datamodel.get_unique_col_data, 4]),
+                               'location': (self.tr('Location Filter'), LocationFilter, TextFilterWidget, []),
+                               'custom': (self.tr('Custom Filter'), CustomFilter, CustomFilterWidget, [self._datamodel.get_severity_list, self._datamodel.get_unique_col_data, 2, self._datamodel.get_unique_col_data, 4])}
 
         # list of TextBrowserDialogs to close when cleaning up
         self._browsers = []
@@ -134,41 +133,41 @@ class ConsoleWidget(QWidget):
             return (mintime, maxtime)
         return (-1,-1)
 
-    def delete_highlight_filter(self):
+    def _delete_highlight_filter(self):
         for index, item in enumerate(self._highlight_filters):
             if item[1].delete_button.isChecked():
                 if self._proxymodel.delete_highlight_filter(index):
                     self.highlight_table.removeCellWidget(index, 0)
                     self.highlight_table.removeRow(index)
-                    item[0].filter_changed_signal.disconnect(self._proxymodel.filters_changed_handler)
-                    item[1].delete_button.clicked.disconnect(self.delete_highlight_filter)
+                    item[0].filter_changed_signal.disconnect(self._proxymodel.handle_filters_changed)
+                    item[1].delete_button.clicked.disconnect(self._delete_highlight_filter)
                     del self._highlight_filters[index]
 
-    def delete_exclude_filter(self):
+    def _delete_exclude_filter(self):
         for index, item in enumerate(self._exclude_filters):
             if item[1].delete_button.isChecked():
                 if self._proxymodel.delete_exclude_filter(index):
                     self.exclude_table.removeCellWidget(index, 0)
                     self.exclude_table.removeRow(index)
-                    item[0].filter_changed_signal.disconnect(self._proxymodel.filters_changed_handler)
-                    item[1].delete_button.clicked.disconnect(self.delete_exclude_filter)
+                    item[0].filter_changed_signal.disconnect(self._proxymodel.handle_filters_changed)
+                    item[1].delete_button.clicked.disconnect(self._delete_exclude_filter)
                     del self._exclude_filters[index]
 
-    def add_highlight_filter(self, filter_index=None):
+    def _add_highlight_filter(self, filter_index=None):
         """
         Adds an exclude filter (needs to be generalized)
         """
         if filter_index is False:
             filter_index = -1
             filter_select_menu = QMenu()
-            for index in range(len(self.filter_factory)):
+            for index, item in self.filter_factory.items():
                 # flattens the _highlight filters list and only adds the item if it doesn't already exist
                 if self.filter_factory[index][0] == self.tr('Message Filter') or not self.filter_factory[index][1] in [type(item) for sublist in self._highlight_filters for item in sublist]:
                     filter_select_menu.addAction(self.filter_factory[index][0])
             action = filter_select_menu.exec_(QCursor.pos())
             if action is None:
                 return
-            for index in range(len(self.filter_factory)):
+            for index, item in self.filter_factory.items():
                 if self.filter_factory[index][0] == action.text():
                     filter_index = index
             if filter_index == -1:   
@@ -180,8 +179,8 @@ class ConsoleWidget(QWidget):
         index = len(self._highlight_filters)
         self._highlight_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_highlight_filter(newfilter)
-        newfilter.filter_changed_signal.connect(self._proxymodel.filters_changed_handler)
-        self._highlight_filters[index][1].delete_button.clicked.connect(self.delete_highlight_filter)
+        newfilter.filter_changed_signal.connect(self._proxymodel.handle_filters_changed)
+        self._highlight_filters[index][1].delete_button.clicked.connect(self._delete_highlight_filter)
         self._datamodel.rowsInserted.connect(self._highlight_filters[index][1].repopulate)
 
         self.highlight_table.insertRow(index)
@@ -191,25 +190,25 @@ class ConsoleWidget(QWidget):
         newfilter.filter_changed_signal.emit()
         return index
 
-    def add_exclude_filter(self, filter_index=False):
+    def _add_exclude_filter(self, filter_index=False):
         """
         Adds an exclude filter (needs to be generalized)
         """
         if filter_index is False:
             filter_index = -1
             filter_select_menu = QMenu()
-            for index in range(len(self.filter_factory)):
+            for index, item in self.filter_factory.items():
                 # flattens the _exclude filters list and only adds the item if it doesn't already exist
                 if self.filter_factory[index][0] == self.tr('Message Filter') or not self.filter_factory[index][1] in [type(item) for sublist in self._exclude_filters for item in sublist]:
                     filter_select_menu.addAction(self.filter_factory[index][0])
             action = filter_select_menu.exec_(QCursor.pos())
             if action is None:
-                return
-            for index in range(len(self.filter_factory)):
+                return None
+            for index, item in self.filter_factory.items():
                 if self.filter_factory[index][0] == action.text():
                     filter_index = index
             if filter_index == -1:   
-                return
+                return None
 
         newfilter = self.filter_factory[filter_index][1]()
         newwidget = self.filter_factory[filter_index][2](newfilter, self.filter_factory[filter_index][3])
@@ -217,8 +216,8 @@ class ConsoleWidget(QWidget):
         index = len(self._exclude_filters)
         self._exclude_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_exclude_filter(newfilter)
-        newfilter.filter_changed_signal.connect(self._proxymodel.filters_changed_handler)
-        self._exclude_filters[index][1].delete_button.clicked.connect(self.delete_exclude_filter)
+        newfilter.filter_changed_signal.connect(self._proxymodel.handle_filters_changed)
+        self._exclude_filters[index][1].delete_button.clicked.connect(self._delete_exclude_filter)
         self._datamodel.rowsInserted.connect(self._exclude_filters[index][1].repopulate)
         
         self.exclude_table.insertRow(index)
@@ -250,15 +249,15 @@ class ConsoleWidget(QWidget):
                 unique_messages.add(selected_indexes[num_selected*col+index].data())
             unique_messages = list(unique_messages)
             for message in unique_messages:
+                message = message.replace('\\','\\\\')
                 message = message.replace('.','\\.')
-                message = message.replace('\\','\\\\.')
                 if exclude:
-                    filter_index = self.add_exclude_filter(col)
+                    filter_index = self._add_exclude_filter(selectiontype.lower())
                     filter_widget = self._exclude_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                     filter_widget.set_regex(True)
                     filter_widget.set_text('^' + message + '$')
                 else:
-                    filter_index = self.add_highlight_filter(col)
+                    filter_index = self._add_highlight_filter(col)
                     filter_widget = self._highlight_filters[filter_index][1].findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0]
                     filter_widget.set_regex(True)
                     filter_widget.set_text('^' + message + '$')
@@ -266,19 +265,19 @@ class ConsoleWidget(QWidget):
         else:
             if exclude:
                 # Test if the filter we are adding already exists if it does use the existing filter
-                if not self.filter_factory[col][1] in [type(item) for sublist in self._exclude_filters for item in sublist]:
-                    filter_index = self.add_exclude_filter(col)
+                if not self.filter_factory[selectiontype.lower()][1] in [type(item) for sublist in self._exclude_filters for item in sublist]:
+                    filter_index = self._add_exclude_filter(selectiontype.lower())
                 else:
                     for index, item in enumerate(self._exclude_filters):
-                        if type(item[0]) == self.filter_factory[col][1]:
+                        if type(item[0]) == self.filter_factory[selectiontype.lower()][1]:
                             filter_index = index
             else:
                 # Test if the filter we are adding already exists if it does use the existing filter
-                if not self.filter_factory[col][1] in [type(item) for sublist in self._highlight_filters for item in sublist]:
-                    filter_index = self.add_highlight_filter(col)
+                if not self.filter_factory[selectiontype.lower()][1] in [type(item) for sublist in self._highlight_filters for item in sublist]:
+                    filter_index = self._add_highlight_filter(col)
                 else:
                     for index, item in enumerate(self._highlight_filters):
-                        if type(item[0]) == self.filter_factory[col][1]:
+                        if type(item[0]) == self.filter_factory[selectiontype.lower()][1]:
                             filter_index = index
             
             if exclude:
@@ -338,7 +337,7 @@ class ConsoleWidget(QWidget):
         if action is None or action == 0:
             return 
         elif action.text() == self.tr('Browse Selected'):
-            self.show_browsers()
+            self._show_browsers()
         elif action.text() == self.tr('Copy Selected'):
             rowlist = []
             for current in self.table_view.selectionModel().selectedIndexes():
@@ -386,7 +385,7 @@ class ConsoleWidget(QWidget):
         for browser in self._browsers:
             browser.close()
 
-    def show_browsers(self):
+    def _show_browsers(self):
         rowlist = []
         for current in self.table_view.selectionModel().selectedIndexes():
             rowlist.append(self._proxymodel.mapToSource(current).row())
@@ -395,7 +394,7 @@ class ConsoleWidget(QWidget):
             self._browsers.append(TextBrowseDialog(browsetext))
             self._browsers[-1].show()
 
-    def load_clicked_handler(self, checked):
+    def _handle_load_clicked(self, checked):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file ".csv" (*.csv)'))
         if filename[0] != '':
             try:
@@ -404,12 +403,12 @@ class ConsoleWidget(QWidget):
                 qWarning(str(e))
                 return
             self.pause_button.setChecked(True)
-            self.pause_clicked_handler(True)
+            self._handle_pause_clicked(True)
             self._datamodel.load_from_file(handle)
             handle.close()
             self.update_status()
     
-    def save_clicked_handler(self, checked):
+    def _handle_save_clicked(self, checked):
         filename = QFileDialog.getSaveFileName(self, 'Save to File', '.', self.tr('rqt_console msg file ".csv" (*.csv)'))
         if filename[0] != '':
             try:
@@ -417,11 +416,12 @@ class ConsoleWidget(QWidget):
             except IOError, e:
                 qWarning(str(e))
                 return
-            self._datamodel.save_to_file(handle)
+            self._proxymodel.save_to_file(handle)
+#            self._datamodel.save_to_file(handle)
             handle.close()
             self.update_status()
 
-    def pause_clicked_handler(self, checked):
+    def _handle_pause_clicked(self, checked):
         self._datamodel._paused = checked
         if self._datamodel._paused:
             self.pause_button.setIcon(self._recordicon)
@@ -430,11 +430,11 @@ class ConsoleWidget(QWidget):
             self.pause_button.setIcon(self._pauseicon)
             self.pause_button.setText(self.tr('Pause'))
 
-    def column_resize_clicked_handler(self):
+    def _handle_column_resize_clicked(self):
         self.table_view.resizeColumnsToContents()
 
 
-    def custom_keypress_handler(self, event, old_keyPressEvent=QTableView.keyPressEvent):
+    def _handle_custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         """
         Handles the delete key.
         The delete key removes the tableview's selected rows from the datamodel
@@ -453,13 +453,13 @@ class ConsoleWidget(QWidget):
                     return event.accept()
         return old_keyPressEvent(self.table_view, event)
     
-    def mouse_double_click_handler(self, event, old_doubleclickevent=QTableView.mouseDoubleClickEvent):
+    def _handle_mouse_double_click(self, event, old_doubleclickevent=QTableView.mouseDoubleClickEvent):
         if event.buttons() & Qt.LeftButton and event.modifiers() == Qt.NoModifier:
-            self.show_browsers()
+            self._show_browsers()
             event.accept()
         return old_doubleclickevent(self.table_view, event)
 
-    def mouse_press_handler(self, event, old_pressEvent=QTableView.mousePressEvent):
+    def _handle_mouse_press(self, event, old_pressEvent=QTableView.mousePressEvent):
         if event.buttons() & Qt.RightButton and event.modifiers() == Qt.NoModifier:
             self._rightclick_menu(event)
             event.accept()
@@ -468,8 +468,11 @@ class ConsoleWidget(QWidget):
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('settings_exist', True)
         
-        instance_settings.set_value('table_splitter',self.table_splitter.saveState())
-        instance_settings.set_value('filter_splitter',self.filter_splitter.saveState())
+        instance_settings.set_value('table_splitter', self.table_splitter.saveState())
+        instance_settings.set_value('filter_splitter', self.filter_splitter.saveState())
+        
+        instance_settings.set_value('paused', self.pause_button.isChecked())
+        instance_settings.set_value('show_highlighted_only', self.highlight_exclude_button.isChecked())
 
         exclude_filters = []
         for index, item in enumerate(self._exclude_filters):
@@ -486,22 +489,36 @@ class ConsoleWidget(QWidget):
         instance_settings.set_value('highlight_filters', highlight_filters)
 
     def restore_settings(self, pluggin_settings, instance_settings):
-        if instance_settings.value('settings_exist') in [True, 'true']:
+        if instance_settings.contains('table_splitter'):
             self.table_splitter.restoreState(instance_settings.value('table_splitter'))
-            self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
-            exclude_filters = instance_settings.value('exclude_filters')
-            for index, item in enumerate(exclude_filters):
-                self.add_exclude_filter(int(item))
-                filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
-                self._exclude_filters[-1][1].restore_settings(filter_settings)
-            highlight_filters = instance_settings.value('highlight_filters')
-            for index, item in enumerate(highlight_filters):
-                self.add_highlight_filter(int(item))
-                filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
-                self._highlight_filters[-1][1].restore_settings(filter_settings)
         else:
-            self.add_exclude_filter(1)
-            self.add_exclude_filter(0)
-            self.add_highlight_filter(1)
-            self.add_highlight_filter(0)
+            tablesizes = self.table_splitter.sizes()
+            self.table_splitter.setSizes([1000, 100])
+        if instance_settings.contains('filter_splitter'):
+            self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
+
+        if instance_settings.contains('paused'):
+            self.pause_button.setChecked(instance_settings.value('paused') in [True, 'true'])
+            self._handle_pause_clicked(instance_settings.value('paused') in [True, 'true'])
+        if instance_settings.contains('show_highlighted_only'):
+            self.highlight_exclude_button.setChecked(instance_settings.value('show_highlighted_only') in [True, 'true'])
+            self._proxymodel.set_show_highlighted_only(instance_settings.value('show_highlighted_only') in [True, 'true'])
+        if instance_settings.contains('exclude_filters'):
+            exclude_filters = instance_settings.value('exclude_filters')
+            if not exclude_filters is None:
+                for index, item in enumerate(exclude_filters):
+                    self._add_exclude_filter(item)
+                    filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
+                    self._exclude_filters[-1][1].restore_settings(filter_settings)
+        if instance_settings.contains('highlight_filters'):
+            highlight_filters = instance_settings.value('highlight_filters')
+            if not highlight_filters is None:
+                for index, item in enumerate(highlight_filters):
+                    self._add_highlight_filter(item)
+                    filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
+                    self._highlight_filters[-1][1].restore_settings(filter_settings)
+        if len(self._highlight_filters) == 0:
+            self._add_highlight_filter('message')
+        if len(self._exclude_filters) == 0:
+            self._add_exclude_filter('severity')
 

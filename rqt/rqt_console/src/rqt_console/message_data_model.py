@@ -188,20 +188,6 @@ class MessageDataModel(QAbstractTableModel):
     def message_members(self):
         return self._messages.message_members()
 
-    def save_to_file(self, filehandle):
-        """
-        Saves to an already open filehandle.
-        If successful it returns True. Otherwise False
-        """
-        try:
-            filehandle.write(self._messages.header_print())
-            for message in self._messages.get_message_list():
-                filehandle.write(message.file_print())
-            return True
-        except:
-            qWarning(self.tr('File save failed.'))
-            return False
-
     def load_from_file(self, filehandle):
         """
         Saves to an already open filehandle.

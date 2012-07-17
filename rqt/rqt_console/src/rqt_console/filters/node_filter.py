@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to stoporse or promote products derived
+#    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -29,35 +29,28 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QDateTime, QObject, QRegExp, Signal
+from QtCore import QObject, Signal
 
-from message import Message
+from ..message import Message
 
-class LocationFilter(QObject):
+class NodeFilter(QObject):
     """
     Contains filter logic for a single filter
     """
     filter_changed_signal = Signal()
     def __init__(self):
-        super(LocationFilter, self).__init__()
+        super(NodeFilter, self).__init__()
         self._enabled = True
+        self._list = []
 
-        self._text = ''
-        self._regex = False
-
-    def set_text(self, text):
-        self._text = text
+    def set_list(self, topic_list):
+        self._list = topic_list
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
         self._enabled = checked
         self.filter_changed_signal.emit()
-
-    def set_regex(self, checked):
-        self._regex = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
@@ -69,13 +62,8 @@ class LocationFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        
-        if self._text != '':
-            if self._regex:
-                if QRegExp(self._text).exactMatch(message._location):
-                    return True
-            else:
-                if message._message.find(self._text) != -1:
-                    return True
+        for item in self._list:
+            if message._node == item.text():
+                return True
         return False
 

@@ -29,54 +29,42 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 import os
 
 from QtGui import QIcon, QWidget
-from QtCore import QDateTime, Qt
 from qt_gui.qt_binding_helper import loadUi
-from datetime import datetime
+from QtCore import QRegExp, Qt
 
-class TextFilterWidget(QWidget):
-    def __init__(self, parentfilter, display_list_args):
-        super(TextFilterWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'text_filter_widget.ui')
+class FilterWrapperWidget(QWidget):
+    def __init__(self, widget, filter_name):
+        super(FilterWrapperWidget, self).__init__()
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'filter_wrapper_widget.ui')
         loadUi(ui_file, self)
-        self.setObjectName('TextFilterWidget')
-        self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
-        
-        self.text_edit.textChanged.connect(self.handle_text_changed)
-        self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
+        self.setObjectName('FilterWrapperWidget')
+        self.delete_button.setIcon(QIcon.fromTheme('list-remove'))
+        stretch = self.layout_frame.stretch(2)
+        self.layout_frame.insertWidget(2, widget)
+        self.layout_frame.setStretch(2, stretch)
+        # Next line is a Hack to hide the placeholder widget since removing it causes other widgets not to function
+        self.layout_frame.setStretch(3, 0)
+        self._widget = widget
+        self.enabled_checkbox.clicked[bool].connect(self.enabled_callback)
+        self.filter_name_label.setText(filter_name + ':')
 
-        self.handle_text_changed()
+    def enabled_callback(self, checked):
+        self._widget._parentfilter.set_enabled(checked)
+        self._widget.setEnabled(checked)
     
-    def set_text(self, text):
-        self.text_edit.setText(text)
-
-    def set_regex(self, checked):
-        self.regex_check_box.setChecked(checked)
-        self.handle_regex_clicked(checked)
-
-    def handle_text_changed(self):
-        self._parentfilter.set_text(self.text_edit.text())
-
-    def handle_regex_clicked(self, clicked):
-        self._parentfilter.set_regex(clicked)
-
     def repopulate(self):
-        pass
+        self._widget.repopulate()
 
     def save_settings(self, settings):
-        settings.set_value('text', self._parentfilter._text)
-        settings.set_value('regex', self._parentfilter._regex)
-        return
+        if settings.contains('enabled'):
+            settings.set_value('enabled', self._widget._parentfilter._enabled)
+        self._widget.save_settings(settings)
 
     def restore_settings(self, settings):
-        text = settings.value('text')
-        self.set_text(text)
-        self.handle_text_changed()
-
-        regex = settings.value('regex') in [True, 'true']
-        self.set_regex(regex)
-        self.handle_regex_clicked(regex)
-        return
+        checked = settings.value('enabled') in [True, 'true']
+        self.enabled_callback(checked)
+        self.enabled_checkbox.setChecked(checked)
+        self._widget.restore_settings(settings)
