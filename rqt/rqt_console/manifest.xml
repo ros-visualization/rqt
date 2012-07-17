@@ -1,8 +1,6 @@
 <package>
   <description brief="rqt_console">
-
-     rqt_console
-
+    rqt_console provides a GUI plugin for displaying and filtering ROS messages.
   </description>
   <author>Aaron Blasdel</author>
   <license>BSD</license>
