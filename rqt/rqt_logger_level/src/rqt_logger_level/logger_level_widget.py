@@ -32,10 +32,10 @@
 
 import os
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QWidget
-from QtCore import qWarning
 from qt_gui.qt_binding_helper import loadUi
+from QtCore import qWarning
+from QtGui import QWidget
+
 
 class LoggerLevelWidget(QWidget):
     """
@@ -69,7 +69,7 @@ class LoggerLevelWidget(QWidget):
         if row == -1:
             return
         if row < 0 or row >= self.node_list.count():
-            qWarning(self.tr('Node row %s out of bounds. Current count: %s' % (row,self.node_list.count())))
+            qWarning('Node row %s out of bounds. Current count: %s' % (row, self.node_list.count()))
             return
         self.logger_list.clear()
         self.level_list.clear()
@@ -85,7 +85,7 @@ class LoggerLevelWidget(QWidget):
         if row == -1:
             return
         if row < 0 or row >= self.logger_list.count():
-            qWarning(self.tr('Logger row %s out of bounds. Current count: %s' % (row,self.logger_list.count())))
+            qWarning('Logger row %s out of bounds. Current count: %s' % (row, self.logger_list.count()))
             return
         if self.level_list.count() == 0:
             for level in self._caller.get_levels():
@@ -98,7 +98,7 @@ class LoggerLevelWidget(QWidget):
         if row == -1:
             return
         if row < 0 or row >= self.level_list.count():
-            qWarning(self.tr('Level row %s out of bounds. Current count: %s' % (row,self.level_list.count())))
+            qWarning('Level row %s out of bounds. Current count: %s' % (row, self.level_list.count()))
             return
         self._caller.send_logger_change_message(self.node_list.currentItem().text(), self.logger_list.currentItem().text(), self.level_list.item(row).text())
 

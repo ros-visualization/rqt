@@ -30,12 +30,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import rosnode
 import rospy
-import rosnode, rosservice
+import rosservice
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QObject, qWarning
 from qt_gui.qt_binding_helper import loadUi
+from QtCore import QObject, qWarning
+
 
 class LoggerLevelServiceCaller(QObject):
     """
@@ -44,7 +45,7 @@ class LoggerLevelServiceCaller(QObject):
     """
     def __init__(self):
         super(LoggerLevelServiceCaller, self).__init__()
-        
+
     def get_levels(self):
         return [self.tr('Debug'), self.tr('Info'), self.tr('Warn'), self.tr('Error'), self.tr('Fatal')]
 
@@ -53,7 +54,7 @@ class LoggerLevelServiceCaller(QObject):
             return self._current_loggers
         else:
             return []
-    
+
     def get_node_names(self):
         """
         Gets a list of available services via a ros service call.
@@ -76,16 +77,16 @@ class LoggerLevelServiceCaller(QObject):
         servicename = node + '/get_loggers'
         try:
             service = rosservice.get_service_class_by_name(servicename)
-        except rosservice.ROSServiceIOException, e:
-            qWarning(str(e))
-            return False 
+        except rosservice.ROSServiceIOException as e:
+            qWarning(e)
+            return False
         request = service._request_class()
         proxy = rospy.ServiceProxy(str(servicename), service)
         try:
             response = proxy(request)
-        except rospy.ServiceException, e:
-            qWarning(self.tr('SetupDialog.get_loggers(): request:\n%s' % (type(request))))
-            qWarning(self.tr('SetupDialog.get_loggers() "%s":\n%s' % (servicename, e)))
+        except rospy.ServiceException as e:
+            qWarning('SetupDialog.get_loggers(): request:\n%s' % (type(request)))
+            qWarning('SetupDialog.get_loggers() "%s":\n%s' % (servicename, e))
             return False
 
         if response._slot_types[0] == 'roscpp/Logger[]':
@@ -116,8 +117,8 @@ class LoggerLevelServiceCaller(QObject):
         try:
             response = proxy(request)
             self._current_levels[logger] = level.upper()
-        except rospy.ServiceException, e:
-            qWarning(self.tr('SetupDialog.level_changed(): request:\n%r' % (request)))
-            qWarning(self.tr('SetupDialog.level_changed() "%s":\n%s' % (servicename, e)))
+        except rospy.ServiceException as e:
+            qWarning('SetupDialog.level_changed(): request:\n%r' % (request))
+            qWarning('SetupDialog.level_changed() "%s":\n%s' % (servicename, e))
             return False
         return True
