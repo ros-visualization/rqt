@@ -31,7 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from message import Message
-from filter_wrapper import FilterWrapper
 
 class FilterCollection:
     """
@@ -99,3 +98,4 @@ class FilterCollection:
     
     def __delitem__(self, index):
         del self._filters[index]
+

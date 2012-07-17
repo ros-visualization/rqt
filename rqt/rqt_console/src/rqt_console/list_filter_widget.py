@@ -74,3 +74,42 @@ class ListFilterWidget(QWidget):
                 if not item in self._display_list:
                     self.list_widget.addItem(item)
         self._display_list = list(set(newlist + self._display_list))
+    
+    def _pack(self, data):
+        if len(data) == 0:
+            return ''
+        def _get_str(item):
+            try:
+                return item.text()
+            except:
+                return item
+        data = [_get_str(value) for value in data]
+        if len(data) == 1:
+            return data[0]
+        return data
+
+    def _unpack(self, data):
+        if data is None or data == '':
+            data = []
+        elif isinstance(data, basestring):
+            data = [data]
+        return data
+
+    def save_settings(self, settings):
+        settings.set_value('displist', self._pack(self._display_list))
+        settings.set_value('itemlist', self._pack(self._parentfilter._list))
+        return
+
+    def restore_settings(self, settings):
+        self._display_list = self._unpack(settings.value('displist'))
+        if self._display_list is None:
+            self._display_list = []
+        for item in self._display_list:
+            if len(self.list_widget.findItems(item, Qt.MatchExactly)) == 0:
+                self.list_widget.addItem(item)
+        item_list = self._unpack(settings.value('itemlist'))
+        if item_list is None:
+            item_list = []
+        for item in item_list:
+            self.select_item(item)
+        return

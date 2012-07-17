@@ -47,20 +47,28 @@ class FilterWrapperWidget(QWidget):
         self.layout_frame.setStretch(2, stretch)
         # Hack to hide the placeholder widget since removing it caused problems
         self.layout_frame.setStretch(3, 0)
-#TODO Figure out why this makes the enable button stop working
-#        self.layout_frame.removeWidget(self.layout_frame.itemAt(3).widget())
         self._widget = widget
-        self.enabled_checkbox.stateChanged[int].connect(self.enabled_callback)
+        self.enabled_checkbox.clicked[bool].connect(self.enabled_callback)
         self.filter_name_label.setText(filter_name + ':')
 
     def enabled_callback(self, checked):
         self._widget._parentfilter.set_enabled(checked)
+#        self.findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0].setEnabled(checked)
+        self._widget.setEnabled(checked)
     
-    def enable_all_children(self):
-        for child in self.findChildren(QWidget, QRegExp('.*')):
-            # TODO this is not enabling 
-            #print 'calling setEnabled on: ', child
-            child.setEnabled(True)
-
     def repopulate(self):
-        self.findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0].repopulate()
+#        self.findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0].repopulate()
+        self._widget.repopulate()
+
+    def save_settings(self, settings):
+
+        settings.set_value('enabled', self._widget._parentfilter._enabled)
+#        return self.findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0].save_settings(pluggin_settings, instance_settings, tag_index)
+        return self._widget.save_settings(settings)
+
+    def restore_settings(self, settings):
+        checked = settings.value('enabled') in [True, 'true']
+        self.enabled_callback(checked)
+        self.enabled_checkbox.setChecked(checked)
+        self._widget.restore_settings(settings)
+#        self.findChildren(QWidget, QRegExp('.*FilterWidget.*'))[0].restore_settings(pluggin_settings, instance_settings, tag_index)

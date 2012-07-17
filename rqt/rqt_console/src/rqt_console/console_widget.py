@@ -80,10 +80,12 @@ class ConsoleWidget(QWidget):
         self.pause_button.setIcon(self._pauseicon)
         self.load_button.setIcon(QIcon.fromTheme('document-open'))
         self.save_button.setIcon(QIcon.fromTheme('document-save'))
+        self.highlight_exclude_button.setIcon(QIcon.fromTheme('format-text-strikethrough'))
 
         self.pause_button.clicked[bool].connect(self.pause_clicked_handler)
         self.load_button.clicked[bool].connect(self.load_clicked_handler)
         self.save_button.clicked[bool].connect(self.save_clicked_handler)
+        self.column_resize_button.clicked[bool].connect(self.column_resize_clicked_handler)
 
         self.table_view.mouseDoubleClickEvent = self.mouse_double_click_handler
         self.table_view.mousePressEvent = self.mouse_press_handler
@@ -94,9 +96,7 @@ class ConsoleWidget(QWidget):
         self._exclude_filters = []
         self._highlight_filters = []
         
-        self.highlight_group_box.clicked[bool].connect(self._proxymodel.set_show_highlighted_only)
-        self.highlight_group_box.toggled[bool].connect(self.handle_reenable_highlight_filters)
-        self.exclude_group_box.toggled[bool].connect(self.handle_reenable_exclude_filters)
+        self.highlight_exclude_button.clicked[bool].connect(self._proxymodel.set_show_highlighted_only)
         
         self.add_highlight_button.clicked.connect(self.add_highlight_filter)
         self.add_exclude_button.clicked.connect(self.add_exclude_filter)
@@ -115,15 +115,10 @@ class ConsoleWidget(QWidget):
         # list of TextBrowserDialogs to close when cleaning up
         self._browsers = []
 
-        # This defaults the filters panel to closed
+        # This defaults the filters panel to start closed
         self.table_splitter.setSizes([1, 0])
         self.exclude_table.resizeColumnsToContents()
         self.highlight_table.resizeColumnsToContents()
-
-        self.add_exclude_filter(1)
-        self.add_exclude_filter(0)
-        self.add_highlight_filter(1)
-        self.add_highlight_filter(0)
 
     def get_time_range_from_selection(self):
         rowlist = []
@@ -138,20 +133,6 @@ class ConsoleWidget(QWidget):
             mintime, maxtime = self._datamodel.get_time_range(rowlist)
             return (mintime, maxtime)
         return (-1,-1)
-
-    def handle_reenable_exclude_filters(self, enabled):
-        # TODO fix this function it does not reenable the groupbox components
-        self.highlight_group_box.setEnabled(True)
-        for item in self._exclude_filters:
-            item[1].setEnabled(True)
-            item[1].enable_all_children()
-
-    def handle_reenable_highlight_filters(self, enabled):
-        # TODO fix this function it does not reenable the groupbox components
-        self.highlight_group_box.setEnabled(True)
-        for item in self._highlight_filters:
-            item[1].setEnabled(True)
-            item[1].enable_all_children()
 
     def delete_highlight_filter(self):
         for index, item in enumerate(self._highlight_filters):
@@ -197,7 +178,7 @@ class ConsoleWidget(QWidget):
         newwidget = self.filter_factory[filter_index][2](newfilter, self.filter_factory[filter_index][3])
 
         index = len(self._highlight_filters)
-        self._highlight_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0])))
+        self._highlight_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_highlight_filter(newfilter)
         newfilter.filter_changed_signal.connect(self._proxymodel.filters_changed_handler)
         self._highlight_filters[index][1].delete_button.clicked.connect(self.delete_highlight_filter)
@@ -234,7 +215,7 @@ class ConsoleWidget(QWidget):
         newwidget = self.filter_factory[filter_index][2](newfilter, self.filter_factory[filter_index][3])
 
         index = len(self._exclude_filters)
-        self._exclude_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0])))
+        self._exclude_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_exclude_filter(newfilter)
         newfilter.filter_changed_signal.connect(self._proxymodel.filters_changed_handler)
         self._exclude_filters[index][1].delete_button.clicked.connect(self.delete_exclude_filter)
@@ -449,6 +430,10 @@ class ConsoleWidget(QWidget):
             self.pause_button.setIcon(self._pauseicon)
             self.pause_button.setText(self.tr('Pause'))
 
+    def column_resize_clicked_handler(self):
+        self.table_view.resizeColumnsToContents()
+
+
     def custom_keypress_handler(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         """
         Handles the delete key.
@@ -480,4 +465,43 @@ class ConsoleWidget(QWidget):
             event.accept()
         return old_pressEvent(self.table_view, event)
 
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('settings_exist', True)
+        
+        instance_settings.set_value('table_splitter',self.table_splitter.saveState())
+        instance_settings.set_value('filter_splitter',self.filter_splitter.saveState())
+
+        exclude_filters = []
+        for index, item in enumerate(self._exclude_filters):
+            exclude_filters.append(item[2])
+            filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
+            item[1].save_settings(filter_settings)
+        instance_settings.set_value('exclude_filters', exclude_filters)
+        
+        highlight_filters = []
+        for index, item in enumerate(self._highlight_filters):
+            highlight_filters.append(item[2])
+            filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
+            item[1].save_settings(filter_settings)
+        instance_settings.set_value('highlight_filters', highlight_filters)
+
+    def restore_settings(self, pluggin_settings, instance_settings):
+        if instance_settings.value('settings_exist') in [True, 'true']:
+            self.table_splitter.restoreState(instance_settings.value('table_splitter'))
+            self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
+            exclude_filters = instance_settings.value('exclude_filters')
+            for index, item in enumerate(exclude_filters):
+                self.add_exclude_filter(int(item))
+                filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
+                self._exclude_filters[-1][1].restore_settings(filter_settings)
+            highlight_filters = instance_settings.value('highlight_filters')
+            for index, item in enumerate(highlight_filters):
+                self.add_highlight_filter(int(item))
+                filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
+                self._highlight_filters[-1][1].restore_settings(filter_settings)
+        else:
+            self.add_exclude_filter(1)
+            self.add_exclude_filter(0)
+            self.add_highlight_filter(1)
+            self.add_highlight_filter(0)
 

@@ -45,6 +45,9 @@ class TimeFilterWidget(QWidget):
         self.setObjectName('TimeFilterWidget')
         self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
         
+        self.start_datetime.dateTimeChanged[QDateTime].connect(self.handle_start_changed)
+        self.stop_datetime.dateTimeChanged[QDateTime].connect(self.handle_stop_changed)
+        self.stop_enabled_check_box.clicked[bool].connect(self.handle_stop_enabled_changed)
         mintime, maxtime = display_list_args[0]()
         if mintime != -1:
             mintime = str(mintime).split('.')
@@ -61,9 +64,6 @@ class TimeFilterWidget(QWidget):
             self.start_datetime.setDateTime(datetime.now())
             self.stop_datetime.setDateTime(datetime.now())
             
-        self.start_datetime.dateTimeChanged[QDateTime].connect(self.handle_start_changed)
-        self.stop_datetime.dateTimeChanged[QDateTime].connect(self.handle_stop_changed)
-        self.stop_enabled_check_box.clicked[bool].connect(self.handle_stop_enabled_changed)
 
     def handle_start_changed(self, datetime):
         self._parentfilter.set_start_time(datetime)
@@ -73,6 +73,21 @@ class TimeFilterWidget(QWidget):
 
     def handle_stop_enabled_changed(self, checked):
         self._parentfilter.set_stop_time_enabled(checked)
+        self.stop_datetime.setEnabled(checked)
 
     def repopulate(self):
         pass
+
+    def save_settings(self, settings):
+        settings.set_value('_start_time', self._parentfilter._start_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
+        settings.set_value('_stop_time', self._parentfilter._stop_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
+        settings.set_value('_stop_time_enabled', self._parentfilter._stop_time_enabled)
+
+    def restore_settings(self, settings):
+        self.handle_stop_enabled_changed(settings.value('_stop_time_enabled') in [True, 'true'])
+        self.handle_start_changed(QDateTime.fromString(settings.value('_start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        self.handle_stop_changed(QDateTime.fromString(settings.value('_stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        
+        self.stop_datetime.setDateTime(self._parentfilter._stop_time)
+        self.start_datetime.setDateTime(self._parentfilter._start_time)
+        self.stop_enabled_check_box.setChecked(self._parentfilter._stop_time_enabled)

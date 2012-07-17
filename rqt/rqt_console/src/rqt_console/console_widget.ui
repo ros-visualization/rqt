@@ -78,6 +78,16 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QPushButton" name="column_resize_button">
+       <property name="toolTip">
+        <string>Resizes message table columns to fit their contents exactly</string>
+       </property>
+       <property name="text">
+        <string>Resize Columns</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -110,27 +120,9 @@
         </property>
         <widget class="QGroupBox" name="exclude_group_box">
          <property name="title">
-          <string>Exclude Rules: Messages matching ANY of these rules will not be displayed</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
+          <string>Exclude Rules: Messages matching ANY of these rules will NOT be displayed</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QTableWidget" name="exclude_table">
             <property name="alternatingRowColors">
@@ -168,6 +160,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Add new filter</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -179,27 +174,12 @@
          <property name="title">
           <string>Highlight Rules: Message matching ANY of these rules will be highlighted</string>
          </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
            <widget class="QTableWidget" name="highlight_table">
+            <property name="toolTip">
+             <string/>
+            </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -228,17 +208,46 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="add_highlight_button">
-            <property name="maximumSize">
-             <size>
-              <width>27</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QPushButton" name="highlight_exclude_button">
+              <property name="maximumSize">
+               <size>
+                <width>27</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Show only highlighted rows</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="add_highlight_button">
+              <property name="maximumSize">
+               <size>
+                <width>27</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Add new filter</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
