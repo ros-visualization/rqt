@@ -405,7 +405,7 @@ class ConsoleWidget(QWidget):
             self._browsers[-1].show()
 
     def _handle_load_clicked(self, checked):
-        filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file ".csv" (*.csv)'))
+        filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file {.csv} (*.csv)'))
         if filename[0] != '':
             try:
                 handle = open(filename[0])
@@ -419,15 +419,17 @@ class ConsoleWidget(QWidget):
             self.update_status()
 
     def _handle_save_clicked(self, checked):
-        filename = QFileDialog.getSaveFileName(self, 'Save to File', '.', self.tr('rqt_console msg file ".csv" (*.csv)'))
+        filename = QFileDialog.getSaveFileName(self, 'Save to File', '.', self.tr('rqt_console msg file {.csv} (*.csv)'))
         if filename[0] != '':
+            filename = filename[0]
+            if filename[-4:] != '.csv':
+                filename += '.csv'
             try:
-                handle = open(filename[0], 'w')
+                handle = open(filename, 'w')
             except IOError as e:
                 qWarning(str(e))
                 return
             self._proxymodel.save_to_file(handle)
-#            self._datamodel.save_to_file(handle)
             handle.close()
             self.update_status()
 
