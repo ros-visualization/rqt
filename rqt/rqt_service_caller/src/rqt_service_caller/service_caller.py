@@ -86,7 +86,7 @@ class ServiceCallerWidget(QWidget):
             try:
                 self._services[service_name] = rosservice.get_service_class_by_name(service_name)
                 #qDebug('ServiceCaller.on_refresh_services_button_clicked(): found service %s using class %s' % (service_name, self._services[service_name]))
-            except (rosservice.ROSServiceException, rosservice.ROSServiceIOException), e:
+            except (rosservice.ROSServiceException, rosservice.ROSServiceIOException) as e:
                 qWarning('ServiceCaller.on_refresh_services_button_clicked(): could not get class of service %s:\n%s' % (service_name, e))
 
         self.service_combo_box.clear()
@@ -224,7 +224,7 @@ class ServiceCallerWidget(QWidget):
         self.fill_message_slots(request, self._service_info['service_name'], self._service_info['expressions'], self._service_info['counter'])
         try:
             response = self._service_info['service_proxy'](request)
-        except rospy.ServiceException, e:
+        except rospy.ServiceException as e:
             qWarning('ServiceCaller.on_call_service_button_clicked(): request:\n%r' % (request))
             qWarning('ServiceCaller.on_call_service_button_clicked(): error calling service "%s":\n%s' % (self._service_info['service_name'], e))
             top_level_item = QTreeWidgetItem()

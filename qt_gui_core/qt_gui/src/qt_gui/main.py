@@ -158,7 +158,7 @@ class Main(object):
             if len(groups_set) > 1:
                 raise RuntimeError('Options from different groups (--list, --command, --embed) can not be used together')
 
-        except RuntimeError, e:
+        except RuntimeError as e:
             print(str(e))
             #parser.parse_args(['--help'])
             # calling --help will exit

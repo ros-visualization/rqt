@@ -80,7 +80,7 @@ class PluginHandler(QObject):
         self.__callback = callback
         try:
             self._load()
-        except Exception, e:
+        except Exception as e:
             self._emit_load_completed(e)
 
     def _load(self):

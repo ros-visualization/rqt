@@ -271,7 +271,7 @@ class RosGraph(Plugin):
                         try:
                             service_type = rosservice.get_service_type(service_name)
                             tool_tip += '\n  %s [%s]' % (service_name, service_type)
-                        except rosservice.ROSServiceIOException, e:
+                        except rosservice.ROSServiceIOException as e:
                             tool_tip += '\n  %s' % (e)
                 return tool_tip
             elif item_type == 'topic':

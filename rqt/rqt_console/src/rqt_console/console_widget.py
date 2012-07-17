@@ -399,7 +399,7 @@ class ConsoleWidget(QWidget):
         if filename[0] != '':
             try:
                 handle = open(filename[0])
-            except IOError, e:
+            except IOError as e:
                 qWarning(str(e))
                 return
             self.pause_button.setChecked(True)
@@ -413,7 +413,7 @@ class ConsoleWidget(QWidget):
         if filename[0] != '':
             try:
                 handle = open(filename[0], 'w')
-            except IOError, e:
+            except IOError as e:
                 qWarning(str(e))
                 return
             self._proxymodel.save_to_file(handle)
