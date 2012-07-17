@@ -35,7 +35,13 @@ from ..message import Message
 
 class MessageFilter(QObject):
     """
-    Contains filter logic for a single filter
+    Contains filter logic for a single message filter. If the regex flag is False
+    simple 'is this in that' text matching is used on _text. If the regex flag is True 
+    _text is treated as a regular expression with one exception. If it does not
+    start with a ^ a .* is appended, and if it does not end with a $ then a .*
+    is added to the end.
+    The filter_changed signal should be connected to a slot which notifies the
+    overall filtering system that it needs to reevaluate all entries.
     """
     filter_changed_signal = Signal()
     def __init__(self):
@@ -46,25 +52,44 @@ class MessageFilter(QObject):
         self._regex = False
 
     def set_text(self, text):
+        """
+        Setter for _text
+        :param text" text to set ''str''
+        :emits filter_changed_signal: If _enabled is true
+        """
         self._text = text
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_regex(self, checked):
+        """
+        Setter for _regex
+        :param checked" boolean flag to set ''bool''
+        :emits filter_changed_signal: If _enabled is true
+        """
         self._regex = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
+        """
+        Setter for _enabled
+        :param checked" boolean flag to set ''bool''
+        :emits filter_changed_signal: Always
+        """
         self._enabled = checked
         self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
 
-    def message_test(self, message):
+    def test_message(self, message):
         """
         Tests if the message matches the filter.
+        If the regex flag is False simple 'is this in that' text matching is used 
+        on _text. If the regex flag is True _text is treated as a regular expression 
+        with one exception. If it does not start with a ^ a .* is appended, and if 
+        it does not end with a $ then a .* is added to the end.
         
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''

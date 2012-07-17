@@ -29,7 +29,15 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 def pack(data):
+    """
+    Packs 'data' into a form that can be easily and readibly written to an ini
+    file
+    :param data: A list of strings or a list of QAbstractTableItems to be
+    flattened into a string ''list''
+    :return: A string suitable for output to ini files ''str''
+    """
     if len(data) == 0:
         return ''
     def _get_str(item):
@@ -43,6 +51,12 @@ def pack(data):
     return data
 
 def unpack(data):
+    """
+    Unpacks the values read from an ini file 
+
+    :param data: An entry taken from an ini file ''list or string''
+    :return: A list of strings ''list''
+    """
     if data is None or data == '':
         data = []
     elif isinstance(data, basestring):

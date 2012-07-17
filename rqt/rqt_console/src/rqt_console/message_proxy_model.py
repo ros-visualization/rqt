@@ -54,6 +54,10 @@ class MessageProxyModel(QSortFilterProxyModel):
         self._highlight_filters = FilterCollection(self)
     
     def filterAcceptsRow(self, sourcerow, sourceparent):
+        """
+        Filters items based on the _exclude_filters and
+        if _show_highlighted_only is on the _highlighted_filters
+        """
         rowdata = []
         for index in range(self.sourceModel().columnCount()):
             rowdata.append(self.sourceModel().index(sourcerow, index, sourceparent).data())
@@ -67,6 +71,9 @@ class MessageProxyModel(QSortFilterProxyModel):
         return not self._show_highlighted_only or match
 
     def data(self, index, role=None):
+        """
+        Colors items based on highlight filters and severity type
+        """
         messagelist = self.sourceModel()._messages.get_message_list()
         index = self.mapToSource(index)
         if index.row() >= 0 or index.row() < len(messagelist):
@@ -84,31 +91,14 @@ class MessageProxyModel(QSortFilterProxyModel):
                             return QBrush(Qt.darkRed)
                         elif data == 'Fatal':
                             return QBrush(Qt.darkRed)
-                    if not self._highlight_filters.message_test(messagelist[index.row()]):
+                    if not self._highlight_filters.test_message(messagelist[index.row()]):
                         return QBrush(Qt.gray)
 
         return self.sourceModel().data(index, role)
 
-    def _check_special_chars(self, text):
-        """
-        Returns true if text contains a '(' or  the variables _and, _or, _not
-        """
-        if text.find('(') != -1 or text.find(self._and) != -1 or text.find(self._or) != -1 or text.find(self._not) != -1:
-            return True
-        return False
-    
     def handle_filters_changed(self):
-        """
-        This callback
-        """
-        # this should be called whenever the filters change
         self.reset()
     
-    def filter_deleted(self):
-        #this function should emit a signal for the console_widget so that it
-        #can delete the deleted row
-        self.reset()
-
     def add_exclude_filter(self, newfilter):
         self._exclude_filters.append(newfilter)
 

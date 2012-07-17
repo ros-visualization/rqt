@@ -35,7 +35,10 @@ from ..message import Message
 
 class TimeFilter(QObject):
     """
-    Contains filter logic for a single filter
+    Contains filter logic for a single time filter
+    If _stop_time_enabled is true then the message's time value must be between the dates provided
+    to be considered a match
+    If _stop_time_enabled is false then the time must simply be after _start_time
     """
     filter_changed_signal = Signal()
     def __init__(self):
@@ -46,40 +49,56 @@ class TimeFilter(QObject):
         self._stop_time_enabled = True
 
     def set_start_time(self, time):
+        """
+        Setter for _start_time
+        :param time" start datetime for filter ''QDateTime''
+        :emits filter_changed_signal: If _enabled is true
+        """
         self._start_time = time
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_stop_time(self, time):
+        """
+        Setter for _stop_time
+        :param time" stop datetime for filter ''QDateTime''
+        :emits filter_changed_signal: If _enabled is true
+        """
         self._stop_time = time
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_stop_time_enabled(self, checked):
+        """
+        Setter for _stop_time_enabled
+        :param checked" boolean flag to set ''bool''
+        :emits filter_changed_signal: If _enabled is true
+        """
         self._stop_time_enabled = checked
         if self._enabled:
             self.filter_changed_signal.emit()
 
     def set_enabled(self, checked):
+        """
+        Setter for _enabled
+        :param checked" boolean flag to set ''bool''
+        :emits filter_changed_signal: Always
+        """
         self._enabled = checked
         self.filter_changed_signal.emit()
-
-    def set_stop_time_enabled(self, checked):
-        self._stop_time_enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
 
-    def message_test(self, message):
+    def test_message(self, message):
         """
         Tests if the message matches the filter.
-        
+        If _stop_time_enabled is true then the message's time value must be between the dates provided
+        to be considered a match
+        If _stop_time_enabled is false then the time must simply be after _start_time
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-
         message_time = message.time_as_qdatetime()
         if message_time < self._start_time:
             return False

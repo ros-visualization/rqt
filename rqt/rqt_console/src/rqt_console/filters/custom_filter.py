@@ -19,7 +19,9 @@ from message_filter import MessageFilter
 
 class CustomFilter(QObject):
     """
-    Contains filter logic for a single filter
+    Contains filter logic for the custom filter which allows message, severity,
+    node and topic filtering simultaniously. All of these filters must match
+    together or the custom filter does not match
     """
     filter_changed_signal = Signal()
     def __init__(self):
@@ -36,6 +38,10 @@ class CustomFilter(QObject):
         self._topic.filter_changed_signal.connect(self.relay_emit_signal)
 
     def set_enabled(self, checked):
+        """
+        :signal: emits filter_changed_signal
+        :param checked: enables the filters if checked is True''bool''
+        """
         self._enabled = checked
         self._message.set_enabled(checked)
         self._severity.set_enabled(checked)
@@ -44,17 +50,20 @@ class CustomFilter(QObject):
         self.filter_changed_signal.emit()
     
     def relay_emit_signal(self):
+        """
+        Passes any signals emitted by the child filters along
+        """
         self.filter_changed_signal.emit()
 
     def is_enabled(self):
         return self._enabled
 
-    def message_test(self, message):
+    def test_message(self, message):
         """
         Tests if the message matches the filter.
         
         :param message: the message to be tested against the filters, ''Message''
-        :returns: True if the message matches, ''bool''
+        :returns: True if the message matches all child filters, ''bool''
         """
-        return self._message.message_test(message) and self._severity.message_test(message) and self._node.message_test(message) and self._topic.message_test(message)
+        return self._message.test_message(message) and self._severity.test_message(message) and self._node.test_message(message) and self._topic.test_message(message)
 

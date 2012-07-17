@@ -120,6 +120,9 @@ class ConsoleWidget(QWidget):
         self.highlight_table.resizeColumnsToContents()
 
     def get_time_range_from_selection(self):
+        """
+        :returns: the range of time of messages in the current table selection, ''tuple(str,str)''
+        """
         rowlist = []
         indexes = self.table_view.selectionModel().selectedIndexes()
         
@@ -134,6 +137,9 @@ class ConsoleWidget(QWidget):
         return (-1,-1)
 
     def _delete_highlight_filter(self):
+        """
+        Deletes any any highlight filter which has a checked delete button
+        """
         for index, item in enumerate(self._highlight_filters):
             if item[1].delete_button.isChecked():
                 if self._proxymodel.delete_highlight_filter(index):
@@ -144,6 +150,9 @@ class ConsoleWidget(QWidget):
                     del self._highlight_filters[index]
 
     def _delete_exclude_filter(self):
+        """
+        Deletes any any exclude filter which has a checked delete button
+        """
         for index, item in enumerate(self._exclude_filters):
             if item[1].delete_button.isChecked():
                 if self._proxymodel.delete_exclude_filter(index):
@@ -153,9 +162,11 @@ class ConsoleWidget(QWidget):
                     item[1].delete_button.clicked.disconnect(self._delete_exclude_filter)
                     del self._exclude_filters[index]
 
-    def _add_highlight_filter(self, filter_index=None):
+    def _add_highlight_filter(self, filter_index=False):
         """
-        Adds an exclude filter (needs to be generalized)
+        If filter_index is False this function shows a QMenu to allow the user
+        to choose a type of message filter.
+        Then it adds the filter
         """
         if filter_index is False:
             filter_index = -1
@@ -173,16 +184,18 @@ class ConsoleWidget(QWidget):
             if filter_index == -1:   
                 return
 
+        index = len(self._highlight_filters)
         newfilter = self.filter_factory[filter_index][1]()
         newwidget = self.filter_factory[filter_index][2](newfilter, self.filter_factory[filter_index][3])
 
-        index = len(self._highlight_filters)
+        # pack the new filter tuple onto the filter list
         self._highlight_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_highlight_filter(newfilter)
         newfilter.filter_changed_signal.connect(self._proxymodel.handle_filters_changed)
         self._highlight_filters[index][1].delete_button.clicked.connect(self._delete_highlight_filter)
         self._datamodel.rowsInserted.connect(self._highlight_filters[index][1].repopulate)
 
+        # place the widget in the proper location
         self.highlight_table.insertRow(index)
         self.highlight_table.setCellWidget(index, 0, self._highlight_filters[index][1])
         self.highlight_table.resizeColumnsToContents()
@@ -192,7 +205,9 @@ class ConsoleWidget(QWidget):
 
     def _add_exclude_filter(self, filter_index=False):
         """
-        Adds an exclude filter (needs to be generalized)
+        If filter_index is False this function shows a QMenu to allow the user
+        to choose a type of message filter.
+        Then it adds the filter
         """
         if filter_index is False:
             filter_index = -1
@@ -210,16 +225,18 @@ class ConsoleWidget(QWidget):
             if filter_index == -1:   
                 return None
 
+        index = len(self._exclude_filters)
         newfilter = self.filter_factory[filter_index][1]()
         newwidget = self.filter_factory[filter_index][2](newfilter, self.filter_factory[filter_index][3])
 
-        index = len(self._exclude_filters)
+        # pack the new filter tuple onto the filter list
         self._exclude_filters.append((newfilter, FilterWrapperWidget(newwidget, self.filter_factory[filter_index][0]), filter_index))
         self._proxymodel.add_exclude_filter(newfilter)
         newfilter.filter_changed_signal.connect(self._proxymodel.handle_filters_changed)
         self._exclude_filters[index][1].delete_button.clicked.connect(self._delete_exclude_filter)
         self._datamodel.rowsInserted.connect(self._exclude_filters[index][1].repopulate)
         
+        # place the widget in the proper location
         self.exclude_table.insertRow(index)
         self.exclude_table.setCellWidget(index, 0, self._exclude_filters[index][1])
         self.exclude_table.resizeColumnsToContents()

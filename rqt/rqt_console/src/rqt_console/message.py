@@ -72,6 +72,9 @@ class Message(QObject):
         return len(self._messagemembers)
 
     def time_in_seconds(self):
+        """
+        :returns: seconds with decimal fractions of a second, ''str''
+        """
         return str(self._time[0]) + '.' + str(self._time[1]).zfill(9)
 
     def time_as_qdatetime(self):

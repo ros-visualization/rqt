@@ -46,6 +46,7 @@ class MessageDataModel(QAbstractTableModel):
         self._insert_message_queue = []
         self._paused = False
         self._message_limit = 20000
+
     # BEGIN Required QAbstractTableModel functions
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
@@ -84,6 +85,8 @@ class MessageDataModel(QAbstractTableModel):
         """
         Converts a time string in the format of _time_format into a string 
         of format '(unix timestamp).(fraction of second)'
+        :param timestring: formatted time string ''str''
+        :returns: seconds and fractions thereof ''str''
         """
         timeval = QDateTime.fromString(timestring, self._time_format).toTime_t()
         return str(timeval) + '.' + timestring[9:12]   # append '.(msecs)'
@@ -92,6 +95,8 @@ class MessageDataModel(QAbstractTableModel):
         """
         Converts a string in the format of '(unix timestamp).(fraction of second)'
         into a string of format _time_format
+        :param timedata:  seconds and fractions thereof ''str''
+        :returns: formatted time string''str''
         """
         sec, fraction = timedata.split('.')
         if len(fraction) < 3:
@@ -100,6 +105,9 @@ class MessageDataModel(QAbstractTableModel):
         return QDateTime.fromTime_t(long(sec)).addMSecs(micro).toString(self._time_format)
 
     def insert_rows(self, msgs):
+        """
+        Wraps the insert_row function to minimize gui calls
+        """
         if len(msgs) == 0:
             return
         self.beginInsertRows(QModelIndex(), len(self._messages.get_message_list()), len(self._messages.get_message_list()) + len(msgs) - 1)
@@ -146,6 +154,8 @@ class MessageDataModel(QAbstractTableModel):
     def get_selected_text(self, rowlist):
         """
         Returns an easily readable block of text for the currently selected rows
+        :param rowlist: list of row indexes, ''list''
+        :returns: the text from those indexes, ''str''
         """
         text = None
         if len(rowlist) != 0:
@@ -157,8 +167,8 @@ class MessageDataModel(QAbstractTableModel):
 
     def get_time_range(self, rowlist):
         """
-        returns a tuple of the minimum and maximum times in the rowlist 
-        in '(unix timestamp).(fraction of second)' format
+        :param rowlist: a list of row indexes, ''list''
+        :returns: a tuple of min and max times in a rowlist in '(unix timestamp).(fraction of second)' format, ''tuple(str,str)''
         """
         min_ = float("inf")
         max_ = float("-inf")
@@ -171,6 +181,12 @@ class MessageDataModel(QAbstractTableModel):
         return min_, max_
 
     def get_unique_col_data(self, index, separate_topics=True):
+        """
+        :param index: column index, ''int''
+        :param separate_topics: if true separates comma delimited strings into
+        unique rows, ''bool''
+        :returns: list of unique strings in the column, ''list[str]''
+        """
         if index == 4 and separate_topics:
             unique_list = set()
             for topiclists in self._messages.get_unique_col_data(index):
@@ -205,7 +221,6 @@ class MessageDataModel(QAbstractTableModel):
             for line in lines:
                 self._messages.append_from_text(line)
             self.endInsertRows()
-#            self.reset()
             self._paused = True
             return True
         else:

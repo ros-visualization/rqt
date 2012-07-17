@@ -43,12 +43,11 @@ class CustomFilterWidget(QWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'custom_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('CustomFilterWidget')
-        self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
+        self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter
 
         # Text Filter Initialization
         self.text_edit.textChanged.connect(self.handle_text_changed)
         self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
-
         self.handle_text_changed()
         
         # Severity Filter Initialization
@@ -56,13 +55,6 @@ class CustomFilterWidget(QWidget):
         newlist =  display_list_args[0]()
         for item in newlist:
             self.severity_list.addItem(item)
-        
-        # Topic Filter Initialization
-        self._topic_list_populate_function = display_list_args[3]
-        self._topic_function_argument = False
-        self._topic_function_argument = display_list_args[4]
-        self.topic_list.itemSelectionChanged.connect(self.handle_topic_item_changed)
-        self._topic_display_list = []
 
         # Node Filter Initialization
         self._node_list_populate_function = display_list_args[1]
@@ -70,6 +62,13 @@ class CustomFilterWidget(QWidget):
         self._node_function_argument = display_list_args[2]
         self.node_list.itemSelectionChanged.connect(self.handle_node_item_changed)
         self._node_display_list = []
+        
+        # Topic Filter Initialization
+        self._topic_list_populate_function = display_list_args[3]
+        self._topic_function_argument = False
+        self._topic_function_argument = display_list_args[4]
+        self.topic_list.itemSelectionChanged.connect(self.handle_topic_item_changed)
+        self._topic_display_list = []
 
         self.repopulate()
 
@@ -89,6 +88,10 @@ class CustomFilterWidget(QWidget):
         self._parentfilter._message.set_regex(clicked)
 
     def repopulate(self):
+        """
+        Repopulates the display widgets based on the function arguments passed
+        in during initialization
+        """
         newlist =  self._topic_list_populate_function(self._topic_function_argument)
         if len(newlist) != len(self._topic_display_list):
             for item in newlist:
@@ -104,6 +107,11 @@ class CustomFilterWidget(QWidget):
         self._node_display_list = list(set(newlist + self._node_display_list))
     
     def save_settings(self, settings):
+        """
+        Saves the settings for this filter to an ini file. 
+
+        :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
+        """
         settings.set_value('text', self._parentfilter._message._text)
         settings.set_value('regex', self._parentfilter._message._regex)
 
@@ -118,6 +126,11 @@ class CustomFilterWidget(QWidget):
         return
 
     def restore_settings(self, settings):
+        """
+        Restores the settings for this filter from an ini file. 
+
+        :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
+        """
         if settings.contains('text'):
             text = settings.value('text')
             self.text_edit.setText(text)

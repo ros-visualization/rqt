@@ -47,24 +47,27 @@ class FilterCollection:
         self._proxymodel = proxymodel
 
     def test_message_array(self, message):
+        """
+        overload of test_message function for an array 
+        :param message: array of the message member data in order ''list'':
+                        message text ''str'', severity ''str'', node ''str'', 
+                        time in seconds with decimals ''str'', topic ''str'', 
+        """
         newmessage = Message()
         message[3] = self._proxymodel.sourceModel().timestring_to_timedata(message[3])
         message = newmessage.load_from_array(message)
-        return self.message_test(message)
+        return self.test_message(message)
 
-    def message_test(self, message):
+    def test_message(self, message):
         """
         Tests if the message matches the entire list of filters.
         if passed an array of the 6 data elements of a message it will build one
 
         :param message: message to be tested against the filters, ''Message''
-        :param message ALTERNATE: array of the message member data in order ''list'':
-                        message text ''str'', severity ''str'', node ''str'', 
-                        time in seconds with decimals ''str'', topic ''str'', 
         :returns: True if the message matches the filters, ''bool''
         """
         for item in self._filters:
-            if item.is_enabled() and item.message_test(message):
+            if item.is_enabled() and item.test_message(message):
                 return True
         return False
 

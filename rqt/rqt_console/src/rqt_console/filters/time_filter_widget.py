@@ -39,15 +39,23 @@ from datetime import datetime
 
 class TimeFilterWidget(QWidget):
     def __init__(self, parentfilter, display_list_args):
+        """
+        Widget for displaying interactive data related to time filtering. 
+        :param parentfilter: buddy filter were data is stored, ''TimeFilter''
+        :param display_list_args: single element list containing one tuple with
+        the min and max time to be displayed, ''list of tuple''
+        """
         super(TimeFilterWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'time_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('TimeFilterWidget')
-        self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
+        self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter
         
         self.start_datetime.dateTimeChanged[QDateTime].connect(self.handle_start_changed)
         self.stop_datetime.dateTimeChanged[QDateTime].connect(self.handle_stop_changed)
         self.stop_enabled_check_box.clicked[bool].connect(self.handle_stop_enabled_changed)
+
+        # Times are passed in unixtimestamp '.' decimal fraction of a second 
         mintime, maxtime = display_list_args[0]()
         if mintime != -1:
             mintime = str(mintime).split('.')
@@ -63,7 +71,6 @@ class TimeFilterWidget(QWidget):
         else:
             self.start_datetime.setDateTime(datetime.now())
             self.stop_datetime.setDateTime(datetime.now())
-            
 
     def handle_start_changed(self, datetime):
         self._parentfilter.set_start_time(datetime)
@@ -76,14 +83,29 @@ class TimeFilterWidget(QWidget):
         self.stop_datetime.setEnabled(checked)
 
     def repopulate(self):
+        """
+        Stub function.
+        If the widget had any dynamically adjustable data it would requery it
+        in this function.
+        """
         pass
 
     def save_settings(self, settings):
+        """
+        Saves the settings for this filter to an ini file. 
+
+        :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
+        """
         settings.set_value('_start_time', self._parentfilter._start_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
         settings.set_value('_stop_time', self._parentfilter._stop_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
         settings.set_value('_stop_time_enabled', self._parentfilter._stop_time_enabled)
 
     def restore_settings(self, settings):
+        """
+        Restores the settings for this filter from an ini file. 
+
+        :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
+        """
         if settings.contains('_stop_time_enabled'):
             self.handle_stop_enabled_changed(settings.value('_stop_time_enabled') in [True, 'true'])
         if settings.contains('_start_time'):

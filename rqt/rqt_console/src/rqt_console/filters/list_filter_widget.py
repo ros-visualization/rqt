@@ -39,7 +39,19 @@ from filter_utils import pack, unpack
 
 
 class ListFilterWidget(QWidget):
+    """
+    Generic List widget to be used when implementing filters that require
+    limited dynamic selections
+    """
     def __init__(self, parentfilter, display_list_args):
+        """
+
+        :param parentfilter: The filter object, must implement set_list and
+        contain _list ''QObject''
+        :param display_list_args: list of arguments which must contain a
+        function designed to populate a list 'display_list_args[0]' and may
+        contain an optional variable to pass into that function 'display_list_args[1]'
+        """
         super(ListFilterWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'list_filter_widget.ui')
         loadUi(ui_file, self)
@@ -52,11 +64,16 @@ class ListFilterWidget(QWidget):
             self._function_argument = display_list_args[1]
         self.list_widget.itemSelectionChanged.connect(self.handle_item_changed)
         self._display_list = [] 
-        
         self.repopulate()
     
-    def select_item(self, item):
-        items = self.list_widget.findItems(item, Qt.MatchExactly)
+    def select_item(self, text):
+        """
+        All items matching text will be selected in the list_widget
+
+        :param item: a string to be matched against the list ''str''
+
+        """
+        items = self.list_widget.findItems(text, Qt.MatchExactly)
         for item in items:
             item.setSelected(True)
         self.handle_item_changed()
@@ -65,6 +82,10 @@ class ListFilterWidget(QWidget):
         self._parentfilter.set_list(self.list_widget.selectedItems())
 
     def repopulate(self):
+        """
+        Repopulates the display widgets based on the function arguments passed
+        in during initialization
+        """
         if not self._function_argument is False:
             newlist =  self._list_populate_function(self._function_argument)
         else:
@@ -77,10 +98,20 @@ class ListFilterWidget(QWidget):
         self._display_list = list(set(newlist + self._display_list))
 
     def save_settings(self, settings):
+        """
+        Saves the settings for this filter. 
+
+        :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
+        """
         settings.set_value('displist', pack(self._display_list))
         settings.set_value('itemlist', pack(self._parentfilter._list))
 
     def restore_settings(self, settings):
+        """
+        Restores the settings for this filter from an ini file. 
+
+        :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
+        """
         if not settings.contains('displist'):
             return
         self._display_list = unpack(settings.value('displist'))

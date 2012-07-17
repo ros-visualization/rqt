@@ -38,22 +38,35 @@ from qt_gui.qt_binding_helper import loadUi
 from datetime import datetime
 
 class TextFilterWidget(QWidget):
-    def __init__(self, parentfilter, display_list_args):
+    def __init__(self, parentfilter, display_list_args=[]):
+        """
+        Widget for displaying interactive data related to text filtering. 
+        :param parentfilter: buddy filter were data is stored, ''TimeFilter''
+        :param display_list_args: empty list, ''list''
+        """
         super(TextFilterWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'text_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('TextFilterWidget')
-        self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter
-        
+        self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter
+
         self.text_edit.textChanged.connect(self.handle_text_changed)
         self.regex_check_box.clicked[bool].connect(self.handle_regex_clicked)
 
         self.handle_text_changed()
     
     def set_text(self, text):
+        """
+        Setter for the text edit widget
+        :param text: text to be placed in text_edit, ''str''
+        """
         self.text_edit.setText(text)
 
     def set_regex(self, checked):
+        """
+        Setter for the text edit widget
+        :param text: text to be placed in text_edit, ''str''
+        """
         self.regex_check_box.setChecked(checked)
         self.handle_regex_clicked(checked)
 
@@ -64,6 +77,11 @@ class TextFilterWidget(QWidget):
         self._parentfilter.set_regex(clicked)
 
     def repopulate(self):
+        """
+        Stub function.
+        If the widget had any dynamically adjustable data it would requery it
+        in this function.
+        """
         pass
 
     def save_settings(self, settings):

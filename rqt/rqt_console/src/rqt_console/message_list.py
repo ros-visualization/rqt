@@ -63,6 +63,10 @@ class MessageList(object):
             raise IndexError
 
     def get_unique_col_data(self, index):
+        """
+        :param index: row index, ''int''
+        :returns: a unique list of strings from the index, ''list[str]''
+        """
         uniques_list = set()
         for message in self._messagelist:
             uniques_list.add(getattr(message, self.message_members()[index]))
