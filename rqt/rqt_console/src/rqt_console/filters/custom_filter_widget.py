@@ -131,54 +131,42 @@ class CustomFilterWidget(QWidget):
         Restores the settings for this filter from an ini file.
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
-        if settings.contains('text'):
-            text = settings.value('text')
-            self.text_edit.setText(text)
-            self.handle_text_changed()
+        text = settings.value('text', '')
+        self.text_edit.setText(text)
+        self.handle_text_changed()
 
-        if settings.contains('regex'):
-            regex = settings.value('regex') in [True, 'true']
-            self.regex_check_box.setChecked(regex)
-            self.handle_regex_clicked(regex)
+        regex = settings.value('regex') in [True, 'true']
+        self.regex_check_box.setChecked(regex)
+        self.handle_regex_clicked(regex)
 
-        if settings.contains('severityitemlist'):
-            severity_item_list = unpack(settings.value('severityitemlist'))
-            if severity_item_list is None:
-                severity_item_list = []
-            for item in severity_item_list:
-                items = self.severity_list.findItems(item, Qt.MatchExactly)
-                for item in items:
-                    item.setSelected(True)
-                self.handle_severity_item_changed()
+        severity_item_list = unpack(settings.value('severityitemlist'))
+        # TODO uncheck all
+        for item in severity_item_list:
+            items = self.severity_list.findItems(item, Qt.MatchExactly)
+            for item in items:
+                item.setSelected(True)
+        self.handle_severity_item_changed()
 
-        if settings.contains('topicdisplaylist'):
-            self._topic_display_list = unpack(settings.value('topicdisplaylist'))
-            if self._topic_display_list is None:
-                self._topic_display_list = []
-            for item in self._topic_display_list:
-                if len(self.topic_list.findItems(item, Qt.MatchExactly)) == 0:
-                    self.topic_list.addItem(item)
-            topic_item_list = unpack(settings.value('topicitemlist'))
-            if topic_item_list is None:
-                topic_item_list = []
-            for item in topic_item_list:
-                items = self.topic_list.findItems(item, Qt.MatchExactly)
-                for item in items:
-                    item.setSelected(True)
-                self.handle_topic_item_changed()
+        self._topic_display_list = unpack(settings.value('topicdisplaylist'))
+        # TODO remove items first
+        for item in self._topic_display_list:
+            if len(self.topic_list.findItems(item, Qt.MatchExactly)) == 0:
+                self.topic_list.addItem(item)
+        topic_item_list = unpack(settings.value('topicitemlist'))
+        for item in topic_item_list:
+            items = self.topic_list.findItems(item, Qt.MatchExactly)
+            for item in items:
+                item.setSelected(True)
+        self.handle_topic_item_changed()
 
-        if settings.contains('nodedisplaylist'):
-            self._node_display_list = unpack(settings.value('nodedisplaylist'))
-            if self._node_display_list is None:
-                self._node_display_list = []
-            for item in self._node_display_list:
-                if len(self.node_list.findItems(item, Qt.MatchExactly)) == 0:
-                    self.node_list.addItem(item)
-            node_item_list = unpack(settings.value('nodeitemlist'))
-            if node_item_list is None:
-                node_item_list = []
-            for item in node_item_list:
-                items = self.node_list.findItems(item, Qt.MatchExactly)
-                for item in items:
-                    item.setSelected(True)
-                self.handle_node_item_changed()
+        self._node_display_list = unpack(settings.value('nodedisplaylist'))
+        # TODO remove items first
+        for item in self._node_display_list:
+            if len(self.node_list.findItems(item, Qt.MatchExactly)) == 0:
+                self.node_list.addItem(item)
+        node_item_list = unpack(settings.value('nodeitemlist'))
+        for item in node_item_list:
+            items = self.node_list.findItems(item, Qt.MatchExactly)
+            for item in items:
+                item.setSelected(True)
+        self.handle_node_item_changed()

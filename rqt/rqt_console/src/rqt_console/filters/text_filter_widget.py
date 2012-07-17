@@ -86,16 +86,12 @@ class TextFilterWidget(QWidget):
     def save_settings(self, settings):
         settings.set_value('text', self._parentfilter._text)
         settings.set_value('regex', self._parentfilter._regex)
-        return
 
     def restore_settings(self, settings):
-        if settings.contains('text'):
-            text = settings.value('text')
-            self.set_text(text)
-            self.handle_text_changed()
+        text = settings.value('text', '')
+        self.set_text(text)
+        self.handle_text_changed()
 
-        if settings.contains('regex'):
-            regex = settings.value('regex') in [True, 'true']
-            self.set_regex(regex)
-            self.handle_regex_clicked(regex)
-        return
+        regex = settings.value('regex') in [True, 'true']
+        self.set_regex(regex)
+        self.handle_regex_clicked(regex)

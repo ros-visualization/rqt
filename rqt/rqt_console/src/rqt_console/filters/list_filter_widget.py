@@ -108,17 +108,11 @@ class ListFilterWidget(QWidget):
         Restores the settings for this filter from an ini file.
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
-        if not settings.contains('displist'):
-            return
         self._display_list = unpack(settings.value('displist'))
-        if self._display_list is None:
-            self._display_list = []
+        # TODO clear list before adding stuff
         for item in self._display_list:
             if len(self.list_widget.findItems(item, Qt.MatchExactly)) == 0:
                 self.list_widget.addItem(item)
-        if settings.contains('itemlist'):
-            item_list = unpack(settings.value('itemlist'))
-            if item_list is None:
-                item_list = []
-            for item in item_list:
-                self.select_item(item)
+        item_list = unpack(settings.value('itemlist'))
+        for item in item_list:
+            self.select_item(item)

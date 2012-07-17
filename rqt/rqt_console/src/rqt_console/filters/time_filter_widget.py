@@ -96,21 +96,21 @@ class TimeFilterWidget(QWidget):
         Saves the settings for this filter to an ini file.
         :param settings: used to write the settings to an ini file ''qt_gui.settings.Settings''
         """
-        settings.set_value('_start_time', self._parentfilter._start_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
-        settings.set_value('_stop_time', self._parentfilter._stop_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
-        settings.set_value('_stop_time_enabled', self._parentfilter._stop_time_enabled)
+        settings.set_value('start_time', self._parentfilter._start_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
+        settings.set_value('stop_time', self._parentfilter._stop_time.toString('hh:mm:ss.zzz (yyyy-MM-dd)'))
+        settings.set_value('stop_time_enabled', self._parentfilter._stop_time_enabled)
 
     def restore_settings(self, settings):
         """
         Restores the settings for this filter from an ini file.
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
-        if settings.contains('_stop_time_enabled'):
-            self.handle_stop_enabled_changed(settings.value('_stop_time_enabled') in [True, 'true'])
-        if settings.contains('_start_time'):
-            self.handle_start_changed(QDateTime.fromString(settings.value('_start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
-        if settings.contains('_stop_time'):
-            self.handle_stop_changed(QDateTime.fromString(settings.value('_stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        self.handle_stop_enabled_changed(settings.value('stop_time_enabled') in [True, 'true'])
+        # TODO else reset
+        if settings.contains('start_time'):
+            self.handle_start_changed(QDateTime.fromString(settings.value('start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        if settings.contains('stop_time'):
+            self.handle_stop_changed(QDateTime.fromString(settings.value('stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
 
         self.stop_datetime.setDateTime(self._parentfilter._stop_time)
         self.start_datetime.setDateTime(self._parentfilter._start_time)

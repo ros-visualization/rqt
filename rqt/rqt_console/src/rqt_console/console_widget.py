@@ -502,30 +502,37 @@ class ConsoleWidget(QWidget):
             self.table_splitter.restoreState(instance_settings.value('table_splitter'))
         else:
             self.table_splitter.setSizes([1000, 100])
+        # TODO else reset
         if instance_settings.contains('filter_splitter'):
             self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
 
+        # TODO dont get value twice, else?
         if instance_settings.contains('paused'):
             self.pause_button.setChecked(instance_settings.value('paused') in [True, 'true'])
             self._handle_pause_clicked(instance_settings.value('paused') in [True, 'true'])
+        # TODO dont get value twice, else?
         if instance_settings.contains('show_highlighted_only'):
             self.highlight_exclude_button.setChecked(instance_settings.value('show_highlighted_only') in [True, 'true'])
             self._proxymodel.set_show_highlighted_only(instance_settings.value('show_highlighted_only') in [True, 'true'])
+
+        #TODO remove all exclude filters before adding the ones from config
         if instance_settings.contains('exclude_filters'):
             exclude_filters = instance_settings.value('exclude_filters')
-            if not exclude_filters is None:
+            if exclude_filters is not None:
                 for index, item in enumerate(exclude_filters):
                     self._add_exclude_filter(item)
                     filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
                     self._exclude_filters[-1][1].restore_settings(filter_settings)
+        else:
+            self._add_exclude_filter('severity')
+
+        #TODO remove all highlight filters before adding the ones from config
         if instance_settings.contains('highlight_filters'):
             highlight_filters = instance_settings.value('highlight_filters')
-            if not highlight_filters is None:
+            if highlight_filters is not None:
                 for index, item in enumerate(highlight_filters):
                     self._add_highlight_filter(item)
                     filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
                     self._highlight_filters[-1][1].restore_settings(filter_settings)
-        if len(self._highlight_filters) == 0:
+        else:
             self._add_highlight_filter('message')
-        if len(self._exclude_filters) == 0:
-            self._add_exclude_filter('severity')
