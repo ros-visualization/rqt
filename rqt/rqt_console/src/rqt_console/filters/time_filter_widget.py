@@ -106,11 +106,14 @@ class TimeFilterWidget(QWidget):
         :param settings: used to extract the settings from an ini file ''qt_gui.settings.Settings''
         """
         self.handle_stop_enabled_changed(settings.value('stop_time_enabled') in [True, 'true'])
-        # TODO else reset
         if settings.contains('start_time'):
             self.handle_start_changed(QDateTime.fromString(settings.value('start_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        else:
+            self.handle_start_changed(QDateTime(datetime.now()))
         if settings.contains('stop_time'):
             self.handle_stop_changed(QDateTime.fromString(settings.value('stop_time'), 'hh:mm:ss.zzz (yyyy-MM-dd)'))
+        else:
+            self.handle_stop_changed(QDateTime(datetime.now()))
 
         self.stop_datetime.setDateTime(self._parentfilter._stop_time)
         self.start_datetime.setDateTime(self._parentfilter._start_time)

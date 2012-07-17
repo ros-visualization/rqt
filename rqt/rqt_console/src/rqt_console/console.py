@@ -44,7 +44,6 @@ from .message_data_model import MessageDataModel
 from .message_proxy_model import MessageProxyModel
 
 
-#TODO redo commenting and documentation
 class Console(Plugin):
     """
     rqt_console plugin's main class. Handles communication with ros_gui and contains

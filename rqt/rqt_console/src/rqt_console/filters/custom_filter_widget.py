@@ -139,19 +139,23 @@ class CustomFilterWidget(QWidget):
         self.regex_check_box.setChecked(regex)
         self.handle_regex_clicked(regex)
 
+        #Restore Severities
+        for index in range(self.severity_list.count()):
+            self.severity_list.item(index).setSelected(False)
         severity_item_list = unpack(settings.value('severityitemlist'))
-        # TODO uncheck all
         for item in severity_item_list:
             items = self.severity_list.findItems(item, Qt.MatchExactly)
             for item in items:
                 item.setSelected(True)
         self.handle_severity_item_changed()
 
+        #Restore Topics
         self._topic_display_list = unpack(settings.value('topicdisplaylist'))
-        # TODO remove items first
         for item in self._topic_display_list:
             if len(self.topic_list.findItems(item, Qt.MatchExactly)) == 0:
                 self.topic_list.addItem(item)
+        for index in range(self.topic_list.count()):
+            self.topic_list.item(index).setSelected(False)
         topic_item_list = unpack(settings.value('topicitemlist'))
         for item in topic_item_list:
             items = self.topic_list.findItems(item, Qt.MatchExactly)
@@ -159,11 +163,13 @@ class CustomFilterWidget(QWidget):
                 item.setSelected(True)
         self.handle_topic_item_changed()
 
+        #Restore Nodes
         self._node_display_list = unpack(settings.value('nodedisplaylist'))
-        # TODO remove items first
         for item in self._node_display_list:
             if len(self.node_list.findItems(item, Qt.MatchExactly)) == 0:
                 self.node_list.addItem(item)
+        for index in range(self.node_list.count()):
+            self.node_list.item(index).setSelected(False)
         node_item_list = unpack(settings.value('nodeitemlist'))
         for item in node_item_list:
             items = self.node_list.findItems(item, Qt.MatchExactly)

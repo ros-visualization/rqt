@@ -502,20 +502,19 @@ class ConsoleWidget(QWidget):
             self.table_splitter.restoreState(instance_settings.value('table_splitter'))
         else:
             self.table_splitter.setSizes([1000, 100])
-        # TODO else reset
         if instance_settings.contains('filter_splitter'):
             self.filter_splitter.restoreState(instance_settings.value('filter_splitter'))
+        else:
+            self.table_splitter.setSizes([500, 500])
 
-        # TODO dont get value twice, else?
-        if instance_settings.contains('paused'):
-            self.pause_button.setChecked(instance_settings.value('paused') in [True, 'true'])
-            self._handle_pause_clicked(instance_settings.value('paused') in [True, 'true'])
-        # TODO dont get value twice, else?
-        if instance_settings.contains('show_highlighted_only'):
-            self.highlight_exclude_button.setChecked(instance_settings.value('show_highlighted_only') in [True, 'true'])
-            self._proxymodel.set_show_highlighted_only(instance_settings.value('show_highlighted_only') in [True, 'true'])
+        self.pause_button.setChecked(instance_settings.value('paused') in [True, 'true'])
+        self._handle_pause_clicked(self.pause_button.isChecked())
+        self.highlight_exclude_button.setChecked(instance_settings.value('show_highlighted_only') in [True, 'true'])
+        self._proxymodel.set_show_highlighted_only(self.highlight_exclude_button.isChecked())
 
-        #TODO remove all exclude filters before adding the ones from config
+        for item in self._exclude_filters:
+            item[1].delete_button.setChecked(True)
+        self._delete_exclude_filter()
         if instance_settings.contains('exclude_filters'):
             exclude_filters = instance_settings.value('exclude_filters')
             if exclude_filters is not None:
@@ -526,7 +525,9 @@ class ConsoleWidget(QWidget):
         else:
             self._add_exclude_filter('severity')
 
-        #TODO remove all highlight filters before adding the ones from config
+        for item in self._highlight_filters:
+            item[1].delete_button.setChecked(True)
+        self._delete_highlight_filter()
         if instance_settings.contains('highlight_filters'):
             highlight_filters = instance_settings.value('highlight_filters')
             if highlight_filters is not None:
