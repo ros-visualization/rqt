@@ -127,7 +127,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="transitives_check_box">
+      <widget class="QCheckBox" name="hide_transitives_check_box">
        <property name="toolTip">
         <string>Do not show transitive / duplicate dependencies</string>
        </property>
