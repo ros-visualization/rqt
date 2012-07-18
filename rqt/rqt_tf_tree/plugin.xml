@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="RosTfTree" type="rqt_tf_graph.rqt_tf_graph.RosTfTree" base_class_type="rqt_gui_py::Plugin">
+  <class name="RosTfTree" type="rqt_tf_tree.tf_tree.RosTfTree" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin to visualize the ROS TF Tree.
     </description>

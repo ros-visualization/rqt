@@ -42,7 +42,7 @@ from tf.srv import *
 # get mock from pypi as 'mock'
 from mock import Mock, MagicMock, patch
 
-from rqt_tf_graph.dotcode_tf import RosTfTreeDotcodeGenerator
+from rqt_tf_tree.dotcode_tf import RosTfTreeDotcodeGenerator
 
 
 class DotcodeGeneratorTest(unittest.TestCase):
