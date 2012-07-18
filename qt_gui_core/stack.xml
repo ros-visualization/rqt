@@ -1,9 +1,0 @@
-<stack>
-  <description brief="qt_gui_core">
-    Qt-based GUI framework, which is extensible by Python- and C++-plugins.
-  </description>
-  <author>Maintained by Dirk Thomas</author>
-  <license>BSD</license>
-  <review status="API cleared" notes="2012-06-20"/>
-  <url>http://ros.org/wiki/qt_gui_core</url>
-</stack>
