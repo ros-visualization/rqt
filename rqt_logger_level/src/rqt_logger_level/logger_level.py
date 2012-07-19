@@ -30,14 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
 import roslib
 roslib.load_manifest('rqt_logger_level')
-import rospy
 
-from qt_gui.qt_binding_helper import loadUi
 from qt_gui.plugin import Plugin
-from QtGui import QWidget
 
 from .logger_level_widget import LoggerLevelWidget
 from .logger_level_service_caller import LoggerLevelServiceCaller

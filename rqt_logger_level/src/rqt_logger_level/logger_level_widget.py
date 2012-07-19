@@ -101,4 +101,3 @@ class LoggerLevelWidget(QWidget):
             qWarning('Level row %s out of bounds. Current count: %s' % (row, self.level_list.count()))
             return
         self._caller.send_logger_change_message(self.node_list.currentItem().text(), self.logger_list.currentItem().text(), self.level_list.item(row).text())
-

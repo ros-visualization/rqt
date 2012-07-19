@@ -34,7 +34,6 @@ import rosnode
 import rospy
 import rosservice
 
-from qt_gui.qt_binding_helper import loadUi
 from QtCore import QObject, qWarning
 
 
@@ -115,7 +114,7 @@ class LoggerLevelServiceCaller(QObject):
         setattr(request, 'level', level)
         proxy = rospy.ServiceProxy(str(servicename), service)
         try:
-            response = proxy(request)
+            proxy(request)
             self._current_levels[logger] = level.upper()
         except rospy.ServiceException as e:
             qWarning('SetupDialog.level_changed(): request:\n%r' % (request))
