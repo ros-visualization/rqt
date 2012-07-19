@@ -67,6 +67,7 @@ class WebWidget(QWidget):
         self._view.loadFinished[bool].connect(self._handle_load_finished)
         self.reload_button.clicked.connect(self._handle_reload_clicked)
         self._view.linkClicked.connect(self._handle_link_clicked)
+        self._view.urlChanged[QUrl].connect(self._handle_url_changed)
 
     def set_url(self, url, showinput=False):
         """
@@ -78,9 +79,6 @@ class WebWidget(QWidget):
             self._url = QUrl(url)
             self.set_show_url_input(showinput)
             self._view.setUrl(self._url)
-            self.url_lineedit.setText(self._url.toString())
-            self.reload_button.setIcon(self._stop_icon)
-            self._loading = True
 
     def set_show_url_input(self, showinput):
         """
@@ -117,6 +115,12 @@ class WebWidget(QWidget):
             self._view.reload()
             self._loading = True
             self.reload_button.setIcon(self._stop_icon)
+
+    def _handle_url_changed(self, url):
+        # set text to the current loading item
+        self.url_lineedit.setText(url.toString())
+        self.reload_button.setIcon(self._stop_icon)
+        self._loading = True
 
     def _handle_load_finished(self, ok):
         self._loading = False
