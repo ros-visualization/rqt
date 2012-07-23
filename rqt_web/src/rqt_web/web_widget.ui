@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Webkit</class>
+ <class>Web</class>
  <widget class="QWidget" name="Web">
   <property name="geometry">
    <rect>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Web</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">

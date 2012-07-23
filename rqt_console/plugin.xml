@@ -1,7 +1,7 @@
 <library path="src">
   <class name="Console" type="rqt_console.console.Console" base_class_type="rqt_gui_py::Plugin">
     <description>
-      A Python GUI plugin displaying and filtering ROS messages.
+      A Python GUI plugin for displaying and filtering ROS messages.
     </description>
     <qtgui>
       <label>Console</label>
