@@ -119,7 +119,7 @@ class MessageProxyModel(QSortFilterProxyModel):
         return False
 
     def set_show_highlighted_only(self, show_highlighted_only):
-        self._show_highlighted_only = not show_highlighted_only
+        self._show_highlighted_only = show_highlighted_only
         self.reset()
 
     def save_to_file(self, filehandle):
