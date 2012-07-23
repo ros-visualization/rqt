@@ -5,7 +5,7 @@
     </description>
     <qtgui>
       <label>Console</label>
-      <icon type="theme">accessories-text-editor</icon>
+      <icon type="theme">mail-message-new</icon>
       <statustip>A Python GUI plugin displaying and filtering ROS messages.</statustip>
     </qtgui>
   </class>

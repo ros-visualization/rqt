@@ -5,7 +5,7 @@
     </description>
     <qtgui>
       <label>Web</label>
-      <icon type="theme">accessories-text-editor</icon>
+      <icon type="theme">applications-internet</icon>
       <statustip>A Python GUI plugin for displaying and interacting with web tools.</statustip>
     </qtgui>
   </class>
