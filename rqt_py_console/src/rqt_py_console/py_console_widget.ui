@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PyConsole</class>
+ <widget class="QWidget" name="PyConsole">
+  <property name="windowTitle">
+   <string>PyConsole</string>
+  </property>
+  <layout class="QVBoxLayout" name="_2">
+   <item>
+    <layout class="QHBoxLayout" name="header_layout">
+     <item>
+      <widget class="PyConsoleTextEdit" name="py_console"/>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PyConsoleTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>rqt_py_console.py_console_text_edit</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
