@@ -35,7 +35,7 @@ import os
 from qt_gui.qt_binding_helper import loadUi
 from QtCore import Qt, QUrl
 from QtGui import QCompleter, QIcon, QWidget
-from PyQt4.QtWebKit import QWebPage, QWebView
+from QtWebKit import QWebPage, QWebView
 
 
 class WebWidget(QWidget):
