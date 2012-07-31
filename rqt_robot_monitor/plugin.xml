@@ -1,0 +1,11 @@
+<library path="src">
+  <class name="RobotMonitor" type="robot_monitor.robot_monitor_plugin.RobotMonitorPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+    Display for /diagnostics_agg
+    </description>
+    <qtgui>
+      <label>Robot Monitor</label>
+      <statustip>/diagnostics_agg</statustip>
+    </qtgui>
+  </class>
+</library>
