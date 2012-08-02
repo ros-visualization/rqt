@@ -161,6 +161,7 @@ class RobotSteering(Plugin):
             self._publisher = None
 
     def shutdown_plugin(self):
+        self._update_parameter_timer.stop()
         self._unregister_publisher()
 
     def save_settings(self, plugin_settings, instance_settings):
