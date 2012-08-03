@@ -82,7 +82,7 @@ class ServiceCallerWidget(QWidget):
         instance_settings.set_value('splitter_orientation', self.splitter.orientation())
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self.splitter.setOrientation(instance_settings.value('splitter_orientation', Qt.Vertical))
+        self.splitter.setOrientation(int(instance_settings.value('splitter_orientation', Qt.Vertical)))
 
     def trigger_configuration(self):
         new_orientation = Qt.Vertical if self.splitter.orientation() == Qt.Horizontal else Qt.Horizontal 
