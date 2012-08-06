@@ -12,7 +12,7 @@
   <depend package="rqt_py_common"/>
   <depend package="rxtools"/>
   <depend package="rostopic"/>
-  <rosdep name="python-qwt5-qt4"/>
+  <rosdep name="python-qt-bindings-qwt5"/>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>

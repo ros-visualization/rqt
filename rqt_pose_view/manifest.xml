@@ -13,6 +13,7 @@
   <depend package="geometry_msgs"/>
   <depend package="tf"/>
   <rosdep name="python-opengl"/>
+  <rosdep name="python-qt-bindings-gl"/>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
