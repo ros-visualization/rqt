@@ -41,7 +41,6 @@ from .bag_widget import BagWidget
 
 
 class Bag(Plugin):
-
     def __init__(self, context):
         super(Bag, self).__init__(context)
         self.setObjectName('Bag')

@@ -48,7 +48,7 @@ class TimelinePopupMenu(QMenu):
         self.timeline = timeline
 
         self._reset_timeline = self.addAction('Reset Timeline')
-#TODO Checkboxes here
+
         self._play_all = self.addAction('Play All Messages')
         self._play_all.setCheckable(True)
         self._play_all.setChecked(self.timeline.play_all)
@@ -107,7 +107,6 @@ class TimelinePopupMenu(QMenu):
         self._publish_none = submenu.addAction('Publish None')
         submenu.addSeparator()
 
-#TODO add checkboxes to these menuitems
         self._publish_actions = []
         for topic in self._topics:
             self._publish_actions.append(submenu.addAction(topic))
@@ -118,7 +117,6 @@ class TimelinePopupMenu(QMenu):
         if action is not None and action != 0:
             self.process(action)
 
-        #TODO process selection
     def process(self, action):
         if action == self._reset_timeline:
             self.timeline._timeline_frame.reset_timeline()

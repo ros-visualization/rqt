@@ -33,7 +33,14 @@
 import threading
 import qt_gui.qt_binding_helper  # @UnusedImport
 
+from QtCore import QCoreApplication, QEvent
 #from QtCore import qWarning
+
+
+class ListenerEvent(QEvent):
+    def __init__(self, data):
+        super(ListenerEvent, self).__init__(1024)  # userdefined event constant
+        self.data = data
 
 
 class MessageListenerThread(threading.Thread):
@@ -71,11 +78,13 @@ class MessageListenerThread(threading.Thread):
             self.bag_msg_data = bag_msg_data
 #            try:
             if True:
-                bag, msg_data = bag_msg_data
-                if msg_data:
-                    self.listener.message_viewed(bag, msg_data)
-                else:
-                    self.listener.message_cleared()
+                event = ListenerEvent(bag_msg_data)
+                QCoreApplication.postEvent(self.listener, event)
+#                bag, msg_data = bag_msg_data
+#                if msg_data:
+#                    self.listener.message_viewed(bag, msg_data)
+#                else:
+#                    self.listener.message_cleared()
 #            except wx.PyDeadObjectError:
 #                self.timeline.remove_listener(self.topic, self.listener)
 #            except Exception, ex:

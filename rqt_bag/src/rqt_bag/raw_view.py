@@ -41,61 +41,43 @@ import math
 #import wx
 import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt, Signal
-from QtGui import QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
+from QtCore import Qt
+from QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
 from plugin.topic_message_view import TopicMessageView
 
 
 class RawView(TopicMessageView):
     name = 'Raw'
-    signal = Signal()
 
     def __init__(self, timeline, parent):
-        TopicMessageView.__init__(self, timeline, parent)
+        super(RawView, self).__init__(timeline, parent)
 
         self.message_tree = MessageTree(parent)
-    ## MessageView implementation
-        self.signal.connect(self._dispatch, Qt.QueuedConnection)
+        parent.layout().addWidget(self.message_tree)  # This will automatically resize the message_tree to the windowsize
 
     def message_viewed(self, bag, msg_details):
-        TopicMessageView.message_viewed(self, bag, msg_details)
-
-#        topic, msg, t = msg_details
-        _, msg, t = msg_details
+        super(RawView, self).message_viewed(bag, msg_details)
+        _, msg, t = msg_details  # topic, msg, t = msg_details
         if t is None:
             self.message_cleared()
         else:
-            self.last_message = msg
-            self.signal.emit()  # subclass QEvent put the data in it (msg) call QCoreApplication.postevent(receiver, event)
-            #self.message_tree.set_message(msg)
+            self.message_tree.set_message(msg)
 
     def message_cleared(self):
         TopicMessageView.message_cleared(self)
         self.message_tree.set_message(None)
 
-    def _dispatch(self):
-        self.message_tree.set_message(self.last_message)
-    ## Events
-
-#    def on_size(self, event):
-#        self.message_tree.Size = self.parent.ClientSize
-
 
 class MessageTree(QTreeWidget):
     def __init__(self, parent):
         super(MessageTree, self).__init__(parent)
-
-#        self._font = wx.Font(9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setHeaderHidden(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        # TODO figure out why the dynamic layout setup is not working properly
-        self.resize(640, 480)
         self._msg = None
 
         self._expanded_paths = None
-
-#        self.Bind(wx.EVT_KEY_UP, self.on_key_up)
+        self.keyPressEvent = self.on_key_press
 
     @property
     def msg(self):
@@ -112,7 +94,6 @@ class MessageTree(QTreeWidget):
                     self._expanded_paths.remove(path)
 
             self.clear()
-
         if msg:
             # Populate the tree
             self._add_msg_object(None, '', 'msg', msg, msg._type)
@@ -127,63 +108,54 @@ class MessageTree(QTreeWidget):
                         item.setExpanded(True)
                     else:
                         item.setExpanded(False)
-
         self._msg = msg
-
         self.update()
 
-    def on_key_up(self, event):
-        key, ctrl = event.KeyCode, event.ControlDown()
+    def on_key_press(self, event):
+        key, ctrl = event.key(), event.modifiers() & Qt.ControlModifier
 
         if ctrl:
             if key == ord('C') or key == ord('c'):
                 # Ctrl-C: copy text from selected items to clipboard
                 self._copy_text_to_clipboard()
+                event.accept()
             elif key == ord('A') or key == ord('a'):
                 # Ctrl-A: select all
                 self._select_all()
 
     def _select_all(self):
-        first_selected = self.GetFirstVisibleItem()
         for i in self.get_all_items():
-            if not self.IsSelected(i):
-                self.SelectItem(i, True)
+            if not i.isSelected():
+                i.setSelected(True)
+                i.setExpanded(True)
 
-        if first_selected is not None:
-            self.ScrollTo(first_selected)
-
-#    def _copy_text_to_clipboard(self):
-#        # Get the indented text for all selected items
-#
-#        def get_distance(item, ancestor, distance=0):
-#            parent = self.GetItemParent(item)
-#            if parent == ancestor:
-#                return distance
-#            else:
-#                return get_distance(parent, ancestor, distance + 1)
-#
-#        root = self.GetRootItem()
-#        text = '\n'.join([('\t' * get_distance(i, root)) + self.GetItemText(i) for i in self.GetSelections()])
-#
-#        # Copy the text to the clipboard
-#        if wx.TheClipboard.Open():
-#            try:
-#                wx.TheClipboard.SetData(wx.TextDataObject(text))
-#            finally:
-#                wx.TheClipboard.Close()
+    def _copy_text_to_clipboard(self):
+        # Get tab indented text for all selected items
+        def get_distance(item, ancestor, distance=0):
+            parent = item.parent()
+            if parent == None:
+                return distance
+            else:
+                return get_distance(parent, ancestor, distance + 1)
+        text = ''
+        for i in self.get_all_items():
+            if i in self.selectedItems():
+                text += ('\t' * (get_distance(i, None))) + i.text(0) + '\n'
+        # Copy the text to the clipboard
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
 
     def get_item_path(self, item):
         return item.data(0, Qt.UserRole)[0].replace(' ', '')   # remove spaces that may get introduced in indexing, e.g. [  3] is [3]
 
     def get_all_items(self):
         items = []
-#        try:
-        if True:
+        try:
             root = self.invisibleRootItem()
             self.traverse(root, items.append)
-#        except Exception:
-            # @todo: large messages can cause a stack overflow due to recursion
-#            pass
+        except Exception:
+            # TODO: very large messages can cause a stack overflow due to recursion
+            pass
         return items
 
     def traverse(self, root, function):

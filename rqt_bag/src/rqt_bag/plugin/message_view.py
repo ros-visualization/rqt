@@ -49,17 +49,19 @@ class MessageView(QObject):
 # DIspatch method, called from lister, create event, post to qt event loop, custom id
 #override event(), check for custom event type, handle it by calling viewed/cleared
 
-    def message_viewed(self, bag, topic, msg, t):
+    def message_viewed(self, bag, msg_details):
         """
         View the message.
 
         @param bag: the bag file the message is contained in
         @type  bag: rosbag.Bag
-        @param topic: the message topic
-        @type  topic: str
-        @param msg: the message
-        @param t: the message timestamp
-        @type  t: rospy.Time
+        @param msg_details: the details of the message to be viewed
+        @type msg_details: tuple (topic, msg, time)
+            @param topic: the message topic
+            @type  topic: str
+            @param msg: the message
+            @param t: the message timestamp
+            @type  t: rospy.Time
         """
         pass
 
@@ -81,3 +83,17 @@ class MessageView(QObject):
         Close the message view, releasing any resources.
         """
         pass
+
+# event function should not be changed
+
+    def event(self, event):
+        """
+        This function will be called to process events posted by post_event
+        it will call message_cleared or message_viewed with the relevant data
+        """
+        bag, msg_data = event.data
+        if msg_data:
+            self.message_viewed(bag, msg_data)
+        else:
+            self.message_cleared()
+        return True

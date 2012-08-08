@@ -76,7 +76,6 @@ class TopicMessageView(MessageView):
 
     ## Events
     def _on_close(self):
-#    def __del__(self):
         # @todo: needs to handle closing when a message hasn't been viewed yet
         if self._topic:
             self.timeline.popups.remove(self._name)
