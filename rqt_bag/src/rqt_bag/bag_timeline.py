@@ -34,7 +34,6 @@ import rospy
 import rosbag
 import time
 import threading
-import sys
 
 import qt_gui.qt_binding_helper  # @UnusedImport
 
@@ -53,7 +52,7 @@ from .timeline_menu import TimelinePopupMenu
 class BagTimeline(QGraphicsScene):
     """
     """
-    def __init__(self, graphicsview):
+    def __init__(self, graphicsview, context):
         super(BagTimeline, self).__init__()
 
         self._bags = []
@@ -85,12 +84,12 @@ class BagTimeline(QGraphicsScene):
         self.stick_to_end = False  # should the playhead stick to the end?
         # Trap SIGINT to close the threads
 
-        def sigint_handler(signum, frame):
-            # TODO verify this doesn't cause problems if we close the plugin and then ctrl-c
-            self._close()
-            sys.exit(0)
-        import signal
-        signal.signal(signal.SIGINT, sigint_handler)
+#        def sigint_handler(signum, frame):
+#            # TODO verify this doesn't cause problems if we close the plugin and then ctrl-c
+#            self._close()
+#            sys.exit(0)
+#        import signal
+#        signal.signal(signal.SIGINT, sigint_handler)
 
         self._timeline_frame = TimelineFrame(graphicsview)
         self._timeline_frame.setPos(0, 0)
@@ -99,6 +98,11 @@ class BagTimeline(QGraphicsScene):
         self._play_timer = QTimer()
         self._play_timer.timeout.connect(self.on_idle)
         self._play_timer.start(1)
+        self._context = context
+        self.popups = set()
+
+    def get_context(self):
+        return self._context
 
     def set_confine_playhead_state(self, confine_to_selection):
         self.play_all = not confine_to_selection
@@ -124,6 +128,9 @@ class BagTimeline(QGraphicsScene):
             self._player.stop()
         for bag in self._bags:
             bag.close()
+
+        for view in self._views:
+            view.parent.close()
 
 #        if self._recorder:
 #            self._recorder.stop()

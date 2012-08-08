@@ -33,7 +33,7 @@
 import threading
 import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import qWarning
+#from QtCore import qWarning
 
 
 class MessageListenerThread(threading.Thread):

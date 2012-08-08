@@ -44,13 +44,15 @@ class BagWidget(QWidget):
     """
     Widget for use with Bag class to display and replay bag files
     """
-    def __init__(self):
+    def __init__(self, context):
         super(BagWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'bag_widget.ui')
         loadUi(ui_file, self)
+        context.add_widget(self)
+
         self.setObjectName('BagWidget')
 
-        self._timeline = BagTimeline(self.graphics_view)
+        self._timeline = BagTimeline(self.graphics_view, context)
         self.graphics_view.setScene(self._timeline)
 
         self.graphics_view.resizeEvent = self.resizeEvent
@@ -87,6 +89,8 @@ class BagWidget(QWidget):
         self.graphics_view.mouseReleaseEvent = self._timeline.on_mouse_up
         self.graphics_view.mouseMoveEvent = self._timeline.on_mouse_move
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
+        self.closeEvent = self._close  # TODO fix these items that are nolonger private
+
         #TODO verify we have implemented all the old keybindings from rxbag
 #        self.Bind(wx.EVT_IDLE,        self.on_idle)
 #        self.Bind(wx.EVT_PAINT,       self.on_paint)
@@ -99,6 +103,10 @@ class BagWidget(QWidget):
 #        self.Bind(wx.EVT_RIGHT_UP,    self.on_right_up)
 #        self.Bind(wx.EVT_MOTION,      self.on_mouse_move)
 #        self.Bind(wx.EVT_MOUSEWHEEL,  self.on_mousewheel)
+
+    def _close(self, event):
+        self._timeline._close()
+        event.accept()
 
     def resizeEvent(self, event):
         self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 2, self.graphics_view.size().height() - 2)

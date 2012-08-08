@@ -247,7 +247,7 @@ class TimelineFrame(QGraphicsItem):
                 with self.scene()._playhead_positions_cvs[topic]:
                     self.scene()._playhead_positions[topic] = new_playhead_position
                     self.scene()._playhead_positions_cvs[topic].notify_all()           # notify all message loaders that a new message needs to be loaded
-            self.scene().update()
+            self.scene().update()  # TODO this is going to cause double refreshes find them and exterminate
 
     playhead = property(_get_playhead, _set_playhead)
 
@@ -382,7 +382,7 @@ class TimelineFrame(QGraphicsItem):
             self._rendered_topics.remove(topic)
 
     def close(self):
-        # TODO sigint and the normal close functions need to call this before closing
+        # TODO the normal close functions need to call this before closing
 #        if self.background_task is not None:
 #            self.background_task_cancel = True
 
@@ -390,12 +390,6 @@ class TimelineFrame(QGraphicsItem):
             renderer.close()
 
         self._index_cache_thread.stop()
-
-#        if self._player:
-#            self._player.stop()
-
-#        if self._recorder:
-#            self._recorder.stop()
 
     def __del__(self):
         # TODO implement this properly in plugin shutdown function

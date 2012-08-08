@@ -41,19 +41,21 @@ import math
 #import wx
 import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt
+from QtCore import Qt, Signal
 from QtGui import QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
 from plugin.topic_message_view import TopicMessageView
 
 
 class RawView(TopicMessageView):
     name = 'Raw'
+    signal = Signal()
 
     def __init__(self, timeline, parent):
         TopicMessageView.__init__(self, timeline, parent)
 
-        self.message_tree = MessageTree(self.parent)
+        self.message_tree = MessageTree(parent)
     ## MessageView implementation
+        self.signal.connect(self._dispatch, Qt.QueuedConnection)
 
     def message_viewed(self, bag, msg_details):
         TopicMessageView.message_viewed(self, bag, msg_details)
@@ -63,19 +65,22 @@ class RawView(TopicMessageView):
         if t is None:
             self.message_cleared()
         else:
-            self.message_tree.set_message(msg)
+            self.last_message = msg
+            self.signal.emit()  # subclass QEvent put the data in it (msg) call QCoreApplication.postevent(receiver, event)
+            #self.message_tree.set_message(msg)
 
     def message_cleared(self):
         TopicMessageView.message_cleared(self)
         self.message_tree.set_message(None)
 
+    def _dispatch(self):
+        self.message_tree.set_message(self.last_message)
     ## Events
 
 #    def on_size(self, event):
 #        self.message_tree.Size = self.parent.ClientSize
 
 
-#TODO Qt-ize this bit and it should all work
 class MessageTree(QTreeWidget):
     def __init__(self, parent):
         super(MessageTree, self).__init__(parent)
@@ -101,7 +106,7 @@ class MessageTree(QTreeWidget):
         if self._msg:
             for item in self.get_all_items():
                 path = self.get_item_path(item)
-                if self.IsExpanded(item):
+                if item.isExpanded():
                     self._expanded_paths.add(path)
                 elif path in self._expanded_paths:
                     self._expanded_paths.remove(path)
@@ -172,21 +177,18 @@ class MessageTree(QTreeWidget):
 
     def get_all_items(self):
         items = []
-        try:
-            self.traverse(self.RootItem, items.append)
-        except Exception:
+#        try:
+        if True:
+            root = self.invisibleRootItem()
+            self.traverse(root, items.append)
+#        except Exception:
             # @todo: large messages can cause a stack overflow due to recursion
-            pass
+#            pass
         return items
 
     def traverse(self, root, function):
-        if self.ItemHasChildren(root):
-            first_child = self.GetFirstChild(root)[0]
-            function(first_child)
-            self.traverse(first_child, function)
-
-        child = self.GetNextSibling(root)
-        if child:
+        for i in range(root.childCount()):
+            child = root.child(i)
             function(child)
             self.traverse(child, function)
 
@@ -226,11 +228,12 @@ class MessageTree(QTreeWidget):
 
             label += ': ' + obj_repr
         item = QTreeWidgetItem([label])
-        if parent is None:
+        if name == 'msg':
+            pass
+        elif path.find('.') == -1 and path.find('[') == -1:
             self.addTopLevelItem(item)
         else:
             parent.addChild(item)
-
 #        self.SetItemFont(item, self._font)
         item.setData(0, Qt.UserRole, (path, obj_type))
 

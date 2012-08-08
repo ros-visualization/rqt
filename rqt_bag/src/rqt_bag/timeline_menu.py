@@ -34,7 +34,7 @@ import os
 #import qt_gui.qt_binding_helper  # @UnusedImport
 from qt_gui.qt_binding_helper import loadUi
 
-from QtGui import QDialog, QHBoxLayout, QMenu, QWidget
+from QtGui import QHBoxLayout, QMenu, QWidget
 
 
 class TimelinePopupMenu(QMenu):
@@ -139,14 +139,19 @@ class TimelinePopupMenu(QMenu):
         elif action in self._thumbnail_actions:
             pass
         elif action in self._topic_actions + self._type_actions:
-            frame = QWidget()
-            layout = QHBoxLayout()
-            frame.setLayout(layout)
-            frame.resize(640, 480)
-            viewer_type = action.data()
-            view = viewer_type(self.timeline, frame)
-            self.timeline.add_view('/' + action.parentWidget().title(), view)
-            frame.show()
+            popup_name = action.parentWidget().title() + '__' + action.text()
+            if popup_name not in self.timeline.popups:
+                frame = QWidget()
+                layout = QHBoxLayout()
+                frame.setLayout(layout)
+                frame.resize(640, 480)
+                viewer_type = action.data()
+                frame.setObjectName(popup_name)
+                view = viewer_type(self.timeline, frame)
+                self.timeline.popups.add(popup_name)
+                self.timeline.get_context().add_widget(frame)
+                self.timeline.add_view('/' + action.parentWidget().title(), view)
+                frame.show()
         elif action in self._publish_actions:
             if self.timeline.is_publishing(action.text()):
                 self.timeline.stop_publishing(action.text())

@@ -45,8 +45,7 @@ class Bag(Plugin):
     def __init__(self, context):
         super(Bag, self).__init__(context)
         self.setObjectName('Bag')
-        self._widget = BagWidget()
-        context.add_widget(self._widget)
+        self._widget = BagWidget(context)
 
     def shutdown_plugin(self):
         pass

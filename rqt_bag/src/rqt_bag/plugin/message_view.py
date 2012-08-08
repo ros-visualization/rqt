@@ -30,8 +30,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import qt_gui.qt_binding_helper  # @UnusedImport
 
-class MessageView(object):
+from QtCore import QObject
+
+
+class MessageView(QObject):
     """
     A message details renderer. When registered with rxbag, a MessageView is called
     whenever the timeline playhead moves.
@@ -39,7 +43,11 @@ class MessageView(object):
     name = 'Untitled'
 
     def __init__(self, timeline):
+        super(MessageView, self).__init__()
         self.timeline = timeline
+
+# DIspatch method, called from lister, create event, post to qt event loop, custom id
+#override event(), check for custom event type, handle it by calling viewed/cleared
 
     def message_viewed(self, bag, topic, msg, t):
         """

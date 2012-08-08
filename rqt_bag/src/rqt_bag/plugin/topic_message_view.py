@@ -46,13 +46,14 @@ class TopicMessageView(MessageView):
         self._parent = parent
         self._topic = None
         self._stamp = None
-
+        self._name = parent.objectName()
 #        self._toolbar = self.parent.CreateToolBar()
 #        self._setup_toolbar()
 
 #        self.parent.StatusBar = TopicMessageViewStatusBar(self.parent, self)
 
 #        self.parent.Bind(wx.EVT_CLOSE, self._on_close)
+        self.parent.destroyed.connect(self._on_close)
 
     @property
     def parent(self):
@@ -74,12 +75,12 @@ class TopicMessageView(MessageView):
 #        wx.CallAfter(self.parent.StatusBar.update)
 
     ## Events
-    def _on_close(self, event):
+    def _on_close(self):
+#    def __del__(self):
         # @todo: needs to handle closing when a message hasn't been viewed yet
         if self._topic:
+            self.timeline.popups.remove(self._name)
             self.timeline.remove_view(self._topic, self)
-
-        event.Skip()
 
     def navigate_first(self):
         if not self.topic:
