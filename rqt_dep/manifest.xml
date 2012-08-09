@@ -10,6 +10,7 @@
   <depend package="rqt_gui"/>
   <depend package="qt_dotgraph"/>
   <depend package="rqt_graph"/>
+  <depend package="qt_gui_py_common"/>
   <rosdep name="python-rospkg"/>
 
   <export>

@@ -7,7 +7,7 @@ import os, pickle
 import rospkg
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QFile, QIODevice, Qt, Signal, Slot, QAbstractListModel, QThread
+from QtCore import QFile, QIODevice, Qt, Signal, Slot, QAbstractListModel
 from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from QtSvg import QSvgGenerator
 
@@ -20,6 +20,7 @@ from .dotcode_pack import RosPackageGraphDotcodeGenerator
 from qt_dotgraph.pydotfactory import PydotFactory
 # from qt_dotgraph.pygraphvizfactory import PygraphvizFactory
 from qt_dotgraph.dot_to_qt import DotToQtGenerator
+from qt_gui_py_common.worker_thread import WorkerThread 
 
 from rqt_gui_py.plugin import Plugin
 from rqt_graph.interactive_graphics_view import InteractiveGraphicsView
@@ -64,7 +65,7 @@ class RosPackGraph(Plugin):
         super(RosPackGraph, self).__init__(context)
         self.initialized = False
         self._current_dotcode = None
-        self._update_thread = None
+        self._update_thread = WorkerThread(self._update_thread_run, self._update_finished)
         self._nodes = []
         self._edges = []
         self._options = {}
@@ -144,9 +145,8 @@ class RosPackGraph(Plugin):
         context.add_widget(self._widget)
 
     def shutdown_plugin(self):
-        if self._update_thread is not None:
-            self._update_thread.wait()
-
+        self._update_thread.kill()
+        
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('depth_combo_box_index', self._widget.depth_combo_box.currentIndex())
         instance_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
@@ -202,8 +202,7 @@ class RosPackGraph(Plugin):
         if not self.initialized:
             return
 
-        if self._update_thread is not None and self._update_thread.isRunning():
-            return
+        self._update_thread.kill()
 
         self._update_options()
         
@@ -214,10 +213,7 @@ class RosPackGraph(Plugin):
         self._options_serialized = pickle.dumps(self._options)
 
         self._scene.setBackgroundBrush(Qt.lightGray)
-
-        self._update_thread = QThread(self)
-        self._update_thread.run = self._update_thread_run
-        self._update_thread.finished.connect(self._update_finished)
+        
         self._update_thread.start()
 
     # this runs in a non-gui thread, so don't access widgets here directly

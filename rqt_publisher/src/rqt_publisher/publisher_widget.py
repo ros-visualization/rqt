@@ -43,6 +43,7 @@ import rosmsg
 import rospkg
 import rospy
 
+from qt_gui_py_common.worker_thread import WorkerThread 
 from rqt_py_common.extended_combo_box import ExtendedComboBox
 from .publisher_tree_widget import PublisherTreeWidget
 
@@ -58,7 +59,7 @@ class PublisherWidget(QWidget):
     def __init__(self, parent=None):
         super(PublisherWidget, self).__init__(parent)
         self._topic_dict = {}
-        self._update_thread = None
+        self._update_thread = WorkerThread(self._update_thread_run, self._update_finished)
 
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox, 'PublisherTreeWidget': PublisherTreeWidget})
@@ -77,20 +78,15 @@ class PublisherWidget(QWidget):
         self.clear_button.clicked.connect(self.clean_up_publishers)
 
     def shutdown_plugin(self):
-        if self._update_thread is not None:
-            self._update_thread.wait()
+        self._update_thread.kill()
 
     @Slot()
     def refresh_combo_boxes(self):
-        if self._update_thread is not None and self._update_thread.isRunning():
-            return
+        self._update_thread.kill()
         self.type_combo_box.setEnabled(False)
         self.topic_combo_box.setEnabled(False)
         self.type_combo_box.setEditText('updating...')
         self.topic_combo_box.setEditText('updating...')
-        self._update_thread = QThread(self)
-        self._update_thread.run = self._update_thread_run
-        self._update_thread.finished.connect(self._update_finished)
         self._update_thread.start()
 
     # this runs in a non-gui thread, so don't access widgets here directly
