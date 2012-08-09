@@ -41,6 +41,7 @@ from QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
 import roslib
 roslib.load_manifest('rqt_publisher')
 import rospy
+import genpy
 from rqt_gui_py.plugin import Plugin
 from .publisher_widget import PublisherWidget
 
@@ -65,6 +66,7 @@ class Publisher(Plugin):
         self._eval_locals = {}
         for module in (math, random, time):
             self._eval_locals.update(module.__dict__)
+        self._eval_locals['genpy'] = genpy
         del self._eval_locals['__name__']
         del self._eval_locals['__doc__']
 
@@ -212,11 +214,12 @@ class Publisher(Plugin):
             value = expression
             successful_eval = False
 
-        try:
+        if not isinstance(value, slot_type):
             # try to convert value to right type
-            value = slot_type(value)
-        except Exception:
-            successful_conversion = False
+            try:
+                value = slot_type(value)
+            except Exception:
+                successful_conversion = False
 
         if successful_conversion:
             return value
@@ -294,4 +297,5 @@ class Publisher(Plugin):
         self._publishers = {}
 
     def shutdown_plugin(self):
+        self._widget.shutdown_plugin()
         self.clean_up_publishers()

@@ -76,6 +76,10 @@ class PublisherWidget(QWidget):
         self.remove_publisher_button.clicked.connect(self.publisher_tree_widget.remove_selected_publishers)
         self.clear_button.clicked.connect(self.clean_up_publishers)
 
+    def shutdown_plugin(self):
+        if self._update_thread is not None:
+            self._update_thread.wait()
+
     @Slot()
     def refresh_combo_boxes(self):
         if self._update_thread is not None and self._update_thread.isRunning():
