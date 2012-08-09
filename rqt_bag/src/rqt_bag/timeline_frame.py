@@ -243,7 +243,7 @@ class TimelineFrame(QGraphicsItem):
                     new_playhead_position = (bag, entry.position)
                 else:
                     new_playhead_position = (None, None)
-
+# TODO: figure out why the topic here has a '/' at the front...
                 with self.scene()._playhead_positions_cvs[topic]:
                     self.scene()._playhead_positions[topic] = new_playhead_position
                     self.scene()._playhead_positions_cvs[topic].notify_all()           # notify all message loaders that a new message needs to be loaded
@@ -500,19 +500,19 @@ class TimelineFrame(QGraphicsItem):
             painter.setPen(curpen)
 
 #TODO get the plugin renderers working
-#        # Custom renderer
-#        if renderer:
-#            # Iterate through regions of connected messages
-#            for (stamp_start, stamp_end) in self._find_regions(all_stamps[:end_index], msg_combine_interval):
-#                if stamp_end < self._stamp_left:
-#                    continue
-#
-#                region_x_start = self._history_left + (stamp_start - self._stamp_left) * width_interval
-#                region_x_end = self._history_left + (stamp_end - self._stamp_left) * width_interval
-#                region_width = max(1, region_x_end - region_x_start)
-#
-#                renderer.draw_timeline_segment(dc, topic, stamp_start, stamp_end, region_x_start, msg_y, region_width, msg_height)
-#
+        # Custom renderer
+        if renderer:
+            # Iterate through regions of connected messages
+            for (stamp_start, stamp_end) in self._find_regions(all_stamps[:end_index], msg_combine_interval):
+                if stamp_end < self._stamp_left:
+                    continue
+
+                region_x_start = self._history_left + (stamp_start - self._stamp_left) * width_interval
+                region_x_end = self._history_left + (stamp_end - self._stamp_left) * width_interval
+                region_width = max(1, region_x_end - region_x_start)
+
+                renderer.draw_timeline_segment(painter, topic, stamp_start, stamp_end, region_x_start, msg_y, region_width, msg_height)
+
 #        dc.restore()
 
     def _find_regions(self, stamps, max_interval):

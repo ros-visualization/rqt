@@ -72,7 +72,7 @@ class TimelinePopupMenu(QMenu):
             datatype = self.timeline.get_datatype(topic)
 
             # View... / topic
-            topic_menu = QMenu(topic.lstrip('/'), self)
+            topic_menu = QMenu(topic, self)
             viewer_types = self.timeline._timeline_frame.get_viewer_types(datatype)
 
             # View... / topic / Viewer
@@ -91,7 +91,8 @@ class TimelinePopupMenu(QMenu):
             datatype_topics = self._topics_by_type[datatype]
             viewer_types = self.timeline._timeline_frame.get_viewer_types(datatype)
             for topic in [t for t in self._topics if t in datatype_topics]:   # use timeline ordering
-                topic_menu = QMenu(topic.lstrip('/'), datatype_menu)
+#                topic_menu = QMenu(topic.lstrip('/'), datatype_menu)
+                topic_menu = QMenu(topic, datatype_menu)
                 # View... / datatype / topic / Viewer
                 for viewer_type in viewer_types:
                     tempaction = topic_menu.addAction(viewer_type.name)
@@ -148,7 +149,7 @@ class TimelinePopupMenu(QMenu):
                 view = viewer_type(self.timeline, frame)
                 self.timeline.popups.add(popup_name)
                 self.timeline.get_context().add_widget(frame)
-                self.timeline.add_view('/' + action.parentWidget().title(), view)
+                self.timeline.add_view(action.parentWidget().title(), view)
                 frame.show()
         elif action in self._publish_actions:
             if self.timeline.is_publishing(action.text()):

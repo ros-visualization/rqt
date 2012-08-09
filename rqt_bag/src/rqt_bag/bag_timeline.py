@@ -143,8 +143,12 @@ class BagTimeline(QGraphicsScene):
         self._bags.append(bag)
 
         bag_topics = bag_helper.get_topics(bag)
+#        for i in range(len(bag_topics)):
+#            if bag_topics[i][0] != '/':
+#                bag_topics[i] = bag_topics[i][1:]
 
         new_topics = set(bag_topics) - set(self._timeline_frame.topics)
+
         for topic in new_topics:
             self._playhead_positions_cvs[topic] = threading.Condition()
             self._messages_cvs[topic] = threading.Condition()
@@ -540,7 +544,6 @@ class BagTimeline(QGraphicsScene):
         self._listeners.setdefault(topic, []).append(listener)
 
         self._message_listener_threads[(topic, listener)] = MessageListenerThread(self, topic, listener)
-
         # Notify the message listeners
         self._message_loaders[topic].reset()
         with self._playhead_positions_cvs[topic]:
