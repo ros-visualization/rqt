@@ -39,7 +39,7 @@ from QtCore import Qt, Signal
 
 import roslib
 roslib.load_manifest('rqt_py_console')
-from rqt_py_common.console_text_edit import ConsoleTextEdit
+from qt_gui_py_common.console_text_edit import ConsoleTextEdit
 
 class PyConsoleTextEdit(ConsoleTextEdit):
     _color_stdin = Qt.darkGreen

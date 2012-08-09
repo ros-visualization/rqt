@@ -9,7 +9,7 @@
   <depend package="rospy"/>
   <depend package="rqt_gui"/>
   <depend package="rqt_gui_py"/>
-  <depend package="rqt_py_common"/>
+  <depend package="qt_gui_py_common"/>
   <export>
       <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
