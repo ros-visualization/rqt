@@ -36,9 +36,14 @@ Player listens to messages from the timeline and publishes them to ROS.
 
 import rospy
 
+import qt_gui.qt_binding_helper  # @UnusedImport
 
-class Player(object):
+from QtCore import QObject
+
+
+class Player(QObject):
     def __init__(self, timeline):
+        super(Player, self).__init__()
         self.timeline = timeline
 
         self._publishing = set()
@@ -58,7 +63,6 @@ class Player(object):
     def stop_publishing(self, topic):
         if topic not in self._publishing:
             return
-
         self.timeline.remove_listener(topic, self)
 
         if topic in self._publishers:
@@ -92,3 +96,15 @@ class Player(object):
 
     def message_cleared(self):
         pass
+
+    def event(self, event):
+        """
+        This function will be called to process events posted by post_event
+        it will call message_cleared or message_viewed with the relevant data
+        """
+        bag, msg_data = event.data
+        if msg_data:
+            self.message_viewed(bag, msg_data)
+        else:
+            self.message_cleared()
+        return True

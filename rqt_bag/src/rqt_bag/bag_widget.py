@@ -83,7 +83,7 @@ class BagWidget(QWidget):
         self.end_button.clicked[bool].connect(self.handle_end_clicked)
         self.load_button.clicked[bool].connect(self.handle_load_clicked)
         self.save_button.clicked[bool].connect(self.handle_save_clicked)
-        self.publish_checkbox.clicked[bool].connect(self.handle_publish_clicked)
+#        self.publish_checkbox.clicked[bool].connect(self.handle_publish_clicked)
 #        self.confine_checkbox.clicked[bool].connect(self.handle_confine_playhead_clicked)
         self.graphics_view.mousePressEvent = self._timeline.on_mouse_down
         self.graphics_view.mouseReleaseEvent = self._timeline.on_mouse_up

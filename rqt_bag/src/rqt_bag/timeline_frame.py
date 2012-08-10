@@ -910,6 +910,8 @@ class TimelineFrame(QGraphicsItem):
             if event.buttons() == Qt.MidButton or event.modifiers() == Qt.ShiftModifier:
                 # Middle or shift: zoom
 #                dx_click, dy_click = x - self._clicked_pos.x(), y - self._clicked_pos.y()
+                if self._dragged_pos is None:
+                    self._dragged_pos = event.pos()
                 dx_drag, dy_drag = x - self._dragged_pos.x(), y - self._dragged_pos.y()
 
                 if dx_drag != 0:

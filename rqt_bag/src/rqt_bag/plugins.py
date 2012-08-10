@@ -45,7 +45,7 @@ import rospkg
 
 def load_plugins():
     """
-    Finds all rxbag plugins.
+    Finds all rqt_bag plugins.
 
     @return: a list of plugins
     @rtype:  list of functions which return tuples of (MessageView, TimelineRenderer, list of: message type or '*')
@@ -58,7 +58,6 @@ def load_plugins():
     for pkg in to_check:
         manifest = rospack.get_manifest(pkg)
         plugin_module_names = manifest.get_export('rqt_bag', 'plugin')
-
         if not plugin_module_names:
             continue
         elif len(plugin_module_names) != 1:
@@ -89,5 +88,4 @@ def load_plugins():
 
         except Exception:
             print("Unable to load plugin [%s] from package [%s]:\n%s" % (plugin_module_name, pkg, traceback.format_exc()), file=sys.stderr)
-
     return plugins
