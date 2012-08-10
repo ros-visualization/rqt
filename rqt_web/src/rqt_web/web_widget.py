@@ -138,7 +138,7 @@ class WebWidget(QWidget):
         self._completer_word_list = list(set(self._completer_word_list))
         self._completer = QCompleter(self._completer_word_list)
         self._completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self._completer.setCompletionMode(QCompleter.InlineCompletion)
+        self._completer.setCompletionMode(QCompleter.PopupCompletion)
         self.url_lineedit.setCompleter(self._completer)
 
     @staticmethod

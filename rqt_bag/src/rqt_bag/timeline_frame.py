@@ -783,6 +783,8 @@ class TimelineFrame(QGraphicsItem):
             return False
 
         new_interval = self.get_zoom_interval(desired_zoom)
+        if not new_interval:
+            return False
 
         new_range = new_interval[1] - new_interval[0]
         curr_range = self._stamp_right - self._stamp_left
@@ -810,7 +812,8 @@ class TimelineFrame(QGraphicsItem):
         playhead_fraction = (self.playhead.to_sec() - self._stamp_left) / stamp_interval
 
         new_stamp_interval = zoom * stamp_interval
-
+        if new_stamp_interval == 0:
+            return None
         # Enforce zoom limits
         px_per_sec = self._history_width / new_stamp_interval
         if px_per_sec < self._min_zoom:
