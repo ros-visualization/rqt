@@ -33,7 +33,7 @@
 import qt_gui.qt_binding_helper  # @UnusedImport
 
 from QtCore import QPointF, QRectF, Qt
-from QtGui import QBrush, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
+from QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
 import rospy
 
 #import rosbag
@@ -856,7 +856,6 @@ class TimelineFrame(QGraphicsItem):
 
             elif y <= self._history_top:
                 # Clicked above timeline
-
                 if self._selecting_mode == _SelectionMode.NONE:
                     self._selected_left = None
                     self._selected_right = None
@@ -866,12 +865,13 @@ class TimelineFrame(QGraphicsItem):
                 elif self._selecting_mode == _SelectionMode.MARKED:
                     left_x = self.map_stamp_to_x(self._selected_left)
                     right_x = self.map_stamp_to_x(self._selected_right)
-
                     if x < left_x - self._selection_handle_width or x > right_x + self._selection_handle_width:
                         self._selected_left = None
                         self._selected_right = None
                         self._selecting_mode = _SelectionMode.LEFT_MARKED
                         self.scene().update()
+                elif self._selecting_mode == _SelectionMode.SHIFTING:
+                    self.scene().views()[0].setCursor(QCursor(Qt.ClosedHandCursor))
 
     def on_mouse_up(self, event):
         self._paused = False
@@ -881,6 +881,7 @@ class TimelineFrame(QGraphicsItem):
                 self._selecting_mode = _SelectionMode.NONE
             else:
                 self._selecting_mode = _SelectionMode.MARKED
+        self.scene().views()[0].setCursor(QCursor(Qt.ArrowCursor))
         self.scene().update()
 
     def on_mousewheel(self, event):
@@ -905,15 +906,20 @@ class TimelineFrame(QGraphicsItem):
 
                     if abs(x - left_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_LEFT
+                        # TODO: consider using QApplication.setOverrideCursor instead this digging all the way out is ugly
+                        self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif abs(x - right_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_RIGHT
+                        self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif x > left_x and x < right_x:
                         self._selecting_mode = _SelectionMode.SHIFTING
+                        self.scene().views()[0].setCursor(QCursor(Qt.OpenHandCursor))
                         return
                     else:
                         self._selecting_mode = _SelectionMode.MARKED
+                self.scene().views()[0].setCursor(QCursor(Qt.ArrowCursor))
         else:
             # Mouse dragging
             if event.buttons() == Qt.MidButton or event.modifiers() == Qt.ShiftModifier:
@@ -927,6 +933,7 @@ class TimelineFrame(QGraphicsItem):
                     zoom = min(self._max_zoom_speed, max(self._min_zoom_speed, 1.0 + self._zoom_sensitivity * dy_drag))
                     self.zoom_timeline(zoom)
 
+                self.scene().views()[0].setCursor(QCursor(Qt.ClosedHandCursor))
             elif event.buttons() == Qt.LeftButton:
                 clicked_x = self._clicked_pos.x()
                 clicked_y = self._clicked_pos.y()
