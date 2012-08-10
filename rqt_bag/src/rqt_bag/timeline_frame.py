@@ -363,6 +363,7 @@ class TimelineFrame(QGraphicsItem):
         idle_renderers = len(self._rendered_topics) < len(self.topics)
 
         self.set_renderers_active(idle_renderers)
+        self.scene().update()
 
     def set_renderers_active(self, active):
         if active:
@@ -370,6 +371,7 @@ class TimelineFrame(QGraphicsItem):
                 self._rendered_topics.add(topic)
         else:
             self._rendered_topics.clear()
+        self.scene().update()
 
     def set_renderer_active(self, topic, active):
         if active:
@@ -380,6 +382,7 @@ class TimelineFrame(QGraphicsItem):
             if not topic in self._rendered_topics:
                 return
             self._rendered_topics.remove(topic)
+        self.scene().update()
 
     def close(self):
         # TODO the normal close functions need to call this before closing
@@ -821,6 +824,9 @@ class TimelineFrame(QGraphicsItem):
         return (left, right)
 
     ### Mouse events
+    def on_middle_down(self, event):
+        self._clicked_pos = self._dragged_pos = event.pos()
+        self._paused = True
 
     def on_left_down(self, event):
         if self.playhead == None:
@@ -910,8 +916,6 @@ class TimelineFrame(QGraphicsItem):
             if event.buttons() == Qt.MidButton or event.modifiers() == Qt.ShiftModifier:
                 # Middle or shift: zoom
 #                dx_click, dy_click = x - self._clicked_pos.x(), y - self._clicked_pos.y()
-                if self._dragged_pos is None:
-                    self._dragged_pos = event.pos()
                 dx_drag, dy_drag = x - self._dragged_pos.x(), y - self._dragged_pos.y()
 
                 if dx_drag != 0:

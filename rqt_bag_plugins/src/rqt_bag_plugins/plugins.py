@@ -35,11 +35,11 @@
 PKG = 'rqt_bag_plugins'
 import roslib; roslib.load_manifest(PKG)
 
-#from image_timeline_renderer import ImageTimelineRenderer
+from image_timeline_renderer import ImageTimelineRenderer
 from image_view              import ImageView
 #from plot_view               import PlotView
 
 def get_rqt_bag_plugins():
-    return [(ImageView, None, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage'])]
+    return [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage'])]
 #    return [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage']),
 #            (PlotView,  None,                  ['*'])]

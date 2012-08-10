@@ -29,9 +29,12 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import qt_gui.qt_binding_helper  # @UnusedImport
+
+from QtCore import QObject
 
 
-class TimelineRenderer(object):
+class TimelineRenderer(QObject):
     """
     A custom renderer for interval of time of a topic on the timeline.
 

@@ -61,9 +61,9 @@ class TimelinePopupMenu(QMenu):
 
         self._renderers = self.timeline._timeline_frame.get_renderers()
         self._thumbnail_actions = []
-#TODO GET THE RENDERERS WORKING
+# TODO: GET THE RENDERERS WORKING
         for topic, renderer in self._renderers:
-            self._thumbnail_actions.append(submenu.addAction(topic + '/' + renderer))
+            self._thumbnail_actions.append(submenu.addAction(topic))
 
         self._topics = self.timeline._timeline_frame.topics
         view_topics_menu = self.addMenu('View (by Topic)')
@@ -132,11 +132,14 @@ class TimelinePopupMenu(QMenu):
                 if not self.timeline.stop_publishing(topic):
                     break
         elif action == self._thumbnail_show_action:
-            pass
+            self.timeline._timeline_frame.set_renderers_active(True)
         elif action == self._thumbnail_hide_action:
-            pass
+            self.timeline._timeline_frame.set_renderers_active(False)
         elif action in self._thumbnail_actions:
-            pass
+            if self.timeline._timeline_frame.is_renderer_active(action.text()):
+                self.timeline._timeline_frame.set_renderer_active(action.text(), False)
+            else:
+                self.timeline._timeline_frame.set_renderer_active(action.text(), True)
         elif action in self._topic_actions + self._type_actions:
             popup_name = action.parentWidget().title() + '__' + action.text()
             if popup_name not in self.timeline.popups:
