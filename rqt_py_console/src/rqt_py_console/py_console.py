@@ -33,11 +33,16 @@
 import roslib
 roslib.load_manifest('rqt_py_console')
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from qt_gui.plugin import Plugin
+import qt_gui.qt_binding_helper # @UnusedImport
+from rqt_gui_py.plugin import Plugin
+from py_console_widget import PyConsoleWidget
 
-import py_console_widget
-
+try:
+    from spyder_console_widget import SpyderConsoleWidget
+    _has_spyderlib = True
+except ImportError:
+    _has_spyderlib = False
+        
 class PyConsole(Plugin):
     """
     Plugin providing an interactive Python console
@@ -45,7 +50,37 @@ class PyConsole(Plugin):
     def __init__(self, context):
         super(PyConsole, self).__init__(context)
         self.setObjectName('PyConsole')
+        
+        self._context = context
+        self._widget = None
+        self._use_spyderlib = True
+            
+    def _add_console_widget(self):
+        old_widget = self._widget
+                
+        if _has_spyderlib and self._use_spyderlib:
+            self._widget = SpyderConsoleWidget(self._context)
+            self._widget.setWindowTitle('SpyderConsole')
+        else:
+            self._widget = PyConsoleWidget(self._context)
+            self._widget.setWindowTitle('PyConsole')
+        
+        if old_widget is not None:
+            self._context.remove_widget(old_widget)
+        self._context.add_widget(self._widget)
 
-        # This method is used to allow user to type a url
-        self._widget = py_console_widget.PyConsoleWidget(context)
-        context.add_widget(self._widget)
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('use_spyderlib', self._use_spyderlib)
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._use_spyderlib = bool(instance_settings.value('use_spyderlib', True))
+        self._add_console_widget()
+
+    def trigger_configuration(self):
+        self._use_spyderlib = not self._use_spyderlib
+        self._add_console_widget()
+        
+    def shutdown_plugin(self):
+        if self._widget is not None and hasattr(self._widget, 'shutdown'):
+            self._widget.shutdown()
+    
