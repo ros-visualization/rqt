@@ -34,14 +34,13 @@ import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Qt, qWarning
 from QtGui import QBrush, QSortFilterProxyModel
 
-from .filter_collection import FilterCollection
+from .filters.filter_collection import FilterCollection
 
 
 class MessageProxyModel(QSortFilterProxyModel):
     """
     Provides sorting and filtering capabilities for the MessageDataModel.
-    Filtering is based on standard boolean operations. Base units in boolean
-    operations are considered true if they exist in the string they are applied to.
+    Filtering is based on subclassed Filters stored in the FilterCollections.
     """
     def __init__(self):
         super(MessageProxyModel, self).__init__()
@@ -52,10 +51,12 @@ class MessageProxyModel(QSortFilterProxyModel):
         self._exclude_filters = FilterCollection(self)
         self._highlight_filters = FilterCollection(self)
 
+    # BEGIN Required implementations of QSortFilterProxyModel functions
     def filterAcceptsRow(self, sourcerow, sourceparent):
         """
-        Filters items based on the _exclude_filters and
-        if _show_highlighted_only is on the _highlighted_filters
+        returns: True if the row does not match the exclude filters AND (_show_highlighted_only is False OR it matches the _highlight_filters, ''bool''
+        OR
+        returns: False if the row matches the exclude filters OR (_show_highlighted_only is True and it doesn't match the _highlight_filters, ''bool''
         """
         rowdata = []
         for index in range(self.sourceModel().columnCount()):
@@ -71,7 +72,7 @@ class MessageProxyModel(QSortFilterProxyModel):
 
     def data(self, index, role=None):
         """
-        Colors items based on highlight filters and severity type
+        Sets colors of items based on highlight filters and severity type
         """
         messagelist = self.sourceModel()._messages.get_message_list()
         index = self.mapToSource(index)
@@ -92,8 +93,8 @@ class MessageProxyModel(QSortFilterProxyModel):
                             return QBrush(Qt.darkRed)
                     if not self._highlight_filters.test_message(messagelist[index.row()]):
                         return QBrush(Qt.gray)
-
         return self.sourceModel().data(index, role)
+    # END Required implementations of QSortFilterProxyModel functions
 
     def handle_filters_changed(self):
         self.reset()
@@ -125,15 +126,16 @@ class MessageProxyModel(QSortFilterProxyModel):
     def save_to_file(self, filehandle):
         """
         Saves to an already open filehandle.
-        If successful it returns True. Otherwise False
+        :return: True if file write is successful, ''bool''
+        OR
+        :return: False if file write fails, ''bool''
         """
         try:
             filehandle.write(self.sourceModel()._messages.header_print())
-
             for index in range(self.rowCount()):
                 row = self.mapToSource(self.index(index, 0)).row()
                 filehandle.write(self.sourceModel()._messages.get_message_list()[row].file_print())
-            return True
-        except:
-            qWarning('File save failed.')
+        except Exception as e:
+            qWarning('File save failed: %s' % str(e))
             return False
+        return True

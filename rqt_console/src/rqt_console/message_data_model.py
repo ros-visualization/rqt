@@ -37,7 +37,7 @@ from QtCore import QAbstractTableModel, QDateTime, QModelIndex, Qt, qWarning
 
 
 class MessageDataModel(QAbstractTableModel):
-    def __init__(self, editable=False):
+    def __init__(self):
         super(MessageDataModel, self).__init__()
         QAbstractTableModel.__init__(self)
         self._messages = MessageList()
@@ -47,7 +47,7 @@ class MessageDataModel(QAbstractTableModel):
         self._paused = False
         self._message_limit = 20000
 
-    # BEGIN Required QAbstractTableModel functions
+    # BEGIN Required implementations of QAbstractTableModel functions
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
 
@@ -79,7 +79,7 @@ class MessageDataModel(QAbstractTableModel):
                 return retval
             elif orientation == Qt.Vertical:
                 return '#%d' % (section + 1)
-    # END Required QAbstractTableModel functions
+    # END Required implementations of QAbstractTableModel functions
 
     def timestring_to_timedata(self, timestring):
         """
@@ -106,7 +106,7 @@ class MessageDataModel(QAbstractTableModel):
 
     def insert_rows(self, msgs):
         """
-        Wraps the insert_row function to minimize gui calls
+        Wraps the insert_row function to minimize gui notification calls
         """
         if len(msgs) == 0:
             return
@@ -128,32 +128,47 @@ class MessageDataModel(QAbstractTableModel):
             self.endInsertRows()
 
     def remove_rows(self, rowlist):
+        """
+        :param rowlist: list of row indexes, ''list(int)''
+        :returns: True if the indexes were removed successfully, ''bool''
+        OR
+        :returns: False if there was an exception removing the rows, ''bool''
+        """
         if len(rowlist) == 0:
             if len(self.get_message_list()) > 0:
-                self.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()))
-                del self.get_message_list()[0:len(self.get_message_list())]
-                self.endRemoveRows()
+                try:
+                    self.beginRemoveRows(QModelIndex(), 0, len(self.get_message_list()))
+                    del self.get_message_list()[0:len(self.get_message_list())]
+                    self.endRemoveRows()
+                except:
+                    return False
         else:
             rowlist = list(set(rowlist))
             rowlist.sort(reverse=True)
             dellist = [rowlist[0]]
             for row in rowlist[1:]:
                 if dellist[-1] - 1 > row:
-                    self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
-                    del self.get_message_list()[dellist[-1]:dellist[0] + 1]
-                    self.endRemoveRows()
+                    try:
+                        self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
+                        del self.get_message_list()[dellist[-1]:dellist[0] + 1]
+                        self.endRemoveRows()
+                    except:
+                        return False
                     dellist = []
                 dellist.append(row)
             if len(dellist) > 0:
-                self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
-                del self.get_message_list()[dellist[-1]:dellist[0] + 1]
-                self.endRemoveRows()
+                try:
+                    self.beginRemoveRows(QModelIndex(), dellist[-1], dellist[0])
+                    del self.get_message_list()[dellist[-1]:dellist[0] + 1]
+                    self.endRemoveRows()
+                except:
+                    return False
         return True
 
     def get_selected_text(self, rowlist):
         """
         Returns an easily readable block of text for the currently selected rows
-        :param rowlist: list of row indexes, ''list''
+        :param rowlist: list of row indexes, ''list(int)''
         :returns: the text from those indexes, ''str''
         """
         text = None
@@ -206,7 +221,9 @@ class MessageDataModel(QAbstractTableModel):
     def load_from_file(self, filehandle):
         """
         Saves to an already open filehandle.
-        If successful it returns True. Otherwise False
+        :returns: True if loaded successfully, ''bool''
+        OR
+        :returns: False if load fails, ''bool''
         """
         line = filehandle.readline()
         lines = []

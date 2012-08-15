@@ -44,7 +44,7 @@ class ConsoleSubscriberDialog(QDialog):
     def __init__(self, topics, limit):
         """
         :param topics: list of topics to allow switching, ''list of string''
-        :param limit: displayed in the message spin box, ''int''
+        :param limit: displayed in the message buffer size spin box, ''int''
         """
         super(QDialog, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_subscriber_dialog.ui')

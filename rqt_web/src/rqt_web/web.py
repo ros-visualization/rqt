@@ -44,29 +44,32 @@ class Web(Plugin):
     Plugin to interface with webtools via ros_gui
     """
     def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
+        """
+        print context
         super(Web, self).__init__(context)
         self.setObjectName('Web')
 
-        # This method is used to allow user to type a url
+        #  This method is used to allow user to type a url into the url bar
         self._web = WebWidget()
         context.add_widget(self._web)
 
-        # This method is used to specify a static url
-        # self._web = WebWidget('http://ros.org')
-        # context.add_widget(self._web)
+        #  This method is used to specify a static url
+        #  NOTE: this method will hide the url bar
+        #self._web = WebWidget('http://ros.org')
+        #context.add_widget(self._web)
 
-        # This method is used to specify a url and change it later
-        # self._web = WebWidget()
-        # self._web.set_url('http://ros.org')
-        # context.add_widget(self._web)
+        #  To change the url at a later time use this function 
+        # self._web.set_url('http://willowgarage.com')
 
     def shutdown_plugin(self):
         pass
 
     def save_settings(self, plugin_settings, instance_settings):
-        # This line saves the autocompleter settings
+        # NOTE: This line is required to save the url bar autocompleter data between sessions 
         self._web.save_settings(plugin_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        # This line restores the autocompleter settings
+        # NOTE: This line is required to restore the url bar autocompleter data between sessions 
         self._web.restore_settings(plugin_settings)

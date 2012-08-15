@@ -40,7 +40,7 @@ from QtCore import QObject, qWarning
 class LoggerLevelServiceCaller(QObject):
     """
     Handles service calls for getting lists of nodes and loggers
-    Also handles sending change logger level changed messages
+    Also handles sending requests to change logger levels
     """
     def __init__(self):
         super(LoggerLevelServiceCaller, self).__init__()
@@ -57,7 +57,7 @@ class LoggerLevelServiceCaller(QObject):
     def get_node_names(self):
         """
         Gets a list of available services via a ros service call.
-        Returns a list of all nodes that provide set_logger_level.
+        :returns: a list of all nodes that provide the set_logger_level service, ''list(str)''
         """
         set_logger_level_nodes = []
         nodes = rosnode.get_node_names()
@@ -69,7 +69,8 @@ class LoggerLevelServiceCaller(QObject):
 
     def _refresh_loggers(self, node):
         """
-        Gets and stores a list of loggers available for 'node'
+        Stores a list of loggers available for passed in node
+        :param node: name of the node to query, ''str''
         """
         self._current_loggers = []
         self._current_levels = {}
@@ -100,9 +101,11 @@ class LoggerLevelServiceCaller(QObject):
     def send_logger_change_message(self, node, logger, level):
         """
         Sends a logger level change request to 'node'.
-        Returns True if the response is valid.
-        Returns False if the request raises an exception
-        Returns False if the request would not change the state
+        :param node: name of the node to chaange, ''str''
+        :param logger: name of the logger to change, ''str''
+        :param level: name of the level to change, ''str''
+        :returns: True if the response is valid, ''bool''
+        :returns: False if the request raises an exception or would not change the cached state, ''bool''
         """
         servicename = node + '/set_logger_level'
         if self._current_levels[logger].lower() == level.lower():

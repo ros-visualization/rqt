@@ -38,9 +38,12 @@ from QtGui import QDialog
 
 class TextBrowseDialog(QDialog):
     """
-    Simple text brower Dialog that sets itself from the passed in text.
+    Simple text brower Dialog that sets its text from the passed in text.
     """
     def __init__(self, text):
+        """
+        :param text: value to set the text of the widget to, ''str''
+        """
         super(QDialog, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'text_browse_dialog.ui')
         loadUi(ui_file, self)

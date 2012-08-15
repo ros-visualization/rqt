@@ -46,6 +46,9 @@ class ConsoleSubscriber(QObject):
     Also holds the message limit from ConsolesubscriberDialog
     """
     def __init__(self, callback=None):
+        """
+        :param callback: callback function to invoke when receiving a message ''function''
+        """
         super(ConsoleSubscriber, self).__init__()
         self._msgcallback = callback
         self._currenttopic = "/rosout_agg"

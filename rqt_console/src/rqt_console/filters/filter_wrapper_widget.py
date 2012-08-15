@@ -38,8 +38,7 @@ from QtGui import QIcon, QWidget
 
 class FilterWrapperWidget(QWidget):
     """
-    Wraps the other filter widgets to provide enable check box, delete button
-    control and uniform labeling
+    Wraps the other filter widgets to provide enable check box, delete button control and uniform labeling
     """
     def __init__(self, widget, filter_name):
         """

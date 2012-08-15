@@ -36,11 +36,12 @@ from QtCore import QDateTime, QObject
 
 class Message(QObject):
     """
-    Basic Message object. Loads from a Log message primarily as well as an array
-    and a formatted text string. Output methods are formatted strings. To
-    directly access members use the get_data() function.
+    Basic Message object.To directly access members use the get_data() function.
     """
     def __init__(self, msg=None):
+        """
+        :param msg: a log message to initialize the message object, ''Log''
+        """
         super(Message, self).__init__()
         self._messagemembers = self.get_message_members()
         self._severity = {1: self.tr('Debug'), 2: self.tr('Info'), 4: self.tr('Warn'), 8: self.tr('Error'), 16: self.tr('Fatal')}
@@ -72,17 +73,29 @@ class Message(QObject):
 
     def time_in_seconds(self):
         """
-        :returns: seconds with decimal fractions of a second, ''str''
+        :returns: seconds with decimal fractions of a second to the 9th decimal place, ''str''
         """
         return str(self._time[0]) + '.' + str(self._time[1]).zfill(9)
 
     def time_as_qdatetime(self):
+        """
+        :returns: time with msecs included, ''QDateTime''
+        """
         time = QDateTime()
         time.setTime_t(int(self._time[0]))
         time = time.addMSecs(int(str(self._time[1]).zfill(9)[:3]))
         return time
 
     def load_from_array(self, rowdata):
+        """
+        :param rowdata:
+            [0] = message, ''str''
+            [1] = severity, ''str''
+            [2] = node name, ''str''
+            [3] = time in seconds including decimal, ''str''
+            [4] = topic name, ''str''
+            [5] = location value, ''str''
+        """
         self._message = rowdata[0]
         self._severity = rowdata[1]
         self._node = rowdata[2]
@@ -91,17 +104,10 @@ class Message(QObject):
         self._location = rowdata[5]
         return self
 
-    def file_print(self):
-        text = '"' + self._node + '";'
-        text += '"' + self.time_in_seconds() + '";'
-        text += '"' + self._severity + '";'
-        text += '"' + self._topics + '";'
-        text += '"' + self._location + '";'
-        altered_message = self._message.replace('"', '\\"')
-        text += '"' + altered_message + '"\n'
-        return text
-
     def file_load(self, text):
+        """
+        :param text: delmited message text as follows, node;time;severity;topics;location;"message" , ''str''
+        """
         text = text[1:]
         sc_index = text.find('";"')
         if sc_index == -1:
@@ -132,6 +138,16 @@ class Message(QObject):
         text = text.replace('\\"', '"')
         self._message = text[1:-2]
         return
+
+    def file_print(self):
+        text = '"' + self._node + '";'
+        text += '"' + self.time_in_seconds() + '";'
+        text += '"' + self._severity + '";'
+        text += '"' + self._topics + '";'
+        text += '"' + self._location + '";'
+        altered_message = self._message.replace('"', '\\"')
+        text += '"' + altered_message + '"\n'
+        return text
 
     def pretty_print(self):
         text = self.tr('Node: ') + self._node + '\n'

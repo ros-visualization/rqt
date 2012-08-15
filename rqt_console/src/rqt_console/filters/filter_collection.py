@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from .message import Message
+from ..message import Message
 
 
 class FilterCollection:
@@ -49,7 +49,7 @@ class FilterCollection:
 
     def test_message_array(self, message):
         """
-        overload of test_message function for an array
+        test_message function for an array formatted message
         :param message: array of the message member data in order ''list'':
                         message text ''str'', severity ''str'', node ''str'',
                         time in seconds with decimals ''str'', topic ''str'',
@@ -63,7 +63,6 @@ class FilterCollection:
         """
         Tests if the message matches the entire list of filters.
         if passed an array of the 6 data elements of a message it will build one
-
         :param message: message to be tested against the filters, ''Message''
         :returns: True if the message matches the filters, ''bool''
         """
@@ -75,8 +74,7 @@ class FilterCollection:
     def append(self, newfilter):
         """
         Adds a new filter to the filter list and returns the index
-
-        :returns: The index of the filter appended
+        :returns: The index of the filter appended, ''int''
         """
         self._filters.append(newfilter)
 

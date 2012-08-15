@@ -33,10 +33,8 @@
 
 def pack(data):
     """
-    Packs 'data' into a form that can be easily and readably written to an ini
-    file
-    :param data: A list of strings or a list of QAbstractTableItems to be
-    flattened into a string ''list''
+    Packs 'data' into a form that can be easily and readably written to an ini file
+    :param data: A list of strings or a list of QAbstractTableItems to be flattened into a string ''list''
     :return: A string suitable for output to ini files ''str''
     """
     if len(data) == 0:

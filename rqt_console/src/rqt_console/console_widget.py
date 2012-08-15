@@ -113,14 +113,14 @@ class ConsoleWidget(QWidget):
         # list of TextBrowserDialogs to close when cleaning up
         self._browsers = []
 
-        # This defaults the filters panel to start closed
-        self.table_splitter.setSizes([1, 0])
+        # This defaults the filters panel to start by taking 50% of the available space
+        self.table_splitter.setSizes([1, 1])
         self.exclude_table.resizeColumnsToContents()
         self.highlight_table.resizeColumnsToContents()
 
     def get_time_range_from_selection(self):
         """
-        :returns: the range of time of messages in the current table selection, ''tuple(str,str)''
+        :returns: the range of time of messages in the current table selection (min, max), ''tuple(str,str)''
         """
         rowlist = []
         indexes = self.table_view.selectionModel().selectedIndexes()
@@ -137,7 +137,7 @@ class ConsoleWidget(QWidget):
 
     def _delete_highlight_filter(self):
         """
-        Deletes any any highlight filter which has a checked delete button
+        Deletes any highlight filters which have a checked delete button
         """
         for index, item in enumerate(self._highlight_filters):
             if item[1].delete_button.isChecked():
@@ -150,7 +150,7 @@ class ConsoleWidget(QWidget):
 
     def _delete_exclude_filter(self):
         """
-        Deletes any any exclude filter which has a checked delete button
+        Deletes any exclude filters which have a checked delete button
         """
         for index, item in enumerate(self._exclude_filters):
             if item[1].delete_button.isChecked():
@@ -163,9 +163,12 @@ class ConsoleWidget(QWidget):
 
     def _add_highlight_filter(self, filter_index=False):
         """
-        If filter_index is False this function shows a QMenu to allow the user
-        to choose a type of message filter.
-        Then it adds the filter
+        :param filter_index: if false then this function shows a QMenu to allow the user to choose a type of message filter. ''bool''
+        OR
+        :param filter_index: the index of the filter to be added, ''int''
+        :return: if a filter was added then the index is returned, ''int''
+        OR
+        :return: if no filter was added then None is returned, ''NoneType''
         """
         if filter_index is False:
             filter_index = -1
@@ -204,9 +207,12 @@ class ConsoleWidget(QWidget):
 
     def _add_exclude_filter(self, filter_index=False):
         """
-        If filter_index is False this function shows a QMenu to allow the user
-        to choose a type of message filter.
-        Then it adds the filter
+        :param filter_index: if false then this function shows a QMenu to allow the user to choose a type of message filter. ''bool''
+        OR
+        :param filter_index: the index of the filter to be added, ''int''
+        :return: if a filter was added then the index is returned, ''int''
+        OR
+        :return: if no filter was added then None is returned, ''NoneType''
         """
         if filter_index is False:
             filter_index = -1
@@ -247,8 +253,10 @@ class ConsoleWidget(QWidget):
         """
         Modifies the relevant filters (based on selectiontype) to remove (exclude=True)
         or highlight (exclude=False) the selection from the dataset in the tableview.
+        :param selection: the actual selection, ''str''
+        :param selectiontype: the type of selection, ''str''
+        :param exclude: If True process as an exclude filter, False process as an highlight filter, ''bool''
         """
-
         types = {self.tr('Node'): 2, self.tr('Topic'): 4, self.tr('Severity'): 1, self.tr('Message'): 0}
         try:
             col = types[selectiontype]
@@ -305,6 +313,7 @@ class ConsoleWidget(QWidget):
         """
         Dynamically builds the rightclick menu based on the unique column data
         from the passed in datamodel and then launches it modally
+        :param event: the mouse event object, ''QMouseEvent''
         """
         severities = self._datamodel.get_unique_col_data(1)
         nodes = self._datamodel.get_unique_col_data(2)

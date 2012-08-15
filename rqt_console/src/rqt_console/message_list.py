@@ -63,8 +63,8 @@ class MessageList(object):
 
     def get_unique_col_data(self, index):
         """
-        :param index: row index, ''int''
-        :returns: a unique list of strings from the index, ''list[str]''
+        :param index: col index, ''int''
+        :returns: a unique list of data index, ''list[str]''
         """
         uniques_list = set()
         for message in self._messagelist:

@@ -40,8 +40,14 @@ from .logger_level_service_caller import LoggerLevelServiceCaller
 
 
 class LoggerLevel(Plugin):
-
+    """
+    rqt_logger_level plugin's main class. Creates a widget and a
+    service caller object and displays the widget.
+    """
     def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
+        """
         super(LoggerLevel, self).__init__(context)
         self.setObjectName('LoggerLevel')
         self._service_caller = LoggerLevelServiceCaller()
@@ -53,9 +59,11 @@ class LoggerLevel(Plugin):
         pass
 
     def save_settings(self, plugin_settings, instance_settings):
+        # TODO: implement save functionality for the current logger states
         pass
 
     def restore_settings(self, plugin_settings, instance_settings):
+        # TODO: implement restore functionality for the current logger states
         pass
 
     #def trigger_configuration(self):

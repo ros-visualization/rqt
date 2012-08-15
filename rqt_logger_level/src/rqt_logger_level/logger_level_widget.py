@@ -39,14 +39,16 @@ from QtGui import QWidget
 
 class LoggerLevelWidget(QWidget):
     """
-    Widget for use with LoggerLevelServiceCaller class to alter the loggerlevels
+    Widget for use with LoggerLevelServiceCaller class to alter the ROS logger levels
     """
     def __init__(self, caller):
+        """
+        :param caller: service caller instance for sending service calls, ''LoggerLevelServiceCaller''
+        """
         super(QWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logger_level.ui')
         loadUi(ui_file, self)
         self.setObjectName('LoggerLevelWidget')
-
         self._caller = caller
 
         self.node_list.currentRowChanged[int].connect(self.node_changed)
@@ -59,6 +61,10 @@ class LoggerLevelWidget(QWidget):
             self.node_list.setCurrentRow(0)
 
     def refresh_nodes(self):
+        """
+        Refreshes the top level node list and repoulates the node_list widget.
+        As a side effect the level and logger lists are cleared
+        """
         self.level_list.clear()
         self.logger_list.clear()
         self.node_list.clear()
@@ -66,6 +72,11 @@ class LoggerLevelWidget(QWidget):
             self.node_list.addItem(name)
 
     def node_changed(self, row):
+        """
+        Handles the rowchanged event for the node_list widget
+        Populates logger_list with the loggers for the node selected
+        :param row: the selected row in node_list, ''int''
+        """
         if row == -1:
             return
         if row < 0 or row >= self.node_list.count():
@@ -82,6 +93,11 @@ class LoggerLevelWidget(QWidget):
             self.logger_list.setCurrentRow(0)
 
     def logger_changed(self, row):
+        """
+        Handles the rowchanged event for the logger_list widget
+        Populates level_list with the levels for the logger selected
+        :param row: the selected row in logger_list, ''int''
+        """
         if row == -1:
             return
         if row < 0 or row >= self.logger_list.count():
@@ -95,6 +111,11 @@ class LoggerLevelWidget(QWidget):
                 self.level_list.setCurrentRow(index)
 
     def level_changed(self, row):
+        """
+        Handles the rowchanged event for the level_list widget
+        Makes a service call to change the logger level for the indicated node/logger to the selected value
+        :param row: the selected row in level_list, ''int''
+        """
         if row == -1:
             return
         if row < 0 or row >= self.level_list.count():

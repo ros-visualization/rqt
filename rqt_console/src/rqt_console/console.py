@@ -50,6 +50,9 @@ class Console(Plugin):
     callbacks to handle incoming message
     """
     def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
+        """
         super(Console, self).__init__(context)
         self.setObjectName('Console')
 
@@ -71,8 +74,7 @@ class Console(Plugin):
 
     def insert_messages(self):
         """
-        Callback for flushing incoming Log messages from the queue to the
-        datamodel
+        Callback for flushing incoming Log messages from the queue to the datamodel
         """
         self._mutex.lock()
         msgs = self._datamodel._insert_message_queue
