@@ -74,7 +74,7 @@ class PyConsole(Plugin):
         instance_settings.set_value('use_spyderlib', self._use_spyderlib)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self._use_spyderlib = _has_spyderlib and bool(instance_settings.value('use_spyderlib', True))
+        self._use_spyderlib = _has_spyderlib and (instance_settings.value('use_spyderlib', True) in [True, 'true'])
         self._update_console_widget()
 
     def trigger_configuration(self):
