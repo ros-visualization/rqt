@@ -57,15 +57,25 @@ class ConsoleWidget(QWidget):
     """
     Primary widget for the rqt_console plugin.
     """
-    def __init__(self, proxymodel):
+    def __init__(self, proxymodel, minimal = False):
+        """
+        :param proxymodel: the proxy model to display in the widget,''QSortFilterProxyModel''
+        :param minimal: if true the load, save and column buttons will be hidden as well as the filter splitter, ''bool''
+        """
         super(ConsoleWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_widget.ui')
         loadUi(ui_file, self)
+        
+        if minimal:
+            self.load_button.hide()
+            self.save_button.hide()
+            self.column_resize_button.hide()
+            self.filter_splitter.hide()
         self.setObjectName('ConsoleWidget')
         self.table_view.setModel(proxymodel)
         self._proxymodel = proxymodel
         self._datamodel = proxymodel.sourceModel()
-
+                
         self._columnwidth = (600, 140, 200, 430, 200, 600)
         for idx, width in enumerate(self._columnwidth):
             self.table_view.horizontalHeader().resizeSection(idx, width)
