@@ -43,7 +43,7 @@ import qt_gui.qt_binding_helper  # @UnusedImport
 
 from QtCore import Qt
 from QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
-from plugin.topic_message_view import TopicMessageView
+from .topic_message_view import TopicMessageView
 
 
 class RawView(TopicMessageView):

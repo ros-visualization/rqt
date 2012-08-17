@@ -50,7 +50,7 @@ import threading
 import plugins
 
 from .index_cache_thread import IndexCacheThread
-from .raw_view import RawView
+from .plugin.raw_view import RawView
 
 
 class _SelectionMode(object):
@@ -67,7 +67,7 @@ class TimelineFrame(QGraphicsItem):
     Draws the framing elements for the bag messages (time delimiters, labels,
     topic names and backgrounds
     """
-    def __init__(self, graphicsview):
+    def __init__(self):
         super(TimelineFrame, self).__init__()
         # 1ms, 5ms, 10ms, 50ms, 100ms, 500ms
         # 1s, 5s, 15s, 30s
@@ -117,7 +117,7 @@ class TimelineFrame(QGraphicsItem):
         self._history_top = 30
         self._topic_vertical_padding = 4
 
-        self._graphics_view = graphicsview
+#        self._graphics_view = graphicsview
 
         self._major_divisions_label_indent = 3  # padding in px between line and label
 
@@ -552,7 +552,7 @@ class TimelineFrame(QGraphicsItem):
                 self._topic_font_height = topic_height
 
         new_history_left = self._margin_left + max_topic_name_width + self._topic_name_spacing
-        new_history_width = self._graphics_view.size().width() - new_history_left - self._margin_right
+        new_history_width = self.scene().views()[0].size().width() - new_history_left - self._margin_right
         updated_history = (new_history_left != self._history_left or new_history_width != self._history_width)
         if updated_history:
             self._history_left = new_history_left

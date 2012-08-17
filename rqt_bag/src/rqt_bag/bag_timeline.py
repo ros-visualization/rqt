@@ -52,7 +52,12 @@ from .timeline_menu import TimelinePopupMenu
 class BagTimeline(QGraphicsScene):
     """
     """
-    def __init__(self, graphicsview, context):
+    def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding rqt_bag plugin main widgets as a ROS_GUI pane, ''PluginContext''
+        """
+        # TODO reverify that threads will always be cleaned up on close
+        # TODO reverify that threads that are not qObjects are not directly accessing widgets
         super(BagTimeline, self).__init__()
 
         self._bags = []
@@ -82,22 +87,14 @@ class BagTimeline(QGraphicsScene):
         self.desired_playhead = None
         self.wrap = True  # should the playhead wrap when it reaches the end?
         self.stick_to_end = False  # should the playhead stick to the end?
-        # Trap SIGINT to close the threads
-
-#        def sigint_handler(signum, frame):
-#            # TODO verify this doesn't cause problems if we close the plugin and then ctrl-c
-#            self._close()
-#            sys.exit(0)
-#        import signal
-#        signal.signal(signal.SIGINT, sigint_handler)
-
-        self._timeline_frame = TimelineFrame(graphicsview)
+        self._timeline_frame = TimelineFrame()
         self._timeline_frame.setPos(0, 0)
         self.addItem(self._timeline_frame)
 
         self._play_timer = QTimer()
         self._play_timer.timeout.connect(self.on_idle)
         self._play_timer.start(1)
+
         self._context = context
         self.popups = set()
 

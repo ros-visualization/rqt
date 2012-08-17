@@ -43,8 +43,12 @@ from .bag_timeline import BagTimeline
 class BagWidget(QWidget):
     """
     Widget for use with Bag class to display and replay bag files
+    Handles all widget callbacks and contains the instance of BagTimeline for storing visualizing bag data
     """
     def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
+        """
         super(BagWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'bag_widget.ui')
         loadUi(ui_file, self)
@@ -52,7 +56,7 @@ class BagWidget(QWidget):
 
         self.setObjectName('BagWidget')
 
-        self._timeline = BagTimeline(self.graphics_view, context)
+        self._timeline = BagTimeline(context)
         self.graphics_view.setScene(self._timeline)
 
         self.graphics_view.resizeEvent = self.resizeEvent
@@ -83,36 +87,21 @@ class BagWidget(QWidget):
         self.end_button.clicked[bool].connect(self.handle_end_clicked)
         self.load_button.clicked[bool].connect(self.handle_load_clicked)
         self.save_button.clicked[bool].connect(self.handle_save_clicked)
-#        self.publish_checkbox.clicked[bool].connect(self.handle_publish_clicked)
-#        self.confine_checkbox.clicked[bool].connect(self.handle_confine_playhead_clicked)
         self.graphics_view.mousePressEvent = self._timeline.on_mouse_down
         self.graphics_view.mouseReleaseEvent = self._timeline.on_mouse_up
         self.graphics_view.mouseMoveEvent = self._timeline.on_mouse_move
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
-        self.closeEvent = self._close  # TODO fix these items that are nolonger private
-
-        #TODO verify we have implemented all the old keybindings from rxbag
-#        self.Bind(wx.EVT_IDLE,        self.on_idle)
-#        self.Bind(wx.EVT_PAINT,       self.on_paint)
-#        self.Bind(wx.EVT_KEY_DOWN,    self.on_key_down)
-#        self.Bind(wx.EVT_LEFT_DOWN,   self.on_left_down)
-#        self.Bind(wx.EVT_MIDDLE_DOWN, self.on_middle_down)
-#        self.Bind(wx.EVT_RIGHT_DOWN,  self.on_right_down)
-#        self.Bind(wx.EVT_LEFT_UP,     self.on_left_up)
-#        self.Bind(wx.EVT_MIDDLE_UP,   self.on_middle_up)
-#        self.Bind(wx.EVT_RIGHT_UP,    self.on_right_up)
-#        self.Bind(wx.EVT_MOTION,      self.on_mouse_move)
-#        self.Bind(wx.EVT_MOUSEWHEEL,  self.on_mousewheel)
+        self.closeEvent = self._close
+        # TODO fix _'s on items that are nolonger private
+        # TODO verify we have implemented all the old keybindings from rxbag
 
     def _close(self, event):
         self._timeline._close()
         event.accept()
 
     def resizeEvent(self, event):
+        # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
         self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 2, self.graphics_view.size().height() - 2)
-
-#    def handle_confine_playhead_clicked(self, checked):
-#        self._timeline.set_confine_playhead_state(checked)
 
     def handle_publish_clicked(self, checked):
         self._timeline.set_publishing_state(checked)

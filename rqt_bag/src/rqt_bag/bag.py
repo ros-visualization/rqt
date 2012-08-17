@@ -41,7 +41,13 @@ from .bag_widget import BagWidget
 
 
 class Bag(Plugin):
+    """
+    Subclass of Plugin to provide interactive bag visualization, playing(publishing) and recording
+    """
     def __init__(self, context):
+        """
+        :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
+        """
         super(Bag, self).__init__(context)
         self.setObjectName('Bag')
         self._widget = BagWidget(context)
