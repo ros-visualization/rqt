@@ -29,7 +29,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import __builtin__
-import imp
 import os
 import sys
 import traceback
@@ -75,15 +74,20 @@ class RosPluginProvider(PluginProvider):
         # get class reference from plugin descriptor
         attributes = self._plugin_descriptors[plugin_id].attributes()
         sys.path.append(attributes['module_base_path'])
+
         try:
             module = __builtin__.__import__(attributes['module_name'], fromlist=[attributes['class_from_class_type']], level=0)
-            class_ref = getattr(module, attributes['class_from_class_type'])
         except NotImplementedError as e:
             qCritical('RosPluginProvider.load(%s): raised an exception:\n%s' % (plugin_id, e))
             return None
         except Exception as e:
             qCritical('RosPluginProvider.load(%s) exception raised in __builtin__.__import__(%s, [%s]):\n%s' % (plugin_id, attributes['module_name'], attributes['class_from_class_type'], traceback.format_exc()))
             raise e
+        
+        class_ref = getattr(module, attributes['class_from_class_type'], None)
+        if class_ref is None:
+            qCritical('RosPluginProvider.load(%s): could not find class "%s" in module "%s"' % (plugin_id, attributes['class_from_class_type']), module)
+            return None
 
         # create plugin provider instance without context
         if class_ref.__init__.func_code.co_argcount == 1 and plugin_context is None:

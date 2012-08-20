@@ -34,6 +34,7 @@ import roslib
 roslib.load_manifest('rqt_py_console')
 
 import qt_gui.qt_binding_helper # @UnusedImport
+from QtGui import QVBoxLayout, QWidget
 from rqt_gui_py.plugin import Plugin
 from py_console_widget import PyConsoleWidget
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
@@ -53,22 +54,27 @@ class PyConsole(Plugin):
         self.setObjectName('PyConsole')
         
         self._context = context
-        self._widget = None
         self._use_spyderlib = _has_spyderlib
+        self._console_widget = None
+        self._widget = QWidget()
+        self._widget.setLayout(QVBoxLayout())
+        self._widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._context.add_widget(self._widget)
+        
             
     def _update_console_widget(self):
-        old_widget = self._widget
-                
+        self._widget.layout().removeWidget(self._console_widget)
+        self.shutdown_console_widget()
+        
         if _has_spyderlib and self._use_spyderlib:
-            self._widget = SpyderConsoleWidget(self._context)
+            self._console_widget = SpyderConsoleWidget(self._context)
             self._widget.setWindowTitle('SpyderConsole')
         else:
-            self._widget = PyConsoleWidget(self._context)
+            self._console_widget = PyConsoleWidget(self._context)
             self._widget.setWindowTitle('PyConsole')
+
+        self._widget.layout().addWidget(self._console_widget)
         
-        if old_widget is not None:
-            self._context.remove_widget(old_widget)
-        self._context.add_widget(self._widget)
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('use_spyderlib', self._use_spyderlib)
@@ -90,7 +96,11 @@ class PyConsole(Plugin):
             self._use_spyderlib = new_use_spyderlib
             self._update_console_widget()
         
+    def shutdown_console_widget(self):
+        if self._console_widget is not None and hasattr(self._console_widget, 'shutdown'):
+            self._console_widget.shutdown()
+            self._console_widget.close()
+
     def shutdown_plugin(self):
-        if self._widget is not None and hasattr(self._widget, 'shutdown'):
-            self._widget.shutdown()
+        self.shutdown_console_widget()
     
