@@ -33,7 +33,8 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QFileDialog, QIcon, QWidget
+from QtCore import Qt
+from QtGui import QFileDialog, QGraphicsView, QIcon, QWidget
 
 import rosbag
 from .bag_timeline import BagTimeline
@@ -91,10 +92,42 @@ class BagWidget(QWidget):
         self.graphics_view.mouseMoveEvent = self._timeline.on_mouse_move
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
         self.closeEvent = self.handle_close
-        # TODO verify we have implemented all the old keybindings from rxbag
+        self.keyPressEvent = self.on_key_press
+        
+        self.graphics_view.keyPressEvent = self.graphics_view_on_key_press
+    def graphics_view_on_key_press(self, event):
+        key = event.key()
+        if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
+            # This causes the graphics view to ignore these keys so they can be caught byt the bag_widget keyPressEvent
+            event.ignore()
+        else:
+            # Maintains functionality for all other keys QGraphicsView implements
+            QGraphicsView.keyPressEvent(self.graphics_view, event)
 
     # callbacks for ui events
-    
+    def on_key_press(self, event):
+        key = event.key()
+        if key == Qt.Key_Space:
+            self._timeline.toggle_play()
+        elif key == Qt.Key_Home:
+            self._timeline.navigate_start()
+        elif key == Qt.Key_End:
+            self._handle_end_clicked()
+        elif key == Qt.Key_Plus or key == Qt.Key_Equal:
+            self._handle_faster_clicked()
+        elif key == Qt.Key_Minus:
+            self._handle_slower_clicked()
+        elif key == Qt.Key_Left:
+            self._timeline.translate_timeline_left()
+        elif key == Qt.Key_Right:
+            self._timeline.translate_timeline_right()
+        elif key == Qt.Key_Up or key == Qt.Key_PageUp:
+            self._handle_zoom_in_clicked()
+        elif key == Qt.Key_Down or key == Qt.Key_PageDown:
+            self._handle_zoom_out_clicked()
+#        elif key == Qt.Key_Pause: 
+#            self._timeline.toggle_recording()
+
     def handle_close(self, event):
         # TODO: Figure out why ROS_GUI is not calling closeEvent when a plugin is closed (cause of the "plugin windows stay open after closing main window" issue)
         # ON HOLD: pending redesign of ROS_GUI plugin close functionality

@@ -837,7 +837,13 @@ class TimelineFrame(QGraphicsItem):
     def translate_timeline(self, dstamp):
         self.set_timeline_view(self._stamp_left + dstamp, self._stamp_right + dstamp)
         self.scene().update()
+    
+    def translate_timeline_left(self):
+        self.translate_timeline((self._stamp_right - self._stamp_left) * -0.05)
 
+    def translate_timeline_right(self):
+        self.translate_timeline((self._stamp_right - self._stamp_left) * 0.05)
+        
     # Zoom functions
     def reset_zoom(self):
         start_stamp, end_stamp = self._start_stamp, self._end_stamp

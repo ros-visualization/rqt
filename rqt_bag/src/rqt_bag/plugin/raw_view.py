@@ -29,12 +29,9 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 """
 Defines a raw view: a TopicMessageView that displays the message contents in a tree.
 """
-
-
 import rospy
 import codecs
 import math
@@ -122,7 +119,6 @@ class MessageTree(QTreeWidget):
     # Keyboard handler
     def on_key_press(self, event):
         key, ctrl = event.key(), event.modifiers() & Qt.ControlModifier
-
         if ctrl:
             if key == ord('C') or key == ord('c'):
                 # Ctrl-C: copy text from selected items to clipboard

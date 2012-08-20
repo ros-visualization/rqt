@@ -443,7 +443,13 @@ class BagTimeline(QGraphicsScene):
 
     def reset_zoom(self):
         self._timeline_frame.reset_zoom()
+    
+    def translate_timeline_left(self):
+        self._timeline_frame.translate_timeline_left()
 
+    def translate_timeline_right(self):
+        self._timeline_frame.translate_timeline_right()
+    
     ### Publishing
     def is_publishing(self, topic):
         return self._player and self._player.is_publishing(topic)
