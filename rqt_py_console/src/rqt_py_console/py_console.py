@@ -35,9 +35,9 @@ roslib.load_manifest('rqt_py_console')
 
 import qt_gui.qt_binding_helper # @UnusedImport
 from QtGui import QVBoxLayout, QWidget
-from rqt_gui_py.plugin import Plugin
-from py_console_widget import PyConsoleWidget
+from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
+from py_console_widget import PyConsoleWidget
 
 try:
     from spyder_console_widget import SpyderConsoleWidget
@@ -99,7 +99,6 @@ class PyConsole(Plugin):
     def shutdown_console_widget(self):
         if self._console_widget is not None and hasattr(self._console_widget, 'shutdown'):
             self._console_widget.shutdown()
-            self._console_widget.close()
 
     def shutdown_plugin(self):
         self.shutdown_console_widget()
