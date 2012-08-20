@@ -47,7 +47,6 @@ class Web(Plugin):
         """
         :param context: plugin context hook to enable adding widgets as a ROS_GUI pane, ''PluginContext''
         """
-        print context
         super(Web, self).__init__(context)
         self.setObjectName('Web')
 
