@@ -117,8 +117,8 @@ class BagTimeline(QGraphicsScene):
             self._player.stop()
         for bag in self._bags:
             bag.close()
-        for view in self._views:
-            view.parent.close()
+        for _, frame in self._views:
+            self._context.remove_widget(frame)
 
     # Bag Management and access
     def add_bag(self, bag):
@@ -602,14 +602,15 @@ class BagTimeline(QGraphicsScene):
         self.last_playhead = self._timeline_frame.playhead
 
     ### Views / listeners
-    def add_view(self, topic, view):
-        self._views.append(view)
+    def add_view(self, topic, view, frame):
+        self._views.append((view, frame))
         self.add_listener(topic, view)
 
     def remove_view(self, topic, view):
         self.remove_listener(topic, view)
-        self._views.remove(view)
-
+        for entry in self._views:
+            if entry[0] == view:
+                self._views.remove(entry)
         self.update()
 
     def has_listeners(self, topic):

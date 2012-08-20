@@ -93,8 +93,11 @@ class BagWidget(QWidget):
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
+        # TODO when the closeEvent is properly called by ROS_GUI implement that event instead of destroyed
+        self.destroyed.connect(self.handle_destroy)
         
         self.graphics_view.keyPressEvent = self.graphics_view_on_key_press
+
     def graphics_view_on_key_press(self, event):
         key = event.key()
         if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
@@ -127,6 +130,9 @@ class BagWidget(QWidget):
             self._handle_zoom_out_clicked()
 #        elif key == Qt.Key_Pause: 
 #            self._timeline.toggle_recording()
+
+    def handle_destroy(self, args):
+        self._timeline.handle_close()
 
     def handle_close(self, event):
         # TODO: Figure out why ROS_GUI is not calling closeEvent when a plugin is closed (cause of the "plugin windows stay open after closing main window" issue)

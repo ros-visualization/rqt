@@ -52,7 +52,7 @@ class Bag(Plugin):
         self._widget = BagWidget(context)
 
     def shutdown_plugin(self):
-        self._widget.shutdown_all()
+        pass
 
     def save_settings(self, plugin_settings, instance_settings):
         # TODO implement saving

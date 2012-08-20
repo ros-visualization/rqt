@@ -29,9 +29,8 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 import os
-from qt_gui.qt_binding_helper import loadUi
+import qt_gui.qt_binding_helper  # @UnusedImport
 from QtGui import QHBoxLayout, QMenu, QWidget
 
 
@@ -41,8 +40,6 @@ class TimelinePopupMenu(QMenu):
     """
     def __init__(self, timeline, event):
         super(TimelinePopupMenu, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'frame_widget.ui')
-        loadUi(ui_file, self)
 
         self.parent = timeline
         self.timeline = timeline
@@ -154,7 +151,7 @@ class TimelinePopupMenu(QMenu):
                 view = viewer_type(self.timeline, frame)
                 self.timeline.popups.add(popup_name)
                 self.timeline.get_context().add_widget(frame)
-                self.timeline.add_view(action.parentWidget().title(), view)
+                self.timeline.add_view(action.parentWidget().title(), view, frame)
                 frame.show()
         elif action in self._publish_actions:
             if self.timeline.is_publishing(action.text()):
