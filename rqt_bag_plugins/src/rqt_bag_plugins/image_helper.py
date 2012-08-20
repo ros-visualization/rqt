@@ -39,7 +39,6 @@ from cStringIO import StringIO
 import sys
 
 import Image
-#import wx
 import cairo
 
 def imgmsg_to_pil(img_msg, rgba=True):

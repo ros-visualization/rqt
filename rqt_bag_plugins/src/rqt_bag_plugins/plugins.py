@@ -37,9 +37,11 @@ import roslib; roslib.load_manifest(PKG)
 
 from image_timeline_renderer import ImageTimelineRenderer
 from image_view              import ImageView
-#from plot_view               import PlotView
 
 def get_rqt_bag_plugins():
+    """
+    :returns: list of tuples, each tuple is of the form ( Child of TopicMessageView, Child of TimelineRenderer, list of msgs to use this viewer with)
+    To allow your plugin to be run on all message types use this list:  ['*']
+    To omit the renderer component simply pass None to the TimelineRenderer portion
+    """
     return [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage'])]
-#    return [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage']),
-#            (PlotView,  None,                  ['*'])]

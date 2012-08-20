@@ -37,16 +37,12 @@ import time
 class IndexCacheThread(threading.Thread):
     """
     Updates invalid caches.
-
     One thread per timeline.
     """
     def __init__(self, timeline):
         threading.Thread.__init__(self)
-
         self.timeline = timeline
-
         self._stop_flag = False
-
         self.setDaemon(True)
         self.start()
 
@@ -58,16 +54,13 @@ class IndexCacheThread(threading.Thread):
                     self.timeline.index_cache_cv.wait()
                     if self._stop_flag:
                         return
-
                 # Update the index for one topic
                 updated = False
                 for topic in self.timeline.topics:
-                    if topic in self.timeline.invalidated_caches:  # and topic != last_updated_topic:
+                    if topic in self.timeline.invalidated_caches:
                         updated = (self.timeline._update_index_cache(topic) > 0)
-
             if updated:
                 self.timeline.scene().update()
-
                 # Give the GUI some time to update
                 time.sleep(1.0)
 

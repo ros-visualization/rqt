@@ -33,7 +33,6 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-#from QtCore import qWarning
 from QtGui import QFileDialog, QIcon, QWidget
 
 import rosbag
@@ -59,7 +58,7 @@ class BagWidget(QWidget):
         self._timeline = BagTimeline(context)
         self.graphics_view.setScene(self._timeline)
 
-        self.graphics_view.resizeEvent = self.resizeEvent
+        self.graphics_view.resizeEvent = self._resizeEvent
         self.graphics_view.setMouseTracking(True)
 
         self.play_icon = QIcon.fromTheme('media-playback-start')
@@ -76,37 +75,41 @@ class BagWidget(QWidget):
         self.load_button.setIcon(QIcon.fromTheme('document-open'))
         self.save_button.setIcon(QIcon.fromTheme('document-save'))
 
-        self.play_button.clicked[bool].connect(self.handle_play_clicked)
-        self.thumbs_button.clicked[bool].connect(self.handle_thumbs_clicked)
-        self.zoom_in_button.clicked[bool].connect(self.handle_zoom_in_clicked)
-        self.zoom_out_button.clicked[bool].connect(self.handle_zoom_out_clicked)
-        self.zoom_all_button.clicked[bool].connect(self.handle_zoom_all_clicked)
-        self.faster_button.clicked[bool].connect(self.handle_faster_clicked)
-        self.slower_button.clicked[bool].connect(self.handle_slower_clicked)
-        self.begin_button.clicked[bool].connect(self.handle_begin_clicked)
-        self.end_button.clicked[bool].connect(self.handle_end_clicked)
-        self.load_button.clicked[bool].connect(self.handle_load_clicked)
-        self.save_button.clicked[bool].connect(self.handle_save_clicked)
+        self.play_button.clicked[bool].connect(self._handle_play_clicked)
+        self.thumbs_button.clicked[bool].connect(self._handle_thumbs_clicked)
+        self.zoom_in_button.clicked[bool].connect(self._handle_zoom_in_clicked)
+        self.zoom_out_button.clicked[bool].connect(self._handle_zoom_out_clicked)
+        self.zoom_all_button.clicked[bool].connect(self._handle_zoom_all_clicked)
+        self.faster_button.clicked[bool].connect(self._handle_faster_clicked)
+        self.slower_button.clicked[bool].connect(self._handle_slower_clicked)
+        self.begin_button.clicked[bool].connect(self._handle_begin_clicked)
+        self.end_button.clicked[bool].connect(self._handle_end_clicked)
+        self.load_button.clicked[bool].connect(self._handle_load_clicked)
+        self.save_button.clicked[bool].connect(self._handle_save_clicked)
         self.graphics_view.mousePressEvent = self._timeline.on_mouse_down
         self.graphics_view.mouseReleaseEvent = self._timeline.on_mouse_up
         self.graphics_view.mouseMoveEvent = self._timeline.on_mouse_move
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
-        self.closeEvent = self._close
-        # TODO fix _'s on items that are nolonger private
+        self.closeEvent = self.handle_close
         # TODO verify we have implemented all the old keybindings from rxbag
 
-    def _close(self, event):
-        self._timeline._close()
+    # callbacks for ui events
+    
+    def handle_close(self, event):
+        # TODO: Figure out why ROS_GUI is not calling closeEvent when a plugin is closed (cause of the "plugin windows stay open after closing main window" issue)
+        # ON HOLD: pending redesign of ROS_GUI plugin close functionality
+        self.shutdown_all()
+        
         event.accept()
-
-    def resizeEvent(self, event):
+    
+    def _resizeEvent(self, event):
         # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
         self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 2, self.graphics_view.size().height() - 2)
 
-    def handle_publish_clicked(self, checked):
+    def _handle_publish_clicked(self, checked):
         self._timeline.set_publishing_state(checked)
 
-    def handle_play_clicked(self, checked):
+    def _handle_play_clicked(self, checked):
         if checked:
             self.play_button.setIcon(self.pause_icon)
             self._timeline.navigate_play()
@@ -114,38 +117,43 @@ class BagWidget(QWidget):
             self.play_button.setIcon(self.play_icon)
             self._timeline.navigate_stop()
 
-    def handle_faster_clicked(self):
+    def _handle_faster_clicked(self):
         self._timeline.navigate_fastforward()
 
-    def handle_slower_clicked(self):
+    def _handle_slower_clicked(self):
         self._timeline.navigate_rewind()
 
-    def handle_begin_clicked(self):
+    def _handle_begin_clicked(self):
         self._timeline.navigate_start()
 
-    def handle_end_clicked(self):
+    def _handle_end_clicked(self):
         self._timeline.navigate_end()
 
-    def handle_thumbs_clicked(self, checked):
+    def _handle_thumbs_clicked(self, checked):
         self._timeline._timeline_frame.toggle_renderers()
         # TODO consider changing the icon when the button is down
 
-    def handle_zoom_all_clicked(self):
+    def _handle_zoom_all_clicked(self):
         self._timeline.reset_zoom()
 
-    def handle_zoom_out_clicked(self):
+    def _handle_zoom_out_clicked(self):
         self._timeline.zoom_out()
 
-    def handle_zoom_in_clicked(self):
+    def _handle_zoom_in_clicked(self):
         self._timeline.zoom_in()
 
-    def handle_load_clicked(self):
+    def _handle_load_clicked(self):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
             bag = rosbag.Bag(filename[0])
             self._timeline.add_bag(bag)
 
-    def handle_save_clicked(self):
+    def _handle_save_clicked(self):
         filename = QFileDialog.getSaveFileName(self, self.tr('Save selected region to file...'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
             self._timeline.copy_region_to_bag(filename[0])
+    
+    # Shutdown all members
+    
+    def shutdown_all(self):
+        self._timeline.handle_close()

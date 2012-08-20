@@ -32,7 +32,6 @@
 
 import roslib
 roslib.load_manifest('rqt_bag')
-#import rospy
 
 import qt_gui.qt_binding_helper  # @UnusedImport
 from qt_gui.plugin import Plugin
@@ -53,14 +52,17 @@ class Bag(Plugin):
         self._widget = BagWidget(context)
 
     def shutdown_plugin(self):
-        pass
+        self._widget.shutdown_all()
 
     def save_settings(self, plugin_settings, instance_settings):
+        # TODO implement saving
         # instance_settings.set_value(k, v)
         pass
 
     def restore_settings(self, plugin_settings, instance_settings):
+        # TODO implement restoring
         # v = instance_settings.value(k)
         pass
 
     #def trigger_configuration(self):
+        # TODO move some of the button functionality to config button if it is "more configy"

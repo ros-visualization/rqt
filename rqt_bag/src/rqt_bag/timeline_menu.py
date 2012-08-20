@@ -31,14 +31,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-#import qt_gui.qt_binding_helper  # @UnusedImport
 from qt_gui.qt_binding_helper import loadUi
-
 from QtGui import QHBoxLayout, QMenu, QWidget
 
 
 class TimelinePopupMenu(QMenu):
-
+    """
+    Custom popup menu displayed on rightclick from timeline
+    """
     def __init__(self, timeline, event):
         super(TimelinePopupMenu, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'frame_widget.ui')
@@ -61,7 +61,6 @@ class TimelinePopupMenu(QMenu):
 
         self._renderers = self.timeline._timeline_frame.get_renderers()
         self._thumbnail_actions = []
-# TODO: GET THE RENDERERS WORKING
         for topic, renderer in self._renderers:
             self._thumbnail_actions.append(submenu.addAction(topic))
 
@@ -91,7 +90,6 @@ class TimelinePopupMenu(QMenu):
             datatype_topics = self._topics_by_type[datatype]
             viewer_types = self.timeline._timeline_frame.get_viewer_types(datatype)
             for topic in [t for t in self._topics if t in datatype_topics]:   # use timeline ordering
-#                topic_menu = QMenu(topic.lstrip('/'), datatype_menu)
                 topic_menu = QMenu(topic, datatype_menu)
                 # View... / datatype / topic / Viewer
                 for viewer_type in viewer_types:
@@ -119,6 +117,10 @@ class TimelinePopupMenu(QMenu):
             self.process(action)
 
     def process(self, action):
+        """
+        :param action: action to execute, ''QAction''
+        :raises: when it doesn't recognice the action passed in, ''Exception''
+        """
         if action == self._reset_timeline:
             self.timeline._timeline_frame.reset_timeline()
         elif action == self._play_all:

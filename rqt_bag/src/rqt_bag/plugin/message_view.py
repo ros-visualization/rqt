@@ -46,9 +46,6 @@ class MessageView(QObject):
         super(MessageView, self).__init__()
         self.timeline = timeline
 
-# DIspatch method, called from lister, create event, post to qt event loop, custom id
-#override event(), check for custom event type, handle it by calling viewed/cleared
-
     def message_viewed(self, bag, msg_details):
         """
         View the message.
@@ -84,8 +81,7 @@ class MessageView(QObject):
         """
         pass
 
-# event function should not be changed
-
+# NOTE: event function should not be changed in subclasses
     def event(self, event):
         """
         This function will be called to process events posted by post_event

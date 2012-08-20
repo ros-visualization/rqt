@@ -36,17 +36,9 @@ from QtCore import QPointF, QRectF, Qt
 from QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
 import rospy
 
-#import rosbag
-
 import bisect
-#import collections
-#import math
-#import os
-#import sys
 import threading
-#import time
 
-#import bag_helper
 import plugins
 
 from .index_cache_thread import IndexCacheThread
@@ -54,21 +46,56 @@ from .plugin.raw_view import RawView
 
 
 class _SelectionMode(object):
-    NONE = 'none'          # no region marked or started
-    LEFT_MARKED = 'left marked'   # one end of the region has been marked
-    MARKED = 'marked'        # region has been marked
-    SHIFTING = 'shifting'      # region is marked; now shifting
-    MOVE_LEFT = 'move left'     # region is marked; changing the left mark
-    MOVE_RIGHT = 'move right'    # region is marked; changing the right mark
+    """
+    SelectionMode states consolidated for readability
+    NONE = no region marked or started
+    LEFT_MARKED = one end of the region has been marked
+    MARKED = both ends of the region have been marked
+    SHIFTING = region is marked; currently dragging the region
+    MOVE_LEFT = region is marked; currently changing the left boundry of the selected region
+    MOVE_RIGHT = region is marked; currently changing the right boundry of the selected region
+    """
+    NONE = 'none' 
+    LEFT_MARKED = 'left marked' 
+    MARKED = 'marked'
+    SHIFTING = 'shifting' 
+    MOVE_LEFT = 'move left'
+    MOVE_RIGHT = 'move right'
 
 
 class TimelineFrame(QGraphicsItem):
     """
-    Draws the framing elements for the bag messages (time delimiters, labels,
-    topic names and backgrounds
+    TimelineFrame Draws the framing elements for the bag messages (time delimiters, labels, topic names and backgrounds)
+    Also handles mouse callbacks since they interact closely with the drawn elements
     """
     def __init__(self):
         super(TimelineFrame, self).__init__()
+
+        self._clicked_pos = None
+        self._dragged_pos = None
+
+        # Timeline boundries
+        self._start_stamp = None  # earliest of all stamps
+        self._end_stamp = None  # latest of all stamps
+        self._stamp_left = None  # earliest currently visible timestamp on the timeline
+        self._stamp_right = None  # latest currently visible timestamp on the timeline
+        self._history_top = 30
+        self._history_left = 0
+        self._history_width = 0
+        self._history_bottom = 0
+        self._history_bounds = {}
+        self._margin_left = 4
+        self._margin_right = 8
+        self._margin_bottom = 6
+        self._history_top = 30
+
+        # Background Rendering
+        self._bag_end_color = QColor(0, 0, 0, 25)  # color of background of timeline before first message and after last
+        self._history_background_color_alternate = QColor(179, 179, 179, 25)
+        self._history_background_color = QColor(204, 204, 204, 102)
+
+        # Timeline Division Rendering        
+        # Possible time intervals used between divisions 
         # 1ms, 5ms, 10ms, 50ms, 100ms, 500ms
         # 1s, 5s, 15s, 30s
         # 1m, 2m, 5m, 10m, 15m, 30m
@@ -81,21 +108,14 @@ class TimelineFrame(QGraphicsItem):
                                1 * 60 * 60 * 24, 7 * 60 * 60 * 24]
         self._minor_spacing = 15
         self._major_spacing = 50
-
-        self._start_stamp = None  # earliest of all stamps
-        self._end_stamp = None  # latest of all stamps
+        self._major_divisions_label_indent = 3  # padding in px between line and label
+        self._major_division_pen = QPen(QBrush(Qt.black), 0, Qt.DashLine)
+        self._minor_division_pen = QPen(QBrush(QColor(153, 153, 153, 128)), 0, Qt.DashLine)
+        self._minor_division_tick_pen = QPen(QBrush(QColor(128, 128, 128, 128)), 0)
+        
+        # Topic Rendering
         self.topics = []
         self._topics_by_datatype = {}
-
-        self._clicked_pos = None
-        self._dragged_pos = None
-
-        self._history_top = 30
-        self._history_left = 0
-        self._history_width = 0
-        self._history_bottom = 0
-        self._history_bounds = {}
-
         self._topic_font_height = None
         self._topic_name_sizes = None
         self._topic_name_spacing = 3  # minimum pixels between end of topic name and start of history
@@ -103,7 +123,9 @@ class TimelineFrame(QGraphicsItem):
         self._topic_font = QFont("cairo")
         self._topic_font.setPointSize(self._topic_font_size)
         self._topic_font.setBold(False)
+        self._topic_vertical_padding = 4
 
+        # Time Rendering
         self._time_tick_height = 5
         self._time_font_height = None
         self._time_font_size = 10.0
@@ -111,42 +133,9 @@ class TimelineFrame(QGraphicsItem):
         self._time_font.setPointSize(self._time_font_size)
         self._time_font.setBold(False)
 
-        self._margin_left = 4
-        self._margin_right = 8
-        self._margin_bottom = 6
-        self._history_top = 30
-        self._topic_vertical_padding = 4
-
-#        self._graphics_view = graphicsview
-
-        self._major_divisions_label_indent = 3  # padding in px between line and label
-
-        self._stamp_left = None  # earliest visible timestamp on the timeline
-        self._stamp_right = None  # latest visible timestamp on the timeline
-
+        # Defaults
         self._default_brush = QBrush(Qt.black, Qt.SolidPattern)
-        self._default_pen = QPen(Qt.black)  # TODO REMEMBER TO RESTORE      PEN
-        self._major_division_pen = QPen(QBrush(Qt.black), 0, Qt.DashLine)
-        self._minor_division_pen = QPen(QBrush(QColor(153, 153, 153, 128)), 0, Qt.DashLine)
-        self._minor_division_tick_pen = QPen(QBrush(QColor(128, 128, 128, 128)), 0)
-
-        self._bag_end_color = QColor(0, 0, 0, 25)    # color of background of timeline before first message and after last
-
-        self._viewer_types = {}
-        self._timeline_renderers = {}
-        self._rendered_topics = set()
-
-        self._history_background_color_alternate = QColor(179, 179, 179, 25)
-        self._history_background_color = QColor(204, 204, 204, 102)
-
-        self._selected_region_color = QColor(0, 179, 0, 21)
-        self._selected_region_outline_top_color = QColor(0.0, 77, 0.0, 51)
-        self._selected_region_outline_ends_color = QColor(0.0, 77, 0.0, 102)
-
-        self.load_plugins()
-
-        # Time ticks
-
+        self._default_pen = QPen(Qt.black)  # TODO REMEMBER TO RESTORE PEN EVERYTIME USED
         self._default_datatype_color = QColor(0, 0, 102, 204)
         self._datatype_colors = {
             'sensor_msgs/CameraInfo': QColor(0, 0, 77, 204),
@@ -156,72 +145,65 @@ class TimelineFrame(QGraphicsItem):
             'pr2_mechanism_msgs/MechanismState': QColor(0, 153, 0, 204),
             'tf/tfMessage': QColor(0, 153, 0, 204),
         }
-
-        self._default_msg_combine_px = 1.0
+        self._default_msg_combine_px = 1.0  # minimum number of pixels allowed between two bag messages before they are combined 
         self._active_message_line_width = 3
 
-        self.index_cache_cv = threading.Condition()
-        self.index_cache = {}
-        self.invalidated_caches = set()
-        self._index_cache_thread = IndexCacheThread(self)
-
-        self._playhead = None  # timestamp of the playhead DO SET THIS DIRECTLY USE THE self.playhead property
-
-        self._paused = False
-
-        self._playhead_pointer_size = (6, 6)                # size of playhead pointer
-        self._playhead_line_width = 1                     # width of line of playhead
-        self._playhead_color = QColor(255, 0, 0, 191)       # color of playhead
-
+        # Selected Region Rendering
+        self._selected_region_color = QColor(0, 179, 0, 21)
+        self._selected_region_outline_top_color = QColor(0.0, 77, 0.0, 51)
+        self._selected_region_outline_ends_color = QColor(0.0, 77, 0.0, 102)
         self._selecting_mode = _SelectionMode.NONE
         self._selected_left = None
         self._selected_right = None
-
         self._selection_handle_width = 3.0
+
+        # Playhead Rendering
+        self._playhead = None  # timestamp of the playhead
+        self._paused = False
+        self._playhead_pointer_size = (6, 6)
+        self._playhead_line_width = 1
+        self._playhead_color = QColor(255, 0, 0, 191)
 
         # Zoom
         self._zoom_sensitivity = 0.005
         self._min_zoom_speed = 0.5
         self._max_zoom_speed = 2.0
-        self._min_zoom = 0.0001      # max zoom out (in px/s)
-        self._max_zoom = 50000.0     # max zoom in  (in px/s)
+        self._min_zoom = 0.0001  # max zoom out (in px/s)
+        self._max_zoom = 50000.0  # max zoom in  (in px/s)
+        
+        # Plugin management
+        self._viewer_types = {}
+        self._timeline_renderers = {}
+        self._rendered_topics = set()
+        self.load_plugins()
 
-    def boundingRect(self):
-        return QRectF(0, 0, 100, 100)
+        # Bag indexer for rendering the default message views on the timeline 
+        self.index_cache_cv = threading.Condition()
+        self.index_cache = {}
+        self.invalidated_caches = set()
+        self._index_cache_thread = IndexCacheThread(self)
 
-    def paint(self, painter, option, widget):
-        if self._start_stamp is None:
-            return
-#        self._stamp_left = self._start_stamp.to_sec()
-#        self._stamp_right = self._end_stamp.to_sec()
-
-        self._layout()
-
-        self._draw_topic_dividers(painter)
-        self._draw_selected_region(painter)
-        self._draw_time_divisions(painter)
-        self._draw_topic_histories(painter)
-        self._draw_bag_ends(painter)
-        self._draw_topic_names(painter)
-        self._draw_history_border(painter)
-        self._draw_playhead(painter)
-
+    # TODO the API interface should exist entirely at the bag_timeline level. Add a "get_draw_parameters()" at the bag_timeline level to access these 
+    # Properties, work in progress API for plugins: 
+    
     # property: playhead
     def _get_playhead(self):
         return self._playhead
 
     def _set_playhead(self, playhead):
+        """
+        Sets the playhead to the new position, notifies the threads and updates the scene so it will redraw 
+        :param playhead: Time to set the playhead to, ''rospy.Time()''
+        """
         with self.scene()._playhead_lock:
             if playhead == self._playhead:
                 return
 
             self._playhead = playhead
-
             if self._playhead != self._end_stamp:
-                self.stick_to_end = False
+                self.scene().stick_to_end = False
 
             playhead_secs = playhead.to_sec()
-
             if playhead_secs > self._stamp_right:
                 dstamp = playhead_secs - self._stamp_right + (self._stamp_right - self._stamp_left) * 0.75
                 if dstamp > self._end_stamp.to_sec() - self._stamp_right:
@@ -243,202 +225,113 @@ class TimelineFrame(QGraphicsItem):
                     new_playhead_position = (bag, entry.position)
                 else:
                     new_playhead_position = (None, None)
-# TODO: figure out why the topic here has a '/' at the front...
                 with self.scene()._playhead_positions_cvs[topic]:
                     self.scene()._playhead_positions[topic] = new_playhead_position
-                    self.scene()._playhead_positions_cvs[topic].notify_all()           # notify all message loaders that a new message needs to be loaded
-            self.scene().update()  # TODO this is going to cause double refreshes find them and exterminate
+                    self.scene()._playhead_positions_cvs[topic].notify_all()  # notify all message loaders that a new message needs to be loaded
+            self.scene().update()
 
     playhead = property(_get_playhead, _set_playhead)
 
+    # TODO add more api variables here to allow plugin access
+    @property
+    def _history_right(self):
+        return self._history_left + self._history_width
+
+    @property
+    def has_selected_region(self):
+        return self._selected_left is not None and self._selected_right is not None
+
+    @property
+    def play_region(self):
+        if self.has_selected_region:
+            return (rospy.Time.from_sec(self._selected_left), rospy.Time.from_sec(self._selected_right))
+        else:
+            return (self._start_stamp, self._end_stamp)
+
+    # QGraphicsItem implementation
+    def boundingRect(self):
+        return QRectF(0, 0, 100, 100)
+
+    def paint(self, painter, option, widget):
+        if self._start_stamp is None:
+            return
+
+        self._layout()
+        self._draw_topic_dividers(painter)
+        self._draw_selected_region(painter)
+        self._draw_time_divisions(painter)
+        self._draw_topic_histories(painter)
+        self._draw_bag_ends(painter)
+        self._draw_topic_names(painter)
+        self._draw_history_border(painter)
+        self._draw_playhead(painter)
+    # END QGraphicsItem implementation
+    
+    # Drawing Functions
+
+    def _layout(self):
+        """
+        Recalculates the layout of the of the timeline to take into account any changes that have occured
+        """
+        # Calculate history left and history width
+        max_topic_name_width = -1
+        for topic in self.topics:
+            topic_width = QFontMetrics(self._topic_font).width(topic)
+            if max_topic_name_width <= topic_width:
+                max_topic_name_width = topic_width
+        
+        # Calculate font height for each topic
+        self._topic_font_height = -1
+        for topic in self.topics:
+            topic_height = QFontMetrics(self._topic_font).height()
+            if self._topic_font_height <= topic_height:
+                self._topic_font_height = topic_height
+
+        # Update the timeline boundries
+        new_history_left = self._margin_left + max_topic_name_width + self._topic_name_spacing
+        new_history_width = self.scene().views()[0].size().width() - new_history_left - self._margin_right
+        updated_history = (new_history_left != self._history_left or new_history_width != self._history_width)
+        if updated_history:
+            self._history_left = new_history_left
+            self._history_width = new_history_width
+
+        # Calculate the bounds for each topic
+        self._history_bounds = {}
+        y = self._history_top
+        for topic in self.topics:
+            datatype = self.scene().get_datatype(topic)
+
+            topic_height = None
+            if topic in self._rendered_topics:
+                renderer = self._timeline_renderers.get(datatype)
+                if renderer:
+                    topic_height = renderer.get_segment_height(topic)
+            if not topic_height:
+                topic_height = self._topic_font_height + self._topic_vertical_padding
+
+            self._history_bounds[topic] = (self._history_left, y, self._history_width, topic_height)
+
+            y += topic_height
+
+#        new_history_bottom = max([y + h for (x, y, w, h) in self._history_bounds.values()]) - 1
+        new_history_bottom = max([y + h for (_, y, _, h) in self._history_bounds.values()]) - 1
+        if new_history_bottom != self._history_bottom:
+            self._history_bottom = new_history_bottom
+
     def _draw_topic_histories(self, painter):
+        """
+        Draw all topic messages
+        :param painter: allows access to paint functions,''QPainter''
+        """
         for topic in sorted(self._history_bounds.keys()):
             self._draw_topic_history(painter, topic)
 
-    def _draw_bag_ends(self, painter):
-        """
-        Draw markers to indicate the extent of the bag file.
-        """
-        x_start, x_end = self.map_stamp_to_x(self._start_stamp.to_sec()), self.map_stamp_to_x(self._end_stamp.to_sec())
-        painter.setBrush(QBrush(self._bag_end_color))
-        painter.drawRect(self._history_left, self._history_top, x_start - self._history_left, self._history_bottom - self._history_top)
-        painter.drawRect(x_end, self._history_top, self._history_left + self._history_width - x_end, self._history_bottom - self._history_top)
-
-    def _draw_topic_dividers(self, painter):
-        clip_left = self._history_left
-        clip_right = self._history_left + self._history_width
-
-        row = 0
-        for topic in self.topics:
-            (x, y, w, h) = self._history_bounds[topic]
-
-            if row % 2 == 0:
-                painter.setPen(Qt.lightGray)
-                painter.setBrush(QBrush(self._history_background_color_alternate))
-            else:
-                painter.setPen(Qt.lightGray)
-                painter.setBrush(QBrush(self._history_background_color))
-            left = max(clip_left, x)
-            painter.drawRect(left, y, min(clip_right - left, w), h)
-            row += 1
-
-    def _draw_selected_region(self, painter):
-        if self._selected_left is None:
-            return
-
-        x_left = self.map_stamp_to_x(self._selected_left)
-        if self._selected_right is not None:
-            x_right = self.map_stamp_to_x(self._selected_right)
-        else:
-            x_right = self.map_stamp_to_x(self.playhead.to_sec())
-
-        left = x_left
-        top = self._history_top - self._playhead_pointer_size[1] - 5 - self._time_font_size - 4
-        width = x_right - x_left
-        height = self._history_top - top
-
-        painter.setPen(self._selected_region_color)
-        painter.setBrush(QBrush(self._selected_region_color))
-        painter.drawRect(left, top, width, height)
-
-        painter.setPen(self._selected_region_outline_ends_color)
-        painter.setBrush(Qt.NoBrush)
-        painter.drawLine(left, top, left, top + height)
-        painter.drawLine(left + width, top, left + width, top + height)
-
-        painter.setPen(self._selected_region_outline_top_color)
-        painter.setBrush(Qt.NoBrush)
-        painter.drawLine(left, top, left + width, top)
-
-        painter.setPen(self._selected_region_outline_top_color)
-        painter.drawLine(left, self._history_top, left, self._history_bottom)
-        painter.drawLine(left + width, self._history_top, left + width, self._history_bottom)
-
-    def _draw_playhead(self, painter):
-        px = self.map_stamp_to_x(self.playhead.to_sec())
-        pw, ph = self._playhead_pointer_size
-
-        # Line
-        painter.setPen(QPen(self._playhead_color))
-        painter.setBrush(QBrush(self._playhead_color))
-        painter.drawLine(px, self._history_top - 1, px, self._history_bottom + 2)
-
-        # Upper triangle
-        py = self._history_top - ph
-        painter.drawPolygon(QPolygonF([QPointF(px, py + ph), QPointF(px + pw, py), QPointF(px - pw, py)]))
-
-        # Lower triangle
-        py = self._history_bottom + 1
-        painter.drawPolygon(QPolygonF([QPointF(px, py), QPointF(px + pw, py + ph), QPointF(px - pw, py + ph)]))
-
-    ### Plugins
-
-    def get_viewer_types(self, datatype):
-        return [RawView] + self._viewer_types.get('*', []) + self._viewer_types.get(datatype, [])
-
-    def load_plugins(self):
-        for view, timeline_renderer, msg_types in plugins.load_plugins():
-            for msg_type in msg_types:
-                self._viewer_types.setdefault(msg_type, []).append(view)
-                if timeline_renderer:
-                    self._timeline_renderers[msg_type] = timeline_renderer(self)
-
-    ### Timeline renderers
-
-    def get_renderers(self):
-        renderers = []
-
-        for topic in self.topics:
-            datatype = self.scene().get_datatype(topic)
-            renderer = self._timeline_renderers.get(datatype)
-            if renderer is not None:
-                renderers.append((topic, renderer))
-
-        return renderers
-
-    def is_renderer_active(self, topic):
-        return topic in self._rendered_topics
-
-    def toggle_renderers(self):
-        idle_renderers = len(self._rendered_topics) < len(self.topics)
-
-        self.set_renderers_active(idle_renderers)
-        self.scene().update()
-
-    def set_renderers_active(self, active):
-        if active:
-            for topic in self.topics:
-                self._rendered_topics.add(topic)
-        else:
-            self._rendered_topics.clear()
-        self.scene().update()
-
-    def set_renderer_active(self, topic, active):
-        if active:
-            if topic in self._rendered_topics:
-                return
-            self._rendered_topics.add(topic)
-        else:
-            if not topic in self._rendered_topics:
-                return
-            self._rendered_topics.remove(topic)
-        self.scene().update()
-
-    def close(self):
-        # TODO the normal close functions need to call this before closing
-#        if self.background_task is not None:
-#            self.background_task_cancel = True
-
-        for renderer in self._timeline_renderers.values():
-            renderer.close()
-
-        self._index_cache_thread.stop()
-
-    def __del__(self):
-        # TODO implement this properly in plugin shutdown function
-        self.close()
-
-    def _update_index_cache(self, topic):
-        """
-        Updates the cache of message timestamps for the given topic.
-
-        @return: number of messages added to the index cache
-        """
-        if self._start_stamp is None or self._end_stamp is None:
-            return 0
-
-        if topic not in self.index_cache:
-            # Don't have any cache of messages in this topic
-            start_time = self._start_stamp
-            topic_cache = []
-            self.index_cache[topic] = topic_cache
-        else:
-            topic_cache = self.index_cache[topic]
-
-            # Check if the cache has been invalidated
-            if topic not in self.invalidated_caches:
-                return 0
-
-            if len(topic_cache) == 0:
-                start_time = self._start_stamp
-            else:
-                start_time = rospy.Time.from_sec(max(0.0, topic_cache[-1]))
-
-        end_time = self._end_stamp
-
-        topic_cache_len = len(topic_cache)
-
-        for entry in self.scene().get_entries(topic, start_time, end_time):
-            topic_cache.append(entry.time.to_sec())
-
-        if topic in self.invalidated_caches:
-            self.invalidated_caches.remove(topic)
-
-        return len(topic_cache) - topic_cache_len
 
     def _draw_topic_history(self, painter, topic):
         """
-        Draw boxes to show message regions on timelines.
+        Draw boxes corrisponding to message regions on the timeline.
+        :param painter: allows access to paint functions,''QPainter''
+        :param topic: the topic for which message boxes should be drawn, ''str''
         """
 
 #        x, y, w, h = self._history_bounds[topic]
@@ -486,7 +379,7 @@ class TimelineFrame(QGraphicsItem):
             painter.setPen(QPen(datatype_color, 1))
             painter.drawRect(region_x_start, msg_y, region_width, msg_height)
 
-#        # Draw active message
+        # Draw active message
         if topic in self.scene()._listeners:
             curpen = painter.pen()
             oldwidth = curpen.width()
@@ -502,7 +395,6 @@ class TimelineFrame(QGraphicsItem):
             curpen.setWidth(oldwidth)
             painter.setPen(curpen)
 
-#TODO get the plugin renderers working
         # Custom renderer
         if renderer:
             # Iterate through regions of connected messages
@@ -513,101 +405,131 @@ class TimelineFrame(QGraphicsItem):
                 region_x_start = self._history_left + (stamp_start - self._stamp_left) * width_interval
                 region_x_end = self._history_left + (stamp_end - self._stamp_left) * width_interval
                 region_width = max(1, region_x_end - region_x_start)
-
                 renderer.draw_timeline_segment(painter, topic, stamp_start, stamp_end, region_x_start, msg_y, region_width, msg_height)
 
-#        dc.restore()
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
 
-    def _find_regions(self, stamps, max_interval):
+    def _draw_bag_ends(self, painter):
         """
-        Group timestamps into regions connected by timestamps less than max_interval secs apart
+        Draw markers to indicate the area the bag file represents within the current visible area.
+        :param painter: allows access to paint functions,''QPainter''
         """
-        region_start, prev_stamp = None, None
-        for stamp in stamps:
-            if prev_stamp:
-                if stamp - prev_stamp > max_interval:
-                    region_end = prev_stamp
-                    yield (region_start, region_end)
-                    region_start = stamp
+        x_start, x_end = self.map_stamp_to_x(self._start_stamp.to_sec()), self.map_stamp_to_x(self._end_stamp.to_sec())
+        painter.setBrush(QBrush(self._bag_end_color))
+        painter.drawRect(self._history_left, self._history_top, x_start - self._history_left, self._history_bottom - self._history_top)
+        painter.drawRect(x_end, self._history_top, self._history_left + self._history_width - x_end, self._history_bottom - self._history_top)
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
+
+    def _draw_topic_dividers(self, painter):
+        """
+        Draws horizontal lines between each topic to visually separate the messages
+        :param painter: allows access to paint functions,''QPainter''
+        """
+        clip_left = self._history_left
+        clip_right = self._history_left + self._history_width
+
+        row = 0
+        for topic in self.topics:
+            (x, y, w, h) = self._history_bounds[topic]
+
+            if row % 2 == 0:
+                painter.setPen(Qt.lightGray)
+                painter.setBrush(QBrush(self._history_background_color_alternate))
             else:
-                region_start = stamp
+                painter.setPen(Qt.lightGray)
+                painter.setBrush(QBrush(self._history_background_color))
+            left = max(clip_left, x)
+            painter.drawRect(left, y, min(clip_right - left, w), h)
+            row += 1
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
 
-            prev_stamp = stamp
+    def _draw_selected_region(self, painter):
+        """
+        Draws a box around the selected region
+        :param painter: allows access to paint functions,''QPainter''
+        """
+        if self._selected_left is None:
+            return
 
-        if region_start and prev_stamp:
-            yield (region_start, prev_stamp)
+        x_left = self.map_stamp_to_x(self._selected_left)
+        if self._selected_right is not None:
+            x_right = self.map_stamp_to_x(self._selected_right)
+        else:
+            x_right = self.map_stamp_to_x(self.playhead.to_sec())
 
-    def _layout(self):
-        # Calculate history left and history width
-        max_topic_name_width = -1
-        for topic in self.topics:
-            topic_width = QFontMetrics(self._topic_font).width(topic)
-            if max_topic_name_width <= topic_width:
-                max_topic_name_width = topic_width
+        left = x_left
+        top = self._history_top - self._playhead_pointer_size[1] - 5 - self._time_font_size - 4
+        width = x_right - x_left
+        height = self._history_top - top
 
-        self._topic_font_height = -1
-        for topic in self.topics:
-            topic_height = QFontMetrics(self._topic_font).height()
-            if self._topic_font_height <= topic_height:
-                self._topic_font_height = topic_height
+        painter.setPen(self._selected_region_color)
+        painter.setBrush(QBrush(self._selected_region_color))
+        painter.drawRect(left, top, width, height)
 
-        new_history_left = self._margin_left + max_topic_name_width + self._topic_name_spacing
-        new_history_width = self.scene().views()[0].size().width() - new_history_left - self._margin_right
-        updated_history = (new_history_left != self._history_left or new_history_width != self._history_width)
-        if updated_history:
-            self._history_left = new_history_left
-            self._history_width = new_history_width
+        painter.setPen(self._selected_region_outline_ends_color)
+        painter.setBrush(Qt.NoBrush)
+        painter.drawLine(left, top, left, top + height)
+        painter.drawLine(left + width, top, left + width, top + height)
 
-        # Calculate the bounds for each topic
-        self._history_bounds = {}
-        y = self._history_top
-        for topic in self.topics:
-            datatype = self.scene().get_datatype(topic)
+        painter.setPen(self._selected_region_outline_top_color)
+        painter.setBrush(Qt.NoBrush)
+        painter.drawLine(left, top, left + width, top)
 
-            topic_height = None
-            if topic in self._rendered_topics:
-                renderer = self._timeline_renderers.get(datatype)
-                if renderer:
-                    topic_height = renderer.get_segment_height(topic)
-            if not topic_height:
-                topic_height = self._topic_font_height + self._topic_vertical_padding
+        painter.setPen(self._selected_region_outline_top_color)
+        painter.drawLine(left, self._history_top, left, self._history_bottom)
+        painter.drawLine(left + width, self._history_top, left + width, self._history_bottom)
 
-            self._history_bounds[topic] = (self._history_left, y, self._history_width, topic_height)
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
 
-            y += topic_height
+    def _draw_playhead(self, painter):
+        """
+        Draw a line and 2 triangles to denote the current position being viewed
+        :param painter: ,''QPainter''
+        """        
+        px = self.map_stamp_to_x(self.playhead.to_sec())
+        pw, ph = self._playhead_pointer_size
 
-#        new_history_bottom = max([y + h for (x, y, w, h) in self._history_bounds.values()]) - 1
-        new_history_bottom = max([y + h for (_, y, _, h) in self._history_bounds.values()]) - 1
-        if new_history_bottom != self._history_bottom:
-            self._history_bottom = new_history_bottom
+        # Line
+        painter.setPen(QPen(self._playhead_color))
+        painter.setBrush(QBrush(self._playhead_color))
+        painter.drawLine(px, self._history_top - 1, px, self._history_bottom + 2)
 
-        # TODO redo the sizing of the graphics scene so that it will show scrollbars if the current size is > history_bottom
-            # Resize the scroll bars
-#            scroll_window = self.Parent
-#            visible_height = int(self._history_bottom) + self._playhead_pointer_size[1] + self._margin_bottom
-#            scroll_window.SetScrollbars(0, 1, 0, visible_height, 0, scroll_window.Position[1])
+        # Upper triangle
+        py = self._history_top - ph
+        painter.drawPolygon(QPolygonF([QPointF(px, py + ph), QPointF(px + pw, py), QPointF(px - pw, py)]))
 
-            # Resize the frame to fit
-#            bar_height = 0
-#            if self.frame.ToolBar:
-#                bar_height += self.frame.ToolBar.Size[1]
-#            if self.frame.StatusBar:
-#                bar_height += self.frame.StatusBar.Size[1]
+        # Lower triangle
+        py = self._history_bottom + 1
+        painter.drawPolygon(QPolygonF([QPointF(px, py), QPointF(px + pw, py + ph), QPointF(px - pw, py + ph)]))
+
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
+
 
     def _draw_history_border(self, painter):
+        """
+        Draw a simple black rectangle frame around the timeline view area
+        :param painter: ,''QPainter''
+        """
         bounds_width = min(self._history_width, self.scene().width())
         x, y, w, h = self._history_left, self._history_top, bounds_width, self._history_bottom - self._history_top
 
         painter.setBrush(Qt.NoBrush)
         painter.setPen(Qt.black)
         painter.drawRect(x, y, w, h)
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
 
     def _draw_topic_names(self, painter):
         """
-        Draw topic names.
+        Calculate positions of existing topic names and draw them on the left, one for each row
+        :param painter: ,''QPainter''
         """
         topics = self._history_bounds.keys()
-#        coords = [(self._margin_left, y + (h / 2) + (self._topic_font_height / 2)) for (x, y, w, h) in self._history_bounds.values()]
         coords = [(self._margin_left, y + (h / 2) + (self._topic_font_height / 2)) for (_, y, _, h) in self._history_bounds.values()]
 
         for text, coords in zip([t.lstrip('/') for t in topics], coords):
@@ -620,6 +542,7 @@ class TimelineFrame(QGraphicsItem):
     def _draw_time_divisions(self, painter):
         """
         Draw vertical grid-lines showing major and minor time divisions.
+        :param painter: allows access to paint functions,''QPainter''
         """
         x_per_sec = self.map_dstamp_to_dx(1.0)
         major_divisions = [s for s in self._sec_divisions if x_per_sec * s >= self._major_spacing]
@@ -644,6 +567,10 @@ class TimelineFrame(QGraphicsItem):
             self._draw_minor_divisions(painter, minor_stamps, start_stamp, minor_division)
 
     def _draw_major_divisions(self, painter, stamps, start_stamp, division):
+        """
+        Draw black hashed vertical grid-lines showing major time divisions.
+        :param painter: allows access to paint functions,''QPainter''
+        """
         label_y = self._history_top - self._playhead_pointer_size[1] - 5
         for stamp in stamps:
             x = self.map_stamp_to_x(stamp, False)
@@ -660,7 +587,14 @@ class TimelineFrame(QGraphicsItem):
             painter.setPen(self._major_division_pen)
             painter.drawLine(x, label_y - self._time_tick_height - self._time_font_size, x, self._history_bottom)
 
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
+
     def _draw_minor_divisions(self, painter, stamps, start_stamp, division):
+        """
+        Draw grey hashed vertical grid-lines showing minor time divisions.
+        :param painter: allows access to paint functions,''QPainter''
+        """
         xs = [self.map_stamp_to_x(stamp) for stamp in stamps]
         painter.setPen(self._minor_division_pen)
         for x in xs:
@@ -670,9 +604,136 @@ class TimelineFrame(QGraphicsItem):
         for x in xs:
             painter.drawLine(x, self._history_top - self._time_tick_height, x, self._history_top)
 
+        painter.setBrush(self._default_brush)
+        painter.setPen(self._default_pen)
+    
+    # Close function
+
+    def handle_close(self):
+        for renderer in self._timeline_renderers.values():
+            renderer.close()
+        self._index_cache_thread.stop()
+
+    # Plugin interaction functions
+
+    def get_viewer_types(self, datatype):
+        return [RawView] + self._viewer_types.get('*', []) + self._viewer_types.get(datatype, [])
+
+    def load_plugins(self):
+        for view, timeline_renderer, msg_types in plugins.load_plugins():
+            for msg_type in msg_types:
+                self._viewer_types.setdefault(msg_type, []).append(view)
+                if timeline_renderer:
+                    self._timeline_renderers[msg_type] = timeline_renderer(self)
+
+    # Timeline renderer interaction functions
+
+    def get_renderers(self):
+        """
+        :returns: a list of the currently loaded renderers for the plugins
+        """
+        renderers = []
+
+        for topic in self.topics:
+            datatype = self.scene().get_datatype(topic)
+            renderer = self._timeline_renderers.get(datatype)
+            if renderer is not None:
+                renderers.append((topic, renderer))
+        return renderers
+
+    def is_renderer_active(self, topic):
+        return topic in self._rendered_topics
+
+    def toggle_renderers(self):
+        idle_renderers = len(self._rendered_topics) < len(self.topics)
+
+        self.set_renderers_active(idle_renderers)
+        self.scene().update()
+
+    def set_renderers_active(self, active):
+        if active:
+            for topic in self.topics:
+                self._rendered_topics.add(topic)
+        else:
+            self._rendered_topics.clear()
+        self.scene().update()
+
+    def set_renderer_active(self, topic, active):
+        if active:
+            if topic in self._rendered_topics:
+                return
+            self._rendered_topics.add(topic)
+        else:
+            if not topic in self._rendered_topics:
+                return
+            self._rendered_topics.remove(topic)
+        self.scene().update()
+
+    # Index Caching functions 
+    
+    def _update_index_cache(self, topic):
+        """
+        Updates the cache of message timestamps for the given topic.
+        :return: number of messages added to the index cache
+        """
+        if self._start_stamp is None or self._end_stamp is None:
+            return 0
+
+        if topic not in self.index_cache:
+            # Don't have any cache of messages in this topic
+            start_time = self._start_stamp
+            topic_cache = []
+            self.index_cache[topic] = topic_cache
+        else:
+            topic_cache = self.index_cache[topic]
+
+            # Check if the cache has been invalidated
+            if topic not in self.invalidated_caches:
+                return 0
+
+            if len(topic_cache) == 0:
+                start_time = self._start_stamp
+            else:
+                start_time = rospy.Time.from_sec(max(0.0, topic_cache[-1]))
+
+        end_time = self._end_stamp
+
+        topic_cache_len = len(topic_cache)
+
+        for entry in self.scene().get_entries(topic, start_time, end_time):
+            topic_cache.append(entry.time.to_sec())
+
+        if topic in self.invalidated_caches:
+            self.invalidated_caches.remove(topic)
+
+        return len(topic_cache) - topic_cache_len
+
+    def _find_regions(self, stamps, max_interval):
+        """
+        Group timestamps into regions connected by timestamps less than max_interval secs apart
+        :param start_stamp: a list of stamps, ''list''
+        :param stamp_step: seconds between each division, ''int''
+        """
+        region_start, prev_stamp = None, None
+        for stamp in stamps:
+            if prev_stamp:
+                if stamp - prev_stamp > max_interval:
+                    region_end = prev_stamp
+                    yield (region_start, region_end)
+                    region_start = stamp
+            else:
+                region_start = stamp
+
+            prev_stamp = stamp
+
+        if region_start and prev_stamp:
+            yield (region_start, prev_stamp)
+
     def _get_stamps(self, start_stamp, stamp_step):
         """
         Generate visible stamps every stamp_step
+        :param start_stamp: beginning of timeline stamp, ''int''
+        :param stamp_step: seconds between each division, ''int''
         """
         if start_stamp >= self._stamp_left:
             stamp = start_stamp
@@ -684,13 +745,18 @@ class TimelineFrame(QGraphicsItem):
             stamp += stamp_step
 
     def _get_label(self, division, elapsed):
+        """
+        :param division: number of seconds in a division, ''int''
+        :param elapsed: seconds from the beginning, ''int''
+        :returns: relevent time elapsed string, ''str''
+        """
         secs = int(elapsed) % 60
 
         mins = int(elapsed) / 60
         hrs = mins / 60
         days = hrs / 24
         weeks = days / 7
-
+        
         if division >= 7 * 24 * 60 * 60:  # >1wk divisions: show weeks
             return '%dw' % weeks
         elif division >= 24 * 60 * 60:  # >24h divisions: show days
@@ -708,8 +774,14 @@ class TimelineFrame(QGraphicsItem):
         else:  # show seconds.00
             return '%d.%03d' % (secs, int(1000.0 * (elapsed - int(elapsed))))
 
-    ### Pixel location <-> time
+    # Pixel location/time conversion functions
     def map_x_to_stamp(self, x, clamp_to_visible=True):
+        """
+        converts a pixel x value to a stamp
+        :param x: pixel value to be converted, ''int''
+        :param clamp_to_visible: disallow values that are greater than the current timeline bounds,''bool''
+        :returns: timestamp, ''int'' 
+        """
         fraction = float(x - self._history_left) / self._history_width
 
         if clamp_to_visible:
@@ -721,9 +793,20 @@ class TimelineFrame(QGraphicsItem):
         return self._stamp_left + fraction * (self._stamp_right - self._stamp_left)
 
     def map_dx_to_dstamp(self, dx):
+        """
+        converts a distance in pixel space to a distance in stamp space
+        :param dx: distance in pixel space to be converted, ''int''
+        :returns: distance in stamp space, ''float'' 
+        """
         return float(dx) * (self._stamp_right - self._stamp_left) / self._history_width
 
     def map_stamp_to_x(self, stamp, clamp_to_visible=True):
+        """
+        converts a timestamp to the x value where that stamp exists in the timeline
+        :param stamp: timestamp to be converted, ''int''
+        :param clamp_to_visible: disallow values that are greater than the current timeline bounds,''bool''
+        :returns: # of pixels from the left boarder, ''int'' 
+        """
         if self._stamp_left is None:
             return None
         fraction = (stamp - self._stamp_left) / (self._stamp_right - self._stamp_left)
@@ -736,7 +819,7 @@ class TimelineFrame(QGraphicsItem):
     def map_dstamp_to_dx(self, dstamp):
         return (float(dstamp) * self._history_width) / (self._stamp_right - self._stamp_left)
 
-    ### View port
+    # View port manipulation functions
     def reset_timeline(self):
         self.reset_zoom()
 
@@ -755,6 +838,7 @@ class TimelineFrame(QGraphicsItem):
         self.set_timeline_view(self._stamp_left + dstamp, self._stamp_right + dstamp)
         self.scene().update()
 
+    # Zoom functions
     def reset_zoom(self):
         start_stamp, end_stamp = self._start_stamp, self._end_stamp
         if start_stamp is None:
@@ -826,7 +910,7 @@ class TimelineFrame(QGraphicsItem):
 
         return (left, right)
 
-    ### Mouse events
+    # Mouse event handlers
     def on_middle_down(self, event):
         self._clicked_pos = self._dragged_pos = event.pos()
         self._paused = True
@@ -885,19 +969,17 @@ class TimelineFrame(QGraphicsItem):
         self.scene().update()
 
     def on_mousewheel(self, event):
-#        dz = event.WheelRotation / event.WheelDelta
         dz = event.delta() / 120.0
         self.zoom_timeline(1.0 - dz * 0.2)
 
     def on_mouse_move(self, event):
-        if not self._history_left:  # @todo: need a better notion of initialized
+        if not self._history_left:  # TODO: need a better notion of initialized
             return
 
         x = event.pos().x()
         y = event.pos().y()
 
         if event.buttons() == Qt.NoButton:
-            # TODO change the cursor to denote the ability to resize the selection area
             # Mouse moving
             if self._selecting_mode in [_SelectionMode.MARKED, _SelectionMode.MOVE_LEFT, _SelectionMode.MOVE_RIGHT, _SelectionMode.SHIFTING]:
                 if y <= self._history_top and self._selected_left is not None:
@@ -906,15 +988,17 @@ class TimelineFrame(QGraphicsItem):
 
                     if abs(x - left_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_LEFT
-                        # TODO: consider using QApplication.setOverrideCursor instead this digging all the way out is ugly
+                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif abs(x - right_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_RIGHT
+                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif x > left_x and x < right_x:
                         self._selecting_mode = _SelectionMode.SHIFTING
+                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.OpenHandCursor))
                         return
                     else:
@@ -923,8 +1007,7 @@ class TimelineFrame(QGraphicsItem):
         else:
             # Mouse dragging
             if event.buttons() == Qt.MidButton or event.modifiers() == Qt.ShiftModifier:
-                # Middle or shift: zoom
-#                dx_click, dy_click = x - self._clicked_pos.x(), y - self._clicked_pos.y()
+                # Middle or shift: zoom and pan
                 dx_drag, dy_drag = x - self._dragged_pos.x(), y - self._dragged_pos.y()
 
                 if dx_drag != 0:
@@ -935,6 +1018,7 @@ class TimelineFrame(QGraphicsItem):
 
                 self.scene().views()[0].setCursor(QCursor(Qt.ClosedHandCursor))
             elif event.buttons() == Qt.LeftButton:
+                # Left: move selected region and move selected region boundry
                 clicked_x = self._clicked_pos.x()
                 clicked_y = self._clicked_pos.y()
 
@@ -971,22 +1055,5 @@ class TimelineFrame(QGraphicsItem):
                         self.playhead = rospy.Time(0, 1)
                     else:
                         self.playhead = rospy.Time.from_sec(x_stamp)
-
                     self.scene().update()
-
             self._dragged_pos = event.pos()
-
-    @property
-    def _history_right(self):
-        return self._history_left + self._history_width
-
-    @property
-    def has_selected_region(self):
-        return self._selected_left is not None and self._selected_right is not None
-
-    @property
-    def play_region(self):
-        if self.has_selected_region:
-            return (rospy.Time.from_sec(self._selected_left), rospy.Time.from_sec(self._selected_right))
-        else:
-            return (self._start_stamp, self._end_stamp)

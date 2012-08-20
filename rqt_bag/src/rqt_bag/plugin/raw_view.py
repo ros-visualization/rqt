@@ -38,7 +38,6 @@ Defines a raw view: a TopicMessageView that displays the message contents in a t
 import rospy
 import codecs
 import math
-#import wx
 import qt_gui.qt_binding_helper  # @UnusedImport
 
 from QtCore import Qt
@@ -48,10 +47,16 @@ from .topic_message_view import TopicMessageView
 
 class RawView(TopicMessageView):
     name = 'Raw'
-
+    """
+    Plugin to view a message in a treeview window 
+    The message is loaded into a custum treewidget
+    """
     def __init__(self, timeline, parent):
+        """
+        :param timeline: timeline data object, ''BagTimeline''
+        :param parent: widget that will be added to the ros_gui context, ''QWidget''
+        """
         super(RawView, self).__init__(timeline, parent)
-
         self.message_tree = MessageTree(parent)
         parent.layout().addWidget(self.message_tree)  # This will automatically resize the message_tree to the windowsize
 
@@ -84,6 +89,10 @@ class MessageTree(QTreeWidget):
         return self._msg
 
     def set_message(self, msg):
+        """
+        Clears the tree view and displays the new message
+        :param msg: message object to display in the treeview, ''msg''
+        """
         # Remember whether items were expanded or not before deleting
         if self._msg:
             for item in self.get_all_items():
@@ -92,7 +101,6 @@ class MessageTree(QTreeWidget):
                     self._expanded_paths.add(path)
                 elif path in self._expanded_paths:
                     self._expanded_paths.remove(path)
-
             self.clear()
         if msg:
             # Populate the tree
@@ -111,6 +119,7 @@ class MessageTree(QTreeWidget):
         self._msg = msg
         self.update()
 
+    # Keyboard handler
     def on_key_press(self, event):
         key, ctrl = event.key(), event.modifiers() & Qt.ControlModifier
 
@@ -146,7 +155,7 @@ class MessageTree(QTreeWidget):
         clipboard.setText(text)
 
     def get_item_path(self, item):
-        return item.data(0, Qt.UserRole)[0].replace(' ', '')   # remove spaces that may get introduced in indexing, e.g. [  3] is [3]
+        return item.data(0, Qt.UserRole)[0].replace(' ', '')  # remove spaces that may get introduced in indexing, e.g. [  3] is [3]
 
     def get_all_items(self):
         items = []
@@ -206,7 +215,6 @@ class MessageTree(QTreeWidget):
             self.addTopLevelItem(item)
         else:
             parent.addChild(item)
-#        self.SetItemFont(item, self._font)
         item.setData(0, Qt.UserRole, (path, obj_type))
 
         for subobj_name, subobj in subobjs:
@@ -214,11 +222,11 @@ class MessageTree(QTreeWidget):
                 continue
 
             if path == '':
-                subpath = subobj_name                       # root field
+                subpath = subobj_name  # root field
             elif subobj_name.startswith('['):
-                subpath = '%s%s' % (path, subobj_name)      # list, dict, or tuple
+                subpath = '%s%s' % (path, subobj_name)  # list, dict, or tuple
             else:
-                subpath = '%s.%s' % (path, subobj_name)     # attribute (prefix with '.')
+                subpath = '%s.%s' % (path, subobj_name)  # attribute (prefix with '.')
 
             if hasattr(subobj, '_type'):
                 subobj_type = subobj._type

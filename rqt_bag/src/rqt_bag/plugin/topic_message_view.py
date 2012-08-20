@@ -29,10 +29,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-#import roslib.packages
-#import wx
-
 from .message_view import MessageView
 
 
@@ -40,6 +36,7 @@ class TopicMessageView(MessageView):
     """
     A message view with a toolbar for navigating messages in a single topic.
     """
+    #TODO implement toolbar portion of topic messageview
     def __init__(self, timeline, parent):
         MessageView.__init__(self, timeline)
 
@@ -47,14 +44,9 @@ class TopicMessageView(MessageView):
         self._topic = None
         self._stamp = None
         self._name = parent.objectName()
-#        self._toolbar = self.parent.CreateToolBar()
-#        self._setup_toolbar()
-
-#        self.parent.StatusBar = TopicMessageViewStatusBar(self.parent, self)
-
-#        self.parent.Bind(wx.EVT_CLOSE, self._on_close)
         self.parent.destroyed.connect(self._on_close)
 
+    # 
     @property
     def parent(self):
         return self._parent
@@ -67,16 +59,14 @@ class TopicMessageView(MessageView):
     def stamp(self):
         return self._stamp
 
-    ## MessageView implementation
+    # MessageView implementation
 
     def message_viewed(self, bag, msg_details):
         self._topic, _, self._stamp = msg_details[:3]
 
-#        wx.CallAfter(self.parent.StatusBar.update)
-
-    ## Events
+    # Events
     def _on_close(self):
-        # @todo: needs to handle closing when a message hasn't been viewed yet
+        # TODO: needs to handle closing when a message hasn't been viewed yet
         if self._topic:
             self.timeline.popups.remove(self._name)
             self.timeline.remove_view(self._topic, self)
@@ -120,59 +110,3 @@ class TopicMessageView(MessageView):
 
         if last_entry:
             self.timeline.playhead = last_entry.time
-
-    def _setup_toolbar(self):
-        self._toolbar.ClearTools()
-
-#        icons_dir = roslib.packages.get_pkg_dir('rqt_bag') + '/icons/'
-#
-#        navigate_first_tool = self._toolbar.AddLabelTool(wx.ID_ANY, '', wx.Bitmap(icons_dir + 'navigate_first.png'), shortHelp='First message', longHelp='Move playhead to first message on topic')
-#        navigate_previous_tool = self._toolbar.AddLabelTool(wx.ID_ANY, '', wx.Bitmap(icons_dir + 'navigate_previous.png'), shortHelp='Previous message', longHelp='Move playhead to previous message on topic')
-#        navigate_next_tool = self._toolbar.AddLabelTool(wx.ID_ANY, '', wx.Bitmap(icons_dir + 'navigate_next.png'), shortHelp='Next message', longHelp='Move playhead to next message on topic')
-#        navigate_last_tool = self._toolbar.AddLabelTool(wx.ID_ANY, '', wx.Bitmap(icons_dir + 'navigate_last.png'), shortHelp='Last message', longHelp='Move playhead to last message on topic')
-#
-#        self._toolbar.Bind(wx.EVT_TOOL, lambda e: self.navigate_first(), navigate_first_tool)
-#        self._toolbar.Bind(wx.EVT_TOOL, lambda e: self.navigate_previous(), navigate_previous_tool)
-#        self._toolbar.Bind(wx.EVT_TOOL, lambda e: self.navigate_next(), navigate_next_tool)
-#        self._toolbar.Bind(wx.EVT_TOOL, lambda e: self.navigate_last(), navigate_last_tool)
-#
-#        self._toolbar.Realize()
-
-
-#class TopicMessageViewStatusBar(wx.StatusBar):
-#    def __init__(self, parent, message_view):
-#        wx.StatusBar.__init__(self, parent, -1)
-#
-#        self.message_view = message_view
-#
-#        self.timestamp_field = 1
-#        self.human_readable_field = 2
-#        self.elapsed_field = 3
-#
-#        self.timestamp_width = 125
-#        self.human_readable_width = 180
-#        self.elapsed_width = 110
-#
-#        self.SetFieldsCount(4)
-#
-##        parent.Bind(wx.EVT_SIZE, self.on_size)
-#
-#        self.update()
-#
-#    def on_size(self, event):
-#        main_width = max(10, self.Size[0] - (self.timestamp_width + self.human_readable_width + self.elapsed_width))
-#        self.SetStatusWidths([main_width, self.timestamp_width, self.human_readable_width, self.elapsed_width])
-#        event.Skip()
-#
-#    def update(self):
-#        if self.message_view.stamp is None or self.message_view.timeline.start_stamp is None:
-#            return
-#
-#        # Raw timestamp
-#        self.SetStatusText('%d.%s' % (self.message_view.stamp.secs, str(self.message_view.stamp.nsecs)[:3]), self.timestamp_field)
-#
-#        # Human-readable time
-#        self.SetStatusText(bag_helper.stamp_to_str(self.message_view.stamp), self.human_readable_field)
-#
-#        # Elapsed time (in seconds)
-#        self.SetStatusText('%.3fs' % (self.message_view.stamp - self.message_view.timeline.start_stamp).to_sec(), self.elapsed_field)

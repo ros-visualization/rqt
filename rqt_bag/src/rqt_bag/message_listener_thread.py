@@ -46,7 +46,6 @@ class ListenerEvent(QEvent):
 class MessageListenerThread(threading.Thread):
     """
     Waits for new messages loaded on the given topic, then calls the message listener.
-
     One thread per listener, topic pair.
     """
     def __init__(self, timeline, topic, listener):
@@ -55,15 +54,15 @@ class MessageListenerThread(threading.Thread):
         self.timeline = timeline
         self.topic = topic
         self.listener = listener
-
         self.bag_msg_data = None
-
         self._stop_flag = False
-
         self.setDaemon(True)
         self.start()
 
     def run(self):
+        """
+        Thread body. loops and notifies the listener of new messages
+        """
         while not self._stop_flag:
             # Wait for a new message
             cv = self.timeline._messages_cvs[self.topic]
@@ -73,22 +72,13 @@ class MessageListenerThread(threading.Thread):
                     if self._stop_flag:
                         return
                 bag_msg_data = self.timeline._messages[self.topic]
-
             # View the message
             self.bag_msg_data = bag_msg_data
-#            try:
-            if True:
+            try:
                 event = ListenerEvent(bag_msg_data)
                 QCoreApplication.postEvent(self.listener, event)
-#                bag, msg_data = bag_msg_data
-#                if msg_data:
-#                    self.listener.message_viewed(bag, msg_data)
-#                else:
-#                    self.listener.message_cleared()
-#            except wx.PyDeadObjectError:
-#                self.timeline.remove_listener(self.topic, self.listener)
-#            except Exception, ex:
-#                qWarning('Error notifying listener %s: %s' % (type(self.listener), str(ex)))
+            except Exception, ex:
+                qWarning('Error notifying listener %s: %s' % (type(self.listener), str(ex)))
 
     def stop(self):
         self._stop_flag = True

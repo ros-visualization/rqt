@@ -56,11 +56,11 @@ class TimelineRenderer(QObject):
         """
         return None
 
-    def draw_timeline_segment(self, dc, topic, stamp_start, stamp_end, x, y, width, height):
+    def draw_timeline_segment(self, painter, topic, stamp_start, stamp_end, x, y, width, height):
         """
         Draw the timeline segment.
 
-        @param dc: Cairo context to render into
+        @param painter: QPainter context to render into
         @param topic: topic name
         @param stamp_start: start of the interval on the timeline
         @param stamp_end: start of the interval on the timeline

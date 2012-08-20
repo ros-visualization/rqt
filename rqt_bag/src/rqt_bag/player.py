@@ -42,6 +42,9 @@ from QtCore import QObject
 
 
 class Player(QObject):
+    """
+    This object handles publishing messages as the playhead passes over their position
+    """
     def __init__(self, timeline):
         super(Player, self).__init__()
         self.timeline = timeline
@@ -55,9 +58,7 @@ class Player(QObject):
     def start_publishing(self, topic):
         if topic in self._publishing:
             return
-
         self._publishing.add(topic)
-
         self.timeline.add_listener(topic, self)
 
     def stop_publishing(self, topic):
@@ -76,6 +77,11 @@ class Player(QObject):
             self.stop_publishing(topic)
 
     def message_viewed(self, bag, msg_data):
+        """
+        When a message is viewed publish it
+        :param bag: the bag the message is in, ''rosbag.bag''
+        :param msg_data: tuple of the message data and topic info, ''(str, msg)''
+        """
         # Don't publish unless the playhead is moving.
         if self.timeline.play_speed <= 0.0:
             return

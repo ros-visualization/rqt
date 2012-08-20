@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-PKG = 'rxbag_plugins'
+PKG = 'rqt_bag_plugins'
 import roslib; roslib.load_manifest(PKG)
 import rospy
 
@@ -38,12 +38,10 @@ import sys
 import threading
 import time
 
-#import wx
-
 import Image
 import ImageQt
 
-from rxbag import bag_helper, TimelineCache, TimelineRenderer
+from rqt_bag import bag_helper, TimelineCache, TimelineRenderer
 
 import image_helper
 import qt_gui.qt_binding_helper  # @UnusedImport
@@ -71,26 +69,30 @@ class ImageTimelineRenderer(TimelineRenderer):
     def get_segment_height(self, topic):
         return self.thumbnail_height
 
+    # TODO there is a bug in this code. sometimes the images do not load properly and are only displayed when the playhead is put over their region
     def draw_timeline_segment(self, painter, topic, stamp_start, stamp_end, x, y, width, height):
-
+        """
+        draws a stream of images for the topic
+        :param painter: painter object, ''QPainter''
+        :param topic: topic to draw, ''str''
+        :param stamp_start: stamp to start drawing, ''rospy.Time''
+        :param stamp_end: stamp to end drawing, ''rospy.Time''
+        :param x: x to draw images at, ''int''
+        :param y: y to draw images at, ''int''
+        :param width: width in pixels of the timeline area, ''int''
+        :param height: height in pixels of the timeline area, ''int''
+        """
         if x < self.timeline._history_left:
             width += x - self.timeline._history_left
             x = self.timeline._history_left
         max_interval_thumbnail = self.timeline.map_dx_to_dstamp(self.thumbnail_combine_px)
-
         max_interval_thumbnail = max(0.1, max_interval_thumbnail)
-
         thumbnail_gap = 6
-
         thumbnail_x, thumbnail_y, thumbnail_height = x + 1, y + 1, height - 2 - thumbnail_gap  # leave 1px border
 
-#        # set color to white draw rectangle over stuff
-#        dc.set_source_rgb(1, 1, 1)
+        # set color to white draw rectangle over messages
         painter.setBrush(QBrush(Qt.white))
         painter.drawRect(x, y, width, height - thumbnail_gap)
-#        dc.rectangle(x, y, width, height - thumbnail_gap)
-#        dc.fill()
-
         thumbnail_width = None
         thumbnail_right = None
 
@@ -104,61 +106,40 @@ class ImageTimelineRenderer(TimelineRenderer):
             # Try to display the thumbnail, if its right edge is to the right of the timeline's left side
             if not thumbnail_width or thumbnail_x + thumbnail_width >= self.timeline._history_left:
                 stamp = self.timeline.map_x_to_stamp(thumbnail_x, clamp_to_visible=False)
-
                 thumbnail_bitmap = self.thumbnail_cache.get_item(topic, stamp, max_interval_thumbnail)
 
                 # Cache miss
                 if not thumbnail_bitmap:
                     thumbnail_details = (thumbnail_height,)
                     self.thumbnail_cache.enqueue((topic, stamp, max_interval_thumbnail, thumbnail_details))
-
                     if not thumbnail_width:
                         break
                 else:
                     thumbnail_width, _ = thumbnail_bitmap.size
-#                    thumbnail_width = thumbnail_bitmap.get_width()
 
                     if width > 1:
                         if available_width < thumbnail_width:
-                            # Space remaining, but have to chop off thumbnail
                             thumbnail_width = available_width - 1
-                    # add pixmaps at thumb x, y painter.drawPixmap(thumbnail_x, thumbnail_y, QPixmap(thumbnail_bitmap))
-#                    im = Image.(thumbnail_bitmap)
                     QtImage = ImageQt.ImageQt(thumbnail_bitmap)
                     pixmap = QPixmap.fromImage(QtImage)
-#                    self._scene.clear()
-#                    self._scene.addPixmap(pixmap)
-
                     painter.drawPixmap(thumbnail_x, thumbnail_y, thumbnail_width, thumbnail_height, pixmap)
-#                    dc.set_source_surface(thumbnail_bitmap, thumbnail_x, thumbnail_y)
-#                    #draw rectangle around it
-#                    dc.rectangle(thumbnail_x, thumbnail_y, thumbnail_width, thumbnail_height)
-#                    dc.fill()
-
             thumbnail_x += thumbnail_width
 
             if width == 1:
                 break
 
-#        # Draw 1px black border
-#        dc.set_line_width(1)
-#        dc.set_source_rgb(0, 0, 0)
         painter.setPen(QPen(QBrush(Qt.black)))
         painter.setBrush(QBrush(Qt.transparent))
         if width == 1:
             painter.drawRect(x, y, thumbnail_x - x, height - thumbnail_gap - 1)
         else:
             painter.drawRect(x, y, width, height - thumbnail_gap - 1)
-#        dc.stroke()
-
         return True
 
     def close(self):
         if self.thumbnail_cache:
             self.thumbnail_cache.stop()
             self.thumbnail_cache.join()
-
-    #
 
     def _load_thumbnail(self, topic, stamp, thumbnail_details):
         """
@@ -192,12 +173,8 @@ class ImageTimelineRenderer(TimelineRenderer):
         try:
             pil_image_size = pil_image.size
             thumbnail_width = int(round(thumbnail_height * (float(pil_image_size[0]) / pil_image_size[1])))
-
             # Scale to thumbnail size
             thumbnail = pil_image.resize((thumbnail_width, thumbnail_height), self.quality)
-
-#            # Convert from PIL Image to Cairo ImageSurface
-#            thumbnail_bitmap = image_helper.pil_to_cairo(thumbnail)
 
             return msg_stamp, thumbnail
 

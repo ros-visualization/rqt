@@ -30,59 +30,38 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-#import rospy
-
 import bisect
 import Queue
 import threading
 import time
 
-#import wx
-
 
 class TimelineCache(threading.Thread):
+    """
+    Caches items for timeline renderers
+    """
     def __init__(self, loader, listener=None, max_cache_size=100):
         threading.Thread.__init__(self)
 
         self.loader = loader
         self.listener = listener
         self.stop_flag = False
-
         self.lock = threading.RLock()
-
-        self.items = {}     # topic -> [(timestamp, items), ...]
-        self.last_accessed = {}     # topic -> [(access time, timestamp), ...]
-        self.item_access = {}     # topic -> timestamp -> access time
-
-        self.max_cache_size = max_cache_size    # max number of items to cache (per topic)
-
+        self.items = {}  # topic -> [(timestamp, items), ...]
+        self.last_accessed = {}  # topic -> [(access time, timestamp), ...]
+        self.item_access = {}  # topic -> timestamp -> access time
+        self.max_cache_size = max_cache_size  # max number of items to cache (per topic)
         self.queue = Queue.Queue()
-
         self.setDaemon(True)
         self.start()
-
-#        self._debugging = False
-#        if self._debugging:
-#            self._debug_frame = wx.Frame(None, -1, 'TimelineCache debug')
-#            self._debug_text = wx.TextCtrl(self._debug_frame, style=wx.TE_READONLY | wx.NO_BORDER | wx.TE_MULTILINE)
-#            self._debug_text.SetPosition((1, 0))
-#            self._debug_text.SetFont(wx.Font(7, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-#            self._debug_frame.SetSize((400, 1200))
-#            self._debug_frame.Show()
 
     def run(self):
         while not self.stop_flag:
             # Get next item to load
             entry = self.queue.get()
-
             # self used to signal a change in stop_flag
             if entry == self:
                 continue
-
-            # Update debugging info (if enabled)
-#            if self._debugging:
-#                wx.CallAfter(self._update_debug)
-
             # Check we haven't already cached it
             topic, stamp, time_threshold, item_details = entry
 
@@ -97,7 +76,6 @@ class TimelineCache(threading.Thread):
                         self.listener(topic, msg_stamp, item)
                 else:
                     print 'Failed to load:', entry
-
             self.queue.task_done()
 
     def enqueue(self, entry):
@@ -145,9 +123,7 @@ class TimelineCache(threading.Thread):
                     # Check entry is close enough
                     if cache_dist <= time_threshold:
                         self._update_last_accessed(topic, cache_stamp)
-
                         return cache_item
-
             return None
 
     def _update_last_accessed(self, topic, stamp):
@@ -195,24 +171,3 @@ class TimelineCache(threading.Thread):
     def stop(self):
         self.stop_flag = True
         self.queue.put(self)
-
-    def _update_debug(self):
-        try:
-            s = ''
-
-            start_stamp = self.timeline.start_stamp.to_sec()
-
-            for topic, topic_cache in self.items.items():
-                s += topic + '\n'
-                for t, _ in topic_cache:
-                    s += '%.5f\n' % (t - start_stamp)
-
-                s += 'Last Accessed:\n'
-                topic_last_accessed = self.last_accessed[topic]
-                for access_time, t in topic_last_accessed:
-                    s += '%.02f: %.5f\n' % (time.time() - access_time, t - start_stamp)
-
-            self._debug_text.SetValue(s)
-
-        except Exception:
-            pass
