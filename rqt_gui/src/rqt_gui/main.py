@@ -74,6 +74,10 @@ class Main(Base):
         if self._plugin_cache is not None:
             self._plugin_cache.save()
 
+    def _add_reload_paths(self, reload_importer):
+        super(Main, self)._add_reload_paths(reload_importer)
+        reload_importer.add_reload_path(os.path.join(os.path.dirname(__file__), *('..',) * 4))
+
 
 if __name__ == '__main__':
     main = Main()
