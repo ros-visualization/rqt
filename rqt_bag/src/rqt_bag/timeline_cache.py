@@ -30,6 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import qt_gui.qt_binding_helper  # @UnusedImport
+
+from QtCore import qWarning
 import bisect
 import Queue
 import threading
@@ -75,7 +78,7 @@ class TimelineCache(threading.Thread):
                     if self.listener:
                         self.listener(topic, msg_stamp, item)
                 else:
-                    print 'Failed to load:', entry
+                    qWarning('Failed to load:%s' % entry)
             self.queue.task_done()
 
     def enqueue(self, entry):

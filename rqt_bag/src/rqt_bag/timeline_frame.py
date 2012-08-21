@@ -648,7 +648,6 @@ class TimelineFrame(QGraphicsItem):
         idle_renderers = len(self._rendered_topics) < len(self.topics)
 
         self.set_renderers_active(idle_renderers)
-        self.scene().update()
 
     def set_renderers_active(self, active):
         if active:

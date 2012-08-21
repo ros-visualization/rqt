@@ -59,11 +59,11 @@ class ImageTimelineRenderer(TimelineRenderer):
 
         self.thumbnail_height = thumbnail_height
 
-        self.thumbnail_combine_px = 20.0                 # use cached thumbnail if it's less than this many pixels away
-        self.min_thumbnail_width = 8                    # don't display thumbnails if less than this many pixels across
-        self.quality = Image.NEAREST        # quality hint for thumbnail scaling
+        self.thumbnail_combine_px = 20.0  # use cached thumbnail if it's less than this many pixels away
+        self.min_thumbnail_width = 8  # don't display thumbnails if less than this many pixels across
+        self.quality = Image.NEAREST  # quality hint for thumbnail scaling
 
-        self.thumbnail_cache = TimelineCache(self._load_thumbnail, lambda topic, msg_stamp, thumbnail: self.timeline.update)
+        self.thumbnail_cache = TimelineCache(self._load_thumbnail, lambda topic, msg_stamp, thumbnail: self.timeline.scene().update())
     # TimelineRenderer implementation
 
     def get_segment_height(self, topic):

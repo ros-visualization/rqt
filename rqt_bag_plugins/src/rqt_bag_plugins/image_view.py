@@ -60,6 +60,7 @@ class ImageView(TopicMessageView):
         self._image = None
         self._image_topic = None
         self._image_stamp = None
+        self.quality = Image.NEAREST  # quality hint for scaling
 
         # TODO put the image_topic and image_stamp on the picture or display them in some fashion
         self._overlay_font_size = 14.0
@@ -67,11 +68,16 @@ class ImageView(TopicMessageView):
         self._overlay_color = (0.2, 0.2, 1.0)
 
         self._image_view = QGraphicsView(parent)
+        self._image_view.resizeEvent = self._resizeEvent
         self._scene = QGraphicsScene()
         self._image_view.setScene(self._scene)
         parent.layout().addWidget(self._image_view)
 
     # MessageView implementation
+    def _resizeEvent(self, event):
+        # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
+        self._scene.setSceneRect(0, 0, self._image_view.size().width() - 2, self._image_view.size().height() - 2)
+        self.put_image_into_scene()
 
     def message_viewed(self, bag, msg_details):
         """
@@ -89,7 +95,15 @@ class ImageView(TopicMessageView):
         self.set_image(None, None, None)
 
     # End MessageView implementation
-     
+    def put_image_into_scene(self):
+        if self._image:
+            resized_image = self._image.resize((self._image_view.size().width()-2, self._image_view.size().height()-2), self.quality)
+
+            QtImage = ImageQt.ImageQt(resized_image)
+            pixmap = QPixmap.fromImage(QtImage)
+            self._scene.clear()
+            self._scene.addPixmap(pixmap)
+
     def set_image(self, image_msg, image_topic, image_stamp):
         self._image_msg = image_msg
         if image_msg:
@@ -98,9 +112,4 @@ class ImageView(TopicMessageView):
             self._image = None
         self._image_topic = image_topic
         self._image_stamp = image_stamp
-        # TODO Rescale the bitmap to size of window
-        if self._image:
-            QtImage = ImageQt.ImageQt(self._image)
-            pixmap = QPixmap.fromImage(QtImage)
-            self._scene.clear()
-            self._scene.addPixmap(pixmap)
+        self.put_image_into_scene()

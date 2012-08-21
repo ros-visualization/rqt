@@ -55,6 +55,7 @@ class TimelinePopupMenu(QMenu):
         submenu = self.addMenu('Thumbnails...')
         self._thumbnail_show_action = submenu.addAction('Show All')
         self._thumbnail_hide_action = submenu.addAction('Hide All')
+        submenu.addSeparator()
 
         self._renderers = self.timeline._timeline_frame.get_renderers()
         self._thumbnail_actions = []
