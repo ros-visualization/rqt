@@ -30,6 +30,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Load Bag</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -42,6 +45,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Save Bag</string>
        </property>
        <property name="text">
         <string/>
@@ -63,6 +69,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Go To Beginning</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -76,6 +85,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Slower / Rewind</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -88,6 +100,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Play / Pause</string>
        </property>
        <property name="text">
         <string/>
@@ -105,6 +120,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Fast Forward</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -117,6 +135,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Go To End</string>
        </property>
        <property name="text">
         <string/>
@@ -138,6 +159,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Zoom In</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -151,6 +175,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Zoom Out</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -163,6 +190,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Zoom Home</string>
        </property>
        <property name="text">
         <string/>
@@ -183,6 +213,9 @@
          <width>32</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Toggle Thumbnails</string>
        </property>
        <property name="text">
         <string/>
