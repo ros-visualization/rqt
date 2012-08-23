@@ -22,7 +22,7 @@
      <item>
       <widget class="QCheckBox" name="enabled_checkbox">
        <property name="toolTip">
-        <string>Enable Filter</string>
+        <string>Toggle Filter Enabled</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -46,6 +46,9 @@
          <width>27</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Delete Filter</string>
        </property>
        <property name="text">
         <string/>

@@ -21,6 +21,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
      <item>
       <widget class="QDateTimeEdit" name="start_datetime">
+       <property name="toolTip">
+        <string>Start Time</string>
+       </property>
        <property name="displayFormat">
         <string>hh:mm:ss.zzz (yyyy-MM-dd)</string>
        </property>
@@ -28,6 +31,9 @@
      </item>
      <item>
       <widget class="QCheckBox" name="stop_enabled_check_box">
+       <property name="toolTip">
+        <string>Disable End Time</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -38,6 +44,9 @@
      </item>
      <item>
       <widget class="QDateTimeEdit" name="stop_datetime">
+       <property name="toolTip">
+        <string>End Time</string>
+       </property>
        <property name="displayFormat">
         <string>hh:mm:ss.zzz (yyyy-MM-dd)</string>
        </property>

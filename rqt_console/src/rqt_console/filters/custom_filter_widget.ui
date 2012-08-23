@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>833</width>
-    <height>95</height>
+    <height>125</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,10 +35,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="text_edit"/>
+        <widget class="QLineEdit" name="text_edit">
+         <property name="toolTip">
+          <string>Enter a Filter string</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="regex_check_box">
+         <property name="toolTip">
+          <string>Toggle Regular Expressions</string>
+         </property>
          <property name="text">
           <string>Regex</string>
          </property>
@@ -66,6 +73,9 @@
            <height>45</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Click a Severity to select it</string>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -91,6 +101,9 @@
            <width>16777215</width>
            <height>45</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Click a Topic to select it</string>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
@@ -124,6 +137,9 @@
            <width>16777215</width>
            <height>45</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Click a Node to select it</string>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>

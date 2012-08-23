@@ -24,6 +24,9 @@
      </item>
      <item>
       <widget class="QCheckBox" name="regex_check_box">
+       <property name="toolTip">
+        <string>Toggle Regular Expressions</string>
+       </property>
        <property name="text">
         <string>Regex</string>
        </property>
