@@ -43,21 +43,22 @@ from QtGui import QX11EmbedContainer
 class XTermWidget(QX11EmbedContainer):
     xterm_cmd = '/usr/bin/xterm'
 
-    def __init__(self, parent=None, close_handler=None):
-        QX11EmbedContainer.__init__(self, parent)
+    def __init__(self, parent=None):
+        super(XTermWidget, self).__init__(parent)
+        self.setObjectName('XTermWidget')
         self._process = QProcess(self)
-        self._process.finished.connect(self.close)
-        if close_handler is not None:
-            self._process.finished.connect(close_handler)
-            
+        # let the widget finish init before embedding xterm
+        QTimer.singleShot(100, self._embed_xterm)
+    
+    def _embed_xterm(self):
         args = ['-into', str(self.winId())]
         self._process.start(self.xterm_cmd, args)
         if self._process.error() == QProcess.FailedToStart:
             print "failed to execute '%s'" % self.xterm_cmd
-
-    def shutdown(self):
-        self._process.kill()
-        self._process.waitForFinished()
+        
+    #def shutdown(self):
+    #    self._process.kill()
+    #    self._process.waitForFinished()
 
 def is_xterm_available():
     return os.path.isfile(XTermWidget.xterm_cmd) 

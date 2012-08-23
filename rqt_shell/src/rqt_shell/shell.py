@@ -34,6 +34,7 @@ import roslib
 roslib.load_manifest('rqt_shell')
 
 import qt_gui.qt_binding_helper # @UnusedImport
+from QtCore import QCoreApplication, QEvent
 from QtGui import QWidget, QVBoxLayout
 from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
@@ -84,35 +85,28 @@ class Shell(Plugin):
         self._context = context
         self.setObjectName('Shell')
 
-        self._shell_widget = None
-        self._widget = QWidget()
-        self._widget.setLayout(QVBoxLayout())
-        self._widget.layout().setContentsMargins(0, 0, 0, 0)
-        self._context.add_widget(self._widget)
+        self._widget = None
         
-    
-    def _update_shell_widget(self):
-        self._widget.layout().removeWidget(self._shell_widget)
-        if self._shell_widget is not None:
-            self._shell_widget.close()
-        
+    def _switch_shell_widget(self):
         # check for available shell type
         while not self.shell_types[self._shell_type_index]['enabled']:
             self._shell_type_index += 1
         selected_shell = self.shell_types[self._shell_type_index]
         
-        self._shell_widget = selected_shell['widget_class'](parent=self._widget, close_handler=self._context.close_plugin)
-        self._widget.setWindowTitle(selected_shell['title'])
-
-        self._widget.layout().addWidget(self._shell_widget)
+        if self._widget is not None:
+            self._context.remove_widget(self._widget)
+            self._widget.close()
         
+        self._widget = selected_shell['widget_class']()
+        self._widget.setWindowTitle(selected_shell['title'])
+        self._context.add_widget(self._widget)
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('shell_type', self._shell_type_index)
 
     def restore_settings(self, plugin_settings, instance_settings):
         self._shell_type_index = int(instance_settings.value('shell_type', 0))
-        self._update_shell_widget()
+        self._switch_shell_widget()
 
     def trigger_configuration(self):
         dialog = SimpleSettingsDialog(title='Shell Options')
@@ -120,9 +114,9 @@ class Shell(Plugin):
         shell_type = dialog.get_settings()[0]
         if self._shell_type_index != shell_type['selected_index']:
             self._shell_type_index = shell_type['selected_index']
-            self._update_shell_widget()
+            self._context.reload_plugin()
 
     def shutdown_plugin(self):
-        if self._shell_widget is not None and hasattr(self._shell_widget, 'shutdown'):
-            self._shell_widget.shutdown()
+        if self._widget is not None and hasattr(self._widget, 'shutdown'):
+            self._widget.shutdown()
             

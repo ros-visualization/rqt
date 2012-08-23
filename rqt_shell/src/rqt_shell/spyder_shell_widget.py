@@ -35,7 +35,7 @@ import roslib
 roslib.load_manifest('rqt_shell')
 
 import qt_gui.qt_binding_helper # @UnusedImport
-from QtGui import QFont, QMessageBox
+from QtGui import QFont, QMessageBox, QIcon
 from QtCore import QProcess, SIGNAL, QTextCodec
 
 from spyderlib.config import get_icon
@@ -46,7 +46,7 @@ from spyderlib.widgets.shell import TerminalWidget
 class SpyderShellWidget(ExternalShellBase):
     """Spyder Shell Widget: execute a shell in a separate process using spyderlib's ExternalShellBase"""
     SHELL_CLASS = TerminalWidget
-    def __init__(self, parent=None, close_handler=None):
+    def __init__(self, parent=None):
         ExternalShellBase.__init__(self, parent=parent, fname=None, wdir='.',
                                    history_filename='.history',
                                    light_background=True,
@@ -54,7 +54,7 @@ class SpyderShellWidget(ExternalShellBase):
                                    show_buttons_inside=False,
                                    show_elapsed_time=False)
 
-        self._close_handler = close_handler
+        self.setObjectName('SpyderShellWidget')
 
         # capture tab key
         #self.shell._key_tab = self._key_tab
@@ -69,6 +69,9 @@ class SpyderShellWidget(ExternalShellBase):
         self.connection_file = None
         
         self.create_process()
+    
+    def get_icon(self):
+        return QIcon()
     
     def create_process(self):
         self.shell.clear()
