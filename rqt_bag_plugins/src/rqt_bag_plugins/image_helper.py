@@ -68,6 +68,8 @@ def imgmsg_to_pil(img_msg, rgba=True):
             elif img_msg.encoding == 'bgra8':
                 mode = 'RGB'
                 alpha = True
+            else:
+                mode = 'RGB'
             pil_img = Image.frombuffer('RGB', (img_msg.width, img_msg.height), img_msg.data, 'raw', mode, 0, 1)
 
         if rgba and pil_img.mode != 'RGBA':

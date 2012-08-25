@@ -498,7 +498,7 @@ class ConsoleWidget(QWidget):
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('settings_exist', True)
         
-        self.filter_splitter.show() # NOTE: the saveState Function will fail if we call it while the widget is hidden
+        self.filter_splitter.show()
         instance_settings.set_value('table_splitter', self.table_splitter.saveState())
         instance_settings.set_value('filter_splitter', self.filter_splitter.saveState())
 

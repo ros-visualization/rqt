@@ -36,7 +36,7 @@ Loads plugins.
 
 import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import qWarning
+from QtCore import qCritical
 import sys
 import traceback
 
@@ -62,7 +62,7 @@ def load_plugins():
         if not plugin_module_names:
             continue
         elif len(plugin_module_names) != 1:
-            qWarning("Cannot load plugin [%s]: invalid 'plugin' attribute" % (pkg), file=sys.stderr)
+            qCritical("Cannot load plugin [%s]: invalid 'plugin' attribute" % (pkg))
             continue
         plugin_module_name = plugin_module_names[0]
 
@@ -85,8 +85,8 @@ def load_plugins():
             if plugins_func:
                 plugins.extend(plugins_func())
             else:
-                qWarning("Cannot load plugin [%s]: no 'get_rqt_bag_plugins' attribute" % (plugin_module_name), file=sys.stderr)
+                qCritical("Cannot load plugin [%s]: no 'get_rqt_bag_plugins' attribute" % (plugin_module_name))
 
         except Exception:
-            qWarning("Unable to load plugin [%s] from package [%s]:\n%s" % (plugin_module_name, pkg, traceback.format_exc()), file=sys.stderr)
+            qCritical("Unable to load plugin [%s] from package [%s]: %s" % (plugin_module_name, pkg, traceback.format_exc()))
     return plugins
