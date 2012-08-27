@@ -39,7 +39,7 @@ from QtGui import QAction, QIcon
 
 from .publisher_tree_model import PublisherTreeModel
 from rqt_py_common.message_tree_widget import MessageTreeWidget
-
+from rqt_py_common.item_delegates import SpinBoxDelegate
 
 class PublisherTreeWidget(MessageTreeWidget):
     remove_publisher = Signal(int)
@@ -52,6 +52,7 @@ class PublisherTreeWidget(MessageTreeWidget):
         self._action_remove_publisher.triggered.connect(self._handle_action_remove_publisher)
         self._action_publish_once = QAction(QIcon.fromTheme('media-playback-start'), 'Publish Selected Once', self)
         self._action_publish_once.triggered.connect(self._handle_action_publish_once)
+        self.setItemDelegateForColumn(self.model()._column_index['rate'], SpinBoxDelegate(decimals=2, min=0, max=1000000))
 
     @Slot()
     def remove_selected_publishers(self):

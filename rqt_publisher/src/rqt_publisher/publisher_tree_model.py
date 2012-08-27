@@ -77,7 +77,7 @@ class PublisherTreeModel(MessageTreeModel):
             new_value = str(item.checkState() == Qt.Checked)
         else:
             new_value = item.text().strip()
-        print 'PublisherTreeModel.handle_item_changed(): %s, %s, %s' % (topic_name, column_name, new_value)
+        #print 'PublisherTreeModel.handle_item_changed(): %s, %s, %s' % (topic_name, column_name, new_value)
 
         self.item_value_changed.emit(item._user_data['publisher_id'], topic_name, column_name, new_value, item.setText)
 
