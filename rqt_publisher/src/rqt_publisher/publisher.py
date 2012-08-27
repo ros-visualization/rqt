@@ -121,14 +121,14 @@ class Publisher(Plugin):
             if new_text is not None:
                 setter_callback(new_text)
 
-    def _change_publisher_enabled(self, publisher_info, topic_name, new_value):
+    def _change_publisher_topic(self, publisher_info, topic_name, new_value):
         publisher_info['enabled'] = (new_value and new_value.lower() in ['1', 'true', 'yes'])
         #qDebug('Publisher._change_publisher_enabled(): %s enabled: %s' % (publisher_info['topic_name'], publisher_info['enabled']))
         if publisher_info['enabled'] and publisher_info['rate'] > 0:
             publisher_info['timer'].start(int(1000.0 / publisher_info['rate']))
         else:
             publisher_info['timer'].stop()
-        return '%s' % publisher_info['enabled']
+        return None
 
     def _change_publisher_type(self, publisher_info, topic_name, new_value):
         type_name = new_value

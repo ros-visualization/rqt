@@ -35,13 +35,14 @@ import roslib
 roslib.load_manifest('rqt_publisher')
 
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Signal
+from QtCore import Qt, Signal
+from QtGui import QStandardItem
 
 from rqt_py_common.message_tree_model import MessageTreeModel
-
+from rqt_py_common.data_items import ReadonlyItem, CheckableItem
 
 class PublisherTreeModel(MessageTreeModel):
-    _column_names = ['topic', 'type', 'rate', 'enabled', 'expression']
+    _column_names = ['topic', 'type', 'rate', 'expression']
     item_value_changed = Signal(int, str, str, str, object)
 
     def __init__(self, parent=None):
@@ -72,8 +73,11 @@ class PublisherTreeModel(MessageTreeModel):
         # lock has been acquired
         topic_name = item._path
         column_name = self._column_names[item.column()]
-        new_value = item.text().strip()
-        #qDebug('PublisherTreeModel.handle_item_changed(): %s, %s, %s' % (topic_name, column_name, new_value))
+        if item.isCheckable():
+            new_value = str(item.checkState() == Qt.Checked)
+        else:
+            new_value = item.text().strip()
+        print 'PublisherTreeModel.handle_item_changed(): %s, %s, %s' % (topic_name, column_name, new_value)
 
         self.item_value_changed.emit(item._user_data['publisher_id'], topic_name, column_name, new_value, item.setText)
 
@@ -108,11 +112,14 @@ class PublisherTreeModel(MessageTreeModel):
         top_level_row = self._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, **kwargs)
 
         # fill tree widget columns of top level item
-        top_level_row[self._column_index['enabled']].setText(str(publisher_info['enabled']))
+        if publisher_info['enabled']:
+            top_level_row[self._column_index['enabled']].setCheckedState(Qt.Checked)
         top_level_row[self._column_index['rate']].setText(str(publisher_info['rate']))
 
-    def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
-        return (slot_name, slot_type_name, '', '', '')
+    def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
+        if slot_name.startswith('/'):
+            return (CheckableItem(slot_name), ReadonlyItem(slot_type_name), QStandardItem(''), ReadonlyItem(''))
+        return (ReadonlyItem(slot_name), QStandardItem(slot_type_name), ReadonlyItem(''), QStandardItem(''))
 
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, expressions={}, **kwargs):
         row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, expressions=expressions, **kwargs)
