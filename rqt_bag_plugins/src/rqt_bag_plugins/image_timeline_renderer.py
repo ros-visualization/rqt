@@ -164,9 +164,11 @@ class ImageTimelineRenderer(TimelineRenderer):
             pil_image = image_helper.imgmsg_to_pil(msg)
         except Exception, ex:
             print >> sys.stderr, 'Error loading image on topic %s: %s' % (topic, str(ex))
-            return None, None
+            pil_image = None
 
         if not pil_image:
+            print >> sys.stderr, 'Disabling renderer on %s' % topic
+            self.timeline.set_renderer_active(topic, False)
             return None, None
 
         # Calculate width to maintain aspect ratio

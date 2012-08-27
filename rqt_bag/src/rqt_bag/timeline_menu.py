@@ -61,6 +61,8 @@ class TimelinePopupMenu(QMenu):
         self._thumbnail_actions = []
         for topic, renderer in self._renderers:
             self._thumbnail_actions.append(submenu.addAction(topic))
+            self._thumbnail_actions[-1].setCheckable(True)
+            self._thumbnail_actions[-1].setChecked(self.timeline._timeline_frame.is_renderer_active(topic))
 
         self._topics = self.timeline._timeline_frame.topics
         view_topics_menu = self.addMenu('View (by Topic)')

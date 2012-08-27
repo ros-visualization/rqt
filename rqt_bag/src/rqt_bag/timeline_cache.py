@@ -77,11 +77,11 @@ class TimelineCache(threading.Thread):
 
                     if self.listener:
                         self.listener(topic, msg_stamp, item)
-                else:
-                    try:
-                        qWarning('Failed to load:%s' % entry)
-                    except:
-                        qWarning('Failed to load cache item')
+#                else:
+#                    try:
+#                        qWarning('Failed to load:%s' % entry)
+#                    except:
+#                        qWarning('Failed to load cache item')
             self.queue.task_done()
 
     def enqueue(self, entry):
