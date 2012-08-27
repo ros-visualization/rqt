@@ -95,11 +95,14 @@ class WebWidget(QWidget):
 
     def save_settings(self, settings):
         settings.set_value('url_completion', self._pack(self._completer_word_list))
+        settings.set_value('url_current', self._url.toString())
 
     def restore_settings(self, settings):
         self._completer_word_list += self._unpack(settings.value('url_completion'))
         self._completer_word_list = list(set(self._completer_word_list))
-
+        url = settings.value('url_current')
+        if url:
+            self.set_url(url, self._show_url_input)
     def _handle_url_change(self):
         self.set_url(self.url_lineedit.text(), True)
 
