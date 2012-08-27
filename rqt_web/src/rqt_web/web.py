@@ -67,8 +67,8 @@ class Web(Plugin):
 
     def save_settings(self, plugin_settings, instance_settings):
         # NOTE: This line is required to save the url bar autocompleter data between sessions 
-        self._web.save_settings(plugin_settings)
+        self._web.save_settings(instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
         # NOTE: This line is required to restore the url bar autocompleter data between sessions 
-        self._web.restore_settings(plugin_settings)
+        self._web.restore_settings(instance_settings)

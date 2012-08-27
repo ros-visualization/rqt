@@ -103,6 +103,7 @@ class WebWidget(QWidget):
         url = settings.value('url_current')
         if url:
             self.set_url(url, self._show_url_input)
+
     def _handle_url_change(self):
         self.set_url(self.url_lineedit.text(), True)
 
