@@ -1,7 +1,6 @@
 import qt_gui.qt_binding_helper  # @UnusedImport
 from QtGui import QStandardItem, QStandardItemModel
 
-
 class MessageTreeModel(QStandardItemModel):
 
     def __init__(self, parent=None):
@@ -24,13 +23,12 @@ class MessageTreeModel(QStandardItemModel):
                 uniqueItems[item.row()] = item
         return uniqueItems.values()
 
-    def _get_data_row_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
-        return (slot_name, slot_type_name, slot_path)
+    def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
+        return (QStandardItem(slot_name), QStandardItem(slot_type_name), QStandardItem(slot_path))
 
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
         row = []
-        for column in self._get_data_row_for_path(slot_name, slot_type_name, slot_path, **kwargs):
-            item = QStandardItem(column)
+        for item in self._get_data_items_for_path(slot_name, slot_type_name, slot_path, **kwargs):
             item._path = slot_path
             item._user_data = kwargs.get('user_data', None)
             row.append(item)
