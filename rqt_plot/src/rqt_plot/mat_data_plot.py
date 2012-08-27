@@ -32,8 +32,8 @@
 
 import collections
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Slot
-from QtGui import QWidget, QVBoxLayout, QSizePolicy
+from QtCore import Slot, Qt
+from QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
 
 import matplotlib
 if matplotlib.__version__ < '1.1.0':
@@ -64,7 +64,7 @@ class MatDataPlot(QWidget):
             self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self.updateGeometry()
 
-    _colors = ((1, 0, 0), (0, 0, 1), (0, 1, 0), (1, 0, 1), (0, 1, 1), (0.5, 0.24, 0), (0, 0.5, 0.24), (1, 0.5, 0))
+    _colors = [Qt.red, Qt.blue, Qt.magenta, Qt.cyan, Qt.green, Qt.darkYellow, Qt.black, Qt.darkRed, Qt.gray, Qt.darkCyan]
 
     def __init__(self, parent=None):
         super(MatDataPlot, self).__init__(parent)
@@ -78,15 +78,29 @@ class MatDataPlot(QWidget):
         self._color_index = 0
         self._curves = {}
 
-    def add_curve(self, curve_id, data_x, data_y):
+    def add_curve(self, curve_id, curve_name, data_x, data_y):
         data_x = collections.deque(data_x)
         data_y = collections.deque(data_y)
-        color = self._colors[self._color_index % len(self._colors)]
+        color = QColor(self._colors[self._color_index % len(self._colors)])
         self._color_index += 1
-        plot = self._canvas.axes.plot(data_x, data_y, linewidth=1, picker=5, color=color)[0]
+        plot = self._canvas.axes.plot(data_x, data_y, label=curve_name, linewidth=1, picker=5, color=color.name())[0]
         self._curves[curve_id] = (data_x, data_y, plot)
+        self._canvas.axes.legend(self._curves.keys())
 
-    def draw_plot(self):
+    def remove_curve(self, curve_id):
+        curve_id = str(curve_id)
+        if curve_id in self._curves:
+            self._curves[curve_id][2].remove()
+            del self._curves[curve_id]
+            self._canvas.axes.legend(self._curves.keys())
+
+    @Slot(str, list, list)
+    def update_values(self, curve_id, x, y):
+        data_x, data_y, _ = self._curves[curve_id]
+        data_x.extend(x)
+        data_y.extend(y)
+
+    def redraw(self):
         self._canvas.axes.grid(True, color='gray')
         # Set axis bounds
         ymin = ymax = None
@@ -120,14 +134,3 @@ class MatDataPlot(QWidget):
             plot.set_data(numpy.array(data_x), numpy.array(data_y))
 
         self._canvas.draw()
-
-    @Slot(str, float)
-    def update_value(self, curve_id, x, y):
-        data_x, data_y, _ = self._curves[curve_id]
-        data_x.extend(x)
-        data_y.extend(y)
-
-    def remove_curve(self, curve_id):
-        curve_id = str(curve_id)
-        if curve_id in self._curves:
-            del self._curves[curve_id]

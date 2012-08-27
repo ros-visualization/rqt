@@ -62,7 +62,7 @@ class PyConsole(Plugin):
         self._context.add_widget(self._widget)
         
             
-    def _update_console_widget(self):
+    def _switch_console_widget(self):
         self._widget.layout().removeWidget(self._console_widget)
         self.shutdown_console_widget()
         
@@ -81,7 +81,7 @@ class PyConsole(Plugin):
 
     def restore_settings(self, plugin_settings, instance_settings):
         self._use_spyderlib = _has_spyderlib and (instance_settings.value('use_spyderlib', True) in [True, 'true'])
-        self._update_console_widget()
+        self._switch_console_widget()
 
     def trigger_configuration(self):
         options=[
@@ -94,7 +94,7 @@ class PyConsole(Plugin):
         new_use_spyderlib = {0: True, 1: False}.get(console_type['selected_index'], self._use_spyderlib)
         if self._use_spyderlib != new_use_spyderlib:
             self._use_spyderlib = new_use_spyderlib
-            self._update_console_widget()
+            self._switch_console_widget()
         
     def shutdown_console_widget(self):
         if self._console_widget is not None and hasattr(self._console_widget, 'shutdown'):

@@ -112,7 +112,7 @@ class Shell(Plugin):
         dialog = SimpleSettingsDialog(title='Shell Options')
         dialog.add_exclusive_option_group(title='Shell Type', options=self.shell_types, selected_index=self._shell_type_index)
         shell_type = dialog.get_settings()[0]
-        if self._shell_type_index != shell_type['selected_index']:
+        if shell_type is not None and self._shell_type_index != shell_type['selected_index']:
             self._shell_type_index = shell_type['selected_index']
             self._context.reload_plugin()
 

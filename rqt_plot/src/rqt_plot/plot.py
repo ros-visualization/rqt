@@ -31,132 +31,39 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt, QTimer, qWarning, Slot
-from QtGui import QWidget
-
 import roslib
 roslib.load_manifest('rqt_plot')
-import rospy
-from rxtools.rosplot import ROSData
-from rostopic import get_topic_type
 
-from .data_plot import DataPlot
 from rqt_gui_py.plugin import Plugin
-from rqt_py_common.topic_completer import TopicCompleter
-from rqt_py_common.topic_helpers import is_slot_numeric
+from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
+from plot_widget import PlotWidget
 
+try:
+    from mat_data_plot import MatDataPlot
+except ImportError:
+    MatDataPlot = None
 
-class PlotWidget(QWidget):
-
-    def __init__(self):
-        super(PlotWidget, self).__init__()
-        self.setObjectName('PlotWidget')
-
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Plot.ui')
-        loadUi(ui_file, self, {'DataPlot': DataPlot})
-
-        self.subscribe_topic_button.setEnabled(False)
-
-        self._topic_completer = TopicCompleter(self.topic_edit)
-        self.topic_edit.setCompleter(self._topic_completer)
-
-        self._start_time = rospy.get_time()
-        self._rosdata = {}
-
-        # setup drag 'n drop
-        self.data_plot.dropEvent = self.dropEvent
-        self.data_plot.dragEnterEvent = self.dragEnterEvent
-
-        # setup data plot
-        self.data_plot.redrawManually = True
-        self.pause_button.clicked[bool].connect(self.data_plot.togglePause)
-
-        # init and start update timer for plot
-        self._update_plot_timer = QTimer(self)
-        self._update_plot_timer.timeout.connect(self.update_plot)
-        self._update_plot_timer.start(40)
-
-    def update_plot(self):
-        for topic_name, rosdata in self._rosdata.items():
-            # TODO: use data_x as time stamp
-            data_x, data_y = rosdata.next()  # @UnusedVariable
-            for value in data_y:
-                self.data_plot.updateValue(topic_name, value)
-        self.data_plot.redraw()
-
-
-    @Slot('QDragEnterEvent*')
-    def dragEnterEvent(self, event):
-        if not event.mimeData().hasText():
-            if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
-                qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
-                return
-            item = event.source().selectedItems()[0]
-            ros_topic_name = item.data(0, Qt.UserRole)
-            if ros_topic_name == None:
-                qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
-                return
-
-        # get topic name
-        if event.mimeData().hasText():
-            topic_name = str(event.mimeData().text())
-        else:
-            droped_item = event.source().selectedItems()[0]
-            topic_name = str(droped_item.data(0, Qt.UserRole))
-
-        # check for numeric field type
-        is_numeric, message = is_slot_numeric(topic_name)
-        if is_numeric:
-            event.acceptProposedAction()
-        else:
-            qWarning('Plot.dragEnterEvent(): rejecting: "%s"' % (message))
-
-    @Slot('QDropEvent*')
-    def dropEvent(self, event):
-        if event.mimeData().hasText():
-            topic_name = str(event.mimeData().text())
-        else:
-            droped_item = event.source().selectedItems()[0]
-            topic_name = str(droped_item.data(0, Qt.UserRole))
-        self.add_topic(topic_name)
-
-    @Slot(str)
-    def on_topic_edit_textChanged(self, topic_name):
-        # on empty topic name, update topics
-        if topic_name in ('', '/'):
-            self._topic_completer.update_topics()
-
-        is_numeric, message = is_slot_numeric(topic_name)
-        self.subscribe_topic_button.setEnabled(is_numeric)
-        self.subscribe_topic_button.setToolTip(message)
-
-    @Slot()
-    def on_subscribe_topic_button_clicked(self):
-        self.add_topic(str(self.topic_edit.text()))
-
-    def add_topic(self, topic_name):
-        if topic_name in self._rosdata:
-            qWarning('Plot.add_topic(): topic already subscribed: %s' % topic_name)
-            return
-
-        self.data_plot.addCurve(topic_name, topic_name)
-        self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
-
-    @Slot()
-    def on_clear_button_clicked(self):
-        self.clean_up_subscribers()
-
-    def clean_up_subscribers(self):
-        for topic_name, rosdata in self._rosdata.items():
-            rosdata.close()
-            self.data_plot.removeCurve(topic_name)
-        self._rosdata = {}
-
+try:
+    from qwt_data_plot import QwtDataPlot
+except ImportError:
+    QwtDataPlot = None
 
 class Plot(Plugin):
-
+    # plot types in order of priority
+    plot_types = [
+        {
+            'title': 'MatPlot', 
+            'widget_class': MatDataPlot,
+            'description': 'Based on MatPlotLib (needs matplotlib).', 
+            'enabled': MatDataPlot is not None,
+        }, 
+        {
+            'title': 'QwtPlot', 
+            'widget_class': QwtDataPlot,
+            'description': 'Based on QwtPlot and uses less CPU (needs Python Qwt bindings).',
+            'enabled': QwtDataPlot is not None,
+        }, 
+    ]
     def __init__(self, context):
         super(Plot, self).__init__(context)
         self.setObjectName('Plot')
@@ -165,6 +72,35 @@ class Plot(Plugin):
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
+
+    def _switch_data_plot_widget(self):
+        # check for available plot type
+        while self._plot_type_index < len(self.plot_types) and not self.plot_types[self._plot_type_index]['enabled']:
+            self._plot_type_index += 1
+        
+        if self._plot_type_index >= len(self.plot_types):
+            print 'No usable plot type found.'
+            return
+            
+        selected_plot = self.plot_types[self._plot_type_index]
+        
+        self._widget.switch_data_plot_widget(selected_plot['widget_class'](self._widget))
+        self._widget.setWindowTitle(selected_plot['title'])
+        
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('plot_type', self._plot_type_index)
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._plot_type_index = int(instance_settings.value('plot_type', 0))
+        self._switch_data_plot_widget()
+
+    def trigger_configuration(self):
+        dialog = SimpleSettingsDialog(title='Plot Options')
+        dialog.add_exclusive_option_group(title='Plot Type', options=self.plot_types, selected_index=self._plot_type_index)
+        plot_type = dialog.get_settings()[0]
+        if plot_type is not None and self._plot_type_index != plot_type['selected_index']:
+            self._plot_type_index = plot_type['selected_index']
+            self._switch_data_plot_widget()
 
     def shutdown_plugin(self):
         self._widget.clean_up_subscribers()

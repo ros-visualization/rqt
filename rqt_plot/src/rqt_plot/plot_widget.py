@@ -31,31 +31,36 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import roslib
+roslib.load_manifest('rqt_plot')
 
 from qt_gui.qt_binding_helper import loadUi
 from QtCore import Qt, QTimer, qWarning, Slot
-from QtGui import QWidget
+from QtGui import QWidget, QIcon, QMenu, QAction
 
-import roslib
-roslib.load_manifest('rqt_matplot')
 import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
-from .mat_data_plot import MatDataPlot
-from rqt_gui_py.plugin import Plugin
+from .data_plot import DataPlot
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common.topic_helpers import is_slot_numeric
 
 
-class MatPlotWidget(QWidget):
+class PlotWidget(QWidget):
+    _redraw_interval = 40
 
     def __init__(self):
-        super(MatPlotWidget, self).__init__()
-        self.setObjectName('MatPlotWidget')
+        super(PlotWidget, self).__init__()
+        self.setObjectName('PlotWidget')
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'MatPlot.ui')
-        loadUi(ui_file, self, {'MatDataPlot': MatDataPlot})
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'plot.ui')
+        loadUi(ui_file, self)
+        self.subscribe_topic_button.setIcon(QIcon.fromTheme('add'))
+        self.remove_topic_button.setIcon(QIcon.fromTheme('remove'))
+        self.pause_button.setIcon(QIcon.fromTheme('media-playback-pause'))
+        self.clear_button.setIcon(QIcon.fromTheme('edit-clear'))
+        self.data_plot = None
 
         self.subscribe_topic_button.setEnabled(False)
 
@@ -64,32 +69,43 @@ class MatPlotWidget(QWidget):
 
         self._start_time = rospy.get_time()
         self._rosdata = {}
+        self._remove_topic_menu = QMenu()
+
+        # init and start update timer for plot
+        self._update_plot_timer = QTimer(self)
+        self._update_plot_timer.timeout.connect(self.update_plot)
+        self.enable_timer()
+
+    def switch_data_plot_widget(self, data_plot):
+        self.enable_timer(enabled=False)
+        
+        self.data_plot_layout.removeWidget(self.data_plot)
+        if self.data_plot is not None:
+            self.data_plot.close()
+            
+        self.data_plot = data_plot
+        self.data_plot_layout.addWidget(self.data_plot)
 
         # setup drag 'n drop
         self.data_plot.dropEvent = self.dropEvent
         self.data_plot.dragEnterEvent = self.dragEnterEvent
 
-        # init and start update timer for plot
-        self._update_plot_timer = QTimer(self)
-        self._update_plot_timer.timeout.connect(self.update_plot)
-        self._update_plot_timer.start(40)
-
-    def update_plot(self):
         for topic_name, rosdata in self._rosdata.items():
             data_x, data_y = rosdata.next()
-            self.data_plot.update_value(topic_name, data_x, data_y)
-        self.data_plot.draw_plot()
+            self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
+
+        self.enable_timer()
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
         if not event.mimeData().hasText():
             if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
-                qWarning('MatPlot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
+                qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
                 return
             item = event.source().selectedItems()[0]
             ros_topic_name = item.data(0, Qt.UserRole)
             if ros_topic_name == None:
-                qWarning('MatPlot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
+                qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
 
         # get topic name
@@ -104,7 +120,7 @@ class MatPlotWidget(QWidget):
         if is_numeric:
             event.acceptProposedAction()
         else:
-            qWarning('MatPlot.dragEnterEvent(): rejecting: "%s"' % (message))
+            qWarning('Plot.dragEnterEvent(): rejecting: "%s"' % (message))
 
     @Slot('QDropEvent*')
     def dropEvent(self, event):
@@ -129,43 +145,61 @@ class MatPlotWidget(QWidget):
     def on_subscribe_topic_button_clicked(self):
         self.add_topic(str(self.topic_edit.text()))
 
-    def add_topic(self, topic_name):
-        if topic_name in self._rosdata:
-            qWarning('MatPlot.add_topic(): topic already subscribed: %s' % topic_name)
-            return
-
-        self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
-        data_x, data_y = self._rosdata[topic_name].next()
-        self.data_plot.add_curve(topic_name, data_x, data_y)
+    @Slot(bool)
+    def on_pause_button_clicked(self, checked):
+        self.enable_timer(not checked)
 
     @Slot()
     def on_clear_button_clicked(self):
         self.clean_up_subscribers()
 
-    @Slot(bool)
-    def on_pause_button_clicked(self, checked):
-        if checked:
-            self._update_plot_timer.stop()
+    def update_plot(self):
+        if self.data_plot is not None:
+            for topic_name, rosdata in self._rosdata.items():
+                data_x, data_y = rosdata.next()
+                self.data_plot.update_values(topic_name, data_x, data_y)
+            self.data_plot.redraw()
+        
+    def _update_remove_topic_menu(self):
+        def make_remove_topic_function(x):
+            return lambda: self.remove_topic(x)
+        
+        self._remove_topic_menu.clear()
+        for topic_name in sorted(self._rosdata.keys()):
+            action = QAction(topic_name, self._remove_topic_menu)
+            action.triggered.connect(make_remove_topic_function(topic_name))
+            self._remove_topic_menu.addAction(action)
+            
+        self.remove_topic_button.setMenu(self._remove_topic_menu)
+
+    def add_topic(self, topic_name):
+        if topic_name in self._rosdata:
+            qWarning('Plot.add_topic(): topic already subscribed: %s' % topic_name)
+            return
+
+        self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
+        data_x, data_y = self._rosdata[topic_name].next()
+        self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
+        
+        self._update_remove_topic_menu()
+
+    def remove_topic(self, topic_name):
+        self._rosdata[topic_name].close()
+        del self._rosdata[topic_name]
+        self.data_plot.remove_curve(topic_name)
+        
+        self._update_remove_topic_menu()
+        
+    def enable_timer(self, enabled=True):
+        if enabled:
+            self._update_plot_timer.start(self._redraw_interval)
         else:
-            self._update_plot_timer.start(40)
+            self._update_plot_timer.stop()
 
     def clean_up_subscribers(self):
         for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.remove_curve(topic_name)
         self._rosdata = {}
-
-
-class MatPlot(Plugin):
-
-    def __init__(self, context):
-        super(MatPlot, self).__init__(context)
-        self.setObjectName('MatPlot')
-
-        self._widget = MatPlotWidget()
-        if context.serial_number() > 1:
-            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
-        context.add_widget(self._widget)
-
-    def close_plugin(self):
-        self._widget.clean_up_subscribers()
+        
+        self._update_remove_topic_menu()
