@@ -85,7 +85,7 @@ class MessageProxyModel(QSortFilterProxyModel):
                             return QBrush(Qt.cyan)
                         elif data == 'Info':
                             return QBrush(Qt.darkCyan)
-                        elif data == 'Warning':
+                        elif data == 'Warn':
                             return QBrush(Qt.yellow)
                         elif data == 'Error':
                             return QBrush(Qt.darkRed)

@@ -210,7 +210,7 @@ class MessageDataModel(QAbstractTableModel):
         return self._messages.get_unique_col_data(index)
 
     def get_severity_list(self):
-        return [self.tr('Debug'), self.tr('Info'), self.tr('Warning'), self.tr('Error'), self.tr('Fatal')]
+        return [self.tr('Debug'), self.tr('Info'), self.tr('Warn'), self.tr('Error'), self.tr('Fatal')]
 
     def get_data(self, row, col):
         return self._messages.get_data(row, col)
