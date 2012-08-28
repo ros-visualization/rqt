@@ -119,7 +119,9 @@ class PublisherTreeModel(MessageTreeModel):
     def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         if slot_name.startswith('/'):
             return (CheckableItem(slot_name), ReadonlyItem(slot_type_name), QStandardItem(''), ReadonlyItem(''))
-        return (ReadonlyItem(slot_name), QStandardItem(slot_type_name), ReadonlyItem(''), QStandardItem(''))
+        expression_item = QStandardItem('')
+        expression_item.setToolTip('enter valid Python expression here, using "i" as counter and functions from math, random and time modules')
+        return (ReadonlyItem(slot_name), QStandardItem(slot_type_name), ReadonlyItem(''), expression_item)
 
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, expressions={}, **kwargs):
         row, is_leaf_node = super(PublisherTreeModel, self)._recursive_create_items(parent, slot, slot_name, slot_type_name, slot_path, expressions=expressions, **kwargs)

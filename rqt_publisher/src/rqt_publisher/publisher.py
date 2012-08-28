@@ -44,6 +44,7 @@ import rospy
 import genpy
 from rqt_gui_py.plugin import Plugin
 from .publisher_widget import PublisherWidget
+from rqt_py_common.topic_helpers import get_field_type
 
 
 class Publisher(Plugin):
@@ -170,13 +171,19 @@ class Publisher(Plugin):
         return '%.2f' % publisher_info['rate']
 
     def _change_publisher_expression(self, publisher_info, topic_name, new_value):
-        if len(new_value) == 0:
+        expression = str(new_value)
+        if len(expression) == 0:
             if topic_name in publisher_info['expressions']:
                 del publisher_info['expressions'][topic_name]
                 #qDebug('Publisher._change_publisher_expression(): removed expression for: %s' % (topic_name))
         else:
-            publisher_info['expressions'][topic_name] = new_value
-            #qDebug('Publisher._change_publisher_expression(): %s expression: %s' % (topic_name, new_value))
+            slot_type = get_field_type(topic_name)
+            success, _ = self._evaluate_expression(expression, slot_type)
+            if success:
+                publisher_info['expressions'][topic_name] = expression
+                #print 'Publisher._change_publisher_expression(): topic: %s, type: %s, expression: %s' % (topic_name, slot_type, new_value)
+            else:
+                return 'not a valid "%s": %s' % (slot_type.__name__, expression)
 
     def _extract_array_info(self, type_str):
         array_size = None
@@ -204,31 +211,31 @@ class Publisher(Plugin):
 
     def _evaluate_expression(self, expression, slot_type):
         successful_eval = True
-        successful_conversion = True
 
         try:
             # try to evaluate expression
             value = eval(expression, {}, self._eval_locals)
         except Exception:
-            # just use expression-string as value
-            value = expression
             successful_eval = False
+            
+        if slot_type is str:
+            # for string slots just convert the input to str
+            if successful_eval:
+                value = str(value)
+            else: 
+                value = str(expression)
+            successful_eval = True
+        
+        elif successful_eval and slot_type in (list, tuple) and type(value) in (list, tuple):
+            # convert to the right array type
+            value = slot_type(value)
 
-        if not isinstance(value, slot_type):
-            # try to convert value to right type
-            try:
-                value = slot_type(value)
-            except Exception:
-                successful_conversion = False
-
-        if successful_conversion:
-            return value
-        elif successful_eval:
-            qWarning('Publisher._evaluate_expression(): can not convert expression to slot type: %s -> %s' % (type(value), slot_type))
+        if successful_eval and isinstance(value, slot_type):
+            return True, value
         else:
-            qWarning('Publisher._evaluate_expression(): failed to evaluate expression: %s' % (expression))
+            qWarning('Publisher._evaluate_expression(): failed to evaluate expression: "%s" as Python type "%s"' % (expression, slot_type.__name__))
 
-        return None
+        return False, None
 
     def _fill_message_slots(self, message, topic_name, expressions, counter):
         if topic_name in expressions and len(expressions[topic_name]) > 0:
@@ -240,7 +247,9 @@ class Publisher(Plugin):
                 message_type = type(message)
 
             self._eval_locals['i'] = counter
-            value = self._evaluate_expression(expressions[topic_name], message_type)
+            success, value = self._evaluate_expression(expressions[topic_name], message_type)
+            if not success:
+                value = message_type()
             return value
 
         # if no expression exists for this topic_name, continue with it's child slots
