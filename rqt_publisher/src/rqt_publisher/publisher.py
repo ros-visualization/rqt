@@ -180,10 +180,22 @@ class Publisher(Plugin):
             slot_type = get_field_type(topic_name)
             success, _ = self._evaluate_expression(expression, slot_type)
             if success:
+                old_expression = publisher_info['expressions'].get(topic_name, None)
                 publisher_info['expressions'][topic_name] = expression
                 #print 'Publisher._change_publisher_expression(): topic: %s, type: %s, expression: %s' % (topic_name, slot_type, new_value)
+                self._fill_message_slots(publisher_info['message_instance'], publisher_info['topic_name'], publisher_info['expressions'], publisher_info['counter'])
+                try:
+                    publisher_info['message_instance']._check_types()
+                except Exception, e:
+                    error_str = str(e)
+                    print 'serialization error:', error_str
+                    if old_expression is not None:
+                        publisher_info['expressions'][topic_name] = old_expression
+                    else:
+                        del publisher_info['expressions'][topic_name]
+                    return '%s: %s' % (error_str, expression)
             else:
-                return 'not a valid "%s": %s' % (slot_type.__name__, expression)
+                return 'error evaluating as "%s": %s' % (slot_type.__name__, expression)
 
     def _extract_array_info(self, type_str):
         array_size = None
