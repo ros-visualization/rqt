@@ -42,7 +42,6 @@ import rospy
 from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
-from .data_plot import DataPlot
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common.topic_helpers import is_slot_numeric
 
