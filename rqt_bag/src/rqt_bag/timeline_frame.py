@@ -247,7 +247,14 @@ class TimelineFrame(QGraphicsItem):
             return (rospy.Time.from_sec(self._selected_left), rospy.Time.from_sec(self._selected_right))
         else:
             return (self._start_stamp, self._end_stamp)
+    @property
+    def start_stamp(self):
+        return self._start_stamp
 
+    @property
+    def end_stamp(self):
+        return self._end_stamp
+    
     # QGraphicsItem implementation
     def boundingRect(self):
         return QRectF(0, 0, 100, 100)

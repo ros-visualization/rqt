@@ -30,7 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from .message_view import MessageView
+import qt_gui.qt_binding_helper  # @UnusedImport
 
+from QtGui import QAction, QIcon, QToolBar, QHBoxLayout
 
 class TopicMessageView(MessageView):
     """
@@ -46,7 +48,21 @@ class TopicMessageView(MessageView):
         self._name = parent.objectName()
         self.parent.destroyed.connect(self._on_close)
 
-    # 
+        self.toolbar = QToolBar()
+        self._first_action = QAction(QIcon.fromTheme('go-first'), '', self.toolbar)
+        self._first_action.triggered.connect(self.navigate_first)
+        self.toolbar.addAction(self._first_action)
+        self._prev_action = QAction(QIcon.fromTheme('go-previous'), '', self.toolbar)
+        self._prev_action.triggered.connect(self.navigate_previous)
+        self.toolbar.addAction(self._prev_action)
+        self._next_action = QAction(QIcon.fromTheme('go-next'), '', self.toolbar)
+        self._next_action.triggered.connect(self.navigate_next)
+        self.toolbar.addAction(self._next_action)
+        self._last_action = QAction(QIcon.fromTheme('go-last'), '', self.toolbar)
+        self._last_action.triggered.connect(self.navigate_last)
+        self.toolbar.addAction(self._last_action)
+        parent.layout().addWidget(self.toolbar)
+
     @property
     def parent(self):
         return self._parent
@@ -75,8 +91,8 @@ class TopicMessageView(MessageView):
         if not self.topic:
             return
 
-        for entry in self.timeline.get_entries(self._topic, *self.timeline.play_region):
-            self.timeline.playhead = entry.time
+        for entry in self.timeline.get_entries(self._topic, *self.timeline._timeline_frame.play_region):
+            self.timeline._timeline_frame.playhead = entry.time
             break
 
     def navigate_previous(self):
@@ -84,20 +100,20 @@ class TopicMessageView(MessageView):
             return
 
         last_entry = None
-        for entry in self.timeline.get_entries(self._topic, self.timeline.start_stamp, self.timeline.playhead):
-            if entry.time < self.timeline.playhead:
+        for entry in self.timeline.get_entries(self._topic, self.timeline._timeline_frame.start_stamp, self.timeline._timeline_frame.playhead):
+            if entry.time < self.timeline._timeline_frame.playhead:
                 last_entry = entry
 
         if last_entry:
-            self.timeline.playhead = last_entry.time
+            self.timeline._timeline_frame.playhead = last_entry.time
 
     def navigate_next(self):
         if not self.topic:
             return
 
-        for entry in self.timeline.get_entries(self._topic, self.timeline.playhead, self.timeline.end_stamp):
-            if entry.time > self.timeline.playhead:
-                self.timeline.playhead = entry.time
+        for entry in self.timeline.get_entries(self._topic, self.timeline._timeline_frame.playhead, self.timeline._timeline_frame.end_stamp):
+            if entry.time > self.timeline._timeline_frame.playhead:
+                self.timeline._timeline_frame.playhead = entry.time
                 break
 
     def navigate_last(self):
@@ -105,8 +121,8 @@ class TopicMessageView(MessageView):
             return
 
         last_entry = None
-        for entry in self.timeline.get_entries(self._topic, *self.timeline.play_region):
+        for entry in self.timeline.get_entries(self._topic, *self.timeline._timeline_frame.play_region):
             last_entry = entry
 
         if last_entry:
-            self.timeline.playhead = last_entry.time
+            self.timeline._timeline_frame.playhead = last_entry.time
