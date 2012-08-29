@@ -73,7 +73,6 @@ class PlotWidget(QWidget):
         # init and start update timer for plot
         self._update_plot_timer = QTimer(self)
         self._update_plot_timer.timeout.connect(self.update_plot)
-        self.enable_timer()
 
     def switch_data_plot_widget(self, data_plot):
         self.enable_timer(enabled=False)
@@ -93,7 +92,7 @@ class PlotWidget(QWidget):
             data_x, data_y = rosdata.next()
             self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
 
-        self.enable_timer()
+        self._subscribed_topics_changed()
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
@@ -159,6 +158,13 @@ class PlotWidget(QWidget):
                 self.data_plot.update_values(topic_name, data_x, data_y)
             self.data_plot.redraw()
         
+    def _subscribed_topics_changed(self):
+        self._update_remove_topic_menu()
+        if not self.pause_button.isChecked():
+            # if pause button is not pressed, enable timer based on subscribed topics
+            self.enable_timer(self._rosdata) 
+        
+        
     def _update_remove_topic_menu(self):
         def make_remove_topic_function(x):
             return lambda: self.remove_topic(x)
@@ -180,25 +186,25 @@ class PlotWidget(QWidget):
         data_x, data_y = self._rosdata[topic_name].next()
         self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
         
-        self._update_remove_topic_menu()
+        self._subscribed_topics_changed()
 
     def remove_topic(self, topic_name):
         self._rosdata[topic_name].close()
         del self._rosdata[topic_name]
         self.data_plot.remove_curve(topic_name)
         
-        self._update_remove_topic_menu()
+        self._subscribed_topics_changed()
         
-    def enable_timer(self, enabled=True):
-        if enabled:
-            self._update_plot_timer.start(self._redraw_interval)
-        else:
-            self._update_plot_timer.stop()
-
     def clean_up_subscribers(self):
         for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.remove_curve(topic_name)
         self._rosdata = {}
         
-        self._update_remove_topic_menu()
+        self._subscribed_topics_changed()
+
+    def enable_timer(self, enabled=True):
+        if enabled:
+            self._update_plot_timer.start(self._redraw_interval)
+        else:
+            self._update_plot_timer.stop()
