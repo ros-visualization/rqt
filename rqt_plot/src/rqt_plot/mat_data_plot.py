@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import collections
+import operator
 import qt_gui.qt_binding_helper  # @UnusedImport
 from QtCore import Slot, Qt
 from QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
@@ -85,14 +86,21 @@ class MatDataPlot(QWidget):
         self._color_index += 1
         plot = self._canvas.axes.plot(data_x, data_y, label=curve_name, linewidth=1, picker=5, color=color.name())[0]
         self._curves[curve_id] = (data_x, data_y, plot)
-        self._canvas.axes.legend(self._curves.keys())
+        self._update_legend()
 
     def remove_curve(self, curve_id):
         curve_id = str(curve_id)
         if curve_id in self._curves:
             self._curves[curve_id][2].remove()
             del self._curves[curve_id]
-            self._canvas.axes.legend(self._curves.keys())
+            self._update_legend()
+
+    def _update_legend(self):
+        handles, labels = self._canvas.axes.get_legend_handles_labels()
+        if handles:
+            hl = sorted(zip(handles, labels), key=operator.itemgetter(1))
+            handles, labels = zip(*hl)
+        self._canvas.axes.legend(handles, labels, loc='upper left')
 
     @Slot(str, list, list)
     def update_values(self, curve_id, x, y):
@@ -104,14 +112,14 @@ class MatDataPlot(QWidget):
         self._canvas.axes.grid(True, color='gray')
         # Set axis bounds
         ymin = ymax = None
-        xmax = xmin = 0
+        xmax = 0
         for curve in self._curves.values():
             data_x, data_y, plot = curve
             if len(data_x) == 0:
                 continue
 
-            xmax = data_x[-1]
-            xmin = xmax - 5
+            xmax = max(xmax, data_x[-1])
+            self._canvas.axes.set_xbound(lower=xmax - 5, upper=xmax)
 
             if ymin is None:
                 ymin = min(data_y)
@@ -125,7 +133,6 @@ class MatDataPlot(QWidget):
             ymin -= .05 * delta
             ymax += .05 * delta
 
-            self._canvas.axes.set_xbound(lower=xmin, upper=xmax)
             self._canvas.axes.set_ybound(lower=ymin, upper=ymax)
 
         # Set plot data on current axes
