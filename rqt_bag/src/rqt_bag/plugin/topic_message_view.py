@@ -38,7 +38,6 @@ class TopicMessageView(MessageView):
     """
     A message view with a toolbar for navigating messages in a single topic.
     """
-    #TODO implement toolbar portion of topic messageview
     def __init__(self, timeline, parent):
         MessageView.__init__(self, timeline)
 

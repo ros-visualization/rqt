@@ -135,7 +135,7 @@ class TimelineFrame(QGraphicsItem):
 
         # Defaults
         self._default_brush = QBrush(Qt.black, Qt.SolidPattern)
-        self._default_pen = QPen(Qt.black)  # TODO REMEMBER TO RESTORE PEN EVERYTIME USED
+        self._default_pen = QPen(Qt.black)
         self._default_datatype_color = QColor(0, 0, 102, 204)
         self._datatype_colors = {
             'sensor_msgs/CameraInfo': QColor(0, 0, 77, 204),
@@ -1000,17 +1000,14 @@ class TimelineFrame(QGraphicsItem):
 
                     if abs(x - left_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_LEFT
-                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif abs(x - right_x) <= self._selection_handle_width:
                         self._selecting_mode = _SelectionMode.MOVE_RIGHT
-                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.SizeHorCursor))
                         return
                     elif x > left_x and x < right_x:
                         self._selecting_mode = _SelectionMode.SHIFTING
-                        # TODO: compare this method to using QApplication.setOverrideCursor
                         self.scene().views()[0].setCursor(QCursor(Qt.OpenHandCursor))
                         return
                     else:

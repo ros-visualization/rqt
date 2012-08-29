@@ -69,7 +69,6 @@ class ImageTimelineRenderer(TimelineRenderer):
     def get_segment_height(self, topic):
         return self.thumbnail_height
 
-    # TODO there is a bug in this code. sometimes the images do not load properly and are only displayed when the playhead is put over their region
     def draw_timeline_segment(self, painter, topic, stamp_start, stamp_end, x, y, width, height):
         """
         draws a stream of images for the topic
