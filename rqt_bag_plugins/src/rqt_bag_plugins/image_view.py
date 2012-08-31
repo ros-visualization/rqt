@@ -72,7 +72,7 @@ class ImageView(TopicMessageView):
         self._scene = QGraphicsScene()
         self._image_view.setScene(self._scene)
         parent.layout().addWidget(self._image_view)
-
+        
     # MessageView implementation
     def _resizeEvent(self, event):
         # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area

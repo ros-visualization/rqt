@@ -52,9 +52,9 @@ def imgmsg_to_pil(img_msg, rgba=True):
             if img_msg.encoding == 'mono8':
                 mode = 'L'
             elif img_msg.encoding == 'rgb8':
-                mode = 'BGR'
-            elif img_msg.encoding == 'bgr8':
                 mode = 'RGB'
+            elif img_msg.encoding == 'bgr8':
+                mode = 'BGR'
             elif img_msg.encoding in ['bayer_rggb8', 'bayer_bggr8', 'bayer_gbrg8', 'bayer_grbg8']:
                 mode = 'L'
             elif img_msg.encoding == 'mono16':

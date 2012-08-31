@@ -58,8 +58,6 @@ class BagTimeline(QGraphicsScene):
         """
         :param context: plugin context hook to enable adding rqt_bag plugin widgets as ROS_GUI snapin panes, ''PluginContext''
         """
-        # TODO reverify that threads will always be cleaned up on close
-        # TODO reverify that threads that are not qObjects are not directly accessing widgets
         super(BagTimeline, self).__init__()
         self._bags = []
         self._bag_lock = threading.RLock()

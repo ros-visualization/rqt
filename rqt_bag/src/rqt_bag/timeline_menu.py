@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import os
 import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QHBoxLayout, QMenu, QWidget
+from QtGui import QVBoxLayout, QMenu, QWidget
 
 
 class TimelinePopupMenu(QMenu):
@@ -146,7 +146,7 @@ class TimelinePopupMenu(QMenu):
             popup_name = action.parentWidget().title() + '__' + action.text()
             if popup_name not in self.timeline.popups:
                 frame = QWidget()
-                layout = QHBoxLayout()
+                layout = QVBoxLayout()
                 frame.setLayout(layout)
                 frame.resize(640, 480)
                 viewer_type = action.data()
