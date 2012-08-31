@@ -142,8 +142,7 @@ class BagWidget(QWidget):
         event.accept()
     
     def _resizeEvent(self, event):
-        # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
-        self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 2, self.graphics_view.size().height() - 2)
+        self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 12, max(self.graphics_view.size().height() - 2, self._timeline._timeline_frame._history_bottom))
 
     def _handle_publish_clicked(self, checked):
         self._timeline.set_publishing_state(checked)
