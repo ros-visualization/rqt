@@ -39,9 +39,9 @@ from QtCore import Qt, QTimer, qWarning, Slot
 from QtGui import QWidget, QIcon, QMenu, QAction
 
 import rospy
-from rxtools.rosplot import ROSData
 from rostopic import get_topic_type
 
+from . rosplot import ROSData
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common.topic_helpers import is_slot_numeric
 

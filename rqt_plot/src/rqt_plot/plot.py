@@ -54,13 +54,13 @@ class Plot(Plugin):
         {
             'title': 'MatPlot', 
             'widget_class': MatDataPlot,
-            'description': 'Based on MatPlotLib (needs matplotlib).', 
+            'description': 'Based on MatPlotLib\n- needs more CPU\n- needs matplotlib', 
             'enabled': MatDataPlot is not None,
         }, 
         {
             'title': 'QwtPlot', 
             'widget_class': QwtDataPlot,
-            'description': 'Based on QwtPlot and uses less CPU (needs Python Qwt bindings).',
+            'description': 'Based on QwtPlot\n- does not use timestamps\n- needs Python Qwt bindings',
             'enabled': QwtDataPlot is not None,
         }, 
     ]

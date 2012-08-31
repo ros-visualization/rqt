@@ -37,7 +37,10 @@ def get_field_type(topic_name):
     topic_type, _, message_evaluator = get_topic_type(topic_name)
     if topic_type is None:
         return None
-    message = roslib.message.get_message_class(topic_type)()
+    message_class = roslib.message.get_message_class(topic_type)
+    if message_class is None:
+        return None
+    message = message_class()
 
     # return field type
     if message_evaluator:

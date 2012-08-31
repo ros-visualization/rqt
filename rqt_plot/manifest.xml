@@ -11,7 +11,6 @@
   <depend package="rqt_gui_py"/>
   <depend package="rqt_py_common"/>
   <depend package="qt_gui_py_common"/>
-  <depend package="rxtools"/>
   <depend package="rostopic"/>
   <rosdep name="python-qt-bindings-qwt5"/>
   <rosdep name="python-matplotlib"/>
