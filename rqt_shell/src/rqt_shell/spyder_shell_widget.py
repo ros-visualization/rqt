@@ -36,7 +36,7 @@ roslib.load_manifest('rqt_shell')
 
 import qt_gui.qt_binding_helper # @UnusedImport
 from QtGui import QFont, QMessageBox, QIcon
-from QtCore import QProcess, SIGNAL, QTextCodec
+from QtCore import QProcess, SIGNAL, QTextCodec, Signal
 
 from spyderlib.config import get_icon
 from spyderlib.widgets.externalshell.baseshell import ExternalShellBase
@@ -46,6 +46,7 @@ from spyderlib.widgets.shell import TerminalWidget
 class SpyderShellWidget(ExternalShellBase):
     """Spyder Shell Widget: execute a shell in a separate process using spyderlib's ExternalShellBase"""
     SHELL_CLASS = TerminalWidget
+    close_signal = Signal()
     def __init__(self, parent=None):
         ExternalShellBase.__init__(self, parent=parent, fname=None, wdir='.',
                                    history_filename='.history',
@@ -88,8 +89,9 @@ class SpyderShellWidget(ExternalShellBase):
         if self.wdir is not None:
             self.process.setWorkingDirectory(self.wdir)
                         
-        self.connect(self.process, SIGNAL("readyReadStandardOutput()"), self.write_output)
-        self.connect(self.process, SIGNAL("finished(int,QProcess::ExitStatus)"), self.finished)
+        self.process.readyReadStandardOutput.connect(self.write_output)
+        self.process.finished.connect(self.finished)
+        self.process.finished.connect(self.close_signal)
         
         self.process.start('/bin/bash', ['-i'])
             
@@ -102,6 +104,10 @@ class SpyderShellWidget(ExternalShellBase):
             self.emit(SIGNAL('started()'))
             
         return self.process
+
+    def shutdown(self):
+        self.process.kill()
+        self.process.waitForFinished()
 
     def _key_tab(self):
         self.process.write('\t')

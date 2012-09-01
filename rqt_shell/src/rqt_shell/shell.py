@@ -34,8 +34,6 @@ import roslib
 roslib.load_manifest('rqt_shell')
 
 import qt_gui.qt_binding_helper # @UnusedImport
-from QtCore import QCoreApplication, QEvent
-from QtGui import QWidget, QVBoxLayout
 from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 
@@ -94,12 +92,16 @@ class Shell(Plugin):
         selected_shell = self.shell_types[self._shell_type_index]
         
         if self._widget is not None:
+            if hasattr(self._widget, 'close_signal'):
+                self._widget.close_signal.disconnect(self._context.close_plugin)
             self._context.remove_widget(self._widget)
             self._widget.close()
         
         self._widget = selected_shell['widget_class']()
         self._widget.setWindowTitle(selected_shell['title'])
         self._context.add_widget(self._widget)
+        if hasattr(self._widget, 'close_signal'):
+            self._widget.close_signal.connect(self._context.close_plugin)
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('shell_type', self._shell_type_index)
