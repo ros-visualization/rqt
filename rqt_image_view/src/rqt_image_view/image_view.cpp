@@ -77,14 +77,21 @@ bool ImageView::eventFilter(QObject* watched, QEvent* event)
 {
   if (watched == ui_.image_frame && event->type() == QEvent::Paint)
   {
+    QPainter painter(ui_.image_frame);
     if (!qimage_.isNull())
     {
       ui_.image_frame->resizeToFitAspectRatio();
-      QPainter painter(ui_.image_frame);
       // TODO: check if full draw is really necessary
       //QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
       //painter.drawImage(paint_event->rect(), qimage_);
       painter.drawImage(ui_.image_frame->contentsRect(), qimage_);
+    } else {
+      // default image with gradient
+      QLinearGradient gradient(0, 0, ui_.image_frame->frameRect().width(), ui_.image_frame->frameRect().height());
+      gradient.setColorAt(0, Qt::white);
+      gradient.setColorAt(1, Qt::black);
+      painter.setBrush(gradient);
+      painter.drawRect(0, 0, ui_.image_frame->frameRect().width() + 1, ui_.image_frame->frameRect().height() + 1);
     }
     return false;
   }
@@ -173,8 +180,11 @@ QList<QString> ImageView::getTopicList(const QSet<QString>& message_types, const
     {
       QString topic = it->name.c_str();
 
+      // add raw topic
+      topics.append(topic);
+      //qDebug("ImageView::getTopicList() raw topic '%s'", topic.toStdString().c_str());
+      
       // add transport specific sub-topics
-      bool has_transport = false;
       for (QList<QString>::const_iterator jt = transports.begin(); jt != transports.end(); jt++)
       {
         if (all_topics.contains(topic + "/" + *jt))
@@ -182,15 +192,7 @@ QList<QString> ImageView::getTopicList(const QSet<QString>& message_types, const
           QString sub = topic + " " + *jt;
           topics.append(sub);
           //qDebug("ImageView::getTopicList() transport specific sub-topic '%s'", sub.toStdString().c_str());
-          has_transport = true;
         }
-      }
-
-      // add raw topic only when no transport specific sub-topics exist
-      if (!has_transport)
-      {
-        topics.append(topic);
-        //qDebug("ImageView::getTopicList() raw topic '%s'", topic.toStdString().c_str());
       }
     }
   }
@@ -210,6 +212,10 @@ void ImageView::selectTopic(const QString& topic)
 void ImageView::onTopicChanged(int index)
 {
   subscriber_.shutdown();
+
+  // reset image on topic change
+  qimage_ = QImage();
+  ui_.image_frame->update();
 
   QStringList parts = ui_.topics_combo_box->itemData(index).toString().split(" ");
   QString topic = parts.first();
@@ -246,20 +252,90 @@ void ImageView::onZoom1(bool checked)
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
-  cv_bridge::CvImageConstPtr cv_ptr;
+  QImage image;
   try
   {
-    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
+    cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
+    image = QImage(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
+    conversion_buffer_.resize(0);
   }
   catch (cv_bridge::Exception& e)
   {
-    qCritical("ImageView.callback_image() could not convert from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
-    return;
+    if (msg->encoding == "16UC1") {
+      // downsample to 8-bit, just copy the high bytes of 16-bit words
+      //qDebug("ImageView.callback_image() downsample 16UC1 image");
+      size_t size = msg->width * msg->height;
+      conversion_buffer_.resize(3 * size);
+
+      size_t output_i = 0;
+      size_t input_row_start = 0;
+      for (size_t row = 0; row < msg->height; row++) {
+        size_t input_i = input_row_start;
+        for (size_t column = 0; column < msg->width; column++) {
+          const uint16_t* input_ptr = reinterpret_cast<const uint16_t*>(&msg->data[input_i]);
+          // pointer to high byte of 16-bit word
+          uint8_t output = *(reinterpret_cast<const uint8_t*>(input_ptr) + 1);
+          conversion_buffer_[3 * output_i] = output;
+          conversion_buffer_[3 * output_i + 1] = output;
+          conversion_buffer_[3 * output_i + 2] = output;
+          input_i += sizeof(*input_ptr);
+          output_i++;
+        }
+        input_row_start += msg->step;
+      }
+      image = QImage(&conversion_buffer_[0], msg->width, msg->height, QImage::Format_RGB888);
+
+    } else if (msg->encoding == "32FC1") {
+      // rescale floating point image and convert it to 8-bit
+      //qDebug("ImageView.callback_image() downscaling 32FC1 image");
+      size_t size = msg->width * msg->height;
+      conversion_buffer_.resize(3 * size);
+
+      // find min. and max. pixel value
+      float min_value = std::numeric_limits<float>::max();
+      float max_value = std::numeric_limits<float>::min();
+      size_t input_row_start = 0;
+      for (size_t row = 0; row < msg->height; row++) {
+        size_t input_i = input_row_start;
+        for (size_t column = 0; column < msg->width; column++) {
+          const float* input_ptr = reinterpret_cast<const float*>(&msg->data[input_i]);
+          min_value = std::min(min_value, *input_ptr);
+          max_value = std::max(max_value, *input_ptr);
+          input_i += sizeof(*input_ptr);
+        }
+        input_row_start += msg->step;
+      }
+      float dynamic_range = max_value - min_value;
+
+      // rescale and quantize
+      size_t output_i = 0;
+      input_row_start = 0;
+      for (size_t row = 0; row < msg->height; row++) {
+        size_t input_i = input_row_start;
+        for (size_t column = 0; column < msg->width; column++) {
+          const float* input_ptr = reinterpret_cast<const float*>(&msg->data[input_i]);
+          uint8_t output = ((*input_ptr - min_value) / dynamic_range) * 255u;
+          conversion_buffer_[3 * output_i] = output;
+          conversion_buffer_[3 * output_i + 1] = output;
+          conversion_buffer_[3 * output_i + 2] = output;
+          input_i += sizeof(*input_ptr);
+          output_i++;
+        }
+        input_row_start += msg->step;
+      }
+      image = QImage(&conversion_buffer_[0], msg->width, msg->height, QImage::Format_RGB888);
+
+    } else {
+      // i.e. bayer_bggr8
+      qCritical("ImageView.callback_image() could not convert from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
+      conversion_buffer_.resize(0);
+      return;
+    }
   }
 
-  QImage shared_image(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
-  qimage_ = shared_image.copy();
-  ui_.image_frame->setAspectRatio(cv_ptr->image.cols, cv_ptr->image.rows);
+  // copy temporary image as it uses the conversion_buffer_ for storage which is overwritten in the next cycle
+  qimage_ = image.copy();
+  ui_.image_frame->setAspectRatio(qimage_.width(), qimage_.height());
   if (!ui_.zoom_1_push_button->isEnabled())
   {
     ui_.zoom_1_push_button->setEnabled(true);

@@ -46,6 +46,8 @@
 #include <QSize>
 #include <QWidget>
 
+#include <vector>
+
 namespace rqt_image_view {
 
 class ImageView
@@ -95,6 +97,8 @@ protected:
   image_transport::Subscriber subscriber_;
 
   QImage qimage_;
+
+  std::vector<uint8_t> conversion_buffer_;
 };
 
 }
