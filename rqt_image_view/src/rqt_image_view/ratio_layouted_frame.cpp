@@ -98,8 +98,10 @@ void RatioLayoutedFrame::setInnerFrameFixedSize(const QSize& size)
 void RatioLayoutedFrame::setAspectRatio(unsigned short width, unsigned short height)
 {
   int divisor = greatestCommonDivisor(width, height);
-  aspect_ratio_.setWidth(width / divisor);
-  aspect_ratio_.setHeight(height / divisor);
+  if (divisor != 0) {
+    aspect_ratio_.setWidth(width / divisor);
+    aspect_ratio_.setHeight(height / divisor);
+  }
 }
 
 int RatioLayoutedFrame::greatestCommonDivisor(int a, int b)
