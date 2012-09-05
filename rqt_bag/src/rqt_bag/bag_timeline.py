@@ -46,6 +46,7 @@ from .timeline_frame import TimelineFrame
 from .message_listener_thread import MessageListenerThread
 from .message_loader_thread import MessageLoaderThread
 from .player import Player
+from .recorder import Recorder
 from .timeline_menu import TimelinePopupMenu
 
 
@@ -65,7 +66,7 @@ class BagTimeline(QGraphicsScene):
         self.background_task = None  # Display string
         self.background_task_cancel = False
 
-        # Playing
+        # Playing / Recording
         self._playhead_lock = threading.RLock()
         self._max_play_speed = 1024.0  # fastest X play speed
         self._min_play_speed = 1.0 / 1024.0  # slowest X play speed
@@ -77,7 +78,10 @@ class BagTimeline(QGraphicsScene):
         self._messages_cvs = {}
         self._messages = {}  # topic -> (bag, msg_data)
         self._message_listener_threads = {}  # listener -> MessageListenerThread
+
         self._player = False
+        self._recorder = None
+
         self.last_frame = None
         self.last_playhead = None
         self.desired_playhead = None
@@ -108,11 +112,16 @@ class BagTimeline(QGraphicsScene):
         """
         Cleans up the timeline, bag and any threads
         """
+        for topic in self._get_topics():
+            self.stop_publishing(topic)
+            self._message_loaders[topic].stop()
+        if self._player:
+            self._player.stop()
+        if self._recorder:
+            self._recorder.stop()
         if self.background_task is not None:
             self.background_task_cancel = True
         self._timeline_frame.handle_close()
-        if self._player:
-            self._player.stop()
         for bag in self._bags:
             bag.close()
         for _, frame in self._views:
@@ -598,6 +607,62 @@ class BagTimeline(QGraphicsScene):
 
         self.last_frame = rospy.Time.from_sec(time.time())
         self.last_playhead = self._timeline_frame.playhead
+
+    ### Recording
+
+    def record_bag(self, filename, all=True, topics=[], regex=False, limit=0):
+        try:
+            self._recorder = Recorder(filename, bag_lock=self._bag_lock, all=all, topics=topics, regex=regex, limit=limit)
+        except Exception, ex:
+            qWarning('Error opening bag for recording [%s]: %s' % (filename, str(ex)))
+            return
+
+        self._recorder.add_listener(self._message_recorded)
+
+        self.add_bag(self._recorder.bag)
+
+        self._recorder.start()
+
+        self.wrap = False
+        self._timeline_frame._index_cache_thread.period = 0.1
+
+        self.update()
+
+    def toggle_recording(self):
+        if self._recorder:
+            self._recorder.toggle_paused()
+            self.update()
+
+    def _message_recorded(self, topic, msg, t):
+        if self._timeline_frame._start_stamp is None:
+            self._timeline_frame._start_stamp = t
+            self._timeline_frame._end_stamp = t
+            self._timeline_frame._playhead = t
+        elif self._timeline_frame._end_stamp is None or t > self._timeline_frame._end_stamp:
+            self._timeline_frame._end_stamp = t
+
+        if not self._timeline_frame.topics or topic not in self._timeline_frame.topics:
+            self._timeline_frame.topics = self._get_topics()
+            self._timeline_frame._topics_by_datatype = self._get_topics_by_datatype()
+
+            self._playhead_positions_cvs[topic] = threading.Condition()
+            self._messages_cvs[topic] = threading.Condition()
+            self._message_loaders[topic] = MessageLoaderThread(self, topic)
+
+        if self._timeline_frame._stamp_left is None:
+            self.reset_zoom()
+
+        # Notify the index caching thread that it has work to do
+        with self._timeline_frame.index_cache_cv:
+            self._timeline_frame.invalidated_caches.add(topic)
+            self._timeline_frame.index_cache_cv.notify()
+
+        if topic in self._listeners:
+            for listener in self._listeners[topic]:
+                try:
+                    listener.timeline_changed()
+                except Exception, ex:
+                    qWarning('Error calling timeline_changed on %s: %s' % (type(listener), str(ex)))
 
     ### Views / listeners
     def add_view(self, topic, view, frame):

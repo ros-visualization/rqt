@@ -31,6 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospy
+import time
 
 from qt_gui.qt_binding_helper import loadUi
 from QtCore import Qt
@@ -73,6 +75,7 @@ class BagWidget(QWidget):
         self.zoom_out_button.setIcon(QIcon.fromTheme('zoom-out'))
         self.zoom_all_button.setIcon(QIcon.fromTheme('zoom-original'))
         self.thumbs_button.setIcon(QIcon.fromTheme('insert-image'))
+        self.record_button.setIcon(QIcon.fromTheme('media-record'))
         self.load_button.setIcon(QIcon.fromTheme('document-open'))
         self.save_button.setIcon(QIcon.fromTheme('document-save'))
 
@@ -85,6 +88,7 @@ class BagWidget(QWidget):
         self.slower_button.clicked[bool].connect(self._handle_slower_clicked)
         self.begin_button.clicked[bool].connect(self._handle_begin_clicked)
         self.end_button.clicked[bool].connect(self._handle_end_clicked)
+        self.record_button.clicked[bool].connect(self._handle_record_clicked)
         self.load_button.clicked[bool].connect(self._handle_load_clicked)
         self.save_button.clicked[bool].connect(self._handle_save_clicked)
         self.graphics_view.mousePressEvent = self._timeline.on_mouse_down
@@ -97,6 +101,18 @@ class BagWidget(QWidget):
         self.destroyed.connect(self.handle_destroy)
         
         self.graphics_view.keyPressEvent = self.graphics_view_on_key_press
+        self.play_button.setEnabled(False)
+        self.thumbs_button.setEnabled(False)
+        self.zoom_in_button.setEnabled(False)
+        self.zoom_out_button.setEnabled(False)
+        self.zoom_all_button.setEnabled(False)
+        self.faster_button.setEnabled(False)
+        self.slower_button.setEnabled(False)
+        self.begin_button.setEnabled(False)
+        self.end_button.setEnabled(False)
+        self.save_button.setEnabled(False)
+
+        self._recording = False
 
     def graphics_view_on_key_press(self, event):
         key = event.key()
@@ -142,7 +158,9 @@ class BagWidget(QWidget):
         event.accept()
     
     def _resizeEvent(self, event):
-        self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.size().width() - 12, max(self.graphics_view.size().height() - 2, self._timeline._timeline_frame._history_bottom))
+        # TODO The -2 allows a buffer zone to make sure the scroll bars do not appear when not needed. On some systems (Lucid) this doesn't function properly
+        # need to look at a method to determine the maximum size of the scene that will maintain a proper no scrollbar fit in the view.
+        self.graphics_view.scene().setSceneRect(0, 0, self.graphics_view.width() - 2, max(self.graphics_view.height() - 2, self._timeline._timeline_frame._history_bottom))
 
     def _handle_publish_clicked(self, checked):
         self._timeline.set_publishing_state(checked)
@@ -180,10 +198,45 @@ class BagWidget(QWidget):
     def _handle_zoom_in_clicked(self):
         self._timeline.zoom_in()
 
+    def _handle_record_clicked(self):
+        if self._recording:
+            self._timeline.toggle_recording()
+            return
+        # TODO if we have already loaded just call toggle_recording
+        # TODO verify master is still running
+        filename = QFileDialog.getSaveFileName(self, self.tr('Select prefix for new Bag File'), '.', self.tr('Bag files {.bag} (*.bag)'))
+        if filename[0] != '':
+            prefix = filename[0].strip()
+
+            # Get filename to record to
+            record_filename = time.strftime('%Y-%m-%d-%H-%M-%S.bag', time.localtime(time.time()))
+            if prefix.endswith('.bag'):
+                prefix = prefix[:-len('.bag')]
+            if prefix:
+                record_filename = '%s_%s' % (prefix, record_filename)
+
+            rospy.loginfo('Recording to %s.' % record_filename)
+
+            #TODO Implement recording of topic subsets, regex limiting and by number of messages per topic
+            self.load_button.setEnabled(False)
+            self._recording = True
+            self._timeline.record_bag(record_filename)
+
     def _handle_load_clicked(self):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
             bag = rosbag.Bag(filename[0])
+            self.play_button.setEnabled(True)
+            self.thumbs_button.setEnabled(True)
+            self.zoom_in_button.setEnabled(True)
+            self.zoom_out_button.setEnabled(True)
+            self.zoom_all_button.setEnabled(True)
+            self.faster_button.setEnabled(True)
+            self.slower_button.setEnabled(True)
+            self.begin_button.setEnabled(True)
+            self.end_button.setEnabled(True)
+            self.save_button.setEnabled(True)
+            self.record_button.setEnabled(False)
             self._timeline.add_bag(bag)
 
     def _handle_save_clicked(self):
