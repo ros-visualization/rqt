@@ -36,9 +36,10 @@ import time
 
 from qt_gui.qt_binding_helper import loadUi
 from QtCore import Qt
-from QtGui import QFileDialog, QGraphicsView, QIcon, QWidget
+from QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
 
 import rosbag
+import bag_helper
 from .bag_timeline import BagTimeline
 
 
@@ -97,6 +98,7 @@ class BagWidget(QWidget):
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
+
         # TODO when the closeEvent is properly called by ROS_GUI implement that event instead of destroyed
         self.destroyed.connect(self.handle_destroy)
         
@@ -114,10 +116,12 @@ class BagWidget(QWidget):
 
         self._recording = False
 
+        self._timeline.status_bar_changed_signal.connect(self._update_status_bar)
+
     def graphics_view_on_key_press(self, event):
         key = event.key()
         if key in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp, Qt.Key_PageDown):
-            # This causes the graphics view to ignore these keys so they can be caught byt the bag_widget keyPressEvent
+            # This causes the graphics view to ignore these keys so they can be caught by the bag_widget keyPressEvent
             event.ignore()
         else:
             # Maintains functionality for all other keys QGraphicsView implements
@@ -151,8 +155,6 @@ class BagWidget(QWidget):
         self._timeline.handle_close()
 
     def handle_close(self, event):
-        # TODO: Figure out why ROS_GUI is not calling closeEvent when a plugin is closed (cause of the "plugin windows stay open after closing main window" issue)
-        # ON HOLD: pending redesign of ROS_GUI plugin close functionality
         self.shutdown_all()
         
         event.accept()
@@ -187,7 +189,6 @@ class BagWidget(QWidget):
 
     def _handle_thumbs_clicked(self, checked):
         self._timeline._timeline_frame.toggle_renderers()
-        # TODO consider changing the icon when the button is down
 
     def _handle_zoom_all_clicked(self):
         self._timeline.reset_zoom()
@@ -202,7 +203,6 @@ class BagWidget(QWidget):
         if self._recording:
             self._timeline.toggle_recording()
             return
-        # TODO if we have already loaded just call toggle_recording
         # TODO verify master is still running
         filename = QFileDialog.getSaveFileName(self, self.tr('Select prefix for new Bag File'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
@@ -244,6 +244,43 @@ class BagWidget(QWidget):
         if filename[0] != '':
             self._timeline.copy_region_to_bag(filename[0])
     
+    def _update_status_bar(self):
+        if self._timeline._timeline_frame.playhead is None or self._timeline._timeline_frame.start_stamp is None:
+            return
+        # TODO Figure out why this function is causing a "RuntimeError: wrapped C/C++ object of %S has been deleted" on close if the playhead is moving
+        try:
+            # Background Process Status
+            self.progress_bar.setValue(self._timeline.background_progress)
+
+            # Raw timestamp
+            self.stamp_label.setText('%d.%s' % (self._timeline._timeline_frame.playhead.secs, str(self._timeline._timeline_frame.playhead.nsecs)[:3]))
+
+            # Human-readable time
+            self.date_label.setText(bag_helper.stamp_to_str(self._timeline._timeline_frame.playhead))
+
+            # Elapsed time (in seconds)
+            self.seconds_label.setText('%.3fs' % (self._timeline._timeline_frame.playhead - self._timeline._timeline_frame.start_stamp).to_sec())
+
+            # Play speed
+            spd = self._timeline.play_speed
+            if spd != 0.0:
+                if spd > 1.0:
+                    spd_str = '>> %.0fx' % spd
+                elif spd == 1.0:
+                    spd_str = '>'
+                elif spd > 0.0:
+                    spd_str = '> 1/%.0fx' % (1.0 / spd)
+                elif spd > -1.0:
+                    spd_str = '< 1/%.0fx' % (1.0 / -spd)
+                elif spd == 1.0:
+                    spd_str = '<'
+                else:
+                    spd_str = '<< %.0fx' % -spd
+                self.playspeed_label.setText(spd_str)
+            else:
+                self.playspeed_label.setText('')
+        except:
+            return
     # Shutdown all members
     
     def shutdown_all(self):

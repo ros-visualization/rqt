@@ -37,7 +37,7 @@ import threading
 
 import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt, QTimer, qWarning
+from QtCore import Qt, QTimer, qWarning, Signal
 from QtGui import QGraphicsScene, QMessageBox
 
 import bag_helper
@@ -55,6 +55,7 @@ class BagTimeline(QGraphicsScene):
     BagTimeline contains bag files, all information required to display the bag data visualization on the screen
     Also handles events 
     """
+    status_bar_changed_signal = Signal()
     def __init__(self, context):
         """
         :param context: plugin context hook to enable adding rqt_bag plugin widgets as ROS_GUI snapin panes, ''PluginContext''
@@ -101,6 +102,8 @@ class BagTimeline(QGraphicsScene):
         self._timeline_frame = TimelineFrame()
         self._timeline_frame.setPos(0, 0)
         self.addItem(self._timeline_frame)
+
+        self.background_progress = 0
 
     def get_context(self):
         """
@@ -408,11 +411,16 @@ class BagTimeline(QGraphicsScene):
                 new_progress = int(100.0 * (float(message_num) / total_messages))
                 if new_progress != progress:
                     progress = new_progress
+                    if not self.background_task_cancel:
+                        self.background_progress = progress
+                        self.status_bar_changed_signal.emit()
 
             message_num += 1
 
         # Close the bag
         try:
+            self.background_progress = 0
+            self.status_bar_changed_signal.emit()
             export_bag.close()
         except Exception as ex:
             QMessageBox(QMessageBox.Warning, 'rxbag', 'Error closing bag file [%s]: %s' % (export_bag.filename, str(ex)), QMessageBox.Ok).exec_()
