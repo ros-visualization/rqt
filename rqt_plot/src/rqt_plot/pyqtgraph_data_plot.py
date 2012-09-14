@@ -44,7 +44,6 @@ class PyQtGraphDataPlot(QWidget):
         self._plot_widget = PlotWidget()
         self._plot_widget.setBackground((255, 255, 255))
         self._plot_widget.setXRange(0, 10, padding=0)
-        print self._plot_widget.viewRange()
         vbox = QVBoxLayout()
         vbox.addWidget(self._plot_widget)
         self.setLayout(vbox)
