@@ -36,9 +36,8 @@ Player listens to messages from the timeline and publishes them to ROS.
 
 import rospy
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import QObject
+from qt_gui.qt_binding_helper.QtCore import QObject
 
 
 class Player(QObject):

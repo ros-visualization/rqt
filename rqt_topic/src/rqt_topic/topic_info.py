@@ -34,8 +34,7 @@ from __future__ import division, with_statement
 import time
 from StringIO import StringIO
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import qWarning
+from qt_gui.qt_binding_helper.QtCore import qWarning
 
 import roslib
 roslib.load_manifest('rqt_topic')

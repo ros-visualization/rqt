@@ -30,9 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from .message_view import MessageView
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtGui import QAction, QIcon, QToolBar, QHBoxLayout
+from qt_gui.qt_binding_helper.QtGui import QAction, QIcon, QToolBar, QHBoxLayout
 
 class TopicMessageView(MessageView):
     """

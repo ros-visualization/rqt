@@ -30,8 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QObject, Signal
+from qt_gui.qt_binding_helper.QtCore import QObject, Signal
 
 
 class TopicFilter(QObject):

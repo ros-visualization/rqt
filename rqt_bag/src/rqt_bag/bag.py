@@ -33,7 +33,6 @@
 import roslib
 roslib.load_manifest('rqt_bag')
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 from qt_gui.plugin import Plugin
 
 from .bag_widget import BagWidget

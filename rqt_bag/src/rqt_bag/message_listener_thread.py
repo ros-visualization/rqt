@@ -31,10 +31,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import threading
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import QCoreApplication, QEvent
-#from QtCore import qWarning
+from qt_gui.qt_binding_helper.QtCore import QCoreApplication, QEvent
+#from qt_gui.qt_binding_helper.QtCore import qWarning
 
 
 class ListenerEvent(QEvent):

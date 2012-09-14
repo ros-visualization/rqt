@@ -33,7 +33,7 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QWidget
+from qt_gui.qt_binding_helper.QtGui import QWidget
 import py_console_text_edit
 
 class PyConsoleWidget(QWidget):

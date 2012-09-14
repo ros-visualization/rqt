@@ -35,9 +35,8 @@ from __future__ import division
 import math
 import sys
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QEvent, QPointF, QTimer, Qt, SIGNAL, Signal, Slot
-from QtGui import QPen, QVector2D
+from qt_gui.qt_binding_helper.QtCore import QEvent, QPointF, QTimer, Qt, SIGNAL, Signal, Slot
+from qt_gui.qt_binding_helper.QtGui import QPen, QVector2D
 import Qwt
 
 from numpy import arange, zeros, concatenate
@@ -221,7 +220,7 @@ class QwtDataPlot(Qwt.QwtPlot):
 
 
 if __name__ == '__main__':
-    from QtGui import QApplication
+    from qt_gui.qt_binding_helper.QtGui import QApplication
 
     app = QApplication(sys.argv)
     plot = QwtDataPlot()

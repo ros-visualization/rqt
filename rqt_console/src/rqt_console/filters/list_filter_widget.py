@@ -33,8 +33,8 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt
-from QtGui import QWidget
+from qt_gui.qt_binding_helper.QtCore import Qt
+from qt_gui.qt_binding_helper.QtGui import QWidget
 
 from .filter_utils import pack, unpack
 

@@ -1,5 +1,4 @@
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QStandardItem, QStandardItemModel
+from qt_gui.qt_binding_helper.QtGui import QStandardItem, QStandardItemModel
 
 class MessageTreeModel(QStandardItemModel):
 

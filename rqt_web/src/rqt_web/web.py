@@ -33,7 +33,6 @@
 import roslib
 roslib.load_manifest('rqt_web')
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 from qt_gui.plugin import Plugin
 
 from web_widget import WebWidget

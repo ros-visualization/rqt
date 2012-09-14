@@ -17,9 +17,9 @@ from tf2_msgs.srv import FrameGraph
 import tf2_ros
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QFile, QIODevice, QObject, Qt, Signal
-from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
-from QtSvg import QSvgGenerator
+from qt_gui.qt_binding_helper.QtCore import QFile, QIODevice, QObject, Qt, Signal
+from qt_gui.qt_binding_helper.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
+from qt_gui.qt_binding_helper.QtSvg import QSvgGenerator
 
 
 from .dotcode_tf import RosTfTreeDotcodeGenerator

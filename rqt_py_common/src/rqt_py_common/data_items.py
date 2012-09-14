@@ -29,8 +29,7 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QStandardItem
+from qt_gui.qt_binding_helper.QtGui import QStandardItem
 
 class ReadonlyItem(QStandardItem):
     def __init__(self, *args):

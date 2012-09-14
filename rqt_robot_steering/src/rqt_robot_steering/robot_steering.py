@@ -32,8 +32,8 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt, QTimer, Slot
-from QtGui import QShortcut, QWidget
+from qt_gui.qt_binding_helper.QtCore import Qt, QTimer, Slot
+from qt_gui.qt_binding_helper.QtGui import QShortcut, QWidget
 
 import roslib
 roslib.load_manifest('rqt_robot_steering')

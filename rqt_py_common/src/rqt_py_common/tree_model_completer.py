@@ -30,8 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QCompleter
+from qt_gui.qt_binding_helper.QtGui import QCompleter
 
 
 class TreeModelCompleter(QCompleter):

@@ -34,9 +34,8 @@
 Loads plugins.
 """
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import qCritical
+from qt_gui.qt_binding_helper.QtCore import qCritical
 import sys
 import traceback
 

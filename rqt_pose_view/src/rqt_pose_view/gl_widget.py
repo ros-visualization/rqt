@@ -32,9 +32,8 @@ from __future__ import division
 import math
 import numpy
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QPoint, Qt
-from QtOpenGL import QGLFormat, QGLWidget
+from qt_gui.qt_binding_helper.QtCore import QPoint, Qt
+from qt_gui.qt_binding_helper.QtOpenGL import QGLFormat, QGLWidget
 
 import OpenGL
 OpenGL.ERROR_CHECKING = True

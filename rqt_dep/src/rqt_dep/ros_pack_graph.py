@@ -7,9 +7,9 @@ import os, pickle
 import rospkg
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QFile, QIODevice, Qt, Signal, Slot, QAbstractListModel
-from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
-from QtSvg import QSvgGenerator
+from qt_gui.qt_binding_helper.QtCore import QFile, QIODevice, Qt, Signal, Slot, QAbstractListModel
+from qt_gui.qt_binding_helper.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from qt_gui.qt_binding_helper.QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rqt_dep')

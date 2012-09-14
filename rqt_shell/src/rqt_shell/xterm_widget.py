@@ -36,9 +36,8 @@ import os
 import roslib
 roslib.load_manifest('rqt_shell')
 
-import qt_gui.qt_binding_helper # @UnusedImport
-from QtCore import QProcess, QTimer, Signal
-from QtGui import QX11EmbedContainer
+from qt_gui.qt_binding_helper.QtCore import QProcess, QTimer, Signal
+from qt_gui.qt_binding_helper.QtGui import QX11EmbedContainer
 
 class XTermWidget(QX11EmbedContainer):
     xterm_cmd = '/usr/bin/xterm'

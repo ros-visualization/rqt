@@ -32,9 +32,9 @@ from __future__ import division
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QFile, QIODevice, Qt, Signal, QAbstractListModel
-from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
-from QtSvg import QSvgGenerator
+from qt_gui.qt_binding_helper.QtCore import QFile, QIODevice, Qt, Signal, QAbstractListModel
+from qt_gui.qt_binding_helper.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from qt_gui.qt_binding_helper.QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rqt_graph')

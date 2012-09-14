@@ -33,8 +33,7 @@
 import roslib
 roslib.load_manifest('rqt_console')
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QMutex, QTimer
+from qt_gui.qt_binding_helper.QtCore import QMutex, QTimer
 
 from qt_gui.plugin import Plugin
 

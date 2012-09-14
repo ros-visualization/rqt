@@ -35,10 +35,9 @@ Defines a raw view: a TopicMessageView that displays the message contents in a t
 import rospy
 import codecs
 import math
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt
-from QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
+from qt_gui.qt_binding_helper.QtCore import Qt
+from qt_gui.qt_binding_helper.QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
 from .topic_message_view import TopicMessageView
 
 

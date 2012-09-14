@@ -32,9 +32,8 @@
 
 import collections
 import operator
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Slot, Qt
-from QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
+from qt_gui.qt_binding_helper.QtCore import Slot, Qt
+from qt_gui.qt_binding_helper.QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
 
 import matplotlib
 if matplotlib.__version__ < '1.1.0':

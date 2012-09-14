@@ -33,8 +33,8 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QApplication, QCursor, QFileDialog, QIcon, QMenu, QMessageBox, QTableView, QWidget
-from QtCore import QRegExp, Qt, qWarning
+from qt_gui.qt_binding_helper.QtGui import QApplication, QCursor, QFileDialog, QIcon, QMenu, QMessageBox, QTableView, QWidget
+from qt_gui.qt_binding_helper.QtCore import QRegExp, Qt, qWarning
 
 from .filters.custom_filter import CustomFilter
 from .filters.location_filter import LocationFilter

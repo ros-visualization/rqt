@@ -35,10 +35,9 @@ import rosbag
 import time
 import threading
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt, QTimer, qWarning
-from QtGui import QGraphicsScene, QMessageBox
+from qt_gui.qt_binding_helper.QtCore import Qt, QTimer, qWarning
+from qt_gui.qt_binding_helper.QtGui import QGraphicsScene, QMessageBox
 
 import bag_helper
 

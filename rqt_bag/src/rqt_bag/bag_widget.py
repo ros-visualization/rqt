@@ -33,8 +33,8 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt
-from QtGui import QFileDialog, QGraphicsView, QIcon, QWidget
+from qt_gui.qt_binding_helper.QtCore import Qt
+from qt_gui.qt_binding_helper.QtGui import QFileDialog, QGraphicsView, QIcon, QWidget
 
 import rosbag
 from .bag_timeline import BagTimeline

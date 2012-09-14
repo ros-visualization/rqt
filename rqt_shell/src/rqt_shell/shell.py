@@ -33,7 +33,6 @@
 import roslib
 roslib.load_manifest('rqt_shell')
 
-import qt_gui.qt_binding_helper # @UnusedImport
 from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 

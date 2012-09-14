@@ -33,8 +33,7 @@
 import roslib
 roslib.load_manifest('rqt_py_console')
 
-import qt_gui.qt_binding_helper # @UnusedImport
-from QtGui import QVBoxLayout, QWidget
+from qt_gui.qt_binding_helper.QtGui import QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 from py_console_widget import PyConsoleWidget

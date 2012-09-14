@@ -34,9 +34,8 @@ import os
 import roslib
 roslib.load_manifest('rqt_shell')
 
-import qt_gui.qt_binding_helper # @UnusedImport
-from QtGui import QFont, QMessageBox, QIcon
-from QtCore import QProcess, SIGNAL, QTextCodec, Signal
+from qt_gui.qt_binding_helper.QtGui import QFont, QMessageBox, QIcon
+from qt_gui.qt_binding_helper.QtCore import QProcess, SIGNAL, QTextCodec, Signal
 
 from spyderlib.config import get_icon
 from spyderlib.widgets.externalshell.baseshell import ExternalShellBase

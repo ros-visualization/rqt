@@ -33,8 +33,8 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import qWarning
-from QtGui import QWidget
+from qt_gui.qt_binding_helper.QtCore import qWarning
+from qt_gui.qt_binding_helper.QtGui import QWidget
 
 
 class LoggerLevelWidget(QWidget):

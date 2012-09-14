@@ -34,8 +34,8 @@ from datetime import datetime
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import QDateTime
-from QtGui import QWidget
+from qt_gui.qt_binding_helper.QtCore import QDateTime
+from qt_gui.qt_binding_helper.QtGui import QWidget
 
 
 class TimeFilterWidget(QWidget):

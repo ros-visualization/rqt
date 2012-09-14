@@ -33,7 +33,7 @@
 import os
 
 from qt_gui.qt_binding_helper import loadUi
-from QtGui import QDialog
+from qt_gui.qt_binding_helper.QtGui import QDialog
 
 
 class ConsoleSubscriberDialog(QDialog):

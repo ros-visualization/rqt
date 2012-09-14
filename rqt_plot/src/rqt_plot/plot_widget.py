@@ -35,8 +35,8 @@ import roslib
 roslib.load_manifest('rqt_plot')
 
 from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt, QTimer, qWarning, Slot
-from QtGui import QWidget, QIcon, QMenu, QAction
+from qt_gui.qt_binding_helper.QtCore import Qt, QTimer, qWarning, Slot
+from qt_gui.qt_binding_helper.QtGui import QWidget, QIcon, QMenu, QAction
 
 import rospy
 from rostopic import get_topic_type
