@@ -47,7 +47,8 @@ import ImageQt
 from rqt_bag import bag_helper, TopicMessageView
 import image_helper
 
-from qt_gui.qt_binding_helper.QtGui import QGraphicsScene, QGraphicsView, QPixmap
+from qt_gui.qt_binding_helper.QtCore import Qt
+from qt_gui.qt_binding_helper.QtGui import QBrush, QFileDialog, QFont, QGraphicsScene, QGraphicsView, QIcon, QPainterPath, QPen, QPixmap, QPushButton
 
 class ImageView(TopicMessageView):
     """

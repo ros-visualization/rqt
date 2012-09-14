@@ -55,11 +55,26 @@ class IndexCacheThread(threading.Thread):
                     if self._stop_flag:
                         return
                 # Update the index for one topic
+                total_topics = len(self.timeline.topics)
+                update_step = max(1, total_topics / 100)
+                topic_num = 1
+                progress = 0
                 updated = False
                 for topic in self.timeline.topics:
                     if topic in self.timeline.invalidated_caches:
                         updated = (self.timeline._update_index_cache(topic) > 0)
+                    if topic_num % update_step == 0 or topic_num == total_topics:
+                        new_progress = int(100.0 * (float(topic_num) / total_topics))
+                        if new_progress != progress:
+                            progress = new_progress
+                            if not self._stop_flag:
+                                self.timeline.scene().background_progress = progress
+                                self.timeline.scene().status_bar_changed_signal.emit()
+                    topic_num += 1
+
             if updated:
+                self.timeline.scene().background_progress = 0
+                self.timeline.scene().status_bar_changed_signal.emit()
                 self.timeline.scene().update()
                 # Give the GUI some time to update
                 time.sleep(1.0)
