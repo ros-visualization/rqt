@@ -39,6 +39,12 @@ from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 from plot_widget import PlotWidget
 
 try:
+    from pyqtgraph_data_plot import PyQtGraphDataPlot
+except ImportError, e:
+    print e
+    PyQtGraphDataPlot = None
+
+try:
     from mat_data_plot import MatDataPlot
 except ImportError:
     MatDataPlot = None
@@ -52,15 +58,21 @@ class Plot(Plugin):
     # plot types in order of priority
     plot_types = [
         {
-            'title': 'MatPlot', 
+            'title': 'PyQtGraph',
+            'widget_class': PyQtGraphDataPlot,
+            'description': 'Based on PyQtGraph\n- installer: http://luke.campagnola.me/code/pyqtgraph',
+            'enabled': PyQtGraphDataPlot is not None,
+        }, 
+        {
+            'title': 'MatPlot',
             'widget_class': MatDataPlot,
-            'description': 'Based on MatPlotLib\n- needs more CPU\n- needs matplotlib', 
+            'description': 'Based on MatPlotLib\n- needs most CPU\n- needs matplotlib',
             'enabled': MatDataPlot is not None,
         }, 
         {
-            'title': 'QwtPlot', 
+            'title': 'QwtPlot',
             'widget_class': QwtDataPlot,
-            'description': 'Based on QwtPlot\n- does not use timestamps\n- needs Python Qwt bindings',
+            'description': 'Based on QwtPlot\n- does not use timestamps\n- uses least CPU\n- needs Python Qwt bindings',
             'enabled': QwtDataPlot is not None,
         }, 
     ]
