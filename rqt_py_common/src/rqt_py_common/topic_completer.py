@@ -55,7 +55,7 @@ class TopicCompleter(TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    from qt_gui.qt_binding_helper.QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
+    from python_qt_binding.QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
     app = QApplication(sys.argv)
     mw = QMainWindow()
     widget = QWidget(mw)

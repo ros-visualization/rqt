@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtGui import QItemDelegate, QDoubleSpinBox
+from python_qt_binding.QtGui import QItemDelegate, QDoubleSpinBox
 
 class SpinBoxDelegate(QItemDelegate):
     def __init__(self, min=0, max=100, decimals=2, *args):

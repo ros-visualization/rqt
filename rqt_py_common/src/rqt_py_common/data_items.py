@@ -29,7 +29,7 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from qt_gui.qt_binding_helper.QtGui import QStandardItem
+from python_qt_binding.QtGui import QStandardItem
 
 class ReadonlyItem(QStandardItem):
     def __init__(self, *args):

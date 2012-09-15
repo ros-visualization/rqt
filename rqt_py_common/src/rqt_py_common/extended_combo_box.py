@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtCore import Qt, Signal, Slot
-from qt_gui.qt_binding_helper.QtGui import QComboBox, QCompleter, QSortFilterProxyModel
+from python_qt_binding.QtCore import Qt, Signal, Slot
+from python_qt_binding.QtGui import QComboBox, QCompleter, QSortFilterProxyModel
 
 
 class ExtendedComboBox(QComboBox):
@@ -85,7 +85,7 @@ class ExtendedComboBox(QComboBox):
 
 if __name__ == "__main__":
     import sys
-    from qt_gui.qt_binding_helper.QtGui import QApplication
+    from python_qt_binding.QtGui import QApplication
 
     app = QApplication(sys.argv)
 
