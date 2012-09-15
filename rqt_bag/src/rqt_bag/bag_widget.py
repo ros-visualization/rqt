@@ -34,9 +34,9 @@ import os
 import rospy
 import time
 
-from qt_gui.qt_binding_helper import loadUi
-from qt_gui.qt_binding_helper.QtCore import Qt
-from qt_gui.qt_binding_helper.QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
 
 import rosbag
 import bag_helper

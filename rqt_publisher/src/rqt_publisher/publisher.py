@@ -35,7 +35,7 @@ import math
 import random
 import time
 
-from qt_gui.qt_binding_helper.QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
+from python_qt_binding.QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
 
 import roslib
 roslib.load_manifest('rqt_publisher')

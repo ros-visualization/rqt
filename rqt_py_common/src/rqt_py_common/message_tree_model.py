@@ -1,4 +1,4 @@
-from qt_gui.qt_binding_helper.QtGui import QStandardItem, QStandardItemModel
+from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
 
 class MessageTreeModel(QStandardItemModel):
 

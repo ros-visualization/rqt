@@ -33,8 +33,8 @@
 import roslib
 roslib.load_manifest('rqt_publisher')
 
-from qt_gui.qt_binding_helper.QtCore import Signal, Slot
-from qt_gui.qt_binding_helper.QtGui import QAction, QIcon
+from python_qt_binding.QtCore import Signal, Slot
+from python_qt_binding.QtGui import QAction, QIcon
 
 from .publisher_tree_model import PublisherTreeModel
 from rqt_py_common.message_tree_widget import MessageTreeWidget

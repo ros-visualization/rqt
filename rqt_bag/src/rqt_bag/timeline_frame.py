@@ -31,8 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from qt_gui.qt_binding_helper.QtCore import QPointF, QRectF, Qt
-from qt_gui.qt_binding_helper.QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
+from python_qt_binding.QtCore import QPointF, QRectF, Qt
+from python_qt_binding.QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
 import rospy
 
 import bisect

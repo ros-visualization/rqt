@@ -35,7 +35,7 @@ import traceback
 
 from xml.etree import ElementTree
 
-from qt_gui.qt_binding_helper.QtCore import qCritical
+from python_qt_binding.QtCore import qCritical
 
 from qt_gui.plugin_descriptor import PluginDescriptor
 from qt_gui.plugin_provider import PluginProvider

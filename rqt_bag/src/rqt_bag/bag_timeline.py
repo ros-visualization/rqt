@@ -36,8 +36,8 @@ import time
 import threading
 
 
-from qt_gui.qt_binding_helper.QtCore import Qt, QTimer, qWarning, Signal
-from qt_gui.qt_binding_helper.QtGui import QGraphicsScene, QMessageBox
+from python_qt_binding.QtCore import Qt, QTimer, qWarning, Signal
+from python_qt_binding.QtGui import QGraphicsScene, QMessageBox
 
 import bag_helper
 

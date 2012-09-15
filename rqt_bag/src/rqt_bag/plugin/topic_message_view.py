@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from .message_view import MessageView
 
-from qt_gui.qt_binding_helper.QtGui import QAction, QIcon, QToolBar, QHBoxLayout
+from python_qt_binding.QtGui import QAction, QIcon, QToolBar, QHBoxLayout
 
 class TopicMessageView(MessageView):
     """

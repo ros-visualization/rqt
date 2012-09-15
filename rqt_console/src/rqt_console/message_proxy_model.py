@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtCore import Qt, qWarning
-from qt_gui.qt_binding_helper.QtGui import QBrush, QSortFilterProxyModel
+from python_qt_binding.QtCore import Qt, qWarning
+from python_qt_binding.QtGui import QBrush, QSortFilterProxyModel
 
 from .filters.filter_collection import FilterCollection
 

@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
-from qt_gui.qt_binding_helper.QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
+from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
+from python_qt_binding.QtGui import QAction, QDrag, QHeaderView, QIcon, QMenu, QTreeView
 
 
 class MessageTreeWidget(QTreeView):

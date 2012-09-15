@@ -9,7 +9,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtCore import QObject, Signal
+from python_qt_binding.QtCore import QObject, Signal
 
 from .message_filter import MessageFilter
 from .node_filter import NodeFilter

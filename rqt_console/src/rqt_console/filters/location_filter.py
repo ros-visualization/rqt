@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from qt_gui.qt_binding_helper.QtCore import QObject, QRegExp, Signal
+from python_qt_binding.QtCore import QObject, QRegExp, Signal
 
 
 class LocationFilter(QObject):

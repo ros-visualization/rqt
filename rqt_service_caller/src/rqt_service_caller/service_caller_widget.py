@@ -36,9 +36,9 @@ import os
 import random
 import time
 
-from qt_gui.qt_binding_helper import loadUi
-from qt_gui.qt_binding_helper.QtCore import Qt, Slot, qDebug, qWarning
-from qt_gui.qt_binding_helper.QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt, Slot, qDebug, qWarning
+from python_qt_binding.QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
 roslib.load_manifest('rqt_service_caller')

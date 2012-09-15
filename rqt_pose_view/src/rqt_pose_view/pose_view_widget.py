@@ -31,9 +31,9 @@
 from __future__ import division
 import os
 
-from qt_gui.qt_binding_helper import loadUi
-from qt_gui.qt_binding_helper.QtCore import Qt, QTimer, qWarning, Slot
-from qt_gui.qt_binding_helper.QtGui import QAction, QMenu, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
+from python_qt_binding.QtGui import QAction, QMenu, QWidget
 
 import roslib
 roslib.load_manifest('rqt_pose_view')

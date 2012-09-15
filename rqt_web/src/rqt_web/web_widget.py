@@ -32,10 +32,10 @@
 
 import os
 
-from qt_gui.qt_binding_helper import loadUi
-from qt_gui.qt_binding_helper.QtCore import Qt, QUrl
-from qt_gui.qt_binding_helper.QtGui import QCompleter, QIcon, QWidget
-from qt_gui.qt_binding_helper.QtWebKit import QWebPage, QWebView
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt, QUrl
+from python_qt_binding.QtGui import QCompleter, QIcon, QWidget
+from python_qt_binding.QtWebKit import QWebPage, QWebView
 
 
 class WebWidget(QWidget):

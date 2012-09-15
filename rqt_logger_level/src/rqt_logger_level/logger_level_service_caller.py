@@ -34,7 +34,7 @@ import rosnode
 import rospy
 import rosservice
 
-from qt_gui.qt_binding_helper.QtCore import QObject, qWarning
+from python_qt_binding.QtCore import QObject, qWarning
 
 
 class LoggerLevelServiceCaller(QObject):

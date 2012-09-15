@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from qt_gui.qt_binding_helper.QtCore import QObject
+from python_qt_binding.QtCore import QObject
 
 
 class MessageView(QObject):

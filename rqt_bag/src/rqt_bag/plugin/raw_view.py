@@ -36,8 +36,8 @@ import rospy
 import codecs
 import math
 
-from qt_gui.qt_binding_helper.QtCore import Qt
-from qt_gui.qt_binding_helper.QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QApplication, QAbstractItemView, QSizePolicy, QTreeWidget, QTreeWidgetItem
 from .topic_message_view import TopicMessageView
 
 
