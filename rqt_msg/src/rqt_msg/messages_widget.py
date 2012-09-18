@@ -36,9 +36,9 @@ import rospkg
 import rosmsg
 import roslib
 
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt
-from QtGui import QAction, QIcon, QMenu, QMessageBox, QTreeView, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QAction, QIcon, QMenu, QMessageBox, QTreeView, QWidget
 
 from .messages_tree_model import MessagesTreeModel
 from .messages_tree_view import MessagesTreeView
