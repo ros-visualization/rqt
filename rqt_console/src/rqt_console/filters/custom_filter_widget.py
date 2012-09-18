@@ -32,9 +32,9 @@
 
 import os
 
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt
-from QtGui import QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QWidget
 
 from .filter_utils import pack, unpack
 

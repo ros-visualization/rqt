@@ -33,9 +33,9 @@
 from __future__ import division
 import os
 
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import Signal, Slot, QThread
-from QtGui import QIcon, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Signal, Slot, QThread
+from python_qt_binding.QtGui import QIcon, QWidget
 
 import roslib
 roslib.load_manifest('rqt_publisher')

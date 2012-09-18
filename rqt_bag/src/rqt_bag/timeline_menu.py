@@ -30,8 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import os
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtGui import QVBoxLayout, QMenu, QWidget
+from python_qt_binding.QtGui import QVBoxLayout, QMenu, QWidget
 
 
 class TimelinePopupMenu(QMenu):

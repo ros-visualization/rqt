@@ -30,9 +30,8 @@
 
 from __future__ import division
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QPointF, QRectF, Qt
-from QtGui import QGraphicsView, QTransform
+from python_qt_binding.QtCore import QPointF, QRectF, Qt
+from python_qt_binding.QtGui import QGraphicsView, QTransform
 
 
 class InteractiveGraphicsView(QGraphicsView):

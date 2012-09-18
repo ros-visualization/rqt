@@ -35,8 +35,7 @@ import rospy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import qDebug, qWarning
+from python_qt_binding.QtCore import qDebug, qWarning
 
 try:
     from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider

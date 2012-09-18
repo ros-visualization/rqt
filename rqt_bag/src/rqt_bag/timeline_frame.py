@@ -30,10 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import QPointF, QRectF, Qt
-from QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
+from python_qt_binding.QtCore import QPointF, QRectF, Qt
+from python_qt_binding.QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
 import rospy
 
 import bisect

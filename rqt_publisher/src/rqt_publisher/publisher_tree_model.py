@@ -34,9 +34,8 @@ import threading
 import roslib
 roslib.load_manifest('rqt_publisher')
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import Qt, Signal
-from QtGui import QStandardItem
+from python_qt_binding.QtCore import Qt, Signal
+from python_qt_binding.QtGui import QStandardItem
 
 from rqt_py_common.message_tree_model import MessageTreeModel
 from rqt_py_common.data_items import ReadonlyItem, CheckableItem

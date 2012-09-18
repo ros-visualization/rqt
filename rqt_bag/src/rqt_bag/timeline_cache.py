@@ -30,9 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import qWarning
+from python_qt_binding.QtCore import qWarning
 import bisect
 import Queue
 import threading

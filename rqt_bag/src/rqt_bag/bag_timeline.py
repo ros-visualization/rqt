@@ -35,10 +35,9 @@ import rosbag
 import time
 import threading
 
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt, QTimer, qWarning, Signal
-from QtGui import QGraphicsScene, QMessageBox
+from python_qt_binding.QtCore import Qt, QTimer, qWarning, Signal
+from python_qt_binding.QtGui import QGraphicsScene, QMessageBox
 
 import bag_helper
 
@@ -79,10 +78,8 @@ class BagTimeline(QGraphicsScene):
         self._messages_cvs = {}
         self._messages = {}  # topic -> (bag, msg_data)
         self._message_listener_threads = {}  # listener -> MessageListenerThread
-
         self._player = False
         self._recorder = None
-
         self.last_frame = None
         self.last_playhead = None
         self.desired_playhead = None
@@ -104,7 +101,6 @@ class BagTimeline(QGraphicsScene):
         self.addItem(self._timeline_frame)
 
         self.background_progress = 0
-
     def get_context(self):
         """
         :returns: the ROS_GUI context, 'PluginContext'
@@ -615,7 +611,6 @@ class BagTimeline(QGraphicsScene):
 
         self.last_frame = rospy.Time.from_sec(time.time())
         self.last_playhead = self._timeline_frame.playhead
-
     ### Recording
 
     def record_bag(self, filename, all=True, topics=[], regex=False, limit=0):

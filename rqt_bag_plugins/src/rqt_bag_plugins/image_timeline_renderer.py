@@ -44,10 +44,9 @@ import ImageQt
 from rqt_bag import bag_helper, TimelineCache, TimelineRenderer
 
 import image_helper
-import qt_gui.qt_binding_helper  # @UnusedImport
 
-from QtCore import Qt
-from QtGui import QBrush, QPen, QBitmap, QPixmap
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QBrush, QPen, QBitmap, QPixmap
 
 
 class ImageTimelineRenderer(TimelineRenderer):

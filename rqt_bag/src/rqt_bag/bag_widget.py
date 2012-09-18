@@ -34,9 +34,9 @@ import os
 import rospy
 import time
 
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import Qt
-from QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
 
 import rosbag
 import bag_helper
@@ -98,7 +98,6 @@ class BagWidget(QWidget):
         self.graphics_view.wheelEvent = self._timeline.on_mousewheel
         self.closeEvent = self.handle_close
         self.keyPressEvent = self.on_key_press
-
         # TODO when the closeEvent is properly called by ROS_GUI implement that event instead of destroyed
         self.destroyed.connect(self.handle_destroy)
         
@@ -221,7 +220,6 @@ class BagWidget(QWidget):
             self.load_button.setEnabled(False)
             self._recording = True
             self._timeline.record_bag(record_filename)
-
     def _handle_load_clicked(self):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':

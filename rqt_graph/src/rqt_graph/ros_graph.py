@@ -31,10 +31,10 @@
 from __future__ import division
 import os
 
-from qt_gui.qt_binding_helper import loadUi
-from QtCore import QFile, QIODevice, Qt, Signal, QAbstractListModel
-from QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
-from QtSvg import QSvgGenerator
+from python_qt_binding import loadUi
+from python_qt_binding.QtCore import QFile, QIODevice, Qt, Signal, QAbstractListModel
+from python_qt_binding.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from python_qt_binding.QtSvg import QSvgGenerator
 
 import roslib
 roslib.load_manifest('rqt_graph')

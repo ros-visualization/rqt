@@ -32,8 +32,7 @@
 
 from message_list import MessageList
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QAbstractTableModel, QDateTime, QModelIndex, Qt, qWarning
+from python_qt_binding.QtCore import QAbstractTableModel, QDateTime, QModelIndex, Qt, qWarning
 
 
 class MessageDataModel(QAbstractTableModel):

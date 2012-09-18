@@ -34,8 +34,8 @@ import sys
 from code import InteractiveInterpreter
 from exceptions import SystemExit
 
-from qt_gui.qt_binding_helper import QT_BINDING, QT_BINDING_VERSION
-from QtCore import Qt, Signal
+from python_qt_binding import QT_BINDING, QT_BINDING_VERSION
+from python_qt_binding.QtCore import Qt, Signal
 
 import roslib
 roslib.load_manifest('rqt_py_console')

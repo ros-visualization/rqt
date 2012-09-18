@@ -47,8 +47,8 @@ import ImageQt
 from rqt_bag import bag_helper, TopicMessageView
 import image_helper
 
-from QtCore import Qt
-from QtGui import QBrush, QFileDialog, QFont, QGraphicsScene, QGraphicsView, QIcon, QPainterPath, QPen, QPixmap, QPushButton
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QBrush, QFileDialog, QFont, QGraphicsScene, QGraphicsView, QIcon, QPainterPath, QPen, QPixmap, QPushButton
 
 class ImageView(TopicMessageView):
     """
@@ -58,7 +58,6 @@ class ImageView(TopicMessageView):
     def __init__(self, timeline, parent):
         super(ImageView, self).__init__(timeline, parent)
 
-        self._image_lock  = threading.RLock()
         self._image = None
         self._image_topic = None
         self._image_stamp = None
@@ -66,9 +65,8 @@ class ImageView(TopicMessageView):
 
         # TODO put the image_topic and image_stamp on the picture or display them in some fashion
         self._overlay_font_size = 14.0
-        self._overlay_indent = (18, 18)
-        self._overlay_brush = QBrush(Qt.blue, Qt.SolidPattern)
-        self._overlay_pen = QPen(Qt.blue)
+        self._overlay_indent = (4, 4)
+        self._overlay_color = (0.2, 0.2, 1.0)
 
         self._image_view = QGraphicsView(parent)
         self._image_view.resizeEvent = self._resizeEvent
@@ -76,57 +74,9 @@ class ImageView(TopicMessageView):
         self._image_view.setScene(self._scene)
         parent.layout().addWidget(self._image_view)
         
-        self._save_button = QPushButton(QIcon.fromTheme('document-save'),'', self.toolbar)
-        self._save_button.setToolTip('Save current image/Save images from selected region')
-        self._save_button.clicked[bool].connect(self._handle_save_clicked)
-        self.toolbar.addWidget(self._save_button)
-
-        self._resize_button = QPushButton(QIcon.fromTheme('view-restore'),'', self.toolbar)
-        self._resize_button.setToolTip('Restore to Original size')
-        self._resize_button.clicked[bool].connect(self._handle_restore_clicked)
-        self.toolbar.addWidget(self._resize_button)
-
-        self._next_frame_num = 1
-        self._filename = None
-
-    def _handle_save_clicked(self, checked):
-        if self._filename:
-            self.save_frame(self._filename)
-        else:
-            filename = QFileDialog.getSaveFileName(self.parent, self.tr('Save images with prefix...'), '.', self.tr('PNG files {*.png} (*.png)'))
-            if filename[0] != '':
-                self._filename = filename[0]
-                self.save_frame(self._filename)
-
-    def _handle_restore_clicked(self, checked):
-        with self._image_lock:
-            if self._image:
-                self.parent.resize(self._image.size[0], self._image.size[1])
-
-    def save_frame(self, name):
-        if not self._image:
-            return
-
-        file_spec = name
-        if file_spec[-4:] == '.png':
-            file_spec = file_spec[:-4]
-        filename = file_spec + '_' + str(self._next_frame_num).zfill(3) + '.png'
-
-        with self._image_lock:
-            if self._image_msg:
-                self._save_image_msg(self._image_msg, filename)
-                self._next_frame_num += 1
-
-    def _save_image_msg(self, img_msg, filename):
-        pil_img = image_helper.imgmsg_to_pil(img_msg, rgba=False)
-        if pil_img.mode in ('RGB', 'RGBA'):
-            pil_img = pil_img.convert('RGB')
-            pil_img = image_helper.pil_bgr2rgb(pil_img)
-            pil_img = pil_img.convert('RGB')
-        pil_img.save(filename)
-
     # MessageView implementation
     def _resizeEvent(self, event):
+        # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
         self._scene.setSceneRect(0, 0, self._image_view.size().width() - 2, self._image_view.size().height() - 2)
         self.put_image_into_scene()
 
@@ -137,7 +87,7 @@ class ImageView(TopicMessageView):
         TopicMessageView.message_viewed(self, bag, msg_details)
         topic, msg, t = msg_details[:3]
         if not msg:
-            self.set_image(None, topic, '')
+            self.set_image(None, topic, stamp)
         else:
             self.set_image(msg, topic, msg.header.stamp)
 
@@ -147,26 +97,20 @@ class ImageView(TopicMessageView):
 
     # End MessageView implementation
     def put_image_into_scene(self):
-        with self._image_lock:
-            if self._image:
-                resized_image = self._image.resize((self._image_view.size().width()-2, self._image_view.size().height()-2), self.quality)
+        if self._image:
+            resized_image = self._image.resize((self._image_view.size().width()-2, self._image_view.size().height()-2), self.quality)
 
-                QtImage = ImageQt.ImageQt(resized_image)
-                pixmap = QPixmap.fromImage(QtImage)
-                self._scene.clear()
-                self._scene.addPixmap(pixmap)
-
-                path = QPainterPath()
-                path.addText(self._overlay_indent[0], self._overlay_indent[1], QFont("cairo"), bag_helper.stamp_to_str(self._image_stamp))
-                self._scene.addPath(path, self._overlay_pen, self._overlay_brush)
+            QtImage = ImageQt.ImageQt(resized_image)
+            pixmap = QPixmap.fromImage(QtImage)
+            self._scene.clear()
+            self._scene.addPixmap(pixmap)
 
     def set_image(self, image_msg, image_topic, image_stamp):
-        with self._image_lock:
-            self._image_msg = image_msg
-            if image_msg:
-                self._image = image_helper.imgmsg_to_pil(image_msg)
-            else:
-                self._image = None
-            self._image_topic = image_topic
-            self._image_stamp = image_stamp
-            self.put_image_into_scene()
+        self._image_msg = image_msg
+        if image_msg:
+            self._image = image_helper.imgmsg_to_pil(image_msg)
+        else:
+            self._image = None
+        self._image_topic = image_topic
+        self._image_stamp = image_stamp
+        self.put_image_into_scene()

@@ -33,8 +33,7 @@
 from rosgraph_msgs.msg import Log
 import rospy
 
-import qt_gui.qt_binding_helper  # @UnusedImport
-from QtCore import QObject
+from python_qt_binding.QtCore import QObject
 
 from .console_subscriber_dialog import ConsoleSubscriberDialog
 
