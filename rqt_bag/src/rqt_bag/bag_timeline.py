@@ -365,14 +365,14 @@ class BagTimeline(QGraphicsScene):
 
         # If no messages, prompt the user and return
         if total_messages == 0:
-            QMessageBox(QMessageBox.Warning, 'rxbag', 'No messages found', QMessageBox.Ok).exec_()
+            QMessageBox(QMessageBox.Warning, 'rqt_bag', 'No messages found', QMessageBox.Ok).exec_()
             return
 
         # Open the path for writing
         try:
             export_bag = rosbag.Bag(path, 'w')
         except Exception:
-            QMessageBox(QMessageBox.Warning, 'rxbag', 'Error opening bag file [%s] for writing' % path, QMessageBox.Ok).exec_()
+            QMessageBox(QMessageBox.Warning, 'rqt_bag', 'Error opening bag file [%s] for writing' % path, QMessageBox.Ok).exec_()
 
         # Run copying in a background thread
         self._export_thread = threading.Thread(target=self._run_export_region, args=(export_bag, topics, start_stamp, end_stamp, bag_entries))
@@ -419,7 +419,7 @@ class BagTimeline(QGraphicsScene):
             self.status_bar_changed_signal.emit()
             export_bag.close()
         except Exception as ex:
-            QMessageBox(QMessageBox.Warning, 'rxbag', 'Error closing bag file [%s]: %s' % (export_bag.filename, str(ex)), QMessageBox.Ok).exec_()
+            QMessageBox(QMessageBox.Warning, 'rqt_bag', 'Error closing bag file [%s]: %s' % (export_bag.filename, str(ex)), QMessageBox.Ok).exec_()
         self.stop_background_task()
 
     def read_message(self, bag, position):

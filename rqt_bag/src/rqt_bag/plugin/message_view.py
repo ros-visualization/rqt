@@ -36,7 +36,7 @@ from python_qt_binding.QtCore import QObject
 
 class MessageView(QObject):
     """
-    A message details renderer. When registered with rxbag, a MessageView is called
+    A message details renderer. When registered with rqt_bag, a MessageView is called
     whenever the timeline playhead moves.
     """
     name = 'Untitled'
