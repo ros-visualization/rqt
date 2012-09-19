@@ -130,7 +130,7 @@ class Recorder(object):
     ## Implementation
 
     def _run_master_check(self):
-        master = rosgraph.Master('rxbag_recorder')
+        master = rosgraph.Master('rqt_bag_recorder')
 
         try:
             while not self._stop_flag:

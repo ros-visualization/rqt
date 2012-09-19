@@ -16,7 +16,6 @@
   <depend stack="qt_gui_core"/> <!-- qt_dotgraph, qt_gui_core, qt_gui_cpp -->
   <depend stack="ros_comm"/> <!-- roscpp, rosgraph, rosmsg, rosnode, rospy, rosservice, rostopic -->
   <depend stack="std_msgs"/> <!-- std_msgs -->
-  <depend stack="rx"/> <!-- rxtools -->
   <depend stack="vision_opencv"/> <!-- cv_bridge -->
   <depend stack="visualization"/> <!-- rviz -->
 </stack>
