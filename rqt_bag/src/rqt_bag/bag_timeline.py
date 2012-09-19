@@ -87,7 +87,7 @@ class BagTimeline(QGraphicsScene):
         self.stick_to_end = False  # should the playhead stick to the end?
         self._play_timer = QTimer()
         self._play_timer.timeout.connect(self.on_idle)
-        self._play_timer.start(1)
+        self._play_timer.start(3)
 
         # Plugin popup management
         self._context = context
