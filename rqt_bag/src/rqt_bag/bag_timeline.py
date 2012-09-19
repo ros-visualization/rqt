@@ -101,6 +101,7 @@ class BagTimeline(QGraphicsScene):
         self.addItem(self._timeline_frame)
 
         self.background_progress = 0
+
     def get_context(self):
         """
         :returns: the ROS_GUI context, 'PluginContext'
