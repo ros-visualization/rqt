@@ -45,33 +45,28 @@ from .messages_tree_view import MessagesTreeView
 
 from rqt_console.text_browse_dialog import TextBrowseDialog
 
+
 class MessagesWidget(QWidget):
-    def __init__(self, context):
+    def __init__(self, context, mode=rosmsg.MODE_MSG):
         super(MessagesWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'messages.ui')
         loadUi(ui_file, self, {'MessagesTreeView': MessagesTreeView})
         self.setObjectName('MessagesUi')
         context.add_widget(self)
-        
+        self._mode = mode
+
         self.add_button.setIcon(QIcon.fromTheme('list-add'))
         self.add_button.clicked.connect(self._add_message)
-        self.refresh_button.setIcon(QIcon.fromTheme('view-refresh'))
-        self.refresh_button.clicked.connect(self._refresh_packages)
         self._refresh_packages()
         self._refresh_messages(self.package_combo.itemText(0))
         self.package_combo.currentIndexChanged[str].connect(self._refresh_messages)
         self.messages_tree.mousePressEvent = self._handle_mouse_press
 
-        self._browsers = [] #  TODO CLOSE ALL BROWSERS ON EXIT
+        self._browsers = []
 
     def _refresh_packages(self):
-        try:
-            # this only works on fuerte and up
-            rospack = rospkg.RosPack()
-            packages = sorted([pkg_tuple[0] for pkg_tuple in rosmsg.iterate_packages(rospack, rosmsg.MODE_MSG)])
-        except:
-            # this works up to electric
-            packages = sorted(rosmsg.list_packages())
+        rospack = rospkg.RosPack()
+        packages = sorted([pkg_tuple[0] for pkg_tuple in rosmsg.iterate_packages(rospack, self._mode)])
         self._package_list = packages
         self.package_combo.clear()
         self.package_combo.addItems(self._package_list)
@@ -81,8 +76,15 @@ class MessagesWidget(QWidget):
         if package is None or len(package) == 0:
             return
         self._messages = []
-        for message in rosmsg.list_msgs(package):
-            message_class = roslib.message.get_message_class(message)
+        if self._mode == rosmsg.MODE_MSG:
+            message_list = rosmsg.list_msgs(package)
+        elif self._mode == rosmsg.MODE_SRV:
+            message_list = rosmsg.list_srvs(package)
+        for message in message_list:
+            if self._mode == rosmsg.MODE_MSG:
+                message_class = roslib.message.get_message_class(message)
+            elif self._mode == rosmsg.MODE_SRV:
+                message_class = roslib.message.get_service_class(message)
             if message_class is not None:
                 self._messages.append(message)
 
@@ -93,7 +95,12 @@ class MessagesWidget(QWidget):
 
     def _add_message(self):
         message = self.package_combo.currentText() + '/' + self.message_combo.currentText()
-        self.messages_tree.model().add_message(roslib.message.get_message_class(message)(), 'Message Root', message, message)
+        if self._mode == rosmsg.MODE_MSG:
+            message_class = roslib.message.get_message_class(message)()
+        elif self._mode == rosmsg.MODE_SRV:
+            message_class = roslib.message.get_service_class(message)()
+        print message_class
+        self.messages_tree.model().add_message(message_class, self.tr('Root'), message, message)
         self.messages_tree._recursive_set_editable(self.messages_tree.model().invisibleRootItem(), False)
 
     def _handle_mouse_press(self, event, old_pressEvent=QTreeView.mousePressEvent):
@@ -119,11 +126,21 @@ class MessagesWidget(QWidget):
                 selected_type = selected_type[:-2]
             browsetext = None
             try:
-                browsetext = rosmsg.get_msg_text(selected_type, action == raw_action)
+                if self._mode == rosmsg.MODE_MSG:
+                    browsetext = rosmsg.get_msg_text(selected_type, action == raw_action)
+                elif self._mode == rosmsg.MODE_SRV:
+                    browsetext = rosmsg.get_srv_text(selected_type, action == raw_action)
+                else:
+                    raise
             except rosmsg.ROSMsgException, e:
-                QMessageBox.warning(self, 'Warning', 'The selected message or message component does not have text to view.')
+                QMessageBox.warning(self, self.tr('Warning'), self.tr('The selected item component does not have text to view.'))
             if browsetext is not None:
                 self._browsers.append(TextBrowseDialog(browsetext))
                 self._browsers[-1].show()
         else:
             return
+
+    def cleanup_browsers_on_close(self):
+        for browser in self._browsers:
+            browser.close()
+

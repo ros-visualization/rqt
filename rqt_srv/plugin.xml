@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="Services" type="rqt_srv.services.Services" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin for introspecting available ROS service types.
+    </description>
+    <qtgui>
+      <label>Service Introspection</label>
+      <icon type="theme">edit-copy</icon>
+      <statustip>A Python GUI plugin for introspecting available ROS service types.</statustip>
+    </qtgui>
+  </class>
+</library>

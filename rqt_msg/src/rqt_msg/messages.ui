@@ -28,23 +28,7 @@
         <number>2</number>
        </property>
        <item>
-        <widget class="QPushButton" name="refresh_button">
-         <property name="maximumSize">
-          <size>
-           <width>32</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>Refresh Packages</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="type_label">
          <property name="text">
           <string>Message:</string>
          </property>
@@ -57,6 +41,9 @@
            <width>250</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Package</string>
          </property>
          <property name="insertPolicy">
           <enum>QComboBox::InsertAlphabetically</enum>
@@ -77,6 +64,9 @@
            <width>250</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>Message Name</string>
          </property>
         </widget>
        </item>
@@ -112,7 +102,11 @@
       </layout>
      </item>
      <item>
-      <widget class="MessagesTreeView" name="messages_tree"/>
+      <widget class="MessagesTreeView" name="messages_tree">
+       <property name="toolTip">
+        <string>Select a message above and click add to see it in this viewing area.</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

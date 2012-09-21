@@ -31,17 +31,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
-roslib.load_manifest('rqt_msg')
+roslib.load_manifest('rqt_srv')
+import rosmsg
 
 from qt_gui.plugin import Plugin
-from .messages_widget import MessagesWidget
+from rqt_msg.messages_widget import MessagesWidget
 
 
-class Messages(Plugin):
+class Services(Plugin):
+#TODO fix the rosmsg.get_service_class function to return a class with slots like rosmsg.get_message_class does so that the recursive functions used to create tree_view elements will work.
     def __init__(self, context):
-        super(Messages, self).__init__(context)
-        self.setObjectName('Messages')
-        self._widget = MessagesWidget(context)
+        super(Services, self).__init__(context)
+        self.setObjectName('servicess')
+        self._widget = MessagesWidget(context, rosmsg.MODE_SRV)
+        self._widget.setWindowTitle('Service Introspection')
+        self._widget.type_label.setText('Service:')
 
     def shutdown_plugin(self):
         self._widget.cleanup_browsers_on_close()
