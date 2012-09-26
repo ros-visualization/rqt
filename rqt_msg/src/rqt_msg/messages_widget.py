@@ -94,6 +94,8 @@ class MessagesWidget(QWidget):
         self.message_combo.addItems(self._messages)
 
     def _add_message(self):
+        if self.message_combo.count() == 0:
+            return
         message = self.package_combo.currentText() + '/' + self.message_combo.currentText()
         if self._mode == rosmsg.MODE_MSG:
             message_class = roslib.message.get_message_class(message)()
