@@ -97,9 +97,11 @@ class MessagesWidget(QWidget):
         message = self.package_combo.currentText() + '/' + self.message_combo.currentText()
         if self._mode == rosmsg.MODE_MSG:
             message_class = roslib.message.get_message_class(message)()
+            self.messages_tree.model().add_message(message_class, self.tr('Message Root'), message, message)
         elif self._mode == rosmsg.MODE_SRV:
             message_class = roslib.message.get_service_class(message)()
-        self.messages_tree.model().add_message(message_class, self.tr('Root'), message, message)
+            self.messages_tree.model().add_message(message_class._request_class, self.tr('Service Request'), message, message)
+            self.messages_tree.model().add_message(message_class._response_class, self.tr('Service Response'), message, message)
         self.messages_tree._recursive_set_editable(self.messages_tree.model().invisibleRootItem(), False)
 
     def _handle_mouse_press(self, event, old_pressEvent=QTreeView.mousePressEvent):
