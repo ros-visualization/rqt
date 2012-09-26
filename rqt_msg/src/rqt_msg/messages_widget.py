@@ -99,7 +99,6 @@ class MessagesWidget(QWidget):
             message_class = roslib.message.get_message_class(message)()
         elif self._mode == rosmsg.MODE_SRV:
             message_class = roslib.message.get_service_class(message)()
-        print message_class
         self.messages_tree.model().add_message(message_class, self.tr('Root'), message, message)
         self.messages_tree._recursive_set_editable(self.messages_tree.model().invisibleRootItem(), False)
 
