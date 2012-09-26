@@ -63,7 +63,7 @@ class Publisher(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
 
         # create context for the expression eval statement
-        self._eval_locals = {}
+        self._eval_locals = {'i': 0}
         for module in (math, random, time):
             self._eval_locals.update(module.__dict__)
         self._eval_locals['genpy'] = genpy
@@ -212,6 +212,10 @@ class Publisher(Plugin):
         base_type_str, array_size = self._extract_array_info(type_str)
 
         base_message_type = roslib.message.get_message_class(base_type_str)
+        if base_message_type is None:
+            print 'Could not create message of type "%s".' % base_type_str
+            return None
+        
         if array_size is not None:
             message = []
             for _ in range(array_size):
@@ -230,16 +234,20 @@ class Publisher(Plugin):
             successful_eval = False
             
         if slot_type is str:
-            # for string slots just convert the input to str
             if successful_eval:
                 value = str(value)
             else: 
+                # for string slots just convert the expression to str, if it did not evaluate successfully
                 value = str(expression)
             successful_eval = True
         
-        elif successful_eval and slot_type in (list, tuple) and type(value) in (list, tuple):
-            # convert to the right array type
-            value = slot_type(value)
+        elif successful_eval:
+            type_set = set((slot_type, type(value)))
+            # check if value's type and slot_type belong to the same type group, i.e. array types, numeric types
+            # and if they do, make sure values's type is converted to the exact slot_type 
+            if type_set <= set((list, tuple)) or type_set <= set((int, float)):
+                # convert to the right type
+                value = slot_type(value)
 
         if successful_eval and isinstance(value, slot_type):
             return True, value
