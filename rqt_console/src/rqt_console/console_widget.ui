@@ -110,6 +110,12 @@
         <property name="sortingEnabled">
          <bool>true</bool>
         </property>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>18</number>
+        </attribute>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>18</number>
+        </attribute>
        </widget>
        <widget class="QSplitter" name="filter_splitter">
         <property name="orientation">
