@@ -70,7 +70,6 @@ class ConsoleWidget(QWidget):
             self.load_button.hide()
             self.save_button.hide()
             self.column_resize_button.hide()
-            self.filter_splitter.hide()
         self.setObjectName('ConsoleWidget')
         self.table_view.setModel(proxymodel)
         self._proxymodel = proxymodel
@@ -124,7 +123,10 @@ class ConsoleWidget(QWidget):
         self._browsers = []
 
         # This defaults the filters panel to start by taking 50% of the available space
-        self.table_splitter.setSizes([1, 1])
+        if(minimal):
+            self.table_splitter.setSizes([1, 0])
+        else:
+            self.table_splitter.setSizes([1, 1])
         self.exclude_table.resizeColumnsToContents()
         self.highlight_table.resizeColumnsToContents()
 
