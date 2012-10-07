@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="PR2Dashboard" type="rqt_pr2_dashboard.pr2_dashboard.PR2Dashboard" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin for displaying a dashboard that displays and interacts with low level pr2 states.
+    </description>
+    <qtgui>
+      <label>PR2_Dashboard</label>
+      <icon type="theme">task-past-due</icon>
+      <statustip>A Python GUI plugin for displaying a dashboard that displays and interacts with low level pr2 states.</statustip>
+    </qtgui>
+  </class>
+</library>

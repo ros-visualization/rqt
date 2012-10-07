@@ -1,0 +1,9 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b rqt_pr2_dashboard 
+
+A Qt based dashboard for monitoring the states of a pr2.
+
+*/
