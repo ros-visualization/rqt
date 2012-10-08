@@ -157,4 +157,4 @@ class Message(QObject):
         return text
 
     def get_data(self, col):
-        return getattr(self, Message.message_members()[col])
+        return getattr(self, Message.get_message_members()[col])

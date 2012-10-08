@@ -242,5 +242,15 @@ class MessageDataModel(QAbstractTableModel):
             qWarning('File does not appear to be a rqt_console message file.')
             return False
 
-    def get_message_list(self):
-        return self._messages.get_message_list()
+    def get_message_list(self, start_time = None, end_time = None):
+        """
+        :param start_time: time to start in timestamp form (including decimal
+        fractions of a second is acceptable, ''unixtimestamp'' (Optional)
+        :param end_time: time to end in timestamp form (including decimal
+        fractions of a second is acceptable, ''unixtimestamp'' (Optional)
+        :returns: list of messages in the time range ''list[message]''
+        """
+        if start_time is not None:
+            return self._messages.get_messages_in_time_range(start_time, end_time)
+        else:
+            return self._messages.get_message_list()

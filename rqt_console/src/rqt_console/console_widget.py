@@ -36,6 +36,9 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QApplication, QCursor, QFileDialog, QIcon, QMenu, QMessageBox, QTableView, QWidget
 from python_qt_binding.QtCore import QRegExp, Qt, qWarning
 
+import time
+import datetime
+
 from .filters.custom_filter import CustomFilter
 from .filters.location_filter import LocationFilter
 from .filters.message_filter import MessageFilter
@@ -129,6 +132,47 @@ class ConsoleWidget(QWidget):
             self.table_splitter.setSizes([1, 1])
         self.exclude_table.resizeColumnsToContents()
         self.highlight_table.resizeColumnsToContents()
+ 
+    def get_message_summary(self, start_time_offset = None, end_time_offset = None):
+        """
+        :param start_time: number of seconds before now to start, ''int'' (optional)
+        :param end_time: number of seconds before now to end, ''int'' (optional)
+        :returns: summary of message numbers within time
+        """
+        current_time = time.mktime(datetime.datetime.now().timetuple())
+        if start_time_offset is None:
+            start_time = current_time - 240
+        else:
+            start_time = current_time - start_time_offset
+        if end_time_offset is None:
+            end_time = current_time - 240
+        else:
+            end_time = current_time - end_time_offset
+
+        message_subset = self._datamodel.get_message_list(start_time, end_time)
+        class Message_Summary(object):
+            __slots__ = 'fatal', 'error', 'warn', 'info', 'debug'
+            def __init__(self, messages):
+                self.fatal = 0
+                self.error = 0
+                self.warn = 0
+                self.info = 0
+                self.debug = 0
+                print 'Console Widget length: ',len(message_subset)
+                for message in messages:
+                    severity = message.get_data(1)
+                    if severity == 'Debug':
+                        self.debug += 1
+                    elif severity == 'Info':
+                        self.info += 1
+                    elif severity == 'Warn':
+                        self.warn += 1
+                    elif severity == 'Error':
+                        self.error += 1
+                    elif severity == 'Fatal':
+                        self.fatal += 1
+
+        return Message_Summary(message_subset)
 
     def get_time_range_from_selection(self):
         """

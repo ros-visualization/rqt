@@ -76,3 +76,19 @@ class MessageList(object):
 
     def header_print(self):
         return Message.header_print()
+
+    def get_messages_in_time_range(self, start_time, end_time = None):
+        """
+        :param start_time: time to start in timestamp form (including decimal
+        fractions of a second is acceptable, ''unixtimestamp''
+        :param end_time: time to end in timestamp form (including decimal
+        fractions of a second is acceptable, ''unixtimestamp'' (Optional)
+        :returns: list of messages in the time range ''list[message]''
+        """
+        message_list = self.get_message_list()
+        time_range_list = []
+        for message in message_list:
+            msg_time = message.time_in_seconds()
+            if float(msg_time) >= float(start_time) and (end_time is None or float(msg_time) <= float(end_time)):
+                time_range_list.append(message)
+        return time_range_list

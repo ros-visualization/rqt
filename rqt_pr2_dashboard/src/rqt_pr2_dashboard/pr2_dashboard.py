@@ -42,7 +42,7 @@ import std_srvs.srv
 
 from robot_dashboard.dashboard import Dashboard
 from robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget 
-from QtGui import QMessageBox, QAction
+from python_qt_binding.QtGui import QMessageBox
 
 from .pr2_breaker import PR2BreakerButton
 from .pr2_battery import PR2Battery
