@@ -52,6 +52,7 @@ from .pr2_runstop import PR2Runstop, PR2WirelessRunstop
 
 class PR2Dashboard(Dashboard):
     def setup(self, context):
+        self.name = 'PR2 Dashboard'
         self.message = None
 
         self._dashboard_message = None

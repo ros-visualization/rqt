@@ -50,7 +50,7 @@ image_path = os.path.join(rp.get_path('rqt_pr2_dashboard'), 'images')
 #TODO need to make dropdown menus items work
 class PR2BreakerButton(MenuDashWidget):
     def __init__(self, breaker_name, breaker_index):
-        super(PR2BreakerButton, self).__init__(breaker_name, 'Breaker')
+        super(PR2BreakerButton, self).__init__(breaker_name, 'Breaker:' + breaker_name)
 
         # TODO get a standby icon!
         self._ok_icon = self.load_image(os.path.join(image_path, 'breaker-on.png'))
