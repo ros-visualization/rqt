@@ -183,7 +183,7 @@ class PR2BreakerButton(MenuDashWidget):
             self.set_ok()
      
         if (status_msg != self._last_status_msg or abs(last_voltage - msg.circuit_voltage[self._index]) >= 0.1):  
-            self.setToolTip("Breaker: %s (voltage=[%.02f])) State: %s"%(self._name, msg.circuit_voltage[self._index], status_msg))
+            self.setToolTip("Breaker: %s \nVoltage: %.02f \nState: %s"%(self._name, msg.circuit_voltage[self._index], status_msg))
             self._last_status_msg = status_msg
     
     def reset(self):
