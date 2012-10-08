@@ -125,8 +125,11 @@
          <bool>true</bool>
         </property>
         <widget class="QGroupBox" name="exclude_group_box">
+         <property name="toolTip">
+          <string>Messages matching ANY of these rules will NOT be displayed</string>
+         </property>
          <property name="title">
-          <string>Exclude Rules: Messages matching ANY of these rules will NOT be displayed</string>
+          <string>Exclude Rules:</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
@@ -171,8 +174,11 @@
          </layout>
         </widget>
         <widget class="QGroupBox" name="highlight_group_box">
+         <property name="toolTip">
+          <string>Message matching ANY of these rules will be highlighted</string>
+         </property>
          <property name="title">
-          <string>Highlight Rules: Message matching ANY of these rules will be highlighted</string>
+          <string>Highlight Rules:</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
