@@ -158,7 +158,6 @@ class ConsoleWidget(QWidget):
                 self.warn = 0
                 self.info = 0
                 self.debug = 0
-                print 'Console Widget length: ',len(message_subset)
                 for message in messages:
                     severity = message.get_data(1)
                     if severity == 'Debug':
