@@ -144,10 +144,10 @@ class ConsoleWidget(QWidget):
             start_time = current_time - 240
         else:
             start_time = current_time - start_time_offset
-        if end_time_offset is None:
-            end_time = current_time - 240
-        else:
+        if end_time_offset is not None:
             end_time = current_time - end_time_offset
+        else:
+            end_time = None
 
         message_subset = self._datamodel.get_message_list(start_time, end_time)
         class Message_Summary(object):
