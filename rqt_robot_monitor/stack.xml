@@ -1,0 +1,11 @@
+<stack>
+  <name>robot_monitor</name>
+  <version>0.1.0</version>
+  <description>RQT plugin for displaying the output of /diagnostics_agg</description>
+  <author email="zklapow@willowgarage.com">Ze'ev Klapow</author>
+  <license>BSD</license>
+  <copyright>Willow Garage</copyright>
+
+  <url>http://ros.org/wiki/robot_monitor</url>
+  <build_depends>catkin</build_depends>
+</stack>
