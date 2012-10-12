@@ -1,0 +1,13 @@
+<stack>
+  <name>robot_dashboard</name>
+  <version>0.1.0</version>
+  <description>Framework for creating rqt robot dahboards</description>
+  <author email="zklapow@willowgarage.com">Ze'ev Klapow</author>
+  <license>BSD</license>
+  <copyright>Willow Garage</copyright>
+
+  <url>http://ros.org/wiki/robot_dashboard</url>
+  <build_depends>catkin</build_depends>
+  <!--<depend>ros_comm</depend>
+  <depend>rqt</depend>-->
+</stack>
