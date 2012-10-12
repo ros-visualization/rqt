@@ -1,0 +1,13 @@
+<<<<<<< HEAD:.gitignore
+*.pyc
+
+=======
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+build/
+*.pyc
+>>>>>>> aef1048... rqt_robot_dashboard: initial import from external:rqt_robot_dashboard/.gitignore
