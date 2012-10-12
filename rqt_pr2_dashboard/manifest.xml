@@ -14,8 +14,8 @@
   <depend package="std_msgs"/>
   <depend package="pr2_power_board"/>
   <depend package="pr2_msgs"/>
-  <depend package="robot_dashboard"/>
-  <depend package="robot_monitor"/>
+  <depend package="rqt_robot_dashboard"/>
+  <depend package="rqt_robot_monitor"/>
   
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>

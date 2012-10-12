@@ -1,4 +1,4 @@
-import roslib;roslib.load_manifest('robot_dashboard')
+import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
 
 from QtGui import QMessageBox, QIcon, QPixmap

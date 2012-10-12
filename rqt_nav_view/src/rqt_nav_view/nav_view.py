@@ -1,4 +1,4 @@
-import roslib;roslib.load_manifest('nav_view')
+import roslib;roslib.load_manifest('rqt_nav_view')
 import rospy
 import tf
 

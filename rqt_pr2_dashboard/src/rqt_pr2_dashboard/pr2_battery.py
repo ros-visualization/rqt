@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-from robot_dashboard.widgets import BatteryDashWidget
+from rqt_robot_dashboard.widgets import BatteryDashWidget
 
 from pr2_msgs.msg import PowerState, PowerBoardState
 from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest

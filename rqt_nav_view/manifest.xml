@@ -1,5 +1,5 @@
 <package>
-  <description brief="nav_view">
+  <description brief="rqt_nav_view">
 
      robot_dashboard
 
@@ -7,7 +7,7 @@
   <author>Ze'ev Klapow</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/nav_view</url>
+  <url>http://ros.org/wiki/rqt_nav_view</url>
   <depend package="rospy"/>
   <depend package="rqt_gui"/>
   <depend package="rqt_gui_py"/>

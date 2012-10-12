@@ -1,12 +1,12 @@
 <stack>
-  <name>nav_view</name>
+  <name>rqt_nav_view</name>
   <version>0.1.0</version>
   <description>RQT plugin for displaying navigation.</description>
   <author email="zklapow@willowgarage.com">Ze'ev Klapow</author>
   <license>BSD</license>
   <copyright>Willow Garage</copyright>
 
-  <url>http://ros.org/wiki/nav_view</url>
+  <url>http://ros.org/wiki/rqt_nav_view</url>
   <build_depends>catkin</build_depends>
   <depends>python-imaging</depends>
 </stack>

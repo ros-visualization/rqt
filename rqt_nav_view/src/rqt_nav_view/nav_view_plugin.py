@@ -1,7 +1,7 @@
-import roslib;roslib.load_manifest('nav_view')
+import roslib;roslib.load_manifest('rqt_nav_view')
 import rospy
 
-from nav_view import NavViewWidget
+from .rqt_nav_view import NavViewWidget
 from qt_gui.plugin import Plugin
 
 class NavViewPlugin(Plugin):

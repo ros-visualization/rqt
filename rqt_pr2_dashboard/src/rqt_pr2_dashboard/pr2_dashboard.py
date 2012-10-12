@@ -40,8 +40,8 @@ from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest
 import std_msgs.msg
 import std_srvs.srv
 
-from robot_dashboard.dashboard import Dashboard
-from robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget 
+from rqt_robot_dashboard.dashboard import Dashboard
+from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget 
 from python_qt_binding.QtGui import QMessageBox
 
 from .pr2_breaker import PR2BreakerButton

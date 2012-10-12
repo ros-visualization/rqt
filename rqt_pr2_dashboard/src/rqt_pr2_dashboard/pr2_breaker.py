@@ -35,8 +35,8 @@ import rospy
 from pr2_msgs.msg import PowerState, PowerBoardState
 from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest
 
-from robot_dashboard.util import make_icon
-from robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget, MenuDashWidget, BatteryDashWidget, IconToolButton
+from rqt_robot_dashboard.util import make_icon
+from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget, MenuDashWidget, BatteryDashWidget, IconToolButton
 
 from python_qt_binding.QtGui import QMessageBox
 

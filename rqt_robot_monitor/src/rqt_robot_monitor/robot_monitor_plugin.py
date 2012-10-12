@@ -1,7 +1,7 @@
-import roslib;roslib.load_manifest('robot_monitor')
+import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
-from robot_monitor import RobotMonitor
+from .rqt_robot_monitor import RobotMonitor
 from qt_gui.plugin import Plugin
 
 class RobotMonitorPlugin(Plugin):

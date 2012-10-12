@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from robot_dashboard.widgets import IconToolButton
+from rqt_robot_dashboard.widgets import IconToolButton
 
 
 class PR2Runstop(IconToolButton):

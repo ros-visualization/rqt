@@ -1,4 +1,4 @@
-import roslib;roslib.load_manifest('robot_monitor')
+import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 from diagnostic_msgs.msg import DiagnosticArray
 

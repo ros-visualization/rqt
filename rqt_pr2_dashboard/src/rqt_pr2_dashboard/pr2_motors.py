@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from robot_dashboard.widgets import MenuDashWidget
+from rqt_robot_dashboard.widgets import MenuDashWidget
 
 
 class PR2Motors(MenuDashWidget):

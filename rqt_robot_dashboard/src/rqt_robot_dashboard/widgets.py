@@ -1,6 +1,6 @@
 """
 .. module:: widgets
-    :synopsis: Widgets for the robot_dashboard.
+    :synopsis: Widgets for the rqt_robot_dashboard.
 
 .. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>
 
@@ -8,8 +8,8 @@ This module provides a set of standard widgets for using with the dashboard.
 
 To use them you must provide instances of the to your dashboard in its :func:`get_widgets` method. For example::
     
-    from robot_dashboard.dashboard import Dashboard
-    from robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
+    from rqt_robot_dashboard.dashboard import Dashboard
+    from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
 
     class MyDashboard(Dashboard):
         def get_widgets(self):
@@ -18,17 +18,17 @@ To use them you must provide instances of the to your dashboard in its :func:`ge
 
             return({'Diagnostics': [self.monitor, self.console]})
 
-Would create a simple dashboard with the ability to open a robot_monitor and a ROS console.
+Would create a simple dashboard with the ability to open a rqt_robot_monitor and a ROS console.
 
 Widget Types
 ============
 
 """
 
-import roslib;roslib.load_manifest('robot_dashboard')
+import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
-from robot_monitor import RobotMonitor
-from nav_view import NavViewWidget
+from rqt_robot_monitor import RobotMonitor
+from rqt_nav_view import NavViewWidget
 
 from .util import make_icon
 
@@ -49,12 +49,12 @@ import rospkg
 
 rp = rospkg.RosPack()
 
-image_path = os.path.join(rp.get_path('robot_dashboard'), 'images')
+image_path = os.path.join(rp.get_path('rqt_robot_dashboard'), 'images')
 
 class IconToolButton(QToolButton):
     """This is the base class for all widgets. It provides state and icon switching support as well as convenience functions for creating icons.
 
-    .. note:: You must specify either ``icons`` and ``clicked_icons`` or ``icon`` and ``clicked_icon``. Using icon and clicked icon will create a set of icons using the overlays in ``robot_dashboard/images``.
+    .. note:: You must specify either ``icons`` and ``clicked_icons`` or ``icon`` and ``clicked_icon``. Using icon and clicked icon will create a set of icons using the overlays in ``rqt_robot_dashboard/images``.
 
     :param icons: A list of icons for the states of this button.
     :type icons: list
@@ -126,7 +126,7 @@ class IconToolButton(QToolButton):
 
     def load_image(self, path):
         """Convenience function to help with loading images.
-        Path can either be specified as absolute paths or relative to the robot_dashboard/images directory
+        Path can either be specified as absolute paths or relative to the rqt_robot_dashboard/images directory
         
         :param path: The path or name of the image.
         :type path: str
@@ -140,7 +140,7 @@ class IconToolButton(QToolButton):
 
     def overlay(self, image, name):
         """Convenience function for creating icons with overlays.
-        Overlay path can either be specified as absolute paths or relative to the robot_dashboard/images directory.
+        Overlay path can either be specified as absolute paths or relative to the rqt_robot_dashboard/images directory.
 
         :param image: Image to overlay onto.
         :type image: PIL.Image.Image
@@ -194,7 +194,7 @@ class MenuDashWidget(IconToolButton):
         return self._menu.addAction(name, callback)
 
 class MonitorDashWidget(IconToolButton):
-    """A widget which brings up the robot_monitor.
+    """A widget which brings up the rqt_robot_monitor.
 
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext

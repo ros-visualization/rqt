@@ -1,4 +1,4 @@
-import roslib;roslib.load_manifest('robot_dashboard')
+import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
 
 from python_qt_binding import loadUi
