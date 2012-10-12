@@ -1,0 +1,21 @@
+<package>
+  <description brief="robot_monitor">
+
+     robot_dashboard
+
+  </description>
+  <author>Ze'ev Klapow</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robot_monitor</url>
+  <depend package="rospy"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml" />
+  </export>
+
+</package>
+
+
