@@ -1,0 +1,12 @@
+<library path="src">
+  <class name="RuntimeMonitor" type="rqt_runtime_monitor.runtime_monitor.RuntimeMonitor" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A Python GUI plugin for displaying diagnostics topics.
+    </description>
+    <qtgui>
+      <label>Runtime Monitor</label>
+      <icon type="theme">appointment-soon</icon>
+      <statustip>A Python GUI plugin for displaying diagnostics topics.</statustip>
+    </qtgui>
+  </class>
+</library>
