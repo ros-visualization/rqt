@@ -40,16 +40,8 @@ from diagnostic_msgs.msg import DiagnosticArray
 
 from QtCore import Signal, QMutex, QTimer, QSize
 from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
-
-from PIL import Image
-from PIL.ImageQt import ImageQt
-
 import os.path
-import rospkg
 
-rp = rospkg.RosPack()
-
-image_path = os.path.join(rp.get_path('rqt_robot_dashboard'), 'images')
 
 class IconToolButton(QToolButton):
     """This is the base class for all widgets. It provides state and icon switching support as well as convenience functions for creating icons.
@@ -75,22 +67,27 @@ class IconToolButton(QToolButton):
         self.pressed.connect(self._pressed)
         self.released.connect(self._released)
 
+        import rospkg
+        self.__image_paths = [os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')]
+
         self.setStyleSheet('QToolButton {border: none;}')
 
         # If the icon argument was specificied, build the default icon states
         if len(icons) == 0 and icon:
-            self._icon = self.load_image(icon) 
-            self._warn_icon = self.overlay(self._icon, 'warn-overlay.png')
-            self._err_icon = self.overlay(self._icon, 'err-overlay.png')
-            self._stale_icon = self.overlay(self._icon, 'stale-overlay.png')
+            self._icon_path = self.find_image(icon) 
+            self._icon = make_icon(self._icon_path)
+            self._warn_icon =  make_icon([self._icon_path, self.find_image('warn-overlay.png')])
+            self._err_icon = make_icon([self._icon_path, self.find_image('err-overlay.png')])
+            self._stale_icon = make_icon([self._icon_path, self.find_image('stale-overlay.png')])
 
-            self._icon_click = self.load_image(clicked_icon)
-            self._warn_click = self.overlay(self._icon_click, 'warn-overlay.png')
-            self._err_click = self.overlay(self._icon_click, 'err-overlay.png')
-            self._stale_click = self.overlay(self._icon_click, 'stale-overlay.png')
+            self._icon_click_path = self.find_image(clicked_icon)
+            self._icon_click = make_icon(self._icon_click_path)
+            self._warn_click =  make_icon([self._icon_click_path, self.find_image('warn-overlay.png')])
+            self._err_click = make_icon([self._icon_click_path, self.find_image('err-overlay.png')])
+            self._stale_click = make_icon([self._icon_click_path, self.find_image('stale-overlay.png')])
 
-            icons = [make_icon(self._icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-            clicked_icons = [make_icon(self._icon_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)] 
+            icons = [self._icon, self._warn_icon, self._err_icon, self._stale_icon]
+            clicked_icons = [self._icon_click, self._warn_click, self._err_click, self._stale_click] 
 
         # List of QIcons to use for each state
         self._icons = icons
@@ -124,31 +121,22 @@ class IconToolButton(QToolButton):
     def _released(self):
         self.setIcon(self._icons[self.state])
 
-    def load_image(self, path):
-        """Convenience function to help with loading images.
-        Path can either be specified as absolute paths or relative to the rqt_robot_dashboard/images directory
+    def add_image_path(self, path):
+        self.__image_paths = [path] + self.__image_paths
+
+    def find_image(self, path):
+        """Convenience function to help with finding images.
+        Path can either be specified as absolute paths or relative to any path in the __image_paths list
         
         :param path: The path or name of the image.
         :type path: str
         """
         if os.path.exists(path):
-            return Image.open(path)
-        elif os.path.exists(os.path.join(image_path, path)):
-            return Image.open(os.path.join(image_path, path)) 
-        else:
-            raise(Exception("Could not load %s"% path))
-
-    def overlay(self, image, name):
-        """Convenience function for creating icons with overlays.
-        Overlay path can either be specified as absolute paths or relative to the rqt_robot_dashboard/images directory.
-
-        :param image: Image to overlay onto.
-        :type image: PIL.Image.Image
-        :param name: Path of the overlay.
-        :type name: str
-        """
-        over = self.load_image(name)
-        return Image.composite(over, image, over) 
+            return path
+        for image_path in self.__image_paths:
+            if os.path.exists(os.path.join(image_path, path)):
+                return os.path.join(image_path, path)
+        raise(Exception("Could not find %s"% path))
 
 class MenuDashWidget(IconToolButton):
     """A widget which displays a pop-up menu when clicked
@@ -413,8 +401,8 @@ class BatteryDashWidget(IconToolButton):
         self._charge_icons = [None]
 
         for x in range(0, 6):
-            self._icons.append(make_icon(self.load_image('battery-%s.png'%(x*20)), 1))
-            self._charge_icons.append(make_icon(self.load_image('battery-charge-%s.png'%(x*20)), 1))
+            self._icons.append(make_icon(self.find_image('battery-%s.png'%(x*20)), 1))
+            self._charge_icons.append(make_icon(self.find_image('battery-charge-%s.png'%(x*20)), 1))
 
         self.charging = False
         self.update_perc(0)
@@ -448,8 +436,8 @@ class NavViewDashWidget(IconToolButton):
         super(NavViewDashWidget, self).__init__(name)
         self.context = context
 
-        self._icon = self.load_image('nav.png')
-        self._clicked_icon = self.load_image('nav-click.png')
+        self._icon = self.find_image('nav.png')
+        self._clicked_icon = self.find_image('nav-click.png')
 
         self._icons = [make_icon(self._icon)]
         self._clicked_icons = [make_icon(self._clicked_icon)]

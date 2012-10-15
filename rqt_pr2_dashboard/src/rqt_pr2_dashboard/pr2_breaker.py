@@ -40,28 +40,27 @@ from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget, Me
 
 from python_qt_binding.QtGui import QMessageBox
 
-import rospkg
-import os.path
 
-rp = rospkg.RosPack()
-image_path = os.path.join(rp.get_path('rqt_pr2_dashboard'), 'images')
-
-
-#TODO need to make dropdown menus items work
 class PR2BreakerButton(MenuDashWidget):
     def __init__(self, breaker_name, breaker_index):
         super(PR2BreakerButton, self).__init__(breaker_name, 'Breaker:' + breaker_name)
 
+        import rospkg
+        import os.path
+        rp = rospkg.RosPack()
+        self.add_image_path(os.path.join(rp.get_path('rqt_pr2_dashboard'), 'images'))
+
         # TODO get a standby icon!
-        self._ok_icon = self.load_image(os.path.join(image_path, 'breaker-on.png'))
-        self._warn_icon = self.load_image(os.path.join(image_path, 'breaker-off.png'))
-        self._err_icon = self.load_image(os.path.join(image_path, 'breaker-off.png'))
-        self._stale_icon = self.load_image(os.path.join(image_path, 'breaker-stale.png'))
-        self._ok_click = self.load_image(os.path.join(image_path, 'breaker-on-click.png'))
-        self._warn_click = self.load_image(os.path.join(image_path, 'breaker-off-click.png'))
-        self._error_click = self.load_image(os.path.join(image_path, 'breaker-off-click.png'))
-        self._stale_click = self.load_image(os.path.join(image_path, 'breaker-stale-click.png'))
-  
+        self._ok_icon = self.find_image('breaker-on.png')
+        self._warn_icon = [self.find_image('breaker-off.png'), self.find_image('warn-overlay.png')]
+        self._err_icon = [self.find_image('breaker-off.png'), self.find_image('err-overlay.png')]
+        self._stale_icon = [self.find_image('breaker-stale.png'), self.find_image('stale-overlay.png')]
+
+        self._ok_click = self.find_image('breaker-on-click.png')
+        self._warn_click = [self.find_image('breaker-off-click.png'), self.find_image('warn-overlay.png')]
+        self._err_click = [self.find_image('breaker-off-click.png'), self.find_image('err-overlay.png')]
+        self._stale_click = [self.find_image('breaker-stale-click.png'), self.find_image('stale-overlay.png')]
+
         self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
         self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
         self.update_state(2)

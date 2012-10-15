@@ -1,8 +1,7 @@
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
 
-from QtGui import QMessageBox, QIcon, QPixmap
-from PIL.ImageQt import ImageQt
+from QtGui import  QIcon, QMessageBox, QPainter, QPixmap
 
 def dashinfo(msg, obj, title = 'Info'):
     """Logs a message with ``rospy.loginfo`` and displays a ``QMessageBox`` to the user
@@ -61,16 +60,26 @@ def dasherr(msg, obj, title = 'Error'):
 
     obj._message_box = box
 
-def make_icon(image, mode = 0):
-    """Helper function to convert a PIL Image to a QIcon.
+def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
+    """Helper function to create QIcons from lists of image files
 
-    :param image: Image to convert.
-    :type image: PIL.Image.Image
+    :param image_list: list of paths to Images that will be sequentially layered into an icon.
+    :type image: str
     :param mode: The mode of the QIcon.
     :type mode: int
+    :param state: the state of the QIcon.
+    :type state: int
     """
-    qim = ImageQt(image)
+    if type(image_list) is not list:
+        image_list = [image_list]
+
+    icon_pixmap = QPixmap()
+    icon_pixmap.load(image_list[0])
+    painter = QPainter(icon_pixmap)
+    for item in image_list[1:]:
+        painter.drawPixmap(0, 0, QPixmap(item))
     icon = QIcon()
-    icon.addPixmap(QPixmap.fromImage(qim), mode)
+    icon.addPixmap(icon_pixmap, mode, state)
+    painter.end()
     return icon
 
