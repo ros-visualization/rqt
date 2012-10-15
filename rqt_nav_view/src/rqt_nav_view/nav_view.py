@@ -7,7 +7,7 @@ import random
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PolygonStamped, PointStamped
 
-from QtCore import pyqtSignal, QPointF
+from QtCore import Signal, QPointF
 from QtGui import QWidget, QPixmap, QImage, QGraphicsView, QGraphicsScene, QPainterPath, QPen, QColor, QPolygonF, QPushButton, QVBoxLayout, QHBoxLayout
 
 from PIL import Image
@@ -37,9 +37,9 @@ class NavViewWidget(QWidget):
         self.setLayout(self._layout)
 
 class NavView(QGraphicsView):
-    map_changed = pyqtSignal()
-    path_changed = pyqtSignal(str)
-    polygon_changed = pyqtSignal(str)
+    map_changed = Signal()
+    path_changed = Signal(str)
+    polygon_changed = Signal(str)
     def __init__(self, map_topic = '/map', 
                  paths = ['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'], 
                  polygons= ['/move_base/local_costmap/robot_footprint']):

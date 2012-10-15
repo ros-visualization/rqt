@@ -3,7 +3,7 @@ import rospy
 from diagnostic_msgs.msg import DiagnosticArray
 
 from python_qt_binding.QtGui import QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTextCursor, QTreeWidgetItem, QTextEdit, QPushButton, QGraphicsScene, QGraphicsView, QPen, QBrush, QColor
-from python_qt_binding.QtCore import pyqtSignal, Qt
+from python_qt_binding.QtCore import Signal, Qt
 
 from math import floor
 
@@ -97,9 +97,9 @@ class Snapshot(QTextEdit):
         self.insertPlainText('\n')           
 
 class InspectorWidget(QWidget):
-    write = pyqtSignal(str, str)
-    newline = pyqtSignal()
-    clear = pyqtSignal()
+    write = Signal(str, str)
+    newline = Signal()
+    clear = Signal()
     def __init__(self, status):
         super(InspectorWidget, self).__init__()
         self.status = status
@@ -174,7 +174,7 @@ class TimelineWidget(QWidget):
         def mouseReleaseEvent(self, event):
             self.parent.mouse_release(event)
 
-    update = pyqtSignal()
+    update = Signal()
     def __init__(self, parent):
         super(TimelineWidget, self).__init__()
         self.parent = parent
@@ -256,9 +256,9 @@ class TimelineWidget(QWidget):
             self.parent.unpause()
 
 class RobotMonitor(QWidget):
-    sig_err = pyqtSignal(str)
-    sig_warn = pyqtSignal(str)
-    sig_clear = pyqtSignal()
+    sig_err = Signal(str)
+    sig_warn = Signal(str)
+    sig_clear = Signal()
 
     def __init__(self, topic):
         super(RobotMonitor, self).__init__()
