@@ -154,6 +154,8 @@ class Message(QObject):
         text += self.tr('Severity: ') + self._severity + '\n'
         text += self.tr('Published Topics: ') + self._topics + '\n'
         text += '\n' + self._message + '\n\n'
+        text += '-' * 100 + '\n\n'
+
         return text
 
     def get_data(self, col):
