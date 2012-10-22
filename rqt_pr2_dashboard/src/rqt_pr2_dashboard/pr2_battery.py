@@ -31,10 +31,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
+
+from python_qt_binding.QtCore import QSize
 from rqt_robot_dashboard.widgets import BatteryDashWidget
 
 from pr2_msgs.msg import PowerState, PowerBoardState
 from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest
+from rqt_robot_dashboard.util import make_icon
 
 
 class PR2Battery(BatteryDashWidget):
@@ -45,6 +48,18 @@ class PR2Battery(BatteryDashWidget):
         self._time_remaining = rospy.rostime.Duration(0)
         self._ac_present = 0
         self._plugged_in = False
+
+        self._icons = [None]
+        self._charge_icons = [None]
+
+        for x in range(0, 6):
+            self._icons.append(make_icon(self.find_image('ic-battery-%s.svg'%(x*20)), 1))
+            self._charge_icons.append(make_icon(self.find_image('ic-battery-charge-%s.svg'%(x*20)), 1))
+
+        self.setFixedSize(self._icons[1].actualSize(QSize(50,30)))
+
+        self.charging = False
+        self.update_perc(0)
 
     def set_power_state(self, msg):
         last_pct = self._pct

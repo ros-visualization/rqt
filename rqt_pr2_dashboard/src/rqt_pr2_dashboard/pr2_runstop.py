@@ -29,44 +29,35 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from python_qt_binding.QtCore import QSize
 
 from rqt_robot_dashboard.widgets import IconToolButton
+from rqt_robot_dashboard.util import make_icon
 
-
-class PR2Runstop(IconToolButton):
+class PR2Runstops(IconToolButton):
     def __init__(self, context):
-        super(PR2Runstop, self).__init__('Runstop', [], [], 'nav.png', 'nav.png')
-        
+        super(PR2Runstops, self).__init__('Runstop', [], [], 'nav.png', 'nav.png')
+
         self.setToolTip('Runstop')
+
+        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-runstop-off.svg')]
+        self._physical_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-runstop-on.svg'), self.find_image('ol-err-badge.svg')]
+        self._wireless_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-wireless-runstop-on.svg'), self.find_image('ol-warn-badge.svg')]
+        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image( 'ic-runstop-off.svg'), self.find_image('ol-stale-badge.svg')]
+
+        self._icons = [make_icon(self._ok_icon), make_icon(self._physical_engaged_icon), make_icon(self._wireless_engaged_icon), make_icon(self._stale_icon)]
+        self._clicked_icons = self._icons
         self.set_stale()
+
+        self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 
     def set_ok(self):
         self.update_state(0)
 
-    def set_warn(self):
+    def set_physical_engaged(self):
         self.update_state(1)
 
-    def set_error(self):
-        self.update_state(2)
-
-    def set_stale(self):
-        self.update_state(3)
-
-
-class PR2WirelessRunstop(IconToolButton):
-    def __init__(self, context):
-        super(PR2WirelessRunstop, self).__init__('Wireless Runstop', [], [], 'nav-click.png', 'nav-click.png')
-        
-        self.setToolTip('Wireless Runstop')
-        self.set_stale()
-
-    def set_ok(self):
-        self.update_state(0)
-
-    def set_warn(self):
-        self.update_state(1)
-
-    def set_error(self):
+    def set_wireless_engaged(self):
         self.update_state(2)
 
     def set_stale(self):

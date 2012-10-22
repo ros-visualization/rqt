@@ -1,3 +1,35 @@
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2012, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 """
 .. module:: widgets
     :synopsis: Widgets for the rqt_robot_dashboard.
@@ -36,7 +68,7 @@ from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
-from diagnostic_msgs.msg import DiagnosticArray
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
 from QtCore import Signal, QMutex, QTimer, QSize
 from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
@@ -68,7 +100,8 @@ class IconToolButton(QToolButton):
         self.released.connect(self._released)
 
         import rospkg
-        self.__image_paths = [os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')]
+        self.__dashboard_image_path = os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')
+        self.__image_paths = [self.__dashboard_image_path]
 
         self.setStyleSheet('QToolButton {border: none;}')
 
@@ -136,7 +169,7 @@ class IconToolButton(QToolButton):
         for image_path in self.__image_paths:
             if os.path.exists(os.path.join(image_path, path)):
                 return os.path.join(image_path, path)
-        raise(Exception("Could not find %s"% path))
+        return os.path.join(self.__dashboard_image_path, 'icon_not_found.svg')
 
 class MenuDashWidget(IconToolButton):
     """A widget which displays a pop-up menu when clicked
@@ -187,33 +220,65 @@ class MonitorDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    err= Signal()
-    warn = Signal()
     def __init__(self, context):
-        super(MonitorDashWidget, self).__init__('MonitorWidget', icon='diagnostics.png', clicked_icon = 'diagnostics-click.png')
+        super(MonitorDashWidget, self).__init__('MonitorWidget', [None], [None])
+
+        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-diagnostics.svg')]
+        self._warn_icon = [self.find_image('bg-yellow.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-warn-badge.svg')]
+        self._err_icon = [self.find_image('bg-red.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-err-badge.svg')]
+        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-stale-badge.svg')]
+
+        self._ok_click = [self.find_image('bg-green.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-click.svg')]
+        self._warn_click = [self.find_image('bg-yellow.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
+        self._err_click = [self.find_image('bg-red.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
+        self._stale_click = [self.find_image('bg-grey.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+
+        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
+        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self.update_state(2)
+
+        self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 
         self._monitor = None
-        self._monitor_sub = rospy.Subscriber('/diagnostics_agg', DiagnosticArray, self._monitor_cb)
-        self._last_msg_time = rospy.Time.now()
-        self.err.connect(self._error)
-        self.warn.connect(self._warning)
-
-        # Only display a state for 10 sec
-        self._timer = QTimer()
-        self._timer.timeout.connect(self.ok)
-        self._timer.setInterval(10000)
-        self._timer.start()
 
         self._last_update = rospy.Time.now()
 
         self.context = context
         self.clicked.connect(self._show_monitor)
 
-        self.state = 0
-        self.update_state(self.state)
+        self.update_state(3)
 
         self._monitor_shown = False
         self.setToolTip('Diagnostics')
+
+        self._diagnostics_toplevel_state_sub = rospy.Subscriber('diagnostics_toplevel_state', DiagnosticStatus, self.toplevel_state_callback)
+        self._top_level_state = -1
+        self._stall_timer = QTimer()
+        self._stall_timer.timeout.connect(self._stalled)
+        self._stalled(None)
+        self._is_stale = True
+
+    def toplevel_state_callback(self, msg):
+        self._is_stale = False
+        self._stall_timer.start(5000)
+
+        if self._top_level_state != msg.level:
+            if (msg.level >= 2):
+                self.update_state(2)
+                self.setToolTip("Diagnostics: Error")
+            elif (msg.level == 1):
+                self.update_state(1)
+                self.setToolTip("Diagnostics: Warning")
+            else:
+                self.update_state(0)
+                self.setToolTip("Diagnostics: OK")
+            self._top_level_state = msg.level
+
+    def _stalled(self, event):
+        self._stall_timer.stop()
+        self._is_stale = True
+        self.update_state(3)
+        self.setToolTip("Diagnostics: Stale\nNo message received on dashboard_agg in the last 5 seconds")
 
     def _show_monitor(self):
         if self._monitor is None:
@@ -229,43 +294,6 @@ class MonitorDashWidget(IconToolButton):
         finally:
             self._monitor_shown = not self._monitor_shown
 
-
-    def _monitor_cb(self, msg):
-        self._last_msg_time = rospy.Time.now()
-        warn = 0
-        err = 0
-        for status in msg.status:
-            if status.level == status.WARN:
-                warn = warn + 1
-            elif status.level == status.ERROR:
-                err = err + 1
-
-        if err > 0:
-            self.err.emit()
-        elif warn > 0:
-            self.warn.emit()
-
-    def _error(self):
-        self.update_state(2)
-
-        # Restart the timer when a new state arrives
-        self._timer.start()
-
-    def _warning(self):
-        if self.state <= 1:
-            self.update_state(1)
-
-            # Restaert the timer when a new state arrives
-            self._timer.start()
-
-    def ok(self):
-        # Each time the timer runs we are either ok or stale
-        diff = rospy.Time.now() - self._last_msg_time
-        if diff.to_sec() > 5:
-            self.update_state(3)
-        else:
-            self.update_state(0)
-
     def _monitor_close(self):
         if self._monitor:
             self._monitor.close()
@@ -273,7 +301,6 @@ class MonitorDashWidget(IconToolButton):
 
     def close(self):
         self._monitor_close()
-        self._monitor_sub.unregister()
 
 class ConsoleDashWidget(IconToolButton):
     """A widget which brings up the ROS console.
@@ -282,19 +309,35 @@ class ConsoleDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(ConsoleDashWidget, self).__init__('ConsoleWidget',[],[],'console.png','console-click.png')
+        super(ConsoleDashWidget, self).__init__('ConsoleWidget',[None],[None])
+
+        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-console.svg')]
+        self._warn_icon = [self.find_image('bg-yellow.svg'), self.find_image('ic-console.svg'), self.find_image('ol-warn-badge.svg')]
+        self._err_icon = [self.find_image('bg-red.svg'), self.find_image('ic-console.svg'), self.find_image('ol-err-badge.svg')]
+        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image('ic-console.svg'), self.find_image('ol-stale-badge.svg')]
+
+        self._ok_click = [self.find_image('bg-green.svg'), self.find_image('ic-console.svg'), self.find_image('ol-click.svg')]
+        self._warn_click = [self.find_image('bg-yellow.svg'), self.find_image('ic-console.svg'), self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
+        self._err_click = [self.find_image('bg-red.svg'), self.find_image('ic-console.svg'), self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
+        self._stale_click = [self.find_image('bg-grey.svg'), self.find_image('ic-console.svg'), self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+
+        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
+        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self.update_state(3)
+
+        self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()
         self._proxymodel.setSourceModel(self._datamodel)
 
+        self._mutex = QMutex()
         self._subscriber = ConsoleSubscriber(self._message_cb)
 
         self._console = None
         self.context = context
         self.clicked.connect(self._show_console)
 
-        self._mutex = QMutex()
         self._timer = QTimer()
         self._timer.timeout.connect(self._insert_messages)
         self._timer.start(100)
