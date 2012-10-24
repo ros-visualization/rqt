@@ -47,7 +47,7 @@ from python_qt_binding.QtGui import QMessageBox
 from .pr2_breaker import PR2BreakerButton
 from .pr2_battery import PR2Battery
 from .pr2_motors import PR2Motors
-from .pr2_runstop import PR2Runstop, PR2WirelessRunstop
+from .pr2_runstop import PR2Runstops
 
 
 class PR2Dashboard(Dashboard):
@@ -68,29 +68,30 @@ class PR2Dashboard(Dashboard):
                          PR2BreakerButton('Base', 1),
                          PR2BreakerButton('Right Arm', 2)]
 
-        self._runstop = PR2Runstop('Run Stop')
-        self._wireless_runstop = PR2WirelessRunstop('Wireless Run Stop')
+        self._runstop = PR2Runstops('RunStops')
+#        self._wireless_runstop = PR2WirelessRunstop('Wireless Run Stop')
         self._batteries = [PR2Battery(self.context)]
 
         self._dashboard_agg_sub = rospy.Subscriber('dashboard_agg', DashboardState, self.dashboard_callback)
 
     def get_widgets(self):
-        return [[self._monitor, self._console , self._motors], self._breakers, [self._runstop, self._wireless_runstop], self._batteries]
+        return [[self._monitor, self._console , self._motors], self._breakers, [self._runstop], self._batteries]
 
     def dashboard_callback(self, msg):
         self._dashboard_message = msg
         self._last_dashboard_message_time = rospy.get_time()
-      
+
         if (msg.motors_halted_valid):
             if (not msg.motors_halted.data):
-                if (self._motors.set_ok()):
-                    self._motors.setToolTip("Motors: Running")
+                self._motors.set_ok()
+                self._motors.setToolTip("Motors: Running")
             else:
-                if (self._motors.set_error()):
-                    self._motors.setToolTip("Motors: Halted")
+                self._motors.set_error()
+                self._motors.setToolTip("Motors: Halted")
         else:
-            if (self._motors.set_stale()):
-                self._motors.setToolTip("Motors: Stale")
+            self._motors.set_stale()
+            self._motors.setToolTip("Motors: Stale")
+
         if (msg.power_state_valid):
             self._batteries[0].set_power_state(msg.power_state)
         else:
@@ -98,31 +99,19 @@ class PR2Dashboard(Dashboard):
 
         if (msg.power_board_state_valid):
             [breaker.set_power_board_state_msg(msg.power_board_state) for breaker in self._breakers]
-
-            if (not msg.power_board_state.run_stop):
-                # if the wireless stop is also off, we can't tell if the runstop is pressed or not
-                if (not msg.power_board_state.wireless_stop):
-                    if (self._runstop.set_warn()):
-                        self._runstop.setToolTip("Physical Runstop: Unknown (Wireless is Pressed)")
-                else:
-                    if (self._runstop.set_error()):
-                        self._runstop.setToolTip("Physical Runstop: Pressed")
-            else:          
-                if (self._runstop.set_ok()):
-                    self._runstop.setToolTip("Physical Runstop: OK")
-          
-            if (not msg.power_board_state.wireless_stop):
-                if (self._wireless_runstop.set_error()):
-                    self._wireless_runstop.setToolTip("Wireless Runstop: Pressed")
-            else:
-                if (self._wireless_runstop.set_ok()):
-                    self._wireless_runstop.setToolTip("Wireless Runstop: OK")
+            if msg.power_board_state.run_stop:
+                self._runstop.set_ok()
+                self._runstop.setToolTip("Physical Runstop: OK\nWireless Runstop: OK")
+            elif msg.power_board_state.wireless_stop:
+                self._runstop.set_physical_engaged()
+                self._runstop.setToolTip("Physical Runstop: Pressed\nWireless Runstop: OK")
+            if not msg.power_board_state.wireless_stop:
+                self._runstop.set_wireless_engaged()
+                self._runstop.setToolTip("Physical Runstop: Unknown\nWireless Runstop: Pressed")
         else:
-            if (self._wireless_runstop.setToolTip("Wireless Runstop: Stale")):
-                self._runstop.setToolTip("Physical Runstop: Stale")
-                [breaker.reset() for breaker in self._breakers]
-                self._runstop.set_stale()
-                self._wireless_runstop.set_stale()
+            [breaker.reset() for breaker in self._breakers]
+            self._runstop.set_stale()
+            self._runstop.setToolTip("Physical Runstop: Stale\nWireless Runstop: Stale")
 
     def on_reset_motors(self):
         # if any of the breakers is not enabled ask if they'd like to enable them
@@ -135,7 +124,7 @@ class PR2Dashboard(Dashboard):
         try:
             reset()
         except rospy.ServiceException, e:
-            QMessageBox.critical(self, "Error", "Failed to reset the motors: service call failed with error: %s"%(e))
+            QMessageBox.critical(self._breakers[0], "Error", "Failed to reset the motors: service call failed with error: %s"%(e))
 
 
     def on_halt_motors(self):
@@ -143,6 +132,6 @@ class PR2Dashboard(Dashboard):
       try:
         halt()
       except rospy.ServiceException, e:
-        QMessageBox.critical(self, "Error", "Failed to halt the motors: service call failed with error: %s"%(e))
+        QMessageBox.critical(self._motors, "Error", "Failed to halt the motors: service call failed with error: %s"%(e))
 
 
