@@ -169,6 +169,8 @@ class IconToolButton(QToolButton):
         for image_path in self.__image_paths:
             if os.path.exists(os.path.join(image_path, path)):
                 return os.path.join(image_path, path)
+            elif os.path.exists(os.path.join(image_path, 'svg/' + path)):
+                return os.path.join(image_path, 'svg/' + path)
         return os.path.join(self.__dashboard_image_path, 'icon_not_found.svg')
 
 class MenuDashWidget(IconToolButton):

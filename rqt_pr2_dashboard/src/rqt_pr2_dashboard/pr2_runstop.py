@@ -41,8 +41,8 @@ class PR2Runstops(IconToolButton):
         self.setToolTip('Runstop')
 
         self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-runstop-off.svg')]
-        self._physical_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-runstop-on.svg'), self.find_image('ol-err-badge.svg')]
-        self._wireless_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-wireless-runstop-on.svg'), self.find_image('ol-warn-badge.svg')]
+        self._physical_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-runstop-on.svg')]
+        self._wireless_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-wireless-runstop-on.svg')]
         self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image( 'ic-runstop-off.svg'), self.find_image('ol-stale-badge.svg')]
 
         self._icons = [make_icon(self._ok_icon), make_icon(self._physical_engaged_icon), make_icon(self._wireless_engaged_icon), make_icon(self._stale_icon)]

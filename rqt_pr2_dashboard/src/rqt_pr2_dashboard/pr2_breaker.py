@@ -34,7 +34,7 @@ import rospy
 
 from python_qt_binding.QtCore import QSize
 
-from pr2_msgs.msg import PowerState, PowerBoardState
+from pr2_msgs.msg import PowerBoardState
 from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest
 
 from rqt_robot_dashboard.util import make_icon
