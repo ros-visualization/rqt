@@ -70,7 +70,7 @@ from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
-from QtCore import Signal, QMutex, QTimer, QSize
+from QtCore import Signal, QMutex, QMutexLocker, QTimer, QSize
 from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
 import os.path
 
@@ -242,6 +242,7 @@ class MonitorDashWidget(IconToolButton):
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 
         self._monitor = None
+        self._close_mutex = QMutex()
 
         self._last_update = rospy.Time.now()
 
@@ -283,21 +284,24 @@ class MonitorDashWidget(IconToolButton):
         self.setToolTip("Diagnostics: Stale\nNo message received on dashboard_agg in the last 5 seconds")
 
     def _show_monitor(self):
-        if self._monitor is None:
-            self._monitor = RobotMonitor('diagnostics_agg')
-            self._monitor.destroyed.connect(self._monitor_close)
         try:
             if self._monitor_shown:
+                self._monitor_shown = False
                 self.context.remove_widget(self._monitor)
+                self._monitor_close()
             else:
+                self._monitor = RobotMonitor('diagnostics_agg')
+                self._monitor.destroyed.connect(self._monitor_close)
                 self.context.add_widget(self._monitor)
+                self._monitor_shown = True
         except Exception as e:
-            pass
-        finally:
-            self._monitor_shown = not self._monitor_shown
+            #  TODO when closeEvents is available fix this hack (It ensures the button will toggle correctly)
+            self._show_monitor()
 
     def _monitor_close(self):
-        if self._monitor:
+        locker = QMutexLocker(self._close_mutex)
+        if self._monitor_shown:
+            self._monitor_shown = False
             self._monitor.close()
             self._monitor = None
 
