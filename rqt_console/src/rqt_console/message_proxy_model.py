@@ -77,21 +77,21 @@ class MessageProxyModel(QSortFilterProxyModel):
         index = self.mapToSource(index)
         if index.row() >= 0 or index.row() < len(messagelist):
             if index.column() >= 0 or index.column() < messagelist[index.row()].count():
-                if role == Qt.ForegroundRole and self._highlight_filters.count_enabled_filters() > 0:
+                if role == Qt.ForegroundRole:
                     if index.column() == 1:
                         data = index.data()
-                        if data == 'Debug':
-                            return QBrush(Qt.cyan)
-                        elif data == 'Info':
-                            return QBrush(Qt.darkCyan)
-                        elif data == 'Warn':
-                            return QBrush(Qt.yellow)
-                        elif data == 'Error':
-                            return QBrush(Qt.darkRed)
-                        elif data == 'Fatal':
-                            return QBrush(Qt.darkRed)
-                    if not self._highlight_filters.test_message(messagelist[index.row()]):
-                        return QBrush(Qt.gray)
+                        severity_levels = {'Debug':QBrush(Qt.cyan), \
+                                           'Info':QBrush(Qt.darkCyan), \
+                                           'Warn':QBrush(Qt.darkYellow), \
+                                           'Error':QBrush(Qt.darkRed), \
+                                           'Fatal':QBrush(Qt.red)}
+                        if data in severity_levels.keys():
+                            return severity_levels[data]
+                        else:
+                            raise KeyError('Unknown severity type: %s'% data)
+                    if self._highlight_filters.count_enabled_filters() > 0:
+                        if not self._highlight_filters.test_message(messagelist[index.row()]):
+                            return QBrush(Qt.gray)
         return self.sourceModel().data(index, role)
     # END Required implementations of QSortFilterProxyModel functions
 
