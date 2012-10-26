@@ -258,7 +258,7 @@ class MonitorDashWidget(IconToolButton):
         self._top_level_state = -1
         self._stall_timer = QTimer()
         self._stall_timer.timeout.connect(self._stalled)
-        self._stalled(None)
+        self._stalled()
         self._is_stale = True
 
     def toplevel_state_callback(self, msg):
@@ -277,7 +277,7 @@ class MonitorDashWidget(IconToolButton):
                 self.setToolTip("Diagnostics: OK")
             self._top_level_state = msg.level
 
-    def _stalled(self, event):
+    def _stalled(self):
         self._stall_timer.stop()
         self._is_stale = True
         self.update_state(3)
