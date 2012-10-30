@@ -240,11 +240,12 @@ CAEBAAEFAIAP/9oACAECAgY/AAB//9oACAEDAgY/AAB//9oACAEBAQY/AAAf/9k=" transform="mat
 				c-0.431,0-0.782-0.351-0.782-0.783C6.453,15.559,6.805,15.207,7.235,15.207 M6.453,19.26c0-0.432,0.352-0.782,0.782-0.782v1.565
 				C6.805,20.043,6.453,19.692,6.453,19.26 M21.154,22.15c0,0.324-0.264,0.587-0.586,0.587H9.586c-0.324,0-0.588-0.263-0.588-0.587
 				V7.5c0-0.324,0.264-0.588,0.588-0.588h10.98c0.324,0,0.588,0.265,0.588,0.588V22.15z"/>
-			<rect x="10.84" y="8.824" fill="#FFFFFF" width="8.473" height="1"/>
-			<rect x="10.84" y="11.324" fill="#FFFFFF" width="8.473" height="1"/>
-			<rect x="10.84" y="13.824" fill="#FFFFFF" width="8.473" height="1"/>
-			<rect x="10.84" y="16.324" fill="#FFFFFF" width="8.473" height="1"/>
-			<rect x="10.84" y="18.824" fill="#FFFFFF" width="8.473" height="1"/>
+			<rect x="11" y="9" fill="#FFFFFF" width="8" height="1"/>
+			<rect x="11.027" y="11" fill="#FFFFFF" width="7.973" height="1"/>
+			<rect x="11.027" y="13" fill="#FFFFFF" width="7.973" height="1"/>
+			<rect x="11.027" y="15" fill="#FFFFFF" width="7.973" height="1"/>
+			<rect x="11.027" y="19" fill="#FFFFFF" width="7.973" height="1"/>
+			<rect x="11.027" y="17" fill="#FFFFFF" width="7.973" height="1"/>
 		</g>
 	</g>
 </g>
@@ -508,12 +509,10 @@ CAEBAAEFAIAP/9oACAECAgY/AAB//9oACAEDAgY/AAB//9oACAEBAQY/AAAf/9k=" transform="mat
 	<g id="stop-warning">
 		<path fill="#EF4136" stroke="#FFFFFF" stroke-miterlimit="10" d="M26.981,1.456h-5.898c-0.859,0-1.557,0.697-1.557,1.557v5.897
 			c0,0.86,0.697,1.556,1.557,1.556h5.898c0.857,0,1.555-0.696,1.555-1.556V3.012C28.536,2.152,27.839,1.456,26.981,1.456z"/>
-		<g>
-			<ellipse fill="#FFFFFF" cx="24.357" cy="8.52" rx="0.801" ry="0.814"/>
-			<path fill="#FFFFFF" d="M25.252,4.796c-0.13,0.65-0.895,2.561-0.895,2.561s-0.726-1.833-0.895-2.561
-				c-0.169-0.728-0.088-0.932-0.088-1.027c0-0.237,0.252-0.724,0.447-0.856c0.197-0.133,0.277-0.209,0.535-0.209
-				c0.253,0,0.33,0.076,0.532,0.203c0.204,0.128,0.449,0.621,0.449,0.869C25.339,3.915,25.382,4.146,25.252,4.796z"/>
-		</g>
+		<ellipse fill="#FFFFFF" cx="24.028" cy="8.52" rx="0.801" ry="0.814"/>
+		<path fill="#FFFFFF" d="M24.923,4.638c-0.13,0.601-0.895,2.367-0.895,2.367s-0.726-1.694-0.895-2.367
+			c-0.169-0.673-0.088-0.861-0.088-0.95c0-0.219,0.252-0.669,0.447-0.792c0.197-0.123,0.277-0.194,0.535-0.194
+			c0.253,0,0.33,0.07,0.532,0.188c0.204,0.119,0.449,0.573,0.449,0.803C25.01,3.823,25.053,4.037,24.923,4.638z"/>
 	</g>
 	<g id="play_badge" display="none">
 		<path display="inline" fill="#00B14C" d="M27.454,4.271c1.424,0.79,1.424,2.083,0,2.873c-1.424,0.79-3.754,2.082-5.179,2.872
@@ -549,8 +548,8 @@ CAEBAAEFAIAP/9oACAECAgY/AAB//9oACAEDAgY/AAB//9oACAEBAQY/AAAf/9k=" transform="mat
 <g id="Stale_overly" display="none">
 	<g display="inline">
 		<linearGradient id="SVGID_14_" gradientUnits="userSpaceOnUse" x1="15.0005" y1="30" x2="15.0005" y2="4.882812e-04">
-			<stop  offset="0" style="stop-color:#999999"/>
-			<stop  offset="1" style="stop-color:#58595B"/>
+			<stop  offset="0" style="stop-color:#000000"/>
+			<stop  offset="1" style="stop-color:#000000"/>
 		</linearGradient>
 		<path opacity="0.5" fill="url(#SVGID_14_)" d="M26.669,30H3.334C1.496,30,0,28.505,0,26.667V3.333C0,1.496,1.496,0,3.334,0h23.334
 			C28.506,0,30,1.496,30,3.333v23.333C30,28.505,28.506,30,26.669,30z"/>
