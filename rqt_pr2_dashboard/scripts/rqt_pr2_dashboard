@@ -1,0 +1,2 @@
+#!/bin/sh
+rosrun rqt_gui rqt_gui -s rqt_pr2_dashboard --args $@
