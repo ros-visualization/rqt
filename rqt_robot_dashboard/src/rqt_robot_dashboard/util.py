@@ -144,3 +144,4 @@ def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
         return icon
     else:
         raise TypeError('Interleaving SVG and non-SVG files is not supported.')
+

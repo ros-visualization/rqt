@@ -41,10 +41,9 @@ from qt_gui.plugin import Plugin
 
 class Dashboard(Plugin):
     """Base class from which dashboards should inherit."""
-    def __init__(self, context, name = None):
+    def __init__(self, context, name = None, MaxIconSize=QSize(80,80)):
         super(Dashboard, self).__init__(context)
         self.context = context
-        
         self.setup(context)
 
         if not hasattr(self, 'name'):
@@ -52,10 +51,9 @@ class Dashboard(Plugin):
                 self.name = 'Dashboard'
             else:
                 self.name = name
-
+        self._max_icon_size = MaxIconSize
         self._main_widget = QToolBar()
-        #  TODO MAKE ICON SIZE SIZEABLE!
-        self._main_widget.setIconSize(QSize(50, 30))
+        self._main_widget.setIconSize(MaxIconSize)
         self._main_widget.setObjectName(self.name)
         self._main_widget.setWindowTitle(self.name)
         widgets = self.get_widgets()

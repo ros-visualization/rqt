@@ -108,16 +108,16 @@ class IconToolButton(QToolButton):
         # If the icon argument was specificied, build the default icon states
         if len(icons) == 0 and icon:
             self._icon_path = self.find_image(icon) 
-            self._icon = make_icon(self._icon_path)
-            self._warn_icon =  make_icon([self._icon_path, self.find_image('warn-overlay.png')])
-            self._err_icon = make_icon([self._icon_path, self.find_image('err-overlay.png')])
-            self._stale_icon = make_icon([self._icon_path, self.find_image('stale-overlay.png')])
+            self._icon = self.build_icon([self._icon_path])
+            self._warn_icon =  self.build_icon([self._icon_path, 'warn-overlay.png'])
+            self._err_icon = self.build_icon([self._icon_path, 'err-overlay.png'])
+            self._stale_icon = self.build_icon([self._icon_path, 'stale-overlay.png'])
 
             self._icon_click_path = self.find_image(clicked_icon)
-            self._icon_click = make_icon(self._icon_click_path)
-            self._warn_click =  make_icon([self._icon_click_path, self.find_image('warn-overlay.png')])
-            self._err_click = make_icon([self._icon_click_path, self.find_image('err-overlay.png')])
-            self._stale_click = make_icon([self._icon_click_path, self.find_image('stale-overlay.png')])
+            self._icon_click = self.build_icon([self._icon_click_path])
+            self._warn_click =  self.build_icon([self._icon_click_path, 'warn-overlay.png'])
+            self._err_click = self.build_icon([self._icon_click_path, 'err-overlay.png'])
+            self._stale_click = self.build_icon([self._icon_click_path, 'stale-overlay.png'])
 
             icons = [self._icon, self._warn_icon, self._err_icon, self._stale_icon]
             clicked_icons = [self._icon_click, self._warn_click, self._err_click, self._stale_click] 
@@ -173,6 +173,12 @@ class IconToolButton(QToolButton):
                 return os.path.join(image_path, 'svg/' + path)
         return os.path.join(self.__dashboard_image_path, 'icon_not_found.svg')
 
+    def build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
+        found_list = []
+        for name in image_name_list:
+            found_list.append(self.find_image(name))
+        return make_icon(found_list)
+
 class MenuDashWidget(IconToolButton):
     """A widget which displays a pop-up menu when clicked
 
@@ -225,21 +231,21 @@ class MonitorDashWidget(IconToolButton):
     def __init__(self, context):
         super(MonitorDashWidget, self).__init__('MonitorWidget', [None], [None])
 
-        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-diagnostics.svg')]
-        self._warn_icon = [self.find_image('bg-yellow.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-warn-badge.svg')]
-        self._err_icon = [self.find_image('bg-red.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-err-badge.svg')]
-        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-stale-badge.svg')]
+        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-diagnostics.svg'])
+        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg'])
+        self._err_icon = self.build_icon(['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg'])
+        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-diagnostics.svg', 'ol-stale-badge.svg'])
 
-        self._ok_click = [self.find_image('bg-green.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-click.svg')]
-        self._warn_click = [self.find_image('bg-yellow.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
-        self._err_click = [self.find_image('bg-red.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
-        self._stale_click = [self.find_image('bg-grey.svg'), self.find_image('ic-diagnostics.svg'), self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+        self._ok_click = self.build_icon(['bg-green.svg', 'ic-diagnostics.svg', 'ol-click.svg'])
+        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
+        self._err_click = self.build_icon(['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg', 'ol-click.svg'])
+        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-diagnostics.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
 
-        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
+        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
         self.update_state(2)
 
-        self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
+        self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
 
         self._monitor = None
         self._close_mutex = QMutex()
@@ -317,21 +323,21 @@ class ConsoleDashWidget(IconToolButton):
     def __init__(self, context):
         super(ConsoleDashWidget, self).__init__('ConsoleWidget',[None],[None])
 
-        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-console.svg')]
-        self._warn_icon = [self.find_image('bg-yellow.svg'), self.find_image('ic-console.svg'), self.find_image('ol-warn-badge.svg')]
-        self._err_icon = [self.find_image('bg-red.svg'), self.find_image('ic-console.svg'), self.find_image('ol-err-badge.svg')]
-        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image('ic-console.svg'), self.find_image('ol-stale-badge.svg')]
+        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-console.svg'])
+        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg'])
+        self._err_icon = self.build_icon(['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg'])
+        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-console.svg', 'ol-stale-badge.svg'])
 
-        self._ok_click = [self.find_image('bg-green.svg'), self.find_image('ic-console.svg'), self.find_image('ol-click.svg')]
-        self._warn_click = [self.find_image('bg-yellow.svg'), self.find_image('ic-console.svg'), self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
-        self._err_click = [self.find_image('bg-red.svg'), self.find_image('ic-console.svg'), self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
-        self._stale_click = [self.find_image('bg-grey.svg'), self.find_image('ic-console.svg'), self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+        self._ok_click = self.build_icon(['bg-green.svg', 'ic-console.svg', 'ol-click.svg'])
+        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
+        self._err_click = self.build_icon(['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg', 'ol-click.svg'])
+        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-console.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
 
-        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
+        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
         self.update_state(3)
 
-        self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
+        self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()
@@ -485,13 +491,8 @@ class NavViewDashWidget(IconToolButton):
         super(NavViewDashWidget, self).__init__(name)
         self.context = context
 
-        self._icon = self.find_image('nav.png')
-        self._clicked_icon = self.find_image('nav-click.png')
-
-        self._icons = [make_icon(self._icon)]
-        self._clicked_icons = [make_icon(self._clicked_icon)]
-
-        self.setIcon(make_icon(self._icon))
+        self._icons = [build_icon('nav.png')]
+        self._clicked_icons = [build_icon('nav-click.png')]
 
         self._nav_view = None
 

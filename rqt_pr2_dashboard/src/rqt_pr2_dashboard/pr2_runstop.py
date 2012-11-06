@@ -32,7 +32,6 @@
 from python_qt_binding.QtCore import QSize
 
 from rqt_robot_dashboard.widgets import IconToolButton
-from rqt_robot_dashboard.util import make_icon
 
 class PR2Runstops(IconToolButton):
     def __init__(self, context):
@@ -40,12 +39,12 @@ class PR2Runstops(IconToolButton):
 
         self.setToolTip('Runstop')
 
-        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-runstop-off.svg')]
-        self._physical_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-runstop-on.svg')]
-        self._wireless_engaged_icon = [self.find_image('bg-red.svg'), self.find_image('ic-wireless-runstop-on.svg')]
-        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image( 'ic-runstop-off.svg'), self.find_image('ol-stale-badge.svg')]
+        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-runstop-off.svg'])
+        self._physical_engaged_icon = self.build_icon(['bg-red.svg', 'ic-runstop-on.svg'])
+        self._wireless_engaged_icon = self.build_icon(['bg-red.svg', 'ic-wireless-runstop-on.svg'])
+        self._stale_icon = self.build_icon(['bg-grey.svg',  'ic-runstop-off.svg', 'ol-stale-badge.svg'])
 
-        self._icons = [make_icon(self._ok_icon), make_icon(self._physical_engaged_icon), make_icon(self._wireless_engaged_icon), make_icon(self._stale_icon)]
+        self._icons = [self._ok_icon, self._physical_engaged_icon, self._wireless_engaged_icon, self._stale_icon]
         self._clicked_icons = self._icons
         self.set_stale()
 

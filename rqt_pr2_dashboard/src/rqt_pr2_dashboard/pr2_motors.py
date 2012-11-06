@@ -32,7 +32,6 @@
 from python_qt_binding.QtCore import QSize
 
 from rqt_robot_dashboard.widgets import MenuDashWidget
-from rqt_robot_dashboard.util import make_icon
 
 class PR2Motors(MenuDashWidget):
     def __init__(self, context, reset_callback, halt_callback):
@@ -42,18 +41,18 @@ class PR2Motors(MenuDashWidget):
         self.add_action('Halt', halt_callback)
         self.setToolTip('Motors')
 
-        self._ok_icon = [self.find_image('bg-green.svg'), self.find_image('ic-motors.svg')]
-        self._warn_icon = [self.find_image('bg-yellow.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-warn-badge.svg')]
-        self._err_icon = [self.find_image('bg-red.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-err-badge.svg')]
-        self._stale_icon = [self.find_image('bg-grey.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-stale-badge.svg')]
+        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-motors.svg'])
+        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg'])
+        self._err_icon = self.build_icon(['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg'])
+        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-motors.svg', 'ol-stale-badge.svg'])
 
-        self._ok_click = [self.find_image('bg-green.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-click.svg')]
-        self._warn_click = [self.find_image('bg-yellow.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
-        self._err_click = [self.find_image('bg-red.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
-        self._stale_click = [self.find_image('bg-grey.svg'), self.find_image('ic-motors.svg'), self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+        self._ok_click = self.build_icon(['bg-green.svg', 'ic-motors.svg', 'ol-click.svg'])
+        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
+        self._err_click = self.build_icon(['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg', 'ol-click.svg'])
+        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-motors.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
 
-        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
+        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))

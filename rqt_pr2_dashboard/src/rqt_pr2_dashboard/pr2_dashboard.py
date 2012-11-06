@@ -33,6 +33,7 @@
 import roslib;roslib.load_manifest('rqt_pr2_dashboard')
 import rospy
 
+import argparse
 import diagnostic_msgs
 
 from pr2_msgs.msg import PowerState, PowerBoardState, DashboardState
@@ -42,6 +43,8 @@ import std_srvs.srv
 
 from rqt_robot_dashboard.dashboard import Dashboard
 from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget 
+
+from python_qt_binding.QtCore import QSize
 from python_qt_binding.QtGui import QMessageBox
 
 from .pr2_breaker import PR2BreakerButton
@@ -51,7 +54,19 @@ from .pr2_runstop import PR2Runstops
 
 
 class PR2Dashboard(Dashboard):
+    def __init__(self,context):
+        super(PR2Dashboard, self).__init__(context, name='PR2 Dashboard',  MaxIconSize=QSize(50,30))
+
+    def _add_args(self, parser):
+        parser.add_argument("-u", "--ros_master_uri", help="Set the ROS_MASTER_URI")
+
     def setup(self, context):
+        if context.argv:
+            # argparse example
+            parser = argparse.ArgumentParser()
+            self._add_args(parser)
+            parser.parse_args(context.argv[1:])
+
         self.name = 'PR2 Dashboard'
         self.message = None
 
@@ -60,7 +75,7 @@ class PR2Dashboard(Dashboard):
 
         self._raw_byte = None
         self.digital_outs = [0,0,0]
-        
+
         self._console = ConsoleDashWidget(self.context)
         self._monitor = MonitorDashWidget(self.context)
         self._motors = PR2Motors(self.context, self.on_reset_motors, self.on_halt_motors)
@@ -69,7 +84,6 @@ class PR2Dashboard(Dashboard):
                          PR2BreakerButton('Right Arm', 2)]
 
         self._runstop = PR2Runstops('RunStops')
-#        self._wireless_runstop = PR2WirelessRunstop('Wireless Run Stop')
         self._batteries = [PR2Battery(self.context)]
 
         self._dashboard_agg_sub = rospy.Subscriber('dashboard_agg', DashboardState, self.dashboard_callback)

@@ -37,7 +37,6 @@ from python_qt_binding.QtCore import QSize
 from pr2_msgs.msg import PowerBoardState
 from pr2_power_board.srv import PowerBoardCommand, PowerBoardCommandRequest
 
-from rqt_robot_dashboard.util import make_icon
 from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget, MenuDashWidget, BatteryDashWidget, IconToolButton
 
 from python_qt_binding.QtGui import QMessageBox
@@ -53,27 +52,27 @@ class PR2BreakerButton(MenuDashWidget):
         self.add_image_path(os.path.join(rp.get_path('rqt_pr2_dashboard'), 'images'))
 
         if breaker_name == 'Left Arm':
-            breaker_icon = self.find_image('ic-larm.svg')
+            breaker_icon = 'ic-larm.svg'
         elif breaker_name == 'Base':
-            breaker_icon = self.find_image('ic-base.svg')
+            breaker_icon = 'ic-base.svg'
         elif breaker_name == 'Right Arm':
-            breaker_icon = self.find_image('ic-rarm.svg')
+            breaker_icon = 'ic-rarm.svg'
         else:
-            breaker_icon = self.find_image('wrench.svg')
+            breaker_icon = 'wrench.svg'
             #  TODO get a default breaker picture in here!
 
-        self._ok_icon = [self.find_image('bg-green.svg'), breaker_icon]
-        self._warn_icon = [self.find_image('bg-yellow.svg'), breaker_icon, self.find_image('ol-warn-badge.svg')]
-        self._err_icon = [self.find_image('bg-red.svg'), breaker_icon, self.find_image('ol-err-badge.svg')]
-        self._stale_icon = [self.find_image('bg-grey.svg'), breaker_icon, self.find_image('ol-stale-badge.svg')]
+        self._ok_icon = self.build_icon(['bg-green.svg', breaker_icon])
+        self._warn_icon = self.build_icon(['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg'])
+        self._err_icon = self.build_icon(['bg-red.svg', breaker_icon, 'ol-err-badge.svg'])
+        self._stale_icon = self.build_icon(['bg-grey.svg', breaker_icon, 'ol-stale-badge.svg'])
 
-        self._ok_click = [self.find_image('bg-green.svg'), breaker_icon, self.find_image('ol-click.svg')]
-        self._warn_click = [self.find_image('bg-yellow.svg'), breaker_icon, self.find_image('ol-warn-badge.svg'), self.find_image('ol-click.svg')]
-        self._err_click = [self.find_image('bg-red.svg'), breaker_icon, self.find_image('ol-err-badge.svg'), self.find_image('ol-click.svg')]
-        self._stale_click = [self.find_image('bg-grey.svg'), breaker_icon, self.find_image('ol-stale-badge.svg'), self.find_image('ol-click.svg')]
+        self._ok_click = self.build_icon(['bg-green.svg', breaker_icon, 'ol-click.svg'])
+        self._warn_click = self.build_icon(['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg', 'ol-click.svg'])
+        self._err_click = self.build_icon(['bg-red.svg', breaker_icon, 'ol-err-badge.svg', 'ol-click.svg'])
+        self._stale_click = self.build_icon(['bg-grey.svg', breaker_icon, 'ol-stale-badge.svg', 'ol-click.svg'])
 
-        self._icons = [make_icon(self._ok_icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-        self._clicked_icons = [make_icon(self._ok_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
+        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
