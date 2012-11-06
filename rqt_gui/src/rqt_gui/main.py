@@ -46,10 +46,10 @@ class Main(Base):
         super(Main, self).__init__(filename, 'rqt_gui')
         self._plugin_cache = None
 
-    def _add_options(self, parser):
-        super(Main, self)._add_options(parser)
+    def _add_arguments(self, parser):
+        super(Main, self)._add_arguments(parser)
 
-        parser.add_option('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
+        parser.add_argument('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
                           help='cache list of available plugins (trading faster start-up for not up-to-date plugin list)')
 
     def _add_plugin_providers(self):

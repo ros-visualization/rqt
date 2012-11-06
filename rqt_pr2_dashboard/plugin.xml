@@ -4,7 +4,7 @@
       A Python GUI plugin for displaying a dashboard that displays and interacts with low level pr2 states.
     </description>
     <qtgui>
-      <label>PR2_Dashboard</label>
+      <label>PR2 Dashboard</label>
       <icon type="theme">task-past-due</icon>
       <statustip>A Python GUI plugin for displaying a dashboard that displays and interacts with low level pr2 states.</statustip>
     </qtgui>
