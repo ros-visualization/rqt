@@ -38,7 +38,8 @@ from QtCore import QSize
 from QtSvg import QSvgRenderer
 
 def dashinfo(msg, obj, title = 'Info'):
-    """Logs a message with ``rospy.loginfo`` and displays a ``QMessageBox`` to the user
+    """
+    Logs a message with ``rospy.loginfo`` and displays a ``QMessageBox`` to the user
 
     :param msg: Message to display.
     :type msg: str
@@ -57,7 +58,8 @@ def dashinfo(msg, obj, title = 'Info'):
     obj._message_box = box
 
 def dashwarn(msg, obj, title = 'Warning'):
-    """Logs a message with ``rospy.logwarn`` and displays a ``QMessageBox`` to the user
+    """
+    Logs a message with ``rospy.logwarn`` and displays a ``QMessageBox`` to the user
 
     :param msg: Message to display.
     :type msg: str
@@ -76,7 +78,8 @@ def dashwarn(msg, obj, title = 'Warning'):
     obj._message_box = box
 
 def dasherr(msg, obj, title = 'Error'):
-    """Logs a message with ``rospy.logerr`` and displays a ``QMessageBox`` to the user
+    """
+    Logs a message with ``rospy.logerr`` and displays a ``QMessageBox`` to the user
 
     :param msg: Message to display.
     :type msg: str
@@ -95,15 +98,18 @@ def dasherr(msg, obj, title = 'Error'):
     obj._message_box = box
 
 def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
-    """Helper function to create QIcons from lists of image files
-        NOTE do not interleave SVG and Non-svg in the same call it is not supported
-    :param image_list: list of paths to Images that will be sequentially layered into an icon.
-    :type image: str
-    :param mode: The mode of the QIcon.
+    """
+    Helper function to create QIcons from lists of image files
+    Warning: svg files interleaved with other files will not render correctly
+
+    :param image_list: list of image paths to layer into an icon.
+    :type image: list of str
+    :param mode: The mode of the QIcon to be created.
     :type mode: int
-    :param state: the state of the QIcon.
+    :param state: the state of the QIcon to be created.
     :type state: int
     """
+
     if type(image_list) is not list:
         image_list = [image_list]
     if len(image_list) <= 0:
@@ -111,10 +117,10 @@ def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
 
     num_svg = 0
     for item in image_list:
-        if item.find('svg') != -1:
+        if item[-4:].lower() == '.svg':
             num_svg = num_svg + 1
 
-    if num_svg == 0:
+    if num_svg != len(image_list):
         # Legacy support for non-svg images
         icon_pixmap = QPixmap()
         icon_pixmap.load(image_list[0])
@@ -125,7 +131,7 @@ def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
         icon.addPixmap(icon_pixmap, mode, state)
         painter.end()
         return icon
-    elif num_svg == len(image_list):
+    else:
         #  rendering SVG files into a QImage
         renderer = QSvgRenderer(image_list[0])
         icon_image = QImage(renderer.defaultSize(), QImage.Format_ARGB32)
@@ -142,6 +148,4 @@ def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
         icon_pixmap.convertFromImage(icon_image)
         icon = QIcon(icon_pixmap)
         return icon
-    else:
-        raise TypeError('Interleaving SVG and non-SVG files is not supported.')
 

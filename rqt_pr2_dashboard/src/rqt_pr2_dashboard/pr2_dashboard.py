@@ -78,7 +78,7 @@ class PR2Dashboard(Dashboard):
 
         self._console = ConsoleDashWidget(self.context)
         self._monitor = MonitorDashWidget(self.context)
-        self._motors = PR2Motors(self.context, self.on_reset_motors, self.on_halt_motors)
+        self._motors = PR2Motors(self.on_reset_motors, self.on_halt_motors)
         self._breakers = [PR2BreakerButton('Left Arm', 0), 
                          PR2BreakerButton('Base', 1),
                          PR2BreakerButton('Right Arm', 2)]

@@ -44,7 +44,6 @@ from python_qt_binding.QtGui import QMessageBox
 
 class PR2BreakerButton(MenuDashWidget):
     def __init__(self, breaker_name, breaker_index):
-        super(PR2BreakerButton, self).__init__(breaker_name, 'Breaker:' + breaker_name)
 
         import rospkg
         import os.path
@@ -59,20 +58,16 @@ class PR2BreakerButton(MenuDashWidget):
             breaker_icon = 'ic-rarm.svg'
         else:
             breaker_icon = 'wrench.svg'
-            #  TODO get a default breaker picture in here!
+            #  TODO get a default breaker picture in here
 
-        self._ok_icon = self.build_icon(['bg-green.svg', breaker_icon])
-        self._warn_icon = self.build_icon(['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg'])
-        self._err_icon = self.build_icon(['bg-red.svg', breaker_icon, 'ol-err-badge.svg'])
-        self._stale_icon = self.build_icon(['bg-grey.svg', breaker_icon, 'ol-stale-badge.svg'])
+        ok_icon = ['bg-green.svg', breaker_icon]
+        warn_icon = ['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg']
+        err_icon = ['bg-red.svg', breaker_icon, 'ol-err-badge.svg']
+        stale_icon = ['bg-grey.svg', breaker_icon, 'ol-stale-badge.svg']
 
-        self._ok_click = self.build_icon(['bg-green.svg', breaker_icon, 'ol-click.svg'])
-        self._warn_click = self.build_icon(['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg', 'ol-click.svg'])
-        self._err_click = self.build_icon(['bg-red.svg', breaker_icon, 'ol-err-badge.svg', 'ol-click.svg'])
-        self._stale_click = self.build_icon(['bg-grey.svg', breaker_icon, 'ol-stale-badge.svg', 'ol-click.svg'])
+        icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
-        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
+        super(PR2BreakerButton, self).__init__('Breaker:' + breaker_name, icons)
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))

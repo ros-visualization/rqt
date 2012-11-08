@@ -40,7 +40,16 @@ from python_qt_binding.QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
 from qt_gui.plugin import Plugin
 
 class Dashboard(Plugin):
-    """Base class from which dashboards should inherit."""
+    """
+    Base class from which dashboards should inherit.
+
+    :param context: the plugin context
+    :type context: qt_gui.plugin.Plugin
+    :param name: name of the dashboard widget
+    :type name: str
+    :param MaxIconSize: maximum size of a dashboard icon
+    :type MaxIconSize: QSize
+    """
     def __init__(self, context, name = None, MaxIconSize=QSize(80,80)):
         super(Dashboard, self).__init__(context)
         self.context = context
@@ -75,10 +84,11 @@ class Dashboard(Plugin):
         context.add_toolbar(self._main_widget)
 
     def setup(self, context):
-        """Called during ``__init__`` Subclasses should do initialization here.
+        """
+        Called during ``__init__`` Subclasses should do initialization here.
         
-        .. note::
-            If this method is overriden it is important to call ``self.setObjectName()`` so that object names do not conflict.
+        NOTE: When overriding this method you must call ``self.setObjectName()``
+        to avoid object name conflicts
 
         :param context: The plugin context
         :type context: qt_gui.plugin.Plugin
@@ -86,7 +96,8 @@ class Dashboard(Plugin):
         pass
 
     def shutdown_plugin(self):
-        """Called when the toolbar is closed by Qt.
+        """
+        Called when the toolbar is closed by Qt.
         """
         for widget in self._widgets:
             if hasattr(widget, 'close'):
@@ -95,13 +106,15 @@ class Dashboard(Plugin):
         self.shutdown_dashboard()
 
     def shutdown_dashboard(self):
-        """Called after shutdown plugin, subclasses should do cleanup here, not in shutdown_plugin
+        """
+        Called after shutdown plugin, subclasses should do cleanup here, not in shutdown_plugin
         """
         pass
 
     def get_widgets(self):
         """
-        Most of the dashboard customization should be done here. If this function is not overriden the dashboard will display nothing.
+        Most of the dashboard customization should be done here. 
+        If this function is not overriden the dashboard will display nothing.
 
         :returns: List of lists containing dashboard widgets.
         """

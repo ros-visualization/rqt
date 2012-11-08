@@ -34,26 +34,19 @@ from python_qt_binding.QtCore import QSize
 from rqt_robot_dashboard.widgets import MenuDashWidget
 
 class PR2Motors(MenuDashWidget):
-    def __init__(self, context, reset_callback, halt_callback):
-        super(PR2Motors, self).__init__(context, 'Motors')
-        
+    def __init__(self, reset_callback, halt_callback):
+        ok_icon = ['bg-green.svg', 'ic-motors.svg']
+        warn_icon = ['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg']
+        err_icon = ['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg']
+        stale_icon = ['bg-grey.svg', 'ic-motors.svg', 'ol-stale-badge.svg']
+
+        icons = [ok_icon, warn_icon, err_icon, stale_icon]
+        super(PR2Motors, self).__init__('Motors', icons)
+        self.update_state(3)
+
         self.add_action('Reset', reset_callback)
         self.add_action('Halt', halt_callback)
         self.setToolTip('Motors')
-
-        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-motors.svg'])
-        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg'])
-        self._err_icon = self.build_icon(['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg'])
-        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-motors.svg', 'ol-stale-badge.svg'])
-
-        self._ok_click = self.build_icon(['bg-green.svg', 'ic-motors.svg', 'ol-click.svg'])
-        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
-        self._err_click = self.build_icon(['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg', 'ol-click.svg'])
-        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-motors.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
-
-        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
-        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
-        self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 

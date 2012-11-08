@@ -76,22 +76,26 @@ import os.path
 
 
 class IconToolButton(QToolButton):
-    """This is the base class for all widgets. It provides state and icon switching support as well as convenience functions for creating icons.
+    """
+    This is the base class for all widgets. 
+    It provides state and icon switching support as well as convenience functions for creating icons.
 
-    .. note:: You must specify either ``icons`` and ``clicked_icons`` or ``icon`` and ``clicked_icon``. Using icon and clicked icon will create a set of icons using the overlays in ``rqt_robot_dashboard/images``.
+    :raises IndexError: if ``icons`` is not a list of lists of strings
 
-    :param icons: A list of icons for the states of this button.
+    :param name: name of the object
+    :type name: str
+    :param icons: A list of lists of strings to create icons for the states of this button. 
+    If only one is supplied then ok, warn, error, stale icons will be created with overlays
     :type icons: list
-    :param clicked_icons: A list of clicked state icons.
+    :param clicked_icons: A list of clicked state icons. len must equal icons
     :type clicked_icons: list
-    :param icon: The base icon file path.
-    :type icon: str
-    :param clicked_icon: The base clicked icon file path.
-    :type clicked_icon: str
+    :param suppress_overlays: if false and there is only one icon path supplied
+    :type suppress_overlays: bool
     """
     state_changed = Signal(int)
-    def __init__(self, name, icons = [], clicked_icons = [], icon = '', clicked_icon = ''):
+    def __init__(self, name, icons, clicked_icons=None, suppress_overlays=False):
         super(IconToolButton, self).__init__()
+
         self.name = name
         self.setObjectName(self.name)
 
@@ -99,100 +103,149 @@ class IconToolButton(QToolButton):
         self.pressed.connect(self._pressed)
         self.released.connect(self._released)
 
-        import rospkg
-        self.__dashboard_image_path = os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')
-        self.__image_paths = [self.__dashboard_image_path]
+        self.__init_image_paths()
 
         self.setStyleSheet('QToolButton {border: none;}')
 
-        # If the icon argument was specificied, build the default icon states
-        if len(icons) == 0 and icon:
-            self._icon_path = self.find_image(icon) 
-            self._icon = self.build_icon([self._icon_path])
-            self._warn_icon =  self.build_icon([self._icon_path, 'warn-overlay.png'])
-            self._err_icon = self.build_icon([self._icon_path, 'err-overlay.png'])
-            self._stale_icon = self.build_icon([self._icon_path, 'stale-overlay.png'])
+        self.__state = 0
+        self.set_icon_lists(icons, clicked_icons, suppress_overlays)
 
-            self._icon_click_path = self.find_image(clicked_icon)
-            self._icon_click = self.build_icon([self._icon_click_path])
-            self._warn_click =  self.build_icon([self._icon_click_path, 'warn-overlay.png'])
-            self._err_click = self.build_icon([self._icon_click_path, 'err-overlay.png'])
-            self._stale_click = self.build_icon([self._icon_click_path, 'stale-overlay.png'])
+    def add_image_path(self, path):
+        """
+        Paths added will be searched for images by the _find_image function
+        Paths will be searched in revearse order by add time
+        The last path to be searched is always rqt_robot_dashboard/images
+        Subdirectories are not recursively searched
 
-            icons = [self._icon, self._warn_icon, self._err_icon, self._stale_icon]
-            clicked_icons = [self._icon_click, self._warn_click, self._err_click, self._stale_click] 
-
-        # List of QIcons to use for each state
-        self._icons = icons
-        self._clicked_icons = clicked_icons
-
-        if not len(self._icons) == len(self._clicked_icons):
-            rospy.logwarn("%s has a mismatched number of icons and clicked states"%self.name)
-
-        self.state = 0
-
-    def _update_state(self, state):
-        if self.isDown():
-            self.setIcon(self._clicked_icons[self.state])
-        else:
-            self.setIcon(self._icons[self.state])
+        :param path: The path to add to the image paths list
+        :type path: str
+        """
+        self.__init_image_paths()
+        self._image_paths = [path] + self._image_paths
 
     def update_state(self, state):
-        """Set the state of this button. This will also update the icon for the button based on the ``self._icons`` list
+        """
+        Set the state of this button. 
+        This will also update the icon for the button based on the ``self._icons`` list
 
-        .. note:: States must not be greater than the length of ``self._icons`` unless you implement a custom ``self._update_state``. 
+        :raises IndexError: If state is not a proper index to ``self._icons``
 
         :param state: The state to set.
         :type state: int
         """
-        self.state = state
-        self.state_changed.emit(self.state)
+        if 0 <= state and state < len(self._icons):
+            self.__state = state
+            self.state_changed.emit(self.__state)
+        else:
+            raise(IndexError("%s update_state received invalid state: %s"(self.name, state)))
 
-    def  _pressed(self):
-        self.setIcon(self._clicked_icons[self.state])
+    def set_icon_lists(self, icons, clicked_icons=None, suppress_overlays=False):
+        """
+        Sets up the icon lists for the button states.
+        There must be one index in icons for each state.
+
+        :param icons: A list of lists of strings to create icons for the states of this button. 
+        If only one is supplied then ok, warn, error, stale icons will be created with overlays
+        :type icons: list
+        :param clicked_icons: A list of clicked state icons. len must equal icons
+        :type clicked_icons: list
+        :param suppress_overlays: if false and there is only one icon path supplied
+        :type suppress_overlays: bool
+
+        """
+        if clicked_icons is not None and len(icons) != len(clicked_icons):
+            rospy.logerr("%s: icons and clicked states are unequal"%self.name)
+            icons = clicked_icons = ['icon_not_found.svg']
+        if not (type(icons) is list and type(icons[0]) is list and type(icons[0][0] is str)):
+            raise(IndexError("icons must be a list of lists of strings"))
+        if len(icons) <= 0:
+            rospy.logerr("%s: Icons not supplied"%self.name)
+            icons = clicked_icons = ['icon_not_found.svg']
+        if len(icons) == 1 and suppress_overlays == False:
+            if icons[0][0][-4].lower() == '.svg':
+                icons.append(icons[0] + ['ol-warn-badge.svg'])
+                icons.append(icons[0] + ['ol-err-badge.svg'])
+                icons.append(icons[0] + ['ol-stale-badge.svg'])
+            else:
+                icons.append(icons[0] + ['warn-overlay.png'])
+                icons.append(icons[0] + ['err-overlay.png'])
+                icons.append(icons[0] + ['stale-overlay.png'])
+        if clicked_icons is None:
+            clicked_icons = []
+            for name in icons:
+                clicked_icons.append(name + ['ol-click.svg'])
+        self._icons = []
+        for icon in icons:
+            self._icons.append(self._build_icon(icon))
+        self._clicked_icons = []
+        for icon in clicked_icons:
+            self._clicked_icons.append(self._build_icon(icon))
+
+    def __init_image_paths(self):
+        if not hasattr(self,'_image_paths'):
+            import rospkg
+            self._image_paths = [os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')]
+
+    def _update_state(self, state):
+        if self.isDown():
+            self.setIcon(self._clicked_icons[self.__state])
+        else:
+            self.setIcon(self._icons[self.__state])
+
+    def _pressed(self):
+        self.setIcon(self._clicked_icons[self.__state])
 
     def _released(self):
-        self.setIcon(self._icons[self.state])
+        self.setIcon(self._icons[self.__state])
 
-    def add_image_path(self, path):
-        self.__image_paths = [path] + self.__image_paths
-
-    def find_image(self, path):
-        """Convenience function to help with finding images.
-        Path can either be specified as absolute paths or relative to any path in the __image_paths list
+    def _find_image(self, path):
+        """
+        Convenience function to help with finding images.
+        Path can either be specified as absolute paths or relative to any path in ``_image_paths``
         
         :param path: The path or name of the image.
         :type path: str
         """
         if os.path.exists(path):
             return path
-        for image_path in self.__image_paths:
+        for image_path in self._image_paths:
             if os.path.exists(os.path.join(image_path, path)):
                 return os.path.join(image_path, path)
-            elif os.path.exists(os.path.join(image_path, 'svg/' + path)):
+            elif '.' in path and os.path.exists(os.path.join(image_path, 'svg/' + path)):
                 return os.path.join(image_path, 'svg/' + path)
+        rospy.logwarn
         return os.path.join(self.__dashboard_image_path, 'icon_not_found.svg')
 
-    def build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
+    def _build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
+        """
+        Convenience function to create an icon from a list of file names
+
+        :param image_name_list: List of file image names to make into an icon
+        :type image_name_list: list of str
+        :param mode: The mode of the QIcon to be created.
+        :type mode: int
+        :param state: the state of the QIcon to be created.
+        :type state: int
+        """
         found_list = []
         for name in image_name_list:
-            found_list.append(self.find_image(name))
-        return make_icon(found_list)
+            found_list.append(self._find_image(name))
+        return make_icon(found_list, mode, state)
 
 class MenuDashWidget(IconToolButton):
-    """A widget which displays a pop-up menu when clicked
+    """
+    A widget which displays a pop-up menu when clicked
 
-    :param context: The plugin context to create the widget in.
-    :type context: qt_gui.plugin_context.PluginContext
     :param name: The name to give this widget.
     :type name: str
-    :param args: A set of actions this menu should perform.
-    :type args: QtGui.QAction
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    def __init__(self, context, name, *args, **kwargs):
-        super(MenuDashWidget, self).__init__(name, icon='mode.png', clicked_icon = 'mode-click.png')
+    def __init__(self, name, icons=None, clicked_icons=None):
+        if icons == None:
+            icons = [['mode.png']]
+            clicked_icons = [['mode-click.png']]
+        super(MenuDashWidget, self).__init__(name, icons, clicked_icons )
         self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
         self.setPopupMode(QToolButton.InstantPopup)
         self.update_state(0)
@@ -203,9 +256,6 @@ class MenuDashWidget(IconToolButton):
         self._menu = QMenu()
         self._menu.aboutToHide.connect(self._released)
         self._menu.aboutToShow.connect(self._pressed)
-
-        for arg in args:
-            self._menu.addAction(arg)
 
         self.setMenu(self._menu)
 
@@ -229,20 +279,15 @@ class MonitorDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(MonitorDashWidget, self).__init__('MonitorWidget', [None], [None])
+        ok_icon = ['bg-green.svg', 'ic-diagnostics.svg']
+        warn_icon = ['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg']
+        err_icon = ['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg']
+        stale_icon = ['bg-grey.svg', 'ic-diagnostics.svg', 'ol-stale-badge.svg']
 
-        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-diagnostics.svg'])
-        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg'])
-        self._err_icon = self.build_icon(['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg'])
-        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-diagnostics.svg', 'ol-stale-badge.svg'])
+        icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        self._ok_click = self.build_icon(['bg-green.svg', 'ic-diagnostics.svg', 'ol-click.svg'])
-        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
-        self._err_click = self.build_icon(['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg', 'ol-click.svg'])
-        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-diagnostics.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
+        super(MonitorDashWidget, self).__init__('MonitorWidget', icons)
 
-        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
-        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
         self.update_state(2)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
@@ -321,20 +366,14 @@ class ConsoleDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(ConsoleDashWidget, self).__init__('ConsoleWidget',[None],[None])
+        ok_icon = ['bg-green.svg', 'ic-console.svg']
+        warn_icon = ['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg']
+        err_icon = ['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg']
+        stale_icon = ['bg-grey.svg', 'ic-console.svg', 'ol-stale-badge.svg']
 
-        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-console.svg'])
-        self._warn_icon = self.build_icon(['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg'])
-        self._err_icon = self.build_icon(['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg'])
-        self._stale_icon = self.build_icon(['bg-grey.svg', 'ic-console.svg', 'ol-stale-badge.svg'])
+        icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        self._ok_click = self.build_icon(['bg-green.svg', 'ic-console.svg', 'ol-click.svg'])
-        self._warn_click = self.build_icon(['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg', 'ol-click.svg'])
-        self._err_click = self.build_icon(['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg', 'ol-click.svg'])
-        self._stale_click = self.build_icon(['bg-grey.svg', 'ic-console.svg', 'ol-stale-badge.svg', 'ol-click.svg'])
-
-        self._icons = [self._ok_icon, self._warn_icon, self._err_icon, self._stale_icon]
-        self._clicked_icons = [self._ok_click, self._warn_click, self._err_click, self._stale_click]
+        super(ConsoleDashWidget, self).__init__('Console Widget', icons)
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
@@ -446,35 +485,34 @@ class BatteryDashWidget(IconToolButton):
     :param name: The name of this widget
     :type name: str
     """
-    def __init__(self, context, name='Battery'):
-        super(BatteryDashWidget, self).__init__(name)
+    def __init__(self, context, name='Battery', icons=None, charge_icons=None):
+        if icons == None:
+            icons = []
+            charge_icons = []
+            for x in range(0, 6):
+                icons.append(make_icon(self.find_image('battery-%s.png'%(x*20)), 1))
+                charge_icons.append(make_icon(self.find_image('battery-charge-%s.png'%(x*20)), 1))
+        super(BatteryDashWidget, self).__init__(name, icons, charge_icons)
         self.setEnabled(False)
 
         self.setStyleSheet('QToolButton:disabled {}')
-
-        self._icons = [None]
-        self._charge_icons = [None]
-
-        for x in range(0, 6):
-            self._icons.append(make_icon(self.find_image('battery-%s.png'%(x*20)), 1))
-            self._charge_icons.append(make_icon(self.find_image('battery-charge-%s.png'%(x*20)), 1))
-
         self.charging = False
         self.update_perc(0)
 
     def update_perc(self, val):
-        """Update the displayed battery percentage. The default implementation of this method displays in 20% increments
+        """Update the displayed battery percentage. 
+        The default implementation of this method displays in 20% increments
+
         :param val: The new value to be displayed.
         :type val: int
         """
-        state = round(val/20.0)
-        self.update_state(state)
+        self.update_state(round(val/20.0))
 
     def _update_state(self, state):
         if self.charging:
-            self.setIcon(self._charge_icons[state+1])
+            self.setIcon(self._charge_icons[state])
         else:
-            self.setIcon(self._icons[state+1])
+            self.setIcon(self._icons[state])
 
     def update_time(self, val):
         self.time_remaining = val
@@ -488,11 +526,8 @@ class NavViewDashWidget(IconToolButton):
     :type name: str
     """
     def __init__(self, context, name='NavView'):
-        super(NavViewDashWidget, self).__init__(name)
+        super(NavViewDashWidget, self).__init__(name, [['nav.png']], [['nav-click.png']])
         self.context = context
-
-        self._icons = [build_icon('nav.png')]
-        self._clicked_icons = [build_icon('nav-click.png')]
 
         self._nav_view = None
 

@@ -39,19 +39,18 @@ from rqt_robot_dashboard.util import make_icon
 
 class PR2Battery(BatteryDashWidget):
     def __init__(self, context):
-        super(PR2Battery, self).__init__(context)
+        icons = []
+        charge_icons = []
+        for x in range(0, 6):
+            icons.append(['ic-battery-%s.svg'%(x*20)])
+            charge_icons.append(['ic-battery-charge-%s.svg'%(x*20)])
+        super(PR2Battery, self).__init__(context, 'PR2 Battery', icons, charge_icons)
+
         self._power_consumption = 0.0
         self._pct = 0
         self._time_remaining = rospy.rostime.Duration(0)
         self._ac_present = 0
         self._plugged_in = False
-
-        self._icons = [None]
-        self._charge_icons = [None]
-
-        for x in range(0, 6):
-            self._icons.append(make_icon(self.find_image('ic-battery-%s.svg'%(x*20)), 1))
-            self._charge_icons.append(make_icon(self.find_image('ic-battery-charge-%s.svg'%(x*20)), 1))
 
         self.setFixedSize(self._icons[1].actualSize(QSize(50,30)))
 
@@ -67,7 +66,6 @@ class PR2Battery(BatteryDashWidget):
         self._time_remaining = msg.time_remaining
         self._pct = msg.relative_capacity / 100.0
         self._plugged_in = msg.AC_present
-    
         if (last_pct != self._pct or last_plugged_in != self._plugged_in or last_time_remaining != self._time_remaining):
             drain_str = "remaining"
             if (self._plugged_in):

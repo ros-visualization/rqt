@@ -35,17 +35,16 @@ from rqt_robot_dashboard.widgets import IconToolButton
 
 class PR2Runstops(IconToolButton):
     def __init__(self, context):
-        super(PR2Runstops, self).__init__('Runstop', [], [], 'nav.png', 'nav.png')
+        ok_icon = ['bg-green.svg', 'ic-runstop-off.svg']
+        physical_engaged_icon = ['bg-red.svg', 'ic-runstop-on.svg']
+        wireless_engaged_icon = ['bg-red.svg', 'ic-wireless-runstop-on.svg']
+        stale_icon = ['bg-grey.svg',  'ic-runstop-off.svg', 'ol-stale-badge.svg']
 
+        icons = [ok_icon, physical_engaged_icon, wireless_engaged_icon, stale_icon]
+        super(PR2Runstops, self).__init__('Runstop', icons, icons)
         self.setToolTip('Runstop')
 
-        self._ok_icon = self.build_icon(['bg-green.svg', 'ic-runstop-off.svg'])
-        self._physical_engaged_icon = self.build_icon(['bg-red.svg', 'ic-runstop-on.svg'])
-        self._wireless_engaged_icon = self.build_icon(['bg-red.svg', 'ic-wireless-runstop-on.svg'])
-        self._stale_icon = self.build_icon(['bg-grey.svg',  'ic-runstop-off.svg', 'ol-stale-badge.svg'])
 
-        self._icons = [self._ok_icon, self._physical_engaged_icon, self._wireless_engaged_icon, self._stale_icon]
-        self._clicked_icons = self._icons
         self.set_stale()
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
