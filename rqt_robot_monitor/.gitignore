@@ -1,8 +1,5 @@
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-install_manifest.txt
+bin
+build
+*.csv
+*.swp
 
-build/
-*.pyc

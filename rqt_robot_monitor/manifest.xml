@@ -2,7 +2,7 @@
   <description brief="rqt_robot_monitor">
       rqt_robot_monitor displays diagnostics_agg topic messages.
   </description>
-  <author>Ze'ev Klapow</author>
+  <author>Isaac Saito, Ze'ev Klapow</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rqt_robot_monitor</url>

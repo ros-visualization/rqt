@@ -1,2 +1,2 @@
-from .robot_monitor import RobotMonitor
+from .robot_monitor import RobotMonitorWidget
 
