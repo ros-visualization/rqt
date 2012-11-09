@@ -47,12 +47,7 @@ class PR2Battery(BatteryDashWidget):
         :param context: the plugin context
         :type context: qt_gui.plugin.Plugin
         """
-        icons = []
-        charge_icons = []
-        for x in range(0, 6):
-            icons.append(['ic-battery-%s.svg'%(x*20)])
-            charge_icons.append(['ic-battery-charge-%s.svg'%(x*20)])
-        super(PR2Battery, self).__init__(context, 'PR2 Battery', icons, charge_icons)
+        super(PR2Battery, self).__init__(context, 'PR2 Battery')
 
         self._power_consumption = 0.0
         self._pct = 0

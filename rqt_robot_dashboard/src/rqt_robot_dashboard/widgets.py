@@ -490,8 +490,8 @@ class BatteryDashWidget(IconToolButton):
             icons = []
             charge_icons = []
             for x in range(0, 6):
-                icons.append(make_icon(self.find_image('ic-battery-%s.svg'%(x*20)), 1))
-                charge_icons.append(make_icon(self.find_image('ic-battery-charge-%s.svg'%(x*20)), 1))
+                icons.append(['ic-battery-%s.svg'%(x*20)])
+                charge_icons.append(['ic-battery-charge-%s.svg'%(x*20)])
         super(BatteryDashWidget, self).__init__(name, icons, charge_icons)
         self.setEnabled(False)
 
