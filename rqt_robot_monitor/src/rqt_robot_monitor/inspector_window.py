@@ -40,7 +40,7 @@ import rospy
 from python_qt_binding.QtGui import QWidget, QVBoxLayout, QTextEdit, QPushButton
 from python_qt_binding.QtCore import Signal, Qt
 
-from timeline_widget import TimelineWidget
+from timeline_pane import TimelinePane
 
 class InspectorWindow(QWidget):
     write = Signal(str, str)
@@ -59,7 +59,7 @@ class InspectorWindow(QWidget):
         self.disp = QTextEdit(self)
         self.snapshot = QPushButton("Snapshot")
 
-        self.timeline = TimelineWidget(self)
+        self.timeline = TimelinePane(self)
 
         layout_vertical.addWidget(self.disp, 1)
         layout_vertical.addWidget(self.timeline, 0)
