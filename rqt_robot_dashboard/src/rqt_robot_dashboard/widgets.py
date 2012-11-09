@@ -59,7 +59,7 @@ Widget Types
 
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
-from rqt_robot_monitor import RobotMonitor
+from rqt_robot_monitor import RobotMonitorWidget
 from rqt_nav_view import NavViewWidget
 
 from .util import make_icon
@@ -341,7 +341,7 @@ class MonitorDashWidget(IconToolButton):
                 self.context.remove_widget(self._monitor)
                 self._monitor_close()
             else:
-                self._monitor = RobotMonitor('diagnostics_agg')
+                self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
                 self._monitor.destroyed.connect(self._monitor_close)
                 self.context.add_widget(self._monitor)
                 self._monitor_shown = True
