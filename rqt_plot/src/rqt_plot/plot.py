@@ -80,6 +80,7 @@ class Plot(Plugin):
         super(Plot, self).__init__(context)
         self.setObjectName('Plot')
 
+        self._context = context
         self._widget = PlotWidget()
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
@@ -98,6 +99,8 @@ class Plot(Plugin):
         
         self._widget.switch_data_plot_widget(selected_plot['widget_class'](self._widget))
         self._widget.setWindowTitle(selected_plot['title'])
+        if self._context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % self._context.serial_number()))
         
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('plot_type', self._plot_type_index)

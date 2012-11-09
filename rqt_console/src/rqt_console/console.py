@@ -60,6 +60,8 @@ class Console(Plugin):
         self._proxymodel.setSourceModel(self._datamodel)
 
         self._mainwindow = ConsoleWidget(self._proxymodel)
+        if context.serial_number() > 1:
+            self._mainwindow.setWindowTitle(self._mainwindow.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._mainwindow)
 
         self._consolesubscriber = ConsoleSubscriber(self.message_callback)

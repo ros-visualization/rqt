@@ -55,7 +55,6 @@ class BagWidget(QWidget):
         super(BagWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'bag_widget.ui')
         loadUi(ui_file, self)
-        context.add_widget(self)
 
         self.setObjectName('BagWidget')
 

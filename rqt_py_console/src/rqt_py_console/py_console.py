@@ -58,6 +58,8 @@ class PyConsole(Plugin):
         self._widget = QWidget()
         self._widget.setLayout(QVBoxLayout())
         self._widget.layout().setContentsMargins(0, 0, 0, 0)
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         self._context.add_widget(self._widget)
         
             
@@ -71,6 +73,8 @@ class PyConsole(Plugin):
         else:
             self._console_widget = PyConsoleWidget(self._context)
             self._widget.setWindowTitle('PyConsole')
+        if self._context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % self._context.serial_number()))
 
         self._widget.layout().addWidget(self._console_widget)
         
@@ -101,4 +105,4 @@ class PyConsole(Plugin):
 
     def shutdown_plugin(self):
         self.shutdown_console_widget()
-    
+

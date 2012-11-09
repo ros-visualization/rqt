@@ -45,17 +45,13 @@ class RobotMonitorPlugin(Plugin):
     def __init__(self, context):                
         super(RobotMonitorPlugin, self).__init__(context)        
         self._robot_monitor = RobotMonitorWidget(context, '/diagnostics_agg')
-        #context.add_widget(RobotMonitorWidget('/diagnostics_agg'))
+        if context.serial_number() > 1:
+            self.self._robot_monitor.setWindowTitle(self.self._robot_monitor.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._robot_monitor)
-
         self.setObjectName('rqt Robot Monitor')
         
         
-    '''
-    Overridden from super.
-    @author: Isaac Saito
-    '''
     def shutdown_plugin (self):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
         self._robot_monitor._shutdown() # Closes unclosed popup windows.
-        
+

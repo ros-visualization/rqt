@@ -98,6 +98,8 @@ class Shell(Plugin):
         
         self._widget = selected_shell['widget_class']()
         self._widget.setWindowTitle(selected_shell['title'])
+        if self._context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % self._context.serial_number()))
         self._context.add_widget(self._widget)
         if hasattr(self._widget, 'close_signal'):
             self._widget.close_signal.connect(self._context.close_plugin)
@@ -120,4 +122,4 @@ class Shell(Plugin):
     def shutdown_plugin(self):
         if self._widget is not None and hasattr(self._widget, 'shutdown'):
             self._widget.shutdown()
-            
+

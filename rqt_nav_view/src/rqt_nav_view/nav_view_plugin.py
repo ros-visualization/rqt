@@ -7,7 +7,10 @@ from qt_gui.plugin import Plugin
 class NavViewPlugin(Plugin):
     def __init__(self, context):
         super(NavViewPlugin, self).__init__(context)
-        context.add_widget(NavViewWidget())
+        self._widget = NavViewWidget()
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)
 
         self.setObjectName('Naviation View')
 
