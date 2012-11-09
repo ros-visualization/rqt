@@ -34,24 +34,30 @@ import os
 import roslib
 roslib.load_manifest('rqt_plot')
 
+from python_qt_binding.QtCore import qDebug
 from rqt_gui_py.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 from plot_widget import PlotWidget
 
 try:
+    qDebug('rqt_plot.plot: importing PyQtGraphDataPlot')
     from pyqtgraph_data_plot import PyQtGraphDataPlot
-except ImportError, e:
-    print e
+except ImportError:
+    qDebug('rqt_plot.plot: import of PyQtGraphDataPlot failed')
     PyQtGraphDataPlot = None
 
 try:
+    qDebug('rqt_plot.plot: importing MatDataPlot')
     from mat_data_plot import MatDataPlot
 except ImportError:
+    qDebug('rqt_plot.plot: import of MatDataPlot failed')
     MatDataPlot = None
 
 try:
+    qDebug('rqt_plot.plot: importing QwtDataPlot')
     from qwt_data_plot import QwtDataPlot
 except ImportError:
+    qDebug('rqt_plot.plot: import of QwtDataPlot failed')
     QwtDataPlot = None
 
 class Plot(Plugin):
@@ -80,22 +86,27 @@ class Plot(Plugin):
         super(Plot, self).__init__(context)
         self.setObjectName('Plot')
 
+        self._plot_type_index = 0
         self._context = context
         self._widget = PlotWidget()
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-    def _switch_data_plot_widget(self):
-        # check for available plot type
-        while self._plot_type_index < len(self.plot_types) and not self.plot_types[self._plot_type_index]['enabled']:
-            self._plot_type_index += 1
-        
-        if self._plot_type_index >= len(self.plot_types):
-            print 'No usable plot type found.'
-            return
+    def _switch_data_plot_widget(self, plot_type_index):
+        # check if selected plot type is available
+        if not self.plot_types[plot_type_index]['enabled']:
+            # if not, check for any other available plot type
+            for index, plot_type in enumerate(self.plot_types):
+                if plot_type['enabled']:
+                    plot_type_index = index
+                    break
+            else:
+                print 'No usable plot type found. Install at least one of: PyQtGraph, MatPlotLib or Python-Qwt5'
+                return
             
-        selected_plot = self.plot_types[self._plot_type_index]
+        self._plot_type_index = plot_type_index
+        selected_plot = self.plot_types[plot_type_index]
         
         self._widget.switch_data_plot_widget(selected_plot['widget_class'](self._widget))
         self._widget.setWindowTitle(selected_plot['title'])
@@ -106,16 +117,14 @@ class Plot(Plugin):
         instance_settings.set_value('plot_type', self._plot_type_index)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self._plot_type_index = int(instance_settings.value('plot_type', 0))
-        self._switch_data_plot_widget()
+        self._switch_data_plot_widget(int(instance_settings.value('plot_type', 0)))
 
     def trigger_configuration(self):
         dialog = SimpleSettingsDialog(title='Plot Options')
         dialog.add_exclusive_option_group(title='Plot Type', options=self.plot_types, selected_index=self._plot_type_index)
         plot_type = dialog.get_settings()[0]
-        if plot_type is not None and self._plot_type_index != plot_type['selected_index']:
-            self._plot_type_index = plot_type['selected_index']
-            self._switch_data_plot_widget()
+        if plot_type is not None and plot_type['selected_index'] is not None and self._plot_type_index != plot_type['selected_index']:
+            self._switch_data_plot_widget(plot_type['selected_index'])
 
     def shutdown_plugin(self):
         self._widget.clean_up_subscribers()
