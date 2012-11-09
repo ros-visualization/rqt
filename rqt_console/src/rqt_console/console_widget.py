@@ -60,7 +60,7 @@ class ConsoleWidget(QWidget):
     """
     Primary widget for the rqt_console plugin.
     """
-    def __init__(self, proxymodel, minimal = False):
+    def __init__(self, proxymodel, minimal=False):
         """
         :param proxymodel: the proxy model to display in the widget,''QSortFilterProxyModel''
         :param minimal: if true the load, save and column buttons will be hidden as well as the filter splitter, ''bool''

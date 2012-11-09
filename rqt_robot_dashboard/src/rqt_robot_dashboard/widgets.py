@@ -322,7 +322,7 @@ class ConsoleDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    def __init__(self, context, icon_paths=[]):
+    def __init__(self, context, icon_paths=[], minimal=True):
         ok_icon = ['bg-green.svg', 'ic-console.svg']
         warn_icon = ['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg']
@@ -333,6 +333,7 @@ class ConsoleDashWidget(IconToolButton):
         super(ConsoleDashWidget, self).__init__('Console Widget', icons, icon_paths=icon_paths)
         self.update_state(3)
 
+        self.minimal = minimal
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
 
         self._datamodel = MessageDataModel()
@@ -351,7 +352,7 @@ class ConsoleDashWidget(IconToolButton):
         self._timer.start(100)
 
         if self._console is None:
-            self._console = ConsoleWidget(self._proxymodel, True)
+            self._console = ConsoleWidget(self._proxymodel, self.minimal)
             self._console.destroyed.connect(self._console_destroyed)
         self._console_shown = False
         self.setToolTip("Rosout")
@@ -359,7 +360,7 @@ class ConsoleDashWidget(IconToolButton):
 
     def _show_console(self):
         if self._console is None:
-            self._console = ConsoleWidget(self._proxymodel, True)
+            self._console = ConsoleWidget(self._proxymodel, self.minimal)
             self._console.destroyed.connect(self._console_destroyed)
         try:
             if self._console_shown:
