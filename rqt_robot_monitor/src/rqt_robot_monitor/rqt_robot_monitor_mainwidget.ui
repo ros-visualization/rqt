@@ -28,10 +28,17 @@
      <property name="handleWidth">
       <number>9</number>
      </property>
-     
-    
      <widget class="QTreeWidget" name="err_tree">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <column>
@@ -39,9 +46,23 @@
         <string notr="true">Error Device</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Message</string>
+       </property>
+      </column>
      </widget>
      <widget class="QTreeWidget" name="warn_tree">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <column>
@@ -49,12 +70,31 @@
         <string notr="true">Warned Device</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Message</string>
+       </property>
+      </column>
      </widget>
-
      <widget class="QTreeWidget" name="tree_all_devices">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="animated">
+       <bool>true</bool>
+      </property>
+      <attribute name="headerCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
       <column>
        <property name="text">
         <string notr="true">All devices</string>
@@ -64,6 +104,11 @@
        </property>
        <property name="statusTip">
         <string/>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Message</string>
        </property>
       </column>
      </widget>
