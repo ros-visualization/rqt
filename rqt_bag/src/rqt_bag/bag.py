@@ -49,6 +49,9 @@ class Bag(Plugin):
         super(Bag, self).__init__(context)
         self.setObjectName('Bag')
         self._widget = BagWidget(context)
+        if context.serial_number() > 1:
+            self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
+        context.add_widget(self._widget)
 
     def shutdown_plugin(self):
         pass

@@ -51,6 +51,8 @@ class Web(Plugin):
 
         #  This method is used to allow user to type a url into the url bar
         self._web = WebWidget()
+        if context.serial_number() > 1:
+            self._web.setWindowTitle(self._web.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._web)
 
         #  This method is used to specify a static url

@@ -47,12 +47,11 @@ from rqt_console.text_browse_dialog import TextBrowseDialog
 
 
 class MessagesWidget(QWidget):
-    def __init__(self, context, mode=rosmsg.MODE_MSG):
+    def __init__(self, mode=rosmsg.MODE_MSG):
         super(MessagesWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'messages.ui')
         loadUi(ui_file, self, {'MessagesTreeView': MessagesTreeView})
         self.setObjectName('MessagesUi')
-        context.add_widget(self)
         self._mode = mode
 
         self.add_button.setIcon(QIcon.fromTheme('list-add'))
