@@ -34,7 +34,6 @@ import rospy
 
 from python_qt_binding.QtCore import QSize
 from rqt_robot_dashboard.widgets import BatteryDashWidget
-from rqt_robot_dashboard.util import make_icon
 
 
 class PR2Battery(BatteryDashWidget):

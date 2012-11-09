@@ -32,6 +32,7 @@
 
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
+import os.path
 
 from QtGui import  QIcon, QImage, QImageReader, QMessageBox, QPainter, QPixmap
 from QtCore import QSize
@@ -97,55 +98,107 @@ def dasherr(msg, obj, title = 'Error'):
 
     obj._message_box = box
 
-def make_icon(image_list, mode = QIcon.Normal, state = QIcon.On):
+class IconHelper(object):
     """
-    Helper function to create QIcons from lists of image files
-    Warning: svg files interleaved with other files will not render correctly
-
-    :param image_list: list of image paths to layer into an icon.
-    :type image: list of str
-    :param mode: The mode of the QIcon to be created.
-    :type mode: int
-    :param state: the state of the QIcon to be created.
-    :type state: int
+    Helper class to easily access images and build QIcons out of lists of file names
     """
+    def __init__(self, paths=[]):
+        self.__image_paths = paths
 
-    if type(image_list) is not list:
-        image_list = [image_list]
-    if len(image_list) <= 0:
-        raise TypeError('The list of images is empty.')
+    def add_image_path(self, path):
+        """
+        Paths added will be searched for images by the _find_image function
+        Paths will be searched in revearse order by add time
+        The last path to be searched is always rqt_robot_dashboard/images
+        Subdirectories are not recursively searched
 
-    num_svg = 0
-    for item in image_list:
-        if item[-4:].lower() == '.svg':
-            num_svg = num_svg + 1
+        :param path: The path to add to the image paths list
+        :type path: str
+        """
+        self._image_paths = [path] + self._image_paths
 
-    if num_svg != len(image_list):
-        # Legacy support for non-svg images
-        icon_pixmap = QPixmap()
-        icon_pixmap.load(image_list[0])
-        painter = QPainter(icon_pixmap)
-        for item in image_list[1:]:
-            painter.drawPixmap(0, 0, QPixmap(item))
-        icon = QIcon()
-        icon.addPixmap(icon_pixmap, mode, state)
-        painter.end()
-        return icon
-    else:
-        #  rendering SVG files into a QImage
-        renderer = QSvgRenderer(image_list[0])
-        icon_image = QImage(renderer.defaultSize(), QImage.Format_ARGB32)
-        icon_image.fill(0)
-        painter = QPainter(icon_image)
-        renderer.render(painter)
-        if len(image_list) > 1:
+    def make_icon(self, image_list, mode = QIcon.Normal, state = QIcon.On):
+        """
+        Helper function to create QIcons from lists of image files
+        Warning: svg files interleaved with other files will not render correctly
+
+        :param image_list: list of image paths to layer into an icon.
+        :type image: list of str
+        :param mode: The mode of the QIcon to be created.
+        :type mode: int
+        :param state: the state of the QIcon to be created.
+        :type state: int
+        """
+        if type(image_list) is not list:
+            image_list = [image_list]
+        if len(image_list) <= 0:
+            raise TypeError('The list of images is empty.')
+
+        num_svg = 0
+        for item in image_list:
+            if item[-4:].lower() == '.svg':
+                num_svg = num_svg + 1
+
+        if num_svg != len(image_list):
+            # Legacy support for non-svg images
+            icon_pixmap = QPixmap()
+            icon_pixmap.load(image_list[0])
+            painter = QPainter(icon_pixmap)
             for item in image_list[1:]:
-                renderer.load(item)
-                renderer.render(painter)
-        painter.end()
-        #  Convert QImage into a pixmap to create the icon
-        icon_pixmap = QPixmap()
-        icon_pixmap.convertFromImage(icon_image)
-        icon = QIcon(icon_pixmap)
-        return icon
+                painter.drawPixmap(0, 0, QPixmap(item))
+            icon = QIcon()
+            icon.addPixmap(icon_pixmap, mode, state)
+            painter.end()
+            return icon
+        else:
+            #  rendering SVG files into a QImage
+            renderer = QSvgRenderer(image_list[0])
+            icon_image = QImage(renderer.defaultSize(), QImage.Format_ARGB32)
+            icon_image.fill(0)
+            painter = QPainter(icon_image)
+            renderer.render(painter)
+            if len(image_list) > 1:
+                for item in image_list[1:]:
+                    renderer.load(item)
+                    renderer.render(painter)
+            painter.end()
+            #  Convert QImage into a pixmap to create the icon
+            icon_pixmap = QPixmap()
+            icon_pixmap.convertFromImage(icon_image)
+            icon = QIcon(icon_pixmap)
+            return icon
+
+    def find_image(self, path):
+        """
+        Convenience function to help with finding images.
+        Path can either be specified as absolute paths or relative to any path in ``_image_paths``
+
+        :param path: The path or name of the image.
+        :type path: str
+        """
+        if os.path.exists(path):
+            return path
+        for image_path in self.__image_paths:
+            if os.path.exists(os.path.join(image_path, path)):
+                return os.path.join(image_path, path)
+            elif '.' in path and os.path.exists(os.path.join(image_path, 'nonsvg/' + path)):
+                return os.path.join(image_path, 'nonsvg/' + path)
+        rospy.logwarn
+        return os.path.join(self.__image_paths[-1], 'icon_not_found.svg')
+
+    def build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
+        """
+        Convenience function to create an icon from a list of file names
+
+        :param image_name_list: List of file image names to make into an icon
+        :type image_name_list: list of str
+        :param mode: The mode of the QIcon to be created.
+        :type mode: int
+        :param state: the state of the QIcon to be created.
+        :type state: int
+        """
+        found_list = []
+        for name in image_name_list:
+            found_list.append(self.find_image(name))
+        return self.make_icon(found_list, mode, state)
 

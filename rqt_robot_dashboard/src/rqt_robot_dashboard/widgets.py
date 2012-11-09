@@ -59,7 +59,7 @@ import rospy
 from rqt_robot_monitor import RobotMonitorWidget
 from rqt_nav_view import NavViewWidget
 
-from .util import make_icon
+from .util import IconHelper
 
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
@@ -88,9 +88,12 @@ class IconToolButton(QToolButton):
     :type clicked_icons: list
     :param suppress_overlays: if false and there is only one icon path supplied
     :type suppress_overlays: bool
+    :param icon_paths: list of lists of package and subdirectory in the form
+    ['package name', 'subdirectory'] example ['rqt_pr2_dashboard', 'images/svg']
+    :type icon_paths: list of lists of strings
     """
     state_changed = Signal(int)
-    def __init__(self, name, icons, clicked_icons=None, suppress_overlays=False):
+    def __init__(self, name, icons, clicked_icons=None, suppress_overlays=False, icon_paths=[]):
         super(IconToolButton, self).__init__()
 
         self.name = name
@@ -100,25 +103,17 @@ class IconToolButton(QToolButton):
         self.pressed.connect(self._pressed)
         self.released.connect(self._released)
 
-        self.__init_image_paths()
+        import rospkg
+        icon_paths = icon_paths + [['rqt_robot_dashboard', 'images']]
+        paths = []
+        for path in icon_paths:
+            paths.append(os.path.join(rospkg.RosPack().get_path(path[0]), path[1]))
+        self.icon_helper = IconHelper(paths)
 
         self.setStyleSheet('QToolButton {border: none;}')
 
         self.__state = 0
         self.set_icon_lists(icons, clicked_icons, suppress_overlays)
-
-    def add_image_path(self, path):
-        """
-        Paths added will be searched for images by the _find_image function
-        Paths will be searched in revearse order by add time
-        The last path to be searched is always rqt_robot_dashboard/images
-        Subdirectories are not recursively searched
-
-        :param path: The path to add to the image paths list
-        :type path: str
-        """
-        self.__init_image_paths()
-        self._image_paths = [path] + self._image_paths
 
     def update_state(self, state):
         """
@@ -140,6 +135,8 @@ class IconToolButton(QToolButton):
         """
         Sets up the icon lists for the button states.
         There must be one index in icons for each state.
+
+        :raises IndexError: if ``icons`` is not a list of lists of strings
 
         :param icons: A list of lists of strings to create icons for the states of this button. 
         If only one is supplied then ok, warn, error, stale icons will be created with overlays
@@ -173,15 +170,10 @@ class IconToolButton(QToolButton):
                 clicked_icons.append(name + ['ol-click.svg'])
         self._icons = []
         for icon in icons:
-            self._icons.append(self._build_icon(icon))
+            self._icons.append(self.icon_helper.build_icon(icon))
         self._clicked_icons = []
         for icon in clicked_icons:
-            self._clicked_icons.append(self._build_icon(icon))
-
-    def __init_image_paths(self):
-        if not hasattr(self,'_image_paths'):
-            import rospkg
-            self._image_paths = [os.path.join(rospkg.RosPack().get_path('rqt_robot_dashboard'), 'images')]
+            self._clicked_icons.append(self.icon_helper.build_icon(icon))
 
     def _update_state(self, state):
         if self.isDown():
@@ -195,40 +187,6 @@ class IconToolButton(QToolButton):
     def _released(self):
         self.setIcon(self._icons[self.__state])
 
-    def _find_image(self, path):
-        """
-        Convenience function to help with finding images.
-        Path can either be specified as absolute paths or relative to any path in ``_image_paths``
-        
-        :param path: The path or name of the image.
-        :type path: str
-        """
-        if os.path.exists(path):
-            return path
-        for image_path in self._image_paths:
-            if os.path.exists(os.path.join(image_path, path)):
-                return os.path.join(image_path, path)
-            elif '.' in path and os.path.exists(os.path.join(image_path, 'svg/' + path)):
-                return os.path.join(image_path, 'svg/' + path)
-        rospy.logwarn
-        return os.path.join(self.__dashboard_image_path, 'icon_not_found.svg')
-
-    def _build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
-        """
-        Convenience function to create an icon from a list of file names
-
-        :param image_name_list: List of file image names to make into an icon
-        :type image_name_list: list of str
-        :param mode: The mode of the QIcon to be created.
-        :type mode: int
-        :param state: the state of the QIcon to be created.
-        :type state: int
-        """
-        found_list = []
-        for name in image_name_list:
-            found_list.append(self._find_image(name))
-        return make_icon(found_list, mode, state)
-
 class MenuDashWidget(IconToolButton):
     """
     A widget which displays a pop-up menu when clicked
@@ -238,10 +196,10 @@ class MenuDashWidget(IconToolButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    def __init__(self, name, icons=None, clicked_icons=None):
+    def __init__(self, name, icons=None, clicked_icons=None, icon_paths=[]):
         if icons == None:
             icons = [['ic-motors.svg']]
-        super(MenuDashWidget, self).__init__(name, icons=icons, suppress_overlays=True )
+        super(MenuDashWidget, self).__init__(name, icons=icons, suppress_overlays=True, icon_paths=icon_paths)
         self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
         self.setPopupMode(QToolButton.InstantPopup)
         self.update_state(0)
@@ -276,7 +234,7 @@ class MonitorDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    def __init__(self, context):
+    def __init__(self, context, icon_paths=[]):
         ok_icon = ['bg-green.svg', 'ic-diagnostics.svg']
         warn_icon = ['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg']
@@ -284,7 +242,7 @@ class MonitorDashWidget(IconToolButton):
 
         icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        super(MonitorDashWidget, self).__init__('MonitorWidget', icons)
+        super(MonitorDashWidget, self).__init__('MonitorWidget', icons, icon_paths=icon_paths)
 
         self.update_state(2)
 
@@ -364,7 +322,7 @@ class ConsoleDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    def __init__(self, context):
+    def __init__(self, context, icon_paths=[]):
         ok_icon = ['bg-green.svg', 'ic-console.svg']
         warn_icon = ['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg']
@@ -372,7 +330,7 @@ class ConsoleDashWidget(IconToolButton):
 
         icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        super(ConsoleDashWidget, self).__init__('Console Widget', icons)
+        super(ConsoleDashWidget, self).__init__('Console Widget', icons, icon_paths=icon_paths)
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
@@ -485,14 +443,14 @@ class BatteryDashWidget(IconToolButton):
     :param name: The name of this widget
     :type name: str
     """
-    def __init__(self, context, name='Battery', icons=None, charge_icons=None):
+    def __init__(self, context, name='Battery', icons=None, charge_icons=None, icon_paths=[]):
         if icons == None:
             icons = []
             charge_icons = []
             for x in range(0, 6):
                 icons.append(['ic-battery-%s.svg'%(x*20)])
                 charge_icons.append(['ic-battery-charge-%s.svg'%(x*20)])
-        super(BatteryDashWidget, self).__init__(name, icons, charge_icons)
+        super(BatteryDashWidget, self).__init__(name, icons, charge_icons, icon_paths=icon_paths)
         self.setEnabled(False)
 
         self.setStyleSheet('QToolButton:disabled {}')
@@ -527,8 +485,8 @@ class NavViewDashWidget(IconToolButton):
     :param name: The widgets name
     :type name: str
     """
-    def __init__(self, context, name='NavView'):
-        super(NavViewDashWidget, self).__init__(name, icons=[['ic-navigation.svg']], suppress_overlays=True)
+    def __init__(self, context, name='NavView', icon_paths=[]):
+        super(NavViewDashWidget, self).__init__(name, icons=[['ic-navigation.svg']], suppress_overlays=True, icon_paths=icon_paths)
         self.context = context
 
         self._nav_view = None

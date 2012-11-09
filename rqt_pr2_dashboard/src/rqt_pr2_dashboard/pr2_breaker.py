@@ -57,7 +57,6 @@ class PR2BreakerButton(MenuDashWidget):
         import rospkg
         import os.path
         rp = rospkg.RosPack()
-        self.add_image_path(os.path.join(rp.get_path('rqt_pr2_dashboard'), 'images'))
 
         if breaker_name == 'Left Arm':
             breaker_icon = 'ic-larm.svg'
@@ -75,7 +74,7 @@ class PR2BreakerButton(MenuDashWidget):
 
         icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
-        super(PR2BreakerButton, self).__init__('Breaker:' + breaker_name, icons)
+        super(PR2BreakerButton, self).__init__('Breaker:' + breaker_name, icons=icons, icon_paths=[['rqt_pr2_dashboard','images']])
         self.update_state(3)
 
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
