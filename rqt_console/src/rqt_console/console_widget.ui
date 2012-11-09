@@ -79,6 +79,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="clear_button">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="column_resize_button">
        <property name="toolTip">
         <string>Resizes message table columns to fit their contents exactly</string>

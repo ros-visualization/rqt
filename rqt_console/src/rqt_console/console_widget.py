@@ -33,8 +33,8 @@
 import os
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QApplication, QCursor, QFileDialog, QIcon, QMenu, QMessageBox, QTableView, QWidget
-from python_qt_binding.QtCore import QRegExp, Qt, qWarning
+from python_qt_binding.QtGui import QApplication, QCursor, QFileDialog, QIcon, QItemSelectionModel, QMenu, QMessageBox, QTableView, QWidget
+from python_qt_binding.QtCore import QRect, QRegExp, Qt, qWarning
 
 import time
 import datetime
@@ -96,6 +96,7 @@ class ConsoleWidget(QWidget):
         self.load_button.clicked[bool].connect(self._handle_load_clicked)
         self.save_button.clicked[bool].connect(self._handle_save_clicked)
         self.column_resize_button.clicked[bool].connect(self._handle_column_resize_clicked)
+        self.clear_button.clicked[bool].connect(self._handle_clear_button_clicked)
 
         self.table_view.mouseDoubleClickEvent = self._handle_mouse_double_click
         self.table_view.mousePressEvent = self._handle_mouse_press
@@ -468,6 +469,10 @@ class ConsoleWidget(QWidget):
             self._browsers.append(TextBrowseDialog(browsetext))
             self._browsers[-1].show()
 
+    def _handle_clear_button_clicked(self, checked):
+        self.table_view.setSelection(QRect(0, 0, self._datamodel._message_limit, self._datamodel._message_limit), QItemSelectionModel.Select)
+        self._delete_selected_rows()
+
     def _handle_load_clicked(self, checked):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('rqt_console message file {.csv} (*.csv)'))
         if filename[0] != '':
@@ -509,6 +514,13 @@ class ConsoleWidget(QWidget):
     def _handle_column_resize_clicked(self):
         self.table_view.resizeColumnsToContents()
 
+    def _delete_selected_rows(self):
+        rowlist = []
+        for current in self.table_view.selectionModel().selectedIndexes():
+            rowlist.append(self._proxymodel.mapToSource(current).row())
+        rowlist = list(set(rowlist))
+        return self._datamodel.remove_rows(rowlist)
+
     def _handle_custom_keypress(self, event, old_keyPressEvent=QTableView.keyPressEvent):
         """
         Handles the delete key.
@@ -519,13 +531,9 @@ class ConsoleWidget(QWidget):
             if len(self.table_view.selectionModel().selectedIndexes()) == 0:
                 delete = QMessageBox.question(self, self.tr('Message'), self.tr("Are you sure you want to delete all messages?"), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if delete == QMessageBox.Yes and event.key() == Qt.Key_Delete and event.modifiers() == Qt.NoModifier:
-                rowlist = []
-                for current in self.table_view.selectionModel().selectedIndexes():
-                    rowlist.append(self._proxymodel.mapToSource(current).row())
-                rowlist = list(set(rowlist))
-                if self._datamodel.remove_rows(rowlist):
+                if self._delete_selected_rows():
                     self.update_status()
-                    return event.accept()
+                    event.accept()
         return old_keyPressEvent(self.table_view, event)
 
     def _handle_mouse_double_click(self, event, old_doubleclickevent=QTableView.mouseDoubleClickEvent):
@@ -542,7 +550,7 @@ class ConsoleWidget(QWidget):
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('settings_exist', True)
-        
+
         instance_settings.set_value('table_splitter', self.table_splitter.saveState())
         instance_settings.set_value('filter_splitter', self.filter_splitter.saveState())
 
