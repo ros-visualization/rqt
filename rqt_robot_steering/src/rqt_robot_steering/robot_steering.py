@@ -33,7 +33,7 @@ import os
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Slot
-from python_qt_binding.QtGui import QShortcut, QWidget
+from python_qt_binding.QtGui import QKeySequence, QShortcut, QWidget
 
 import roslib
 roslib.load_manifest('rqt_robot_steering')
@@ -71,33 +71,33 @@ class RobotSteering(Plugin):
         self._widget.decrease_z_angular_push_button.pressed.connect(self._on_decrease_z_angular_pressed)
         self._widget.stop_push_button.pressed.connect(self._on_stop_pressed)
 
-        self.shortcut_w = QShortcut(Qt.Key_W, self._widget)
+        self.shortcut_w = QShortcut(QKeySequence(Qt.Key_W), self._widget)
         self.shortcut_w.setContext(Qt.ApplicationShortcut)
         self.shortcut_w.activated.connect(self._on_increase_x_linear_pressed)
-        self.shortcut_s = QShortcut(Qt.Key_S, self._widget)
+        self.shortcut_s = QShortcut(QKeySequence(Qt.Key_S), self._widget)
         self.shortcut_s.setContext(Qt.ApplicationShortcut)
         self.shortcut_s.activated.connect(self._on_decrease_x_linear_pressed)
-        self.shortcut_a = QShortcut(Qt.Key_A, self._widget)
+        self.shortcut_a = QShortcut(QKeySequence(Qt.Key_A), self._widget)
         self.shortcut_a.setContext(Qt.ApplicationShortcut)
         self.shortcut_a.activated.connect(self._on_increase_z_angular_pressed)
-        self.shortcut_d = QShortcut(Qt.Key_D, self._widget)
+        self.shortcut_d = QShortcut(QKeySequence(Qt.Key_D), self._widget)
         self.shortcut_d.setContext(Qt.ApplicationShortcut)
         self.shortcut_d.activated.connect(self._on_decrease_z_angular_pressed)
 
-        self.shortcut_shift_w = QShortcut(Qt.SHIFT + Qt.Key_W, self._widget)
+        self.shortcut_shift_w = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_W), self._widget)
         self.shortcut_shift_w.setContext(Qt.ApplicationShortcut)
         self.shortcut_shift_w.activated.connect(self._on_strong_increase_x_linear_pressed)
-        self.shortcut_shift_s = QShortcut(Qt.SHIFT + Qt.Key_S, self._widget)
+        self.shortcut_shift_s = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_S), self._widget)
         self.shortcut_shift_s.setContext(Qt.ApplicationShortcut)
         self.shortcut_shift_s.activated.connect(self._on_strong_decrease_x_linear_pressed)
-        self.shortcut_shift_a = QShortcut(Qt.SHIFT + Qt.Key_A, self._widget)
+        self.shortcut_shift_a = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_A), self._widget)
         self.shortcut_shift_a.setContext(Qt.ApplicationShortcut)
         self.shortcut_shift_a.activated.connect(self._on_strong_increase_z_angular_pressed)
-        self.shortcut_shift_d = QShortcut(Qt.SHIFT + Qt.Key_D, self._widget)
+        self.shortcut_shift_d = QShortcut(QKeySequence(Qt.SHIFT + Qt.Key_D), self._widget)
         self.shortcut_shift_d.setContext(Qt.ApplicationShortcut)
         self.shortcut_shift_d.activated.connect(self._on_strong_decrease_z_angular_pressed)
 
-        self.shortcut_space = QShortcut(Qt.Key_Space, self._widget)
+        self.shortcut_space = QShortcut(QKeySequence(Qt.Key_Space), self._widget)
         self.shortcut_space.setContext(Qt.ApplicationShortcut)
         self.shortcut_space.activated.connect(self._on_stop_pressed)
 

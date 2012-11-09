@@ -38,7 +38,6 @@ from python_qt_binding.QtCore import QAbstractTableModel, QDateTime, QModelIndex
 class MessageDataModel(QAbstractTableModel):
     def __init__(self):
         super(MessageDataModel, self).__init__()
-        QAbstractTableModel.__init__(self)
         self._messages = MessageList()
 
         self._time_format = 'hh:mm:ss.zzz (yyyy-MM-dd)'

@@ -75,7 +75,7 @@ class RepeatedWordCompleter(QCompleter):
 class NamespaceCompletionModel(QAbstractListModel):
     """Ros package and stacknames"""
     def __init__(self, linewidget, topics_only):
-        super(QAbstractListModel, self).__init__(linewidget)
+        super(NamespaceCompletionModel, self).__init__(linewidget)
         self.names = []
 
     def refresh(self, names):

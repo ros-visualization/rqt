@@ -45,7 +45,7 @@ class LoggerLevelWidget(QWidget):
         """
         :param caller: service caller instance for sending service calls, ''LoggerLevelServiceCaller''
         """
-        super(QWidget, self).__init__()
+        super(LoggerLevelWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logger_level.ui')
         loadUi(ui_file, self)
         self.setObjectName('LoggerLevelWidget')

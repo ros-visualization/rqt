@@ -43,7 +43,7 @@ class RepeatedWordCompleter(QCompleter):
 class StackageCompletionModel(QAbstractListModel):
     """Ros package and stacknames"""
     def __init__(self, linewidget, rospack, rosstack):
-        super(QAbstractListModel, self).__init__(linewidget)
+        super(StackageCompletionModel, self).__init__(linewidget)
         self.allnames = sorted(list(set(rospack.list() + rosstack.list())))
         self.allnames = self.allnames + ['-%s' % name for name in self.allnames]
 

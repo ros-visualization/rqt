@@ -43,13 +43,13 @@ class NavView(QGraphicsView):
     def __init__(self, map_topic = '/map', 
                  paths = ['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'], 
                  polygons= ['/move_base/local_costmap/robot_footprint']):
-        super(QWidget, self).__init__()
+        super(NavView, self).__init__()
 
         self.map_changed.connect(self._update)
         self.destroyed.connect(self.close)
         
         #ScrollHandDrag
-        self.setDragMode(1)
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
 
         self._map = None
         self._map_orig = None
