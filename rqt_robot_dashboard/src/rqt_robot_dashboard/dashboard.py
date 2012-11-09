@@ -45,26 +45,22 @@ class Dashboard(Plugin):
 
     :param context: the plugin context
     :type context: qt_gui.plugin.Plugin
-    :param name: name of the dashboard widget
-    :type name: str
-    :param MaxIconSize: maximum size of a dashboard icon
-    :type MaxIconSize: QSize
     """
-    def __init__(self, context, name = None, MaxIconSize=QSize(80,80)):
+    def __init__(self, context):
         super(Dashboard, self).__init__(context)
         self.context = context
         self.setup(context)
 
         if not hasattr(self, 'name'):
-            if not name:
-                self.name = 'Dashboard'
-            else:
-                self.name = name
-        self._max_icon_size = MaxIconSize
+            self.name = 'Dashboard'
+        if not hasattr(self, 'max_icon_size'):
+            self.max_icon_size = QSize( 50, 30)
         self._main_widget = QToolBar()
-        self._main_widget.setIconSize(MaxIconSize)
+        self._main_widget.setIconSize(self.max_icon_size)
         self._main_widget.setObjectName(self.name)
         self._main_widget.setWindowTitle(self.name)
+        if context.serial_number() > 1:
+            self._mainwindow.setWindowTitle(self._mainwindow.windowTitle() + (' (%d)' % context.serial_number()))
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
@@ -86,9 +82,9 @@ class Dashboard(Plugin):
     def setup(self, context):
         """
         Called during ``__init__`` Subclasses should do initialization here.
-        
-        NOTE: When overriding this method you must call ``self.setObjectName()``
-        to avoid object name conflicts
+
+        NOTE when overriding this method you should provide a ``self.name`` to
+        avoid naming conflicts.
 
         :param context: The plugin context
         :type context: qt_gui.plugin.Plugin

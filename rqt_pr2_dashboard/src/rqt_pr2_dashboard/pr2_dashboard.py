@@ -54,12 +54,12 @@ from .pr2_runstop import PR2Runstops
 
 
 class PR2Dashboard(Dashboard):
-    def __init__(self,context):
-        super(PR2Dashboard, self).__init__(context, name='PR2 Dashboard',  MaxIconSize=QSize(50,30))
+    """
+    Dashboard for PR2s
 
-    def _add_args(self, parser):
-        parser.add_argument("-u", "--ros_master_uri", help="Set the ROS_MASTER_URI")
-
+    :param context: the plugin context
+    :type context: qt_gui.plugin.Plugin
+    """
     def setup(self, context):
         if context.argv:
             # argparse example
@@ -68,6 +68,7 @@ class PR2Dashboard(Dashboard):
             parser.parse_args(context.argv[1:])
 
         self.name = 'PR2 Dashboard'
+        self.max_icon_size = QSize(50, 30)
         self.message = None
 
         self._dashboard_message = None
@@ -88,23 +89,33 @@ class PR2Dashboard(Dashboard):
 
         self._dashboard_agg_sub = rospy.Subscriber('dashboard_agg', DashboardState, self.dashboard_callback)
 
+    def _add_args(self, parser):
+        parser.add_argument("-u", "--ros_master_uri", help="Set the ROS_MASTER_URI")
+
+
     def get_widgets(self):
         return [[self._monitor, self._console , self._motors], self._breakers, [self._runstop], self._batteries]
 
     def dashboard_callback(self, msg):
+        """
+        callback to process dashboard_agg messages
+
+        :param msg: dashboard_agg DashboardState message
+        :type msg: pr2_msgs.msg.DashboardState
+        """
         self._dashboard_message = msg
         self._last_dashboard_message_time = rospy.get_time()
 
         if (msg.motors_halted_valid):
             if (not msg.motors_halted.data):
                 self._motors.set_ok()
-                self._motors.setToolTip("Motors: Running")
+                self._motors.setToolTip(self.tr("Motors: Running"))
             else:
                 self._motors.set_error()
-                self._motors.setToolTip("Motors: Halted")
+                self._motors.setToolTip(self.tr("Motors: Halted"))
         else:
             self._motors.set_stale()
-            self._motors.setToolTip("Motors: Stale")
+            self._motors.setToolTip(self.tr("Motors: Stale"))
 
         if (msg.power_state_valid):
             self._batteries[0].set_power_state(msg.power_state)
@@ -115,24 +126,24 @@ class PR2Dashboard(Dashboard):
             [breaker.set_power_board_state_msg(msg.power_board_state) for breaker in self._breakers]
             if msg.power_board_state.run_stop:
                 self._runstop.set_ok()
-                self._runstop.setToolTip("Physical Runstop: OK\nWireless Runstop: OK")
+                self._runstop.setToolTip(self.tr("Physical Runstop: OK\nWireless Runstop: OK"))
             elif msg.power_board_state.wireless_stop:
                 self._runstop.set_physical_engaged()
-                self._runstop.setToolTip("Physical Runstop: Pressed\nWireless Runstop: OK")
+                self._runstop.setToolTip(self.tr("Physical Runstop: Pressed\nWireless Runstop: OK"))
             if not msg.power_board_state.wireless_stop:
                 self._runstop.set_wireless_engaged()
-                self._runstop.setToolTip("Physical Runstop: Unknown\nWireless Runstop: Pressed")
+                self._runstop.setToolTip(self.tr("Physical Runstop: Unknown\nWireless Runstop: Pressed"))
         else:
             [breaker.reset() for breaker in self._breakers]
             self._runstop.set_stale()
-            self._runstop.setToolTip("Physical Runstop: Stale\nWireless Runstop: Stale")
+            self._runstop.setToolTip(self.tr("Physical Runstop: Stale\nWireless Runstop: Stale"))
 
     def on_reset_motors(self):
         # if any of the breakers is not enabled ask if they'd like to enable them
         if (self._dashboard_message is not None and self._dashboard_message.power_board_state_valid):
             all_breakers_enabled = reduce(lambda x,y: x and y, [state == PowerBoardState.STATE_ON for state in self._dashboard_message.power_board_state.circuit_state])
             if (not all_breakers_enabled):
-                if(QMessageBox.question(self._breakers[0], 'Enable Breakers?', "Resetting the motors may not work because not all breakers are enabled.  Enable all the breakers first?",QMessageBox.Yes|QMessageBox.No,QMessageBox.Yes) == QMessageBox.Yes):
+                if(QMessageBox.question(self._breakers[0], self.tr('Enable Breakers?'), self.tr("Resetting the motors may not work because not all breakers are enabled.  Enable all the breakers first?"),QMessageBox.Yes|QMessageBox.No,QMessageBox.Yes) == QMessageBox.Yes):
                     [breaker.set_enable() for breaker in self._breakers]
         reset = rospy.ServiceProxy("pr2_etherCAT/reset_motors", std_srvs.srv.Empty)
         try:

@@ -38,7 +38,15 @@ from rqt_robot_dashboard.util import make_icon
 
 
 class PR2Battery(BatteryDashWidget):
+    """
+    Dashboard widget to display PR2 battery state.
+    """
+    #TODO When nonbutton Dashboard objects are available rebase this widget
     def __init__(self, context):
+        """
+        :param context: the plugin context
+        :type context: qt_gui.plugin.Plugin
+        """
         icons = []
         charge_icons = []
         for x in range(0, 6):
@@ -58,6 +66,12 @@ class PR2Battery(BatteryDashWidget):
         self.update_perc(0)
 
     def set_power_state(self, msg):
+        """
+        Sets button state based on msg
+
+        :param msg: message containing the power state of the PR2
+        :type msg: pr2_msgs.PowerState
+        """
         last_pct = self._pct
         last_plugged_in = self._plugged_in
         last_time_remaining = self._time_remaining

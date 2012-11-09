@@ -34,7 +34,18 @@ from python_qt_binding.QtCore import QSize
 from rqt_robot_dashboard.widgets import MenuDashWidget
 
 class PR2Motors(MenuDashWidget):
+    """
+    Dashboard widget to display motor state and allow interaction.
+    """
     def __init__(self, reset_callback, halt_callback):
+        """
+        :param context: the plugin context
+        :type context: qt_gui.plugin.Plugin
+        :param reset_callback: calback for the "reset" action
+        :type reset_callback: function
+        :param halt_callback: calback for the "reset" action
+        :type halt_callback: function
+        """
         ok_icon = ['bg-green.svg', 'ic-motors.svg']
         warn_icon = ['bg-yellow.svg', 'ic-motors.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-motors.svg', 'ol-err-badge.svg']

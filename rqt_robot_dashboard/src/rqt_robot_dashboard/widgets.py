@@ -34,11 +34,11 @@
 .. module:: widgets
     :synopsis: Widgets for the rqt_robot_dashboard.
 
-.. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>
+.. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>, Aaron Blasdel <ablasdel@willowgarage.com>
 
-This module provides a set of standard widgets for using with the dashboard.
+This module provides a set of standard widgets for using with the Dashboard class.
 
-To use them you must provide instances of the to your dashboard in its :func:`get_widgets` method. For example::
+To use them you must provide instances of them to your dashboard in its :func:`get_widgets` method. For example::
     
     from rqt_robot_dashboard.dashboard import Dashboard
     from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
@@ -46,15 +46,12 @@ To use them you must provide instances of the to your dashboard in its :func:`ge
     class MyDashboard(Dashboard):
         def get_widgets(self):
             self.monitor = MonitorDashWidget(self.context)
-            self.console = ConsoleDashWidget(self.console)
+            self.console = ConsoleDashWidget(self.context)
+            self.battery = BatteryDashWidget(self.context)
 
-            return({'Diagnostics': [self.monitor, self.console]})
+            return [[self.monitor, self.console],[self.battery]]
 
-Would create a simple dashboard with the ability to open a rqt_robot_monitor and a ROS console.
-
-Widget Types
-============
-
+Would create a simple dashboard with the ability to open a rqt_robot_monitor and a ROS console and monitor the battery.
 """
 
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
@@ -70,7 +67,7 @@ from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
-from QtCore import Signal, QMutex, QMutexLocker, QTimer, QSize
+from QtCore import Signal, QMutex, QMutexLocker, QSize, QTimer
 from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
 import os.path
 
@@ -243,9 +240,8 @@ class MenuDashWidget(IconToolButton):
     """
     def __init__(self, name, icons=None, clicked_icons=None):
         if icons == None:
-            icons = [['mode.png']]
-            clicked_icons = [['mode-click.png']]
-        super(MenuDashWidget, self).__init__(name, icons, clicked_icons )
+            icons = [['ic-motors.svg']]
+        super(MenuDashWidget, self).__init__(name, icons=icons, suppress_overlays=True )
         self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
         self.setPopupMode(QToolButton.InstantPopup)
         self.update_state(0)
@@ -263,7 +259,8 @@ class MenuDashWidget(IconToolButton):
         return self._menu.addSeparator()
 
     def add_action(self, name, callback):
-        """Add an action to the menu, and return the newly created action.
+        """
+        Add an action to the menu, and return the newly created action.
 
         :param name: The name of the action.
         :type name: str
@@ -273,7 +270,8 @@ class MenuDashWidget(IconToolButton):
         return self._menu.addAction(name, callback)
 
 class MonitorDashWidget(IconToolButton):
-    """A widget which brings up the rqt_robot_monitor.
+    """
+    A widget which brings up the rqt_robot_monitor.
 
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
@@ -360,7 +358,8 @@ class MonitorDashWidget(IconToolButton):
         self._monitor_close()
 
 class ConsoleDashWidget(IconToolButton):
-    """A widget which brings up the ROS console.
+    """
+    A widget which brings up the ROS console.
 
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
@@ -477,7 +476,8 @@ class ConsoleDashWidget(IconToolButton):
             self.setToolTip(tooltip)
 
 class BatteryDashWidget(IconToolButton):
-    """A Widget which displays incremental battery state, including a status tip.
+    """
+    A Widget which displays incremental battery state, including a status tip.
     To use this widget simply call `update_perc` and `update_time` to change the displayed charge percentage and time remaining, respectively.
 
     :param context: The plugin context
@@ -490,8 +490,8 @@ class BatteryDashWidget(IconToolButton):
             icons = []
             charge_icons = []
             for x in range(0, 6):
-                icons.append(make_icon(self.find_image('battery-%s.png'%(x*20)), 1))
-                charge_icons.append(make_icon(self.find_image('battery-charge-%s.png'%(x*20)), 1))
+                icons.append(make_icon(self.find_image('ic-battery-%s.svg'%(x*20)), 1))
+                charge_icons.append(make_icon(self.find_image('ic-battery-charge-%s.svg'%(x*20)), 1))
         super(BatteryDashWidget, self).__init__(name, icons, charge_icons)
         self.setEnabled(False)
 
@@ -519,14 +519,16 @@ class BatteryDashWidget(IconToolButton):
         self.setStatusTip("%s remaining"%val)
 
 class NavViewDashWidget(IconToolButton):
-    """A widget which launches a nav_view widget in order to view and interact with the ROS nav stack
+    """
+    A widget which launches a nav_view widget in order to view and interact with the ROS nav stack
+
     :param context: The plugin context in which to dsiplay the nav_view
     :type context: qt_gui.plugin_context.PluginContext
     :param name: The widgets name
     :type name: str
     """
     def __init__(self, context, name='NavView'):
-        super(NavViewDashWidget, self).__init__(name, [['nav.png']], [['nav-click.png']])
+        super(NavViewDashWidget, self).__init__(name, icons=[['ic-navigation.svg']], suppress_overlays=True)
         self.context = context
 
         self._nav_view = None

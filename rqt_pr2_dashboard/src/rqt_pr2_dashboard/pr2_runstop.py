@@ -34,7 +34,14 @@ from python_qt_binding.QtCore import QSize
 from rqt_robot_dashboard.widgets import IconToolButton
 
 class PR2Runstops(IconToolButton):
+    """
+    Dashboard widget to display PR2 Runstop state.
+    """
     def __init__(self, context):
+        """
+        :param context: the plugin context
+        :type context: qt_gui.plugin.Plugin
+        """
         ok_icon = ['bg-green.svg', 'ic-runstop-off.svg']
         physical_engaged_icon = ['bg-red.svg', 'ic-runstop-on.svg']
         wireless_engaged_icon = ['bg-red.svg', 'ic-wireless-runstop-on.svg']
@@ -43,10 +50,7 @@ class PR2Runstops(IconToolButton):
         icons = [ok_icon, physical_engaged_icon, wireless_engaged_icon, stale_icon]
         super(PR2Runstops, self).__init__('Runstop', icons, icons)
         self.setToolTip('Runstop')
-
-
         self.set_stale()
-
         self.setFixedSize(self._icons[0].actualSize(QSize(50,30)))
 
     def set_ok(self):

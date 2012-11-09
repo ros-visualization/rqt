@@ -43,7 +43,16 @@ from python_qt_binding.QtGui import QMessageBox
 
 
 class PR2BreakerButton(MenuDashWidget):
+    """
+    Dashboard widget to display and interact with the PR2 Breaker state.
+    """
     def __init__(self, breaker_name, breaker_index):
+        """
+        :param breaker_name: Name of the breaker
+        :type breaker_name: str
+        :param breaker_index: Index of the breaker
+        :type breaker_index: int
+        """
 
         import rospkg
         import os.path
@@ -57,8 +66,7 @@ class PR2BreakerButton(MenuDashWidget):
         elif breaker_name == 'Right Arm':
             breaker_icon = 'ic-rarm.svg'
         else:
-            breaker_icon = 'wrench.svg'
-            #  TODO get a default breaker picture in here
+            breaker_icon = 'ic-breaker.svg'
 
         ok_icon = ['bg-green.svg', breaker_icon]
         warn_icon = ['bg-yellow.svg', breaker_icon, 'ol-warn-badge.svg']
@@ -89,13 +97,21 @@ class PR2BreakerButton(MenuDashWidget):
         self.setToolTip(breaker_name)
 
     def control(self, breaker, cmd):
+        """
+        Sends a PowerBoardCommand srv to the pr2
+
+        :param breaker: breaker index to send command to
+        :type breaker: int
+        :param cmd: command to be sent to the pr2 breaker
+        :type cmd: str
+        """
         if (not self._power_board_state):
-            QMessageBox.critical(self, "Error", "Cannot control breakers until we have received a power board state message")
+            QMessageBox.critical(self, "Error", self.tr("Cannot control breakers until we have received a power board state message"))
             return False
 
         if (not self._power_board_state.run_stop or not self._power_board_state.wireless_stop):
             if (cmd == "start"):
-                QMessageBox.critical(self, "Error", "Breakers will not enable because one of the runstops is pressed")
+                QMessageBox.critical(self, "Error", self.tr("Breakers will not enable because one of the runstops is pressed"))
                 return False
     
         try:
@@ -170,6 +186,12 @@ class PR2BreakerButton(MenuDashWidget):
         self.control3("disable")
     
     def set_power_board_state_msg(self, msg):
+        """
+        Sets state of button based on msg
+
+        :param msg: message containing the PR2 powerboard state
+        :type msg: pr2_msgs.msg.PowerBoardState
+        """
         last_voltage = msg.circuit_voltage[self._index]
       
         self._power_board_state = msg
