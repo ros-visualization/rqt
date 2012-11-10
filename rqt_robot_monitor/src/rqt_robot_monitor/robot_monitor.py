@@ -103,7 +103,7 @@ class StatusItem(QTreeWidgetItem):
     @param status: DiagnosticStatus 
     '''
     def __init__(self, status):
-        super(StatusItem, self).__init__()
+        super(StatusItem, self).__init__(QTreeWidgetItem.UserType)
     
         self._children_statusitems = []
         self.name = status.name
@@ -174,20 +174,15 @@ class StatusItem(QTreeWidgetItem):
                 #status_item.setText(0, headline)
                 status_item.setText(0, device_name)
                 status_item.setText(1, child_diagnostic_status.message)
-                rospy.logdebug(' StatusItem update 44')
             elif len(self.strip_child(name).split('/')) <= 2:
                 status_item = StatusItem(child_diagnostic_status)
                 status_item.update_children(child_diagnostic_status, diag_array)  # Recursive call.
-                rospy.logdebug(' StatusItem update 55')
                 #status_item.setText(0, headline)
                 status_item.setText(0, device_name)
                 status_item.setText(1, child_diagnostic_status.message)
-                rospy.logdebug(' StatusItem update 66')
                 self._children_statusitems.append(status_item)
-                rospy.logdebug(' StatusItem update 77')
                 # new_statusitems.append(status_item)
                 self.addChild(status_item)             
-                rospy.logdebug(' StatusItem update 88')   
                       
         # self.addChildren(new_statusitems)  # QTreeWidgetItem::addChildren(QList)
         # return set/dict of error&warn
