@@ -61,11 +61,10 @@ class PR2Dashboard(Dashboard):
     :type context: qt_gui.plugin.Plugin
     """
     def setup(self, context):
-        if context.argv:
-            # argparse example
-            parser = argparse.ArgumentParser()
-            self._add_args(parser)
-            parser.parse_args(context.argv[1:])
+        # argparse example
+        parser = argparse.ArgumentParser()
+        self._add_args(parser)
+        parser.parse_args(context.argv())
 
         self.name = 'PR2 Dashboard'
         self.max_icon_size = QSize(50, 30)
@@ -91,7 +90,6 @@ class PR2Dashboard(Dashboard):
 
     def _add_args(self, parser):
         parser.add_argument("-u", "--ros_master_uri", help="Set the ROS_MASTER_URI")
-
 
     def get_widgets(self):
         return [[self._monitor, self._console , self._motors], self._breakers, [self._runstop], self._batteries]
