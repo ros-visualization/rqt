@@ -30,14 +30,25 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import collections
-import operator
+from python_qt_binding import QT_BINDING, QT_BINDING_VERSION
+if QT_BINDING == 'pyside':
+    try:
+        from pkg_resources import parse_version
+    except:
+        import re
+        def parse_version(s):
+            return [int(x) for x in re.sub(r'(\.0+)*$', '', s).split('.')]
+    if parse_version(QT_BINDING_VERSION) <= parse_version('1.1.2'):
+        raise ImportError('A PySide version newer than 1.1.0 is required.')
+
 from python_qt_binding.QtCore import Slot, Qt
 from python_qt_binding.QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
 
+import collections
+import operator
 import matplotlib
 if matplotlib.__version__ < '1.1.0':
-    raise RuntimeError('A newer matplotlib is required (at least 1.1.0)')
+    raise ImportError('A newer matplotlib is required (at least 1.1.0)')
 
 try:
     from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas

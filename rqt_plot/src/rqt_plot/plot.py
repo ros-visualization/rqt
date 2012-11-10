@@ -72,7 +72,7 @@ class Plot(Plugin):
         {
             'title': 'MatPlot',
             'widget_class': MatDataPlot,
-            'description': 'Based on MatPlotLib\n- needs most CPU\n- needs matplotlib',
+            'description': 'Based on MatPlotLib\n- needs most CPU\n- needs matplotlib >= 1.1.0\n- if using PySide: PySide > 1.1.0',
             'enabled': MatDataPlot is not None,
         }, 
         {
