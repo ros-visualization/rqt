@@ -48,10 +48,12 @@ class RobotMonitorPlugin(Plugin):
         if context.serial_number() > 1:
             self.self._robot_monitor.setWindowTitle(self.self._robot_monitor.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._robot_monitor)
-        self.setObjectName('rqt Robot Monitor')
+        self.setObjectName('rqt Robot Monitor')        
         
-        
+    '''
+    Overriding Plugin's function.
+    '''
     def shutdown_plugin (self):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
-        self._robot_monitor._shutdown() # Closes unclosed popup windows.
-
+        self._robot_monitor.shutdown() # Closes unclosed popup windows.
+        self._robot_monitor.close()
