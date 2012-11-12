@@ -298,7 +298,6 @@ class MonitorDashWidget(IconToolButton):
                 self._monitor_close()
             else:
                 self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
-                self._monitor.destroyed.connect(self._monitor_close)
                 self.context.add_widget(self._monitor)
                 self._monitor_shown = True
         except Exception as e:
@@ -309,11 +308,17 @@ class MonitorDashWidget(IconToolButton):
         locker = QMutexLocker(self._close_mutex)
         if self._monitor_shown:
             self._monitor_shown = False
+            self._monitor.shutdown()
             self._monitor.close()
             self._monitor = None
 
-    def close(self):
-        self._monitor_close()
+    def shutdown_widget(self):
+        if self._monitor:
+            if hasattr(self._monitor, 'shutdown'):
+                self._monitor.shutdown()
+            else:
+                self._monitor._shutdown()
+        self._diagnostics_toplevel_state_sub.unregister()
 
 class ConsoleDashWidget(IconToolButton):
     """
@@ -394,9 +399,6 @@ class ConsoleDashWidget(IconToolButton):
             self._datamodel._insert_message_queue.append(msg)
             self._mutex.unlock()
 
-    def _console_destroyed(self):
-        self._console = None
-
     def update_rosout(self):
         summary_dur = 30.0
         if (rospy.get_time() < 30.0):
@@ -433,6 +435,18 @@ class ConsoleDashWidget(IconToolButton):
 
         if (tooltip != self.toolTip()):
             self.setToolTip(tooltip)
+
+    def _console_destroyed(self):
+        if self._console:
+            self._console.cleanup_browsers_on_close()
+        self._console = None
+
+    def shutdown_widget(self):
+        if self._console:
+            self._console.cleanup_browsers_on_close()
+        if self._subscriber:
+            self._subscriber.unsubscribe_topic()
+        self._timer.stop()
 
 class BatteryDashWidget(IconToolButton):
     """
