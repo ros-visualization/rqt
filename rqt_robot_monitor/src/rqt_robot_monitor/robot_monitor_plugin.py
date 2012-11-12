@@ -52,5 +52,5 @@ class RobotMonitorPlugin(Plugin):
         
     def shutdown_plugin (self):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
-        self._robot_monitor._shutdown() # Closes unclosed popup windows.
+        self._robot_monitor.shutdown() # Closes unclosed popup windows.
         self._robot_monitor.close()

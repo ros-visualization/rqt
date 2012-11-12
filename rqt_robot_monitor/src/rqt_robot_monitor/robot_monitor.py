@@ -424,6 +424,9 @@ class RobotMonitorWidget(QWidget):
         self.err_tree.clear()
         self.warn_tree.clear()
     
+    '''
+    Added 11/12/2012 Still buggy
+    '''
     def _update_flat_tree_3(self, diag_arr, statusitems_curr_toplevel):
         devicenames_toplevel_curr = [get_nice_name(k.name) for k in statusitems_curr_toplevel]
         for diag_stat_new in diag_arr.status:
@@ -436,33 +439,16 @@ class RobotMonitorWidget(QWidget):
                 if 0 <= dev_index_warn_curr:
                     statitem_curr = self._remove_statitem(dev_index_warn_curr, self.warn_statusitems, self.warn_tree)
                     statitem_curr.warning_id = None                    
-#                    statitem_existing = self.warn_statusitems[dev_index_warn_curr]
-#                    rospy.loginfo(' 4444 _update_flat_tree_3 REMOVE FROM TREE name=%s', statitem_existing.name)
-#                    self.warn_tree.takeTopLevelItem(self.warn_tree.indexOfTopLevelItem(statitem_existing))
-#                    self.warn_statusitems.pop(dev_index_warn_curr)
                 elif 0 <= dev_index_err_curr:
                     statitem_curr = self._remove_statitem(dev_index_err_curr, self.err_statusitems, self.err_tree)
                     statitem_curr.error_id = None
             elif DiagnosticStatus.WARN == stat_lv_new:
-                # if 0 <= dev_index_warn_curr: ##Do nothing.
                 if 0 <= dev_index_err_curr:
                     statitem_curr = self._remove_statitem(dev_index_err_curr, self.err_statusitems, self.err_tree)
-                    
-                    # Update statusitem with the info in the new incoming msg
                     self._add_statitem(statitem_curr, self.warn_statusitems, self.warn_tree, headline, diag_stat_new.message, stat_lv_new)
-#                    statitem_curr.setText(0, headline)
-#                    statitem_curr.setText(1, diag_stat_new.message)
-#                    statitem_curr.setIcon(0, image_dict[stat_lv_new])
-#                    self.warn_statusitems.append(statitem_curr)                
-#                    self.warn_tree.addTopLevelItem(statitem_curr)   
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     statitem_new = StatusItem(diag_stat_new)
                     self._add_statitem(statitem_new, self.warn_statusitems, self.warn_tree, headline, diag_stat_new.message, stat_lv_new)
-#                    statitem_new.setText(0, headline)
-#                    statitem_new.setText(1, diag_stat_new.message)
-#                    statitem_new.setIcon(0, image_dict[stat_lv_new])
-#                    self.warn_statusitems.append(statitem_new)                
-#                    self.warn_tree.addTopLevelItem(statitem_curr)
             elif DiagnosticStatus.ERROR == stat_lv_new:
                 if 0 <= dev_index_warn_curr:
                     statitem_curr = self._remove_statitem(dev_index_warn_curr, self.warn_statusitems, self.warn_tree)
@@ -488,10 +474,6 @@ class RobotMonitorWidget(QWidget):
         statitem_existing = item_list[item_index]
         tree.takeTopLevelItem(tree.indexOfTopLevelItem(statitem_existing))
         item_list.pop(item_index)
-#        if DiagnosticStatus.WARN == status_type:
-#            statitem_existing.warning_id = None
-#        elif DiagnosticStatus.ERROR == status_type:
-#            statitem_existing.error_id = None            
         return statitem_existing
 
         
@@ -594,7 +576,7 @@ class RobotMonitorWidget(QWidget):
             self._sub.unregister()
             self._sub = None
 
-    def _shutdown(self):
+    def shutdown(self):
         rospy.logdebug('RobotMonitorWidget in _shutdown')
         # Close all StatusItem (and each associated InspectWidget)        
         # self.tree_all_devices.clear()  # Doesn't work for the purpose (inspector windows don't get closed)
