@@ -224,6 +224,9 @@ class StatusItem(QTreeWidgetItem):
         for status_item in self._children_statusitems:
             status_item.close()
             
+'''
+shutdown function needs to be called when the class terminates.
+'''            
 class RobotMonitorWidget(QWidget):
     # sig_err = Signal(str, int)
     # sig_warn = Signal(str, str, int)    
@@ -576,6 +579,9 @@ class RobotMonitorWidget(QWidget):
             self._sub.unregister()
             self._sub = None
 
+    '''
+    This needs to be called whenever this class terminates.
+    '''
     def shutdown(self):
         rospy.logdebug('RobotMonitorWidget in _shutdown')
         # Close all StatusItem (and each associated InspectWidget)        

@@ -50,6 +50,9 @@ class RobotMonitorPlugin(Plugin):
         context.add_widget(self._robot_monitor)
         self.setObjectName('rqt Robot Monitor')        
         
+    '''
+    Overriding Plugin's function.
+    '''
     def shutdown_plugin (self):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
         self._robot_monitor.shutdown() # Closes unclosed popup windows.
