@@ -314,10 +314,7 @@ class MonitorDashWidget(IconToolButton):
 
     def shutdown_widget(self):
         if self._monitor:
-            if hasattr(self._monitor, 'shutdown'):
-                self._monitor.shutdown()
-            else:
-                self._monitor._shutdown()
+            self._monitor.shutdown()
         self._diagnostics_toplevel_state_sub.unregister()
 
 class ConsoleDashWidget(IconToolButton):
