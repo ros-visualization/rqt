@@ -211,7 +211,7 @@ class StatusItem(QTreeWidgetItem):
         if not self.inspector:
             rospy.logdebug('StatusItem.on_click No InspectorWindow Found')
             self.inspector = InspectorWindow(self.status)                        
-            self.inspector._close_window.connect(self.close_inspector_window)            
+            self.inspector.sig_close_window.connect(self.close_inspector_window)            
         else:
             rospy.logdebug('StatusItem.on_click activate InspectorWindow')
             self.inspector.activateWindow()
