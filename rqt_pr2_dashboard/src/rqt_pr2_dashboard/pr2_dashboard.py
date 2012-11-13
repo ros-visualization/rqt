@@ -157,4 +157,6 @@ class PR2Dashboard(Dashboard):
       except rospy.ServiceException, e:
         QMessageBox.critical(self._motors, "Error", "Failed to halt the motors: service call failed with error: %s"%(e))
 
+    def shutdown_dashboard(self):
+        self._dashboard_agg_sub.unregister()
 

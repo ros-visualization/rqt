@@ -96,6 +96,8 @@ class Dashboard(Plugin):
         Called when the toolbar is closed by Qt.
         """
         for widget in self._widgets:
+            if hasattr(widget, 'shutdown_widget'):
+                widget.shutdown_widget()
             if hasattr(widget, 'close'):
                 widget.close()
 
