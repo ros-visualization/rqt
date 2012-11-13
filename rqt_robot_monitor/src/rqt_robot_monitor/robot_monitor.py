@@ -47,15 +47,15 @@ from python_qt_binding.QtCore import Signal, Qt
 from inspector_window import InspectorWindow
 from timeline_pane import TimelinePane
 
-ERR_LEVELS = [2, 3]
+_ERR_LEVELS = [2, 3]
 
 # Instantiating icons that show the device status.
-ERR_ICON = QIcon.fromTheme('face-angry')
-WARN_ICON = QIcon.fromTheme('face-sick')
-OK_ICON = QIcon.fromTheme('face-laugh')  
-STALE_ICON = QIcon.fromTheme('face-tired')  # Added following this QA thread
+_ERR_ICON = QIcon.fromTheme('face-angry')
+_WARN_ICON = QIcon.fromTheme('face-sick')
+_OK_ICON = QIcon.fromTheme('face-laugh')  
+_STALE_ICON = QIcon.fromTheme('face-tired')  # Added following this QA thread
                                             # http://goo.gl/83tVZ
-IMG_DICT = {0: OK_ICON, 1: WARN_ICON, 2: ERR_ICON, 3: STALE_ICON}
+_IMG_DICT = {0: _OK_ICON, 1: _WARN_ICON, 2: _ERR_ICON, 3: _STALE_ICON}
 
 '''
 TODO Following non-class functions need to be considered about porting out to 
@@ -99,7 +99,7 @@ def update_status_images(diagnostic_status, statusitem):
                        level, statusitem.last_level, name)        
         if (diagnostic_status.level != statusitem.last_level):  
             # TODO Apparently diagnosis_status doesn't contain last_level. 
-            statusitem.setIcon(0, IMG_DICT[level])
+            statusitem.setIcon(0, _IMG_DICT[level])
             statusitem.last_level = level
             return
               
@@ -526,7 +526,7 @@ class RobotMonitorWidget(QWidget):
                       statusmsg, statlevel):
         statusitem.setText(0, headline)
         statusitem.setText(1, statusmsg)
-        statusitem.setIcon(0, IMG_DICT[statlevel])
+        statusitem.setIcon(0, _IMG_DICT[statlevel])
         statitem_list.append(statusitem)                
         tree.addTopLevelItem(statusitem)
         
@@ -653,7 +653,7 @@ class RobotMonitorWidget(QWidget):
                               diag_stat_new.name, diag_stat_new.message)
                 statitem_new.setText(0, headline)
                 statitem_new.setText(1, diag_stat_new.message)
-                statitem_new.setIcon(0, IMG_DICT[level])
+                statitem_new.setIcon(0, _IMG_DICT[level])
                 # all_lev_statitems_tobe_shown.append(statitem_new)                
                 statitems_existing.append(statitem_new)                
                 itemtree.addTopLevelItem(statitem_new)
