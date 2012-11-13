@@ -46,7 +46,9 @@ class RobotMonitorPlugin(Plugin):
         super(RobotMonitorPlugin, self).__init__(context)        
         self._robot_monitor = RobotMonitorWidget(context, '/diagnostics_agg')
         if context.serial_number() > 1:
-            self.self._robot_monitor.setWindowTitle(self.self._robot_monitor.windowTitle() + (' (%d)' % context.serial_number()))
+            self.self._robot_monitor.setWindowTitle(
+                 self.self._robot_monitor.windowTitle() + 
+                      (' (%d)' % context.serial_number()))
         context.add_widget(self._robot_monitor)
         self.setObjectName('rqt Robot Monitor')        
         

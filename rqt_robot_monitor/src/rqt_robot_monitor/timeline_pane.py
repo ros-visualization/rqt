@@ -42,9 +42,6 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget, QGraphicsScene, QGraphicsView, QColor, QHBoxLayout, QPushButton
 from python_qt_binding.QtCore import Signal, Qt
 
-'''
-Moved from inner class of TimelinePane
-'''
 class TimelineView(QGraphicsView):
     def __init__(self, parent):
         super(TimelineView, self).__init__()
@@ -62,7 +59,8 @@ class TimelinePane(QWidget):
     def __init__(self, parent):
         super(TimelinePane, self).__init__()
         self.parent = parent
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'rqt_robot_monitor_timelinepane.ui')
+        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+                               'rqt_robot_monitor_timelinepane.ui')
         loadUi(ui_file, self)
         
         # self._layout = QHBoxLayout()        
@@ -107,7 +105,8 @@ class TimelinePane(QWidget):
     '''
     def mouse_release(self, event):
         xpos_clicked = event.x()
-        width_each_cell_shown = float(self._timeline_view.viewport().width()) / len(self._mq)
+        width_each_cell_shown = float(
+                       self._timeline_view.viewport().width()) / len(self._mq)
         i = int(floor( xpos_clicked / width_each_cell_shown ))
 
         msg = self._messages[i]

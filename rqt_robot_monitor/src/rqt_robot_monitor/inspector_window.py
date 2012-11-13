@@ -43,10 +43,10 @@ from python_qt_binding.QtCore import Signal, Qt
 from timeline_pane import TimelinePane
 
 class InspectorWindow(QWidget):
-    write = Signal(str, str)
-    newline = Signal()
-    _close_window = Signal()
-    clear = Signal()
+    _sig_write = Signal(str, str)
+    _sig_newline = Signal()
+    _sig_close_window = Signal()
+    _sig_clear = Signal()
     
     def __init__(self, status):
         super(InspectorWindow, self).__init__()
@@ -54,25 +54,25 @@ class InspectorWindow(QWidget):
         self.setWindowTitle(status.name)
         self.paused = False
 
-        layout_vertical = QVBoxLayout(self)
+        self.layout_vertical = QVBoxLayout(self)
         
         self.disp = QTextEdit(self)
         self.snapshot = QPushButton("Snapshot")
 
         self.timeline = TimelinePane(self)
 
-        layout_vertical.addWidget(self.disp, 1)
-        layout_vertical.addWidget(self.timeline, 0)
-        layout_vertical.addWidget(self.snapshot)
+        self.layout_vertical.addWidget(self.disp, 1)
+        self.layout_vertical.addWidget(self.timeline, 0)
+        self.layout_vertical.addWidget(self.snapshot)
 
         self.snaps = []
         self.snapshot.clicked.connect(self.take_snapshot)
 
-        self.write.connect(self.write_kv)
-        self.newline.connect(lambda: self.disp.insertPlainText('\n'))
-        self.clear.connect(lambda: self.disp.clear())
+        self._sig_write.connect(self.write_kv)
+        self._sig_newline.connect(lambda: self.disp.insertPlainText('\n'))
+        self._sig_clear.connect(lambda: self.disp._sig_clear())
 
-        self.setLayout(layout_vertical)
+        self.setLayout(self.layout_vertical)
         self.setGeometry(0, 0, 300, 400)  # TODO better to be configurable where to appear. 
         self.show()
         self.update_children(status)
@@ -82,7 +82,7 @@ class InspectorWindow(QWidget):
     '''
     def closeEvent(self, event):    
         # emit signal that should be slotted by StatusItem
-        self._close_window.emit()        
+        self._sig_close_window.emit()        
         self.close()
                 
     def write_kv(self, k, v):
@@ -106,40 +106,42 @@ class InspectorWindow(QWidget):
             self.status = status
             self.timeline.add_message(status)
 
-            self.clear.emit()
-            self.write.emit("Full Name", status.name)
-            self.write.emit("Component", status.name.split('/')[-1])
-            self.write.emit("Hardware ID", status.hardware_id)
-            self.write.emit("Level", str(status.level))
-            self.write.emit("Message", status.message)
-            self.newline.emit()
+            self._sig_clear.emit()
+            self._sig_write.emit("Full Name", status.name)
+            self._sig_write.emit("Component", status.name.split('/')[-1])
+            self._sig_write.emit("Hardware ID", status.hardware_id)
+            self._sig_write.emit("Level", str(status.level))
+            self._sig_write.emit("Message", status.message)
+            self._sig_newline.emit()
 
             for v in status.values:
-                self.write.emit(v.key, v.value)
+                self._sig_write.emit(v.key, v.value)
 
     def take_snapshot(self):
         snap = Snapshot(self.status)
         self.snaps.append(snap)
-        
+
+"""
+Display a single static status message. Helps facilitate copy/paste
+"""        
 class Snapshot(QTextEdit):
-    """Display a single static status message. Helps facilitate copy/paste"""
     def __init__(self, status):
         super(Snapshot, self).__init__()
 
-        self.write("Full Name", status.name)
-        self.write("Component", status.name.split('/')[-1])
-        self.write("Hardware ID", status.hardware_id)
-        self.write("Level", status.level)
-        self.write("Message", status.message)
+        self._write("Full Name", status.name)
+        self._write("Component", status.name.split('/')[-1])
+        self._write("Hardware ID", status.hardware_id)
+        self._write("Level", status.level)
+        self._write("Message", status.message)
         self.insertPlainText('\n')
 
         for value in status.values:
-            self.write(value.key, value.value)
+            self._write(value.key, value.value)
 
         self.setGeometry(0, 0, 300, 400)
         self.show()
 
-    def write(self, k, v):
+    def _write(self, k, v):
         self.setFontWeight(75)
         self.insertPlainText(str(k))
         self.insertPlainText(': ')
