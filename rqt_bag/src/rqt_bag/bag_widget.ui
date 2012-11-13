@@ -264,7 +264,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGraphicsView" name="graphics_view"/>
+    <widget class="BagGraphicsView" name="graphics_view"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="status_bar_layout">
@@ -391,6 +391,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BagGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>rqt_bag.bag_widget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

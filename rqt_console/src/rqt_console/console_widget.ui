@@ -110,7 +110,7 @@
        <property name="childrenCollapsible">
         <bool>true</bool>
        </property>
-       <widget class="QTableView" name="table_view">
+       <widget class="ConsoleTableView" name="table_view">
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
@@ -271,6 +271,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ConsoleTableView</class>
+   <extends>QTableView</extends>
+   <header>rqt_console.console_widget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

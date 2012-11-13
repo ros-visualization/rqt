@@ -56,6 +56,11 @@ from .filters.time_filter_widget import TimeFilterWidget
 from .text_browse_dialog import TextBrowseDialog
 
 
+class ConsoleTableView(QTableView):
+    def __init__(self, parent=None):
+        super(ConsoleTableView, self).__init__()
+
+
 class ConsoleWidget(QWidget):
     """
     Primary widget for the rqt_console plugin.
@@ -67,7 +72,7 @@ class ConsoleWidget(QWidget):
         """
         super(ConsoleWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_widget.ui')
-        loadUi(ui_file, self)
+        loadUi(ui_file, self, {'ConsoleTableView': ConsoleTableView})
         
         if minimal:
             self.load_button.hide()

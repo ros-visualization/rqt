@@ -43,6 +43,11 @@ import bag_helper
 from .bag_timeline import BagTimeline
 
 
+class BagGraphicsView(QGraphicsView):
+    def __init__(self, parent=None):
+        super(BagGraphicsView, self).__init__()
+
+
 class BagWidget(QWidget):
     """
     Widget for use with Bag class to display and replay bag files
@@ -54,7 +59,7 @@ class BagWidget(QWidget):
         """
         super(BagWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'bag_widget.ui')
-        loadUi(ui_file, self)
+        loadUi(ui_file, self, {'BagGraphicsView': BagGraphicsView})
 
         self.setObjectName('BagWidget')
 

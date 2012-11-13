@@ -61,7 +61,7 @@ class TimelinePane(QWidget):
         self.parent = parent
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                'rqt_robot_monitor_timelinepane.ui')
-        loadUi(ui_file, self)
+        loadUi(ui_file, self, {'TimelineView': TimelineView})
         
         # self._layout = QHBoxLayout()        
         # self._timeline_view = QGraphicsView() # Commented out by Ze'ev.
