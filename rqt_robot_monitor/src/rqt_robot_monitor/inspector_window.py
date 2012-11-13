@@ -45,7 +45,7 @@ from timeline_pane import TimelinePane
 class InspectorWindow(QWidget):
     _sig_write = Signal(str, str)
     _sig_newline = Signal()
-    _sig_close_window = Signal()
+    sig_close_window = Signal()
     _sig_clear = Signal()
     
     def __init__(self, status):
@@ -70,7 +70,7 @@ class InspectorWindow(QWidget):
 
         self._sig_write.connect(self.write_kv)
         self._sig_newline.connect(lambda: self.disp.insertPlainText('\n'))
-        self._sig_clear.connect(lambda: self.disp._sig_clear())
+        self._sig_clear.connect(lambda: self.disp.clear())
 
         self.setLayout(self.layout_vertical)
         self.setGeometry(0, 0, 300, 400)  # TODO better to be configurable where to appear. 
@@ -82,7 +82,7 @@ class InspectorWindow(QWidget):
     '''
     def closeEvent(self, event):    
         # emit signal that should be slotted by StatusItem
-        self._sig_close_window.emit()        
+        self.sig_close_window.emit()        
         self.close()
                 
     def write_kv(self, k, v):
