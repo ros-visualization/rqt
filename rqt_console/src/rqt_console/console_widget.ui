@@ -110,22 +110,28 @@
        <property name="childrenCollapsible">
         <bool>true</bool>
        </property>
-       <widget class="ConsoleTableView" name="table_view">
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="horizontalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
-        <attribute name="verticalHeaderDefaultSectionSize">
-         <number>18</number>
-        </attribute>
-        <attribute name="verticalHeaderMinimumSectionSize">
-         <number>18</number>
-        </attribute>
+       <widget class="QWidget" name="PlaceHolder">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="ConsoleTableView" name="table_view">
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="horizontalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+           <attribute name="verticalHeaderDefaultSectionSize">
+            <number>18</number>
+           </attribute>
+           <attribute name="verticalHeaderMinimumSectionSize">
+            <number>18</number>
+           </attribute>
+          </widget>
+         </item>
+        </layout>
        </widget>
        <widget class="QSplitter" name="filter_splitter">
         <property name="orientation">
@@ -221,7 +227,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
              <widget class="QPushButton" name="highlight_exclude_button">
               <property name="maximumSize">
