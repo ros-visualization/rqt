@@ -52,6 +52,7 @@ from .filters.filter_wrapper_widget import FilterWrapperWidget
 from .filters.list_filter_widget import ListFilterWidget
 from .filters.text_filter_widget import TextFilterWidget
 from .filters.time_filter_widget import TimeFilterWidget
+from .filters.filter_utils import pack, unpack
 
 from .text_browse_dialog import TextBrowseDialog
 
@@ -73,7 +74,7 @@ class ConsoleWidget(QWidget):
         super(ConsoleWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_widget.ui')
         loadUi(ui_file, self, {'ConsoleTableView': ConsoleTableView})
-        
+
         if minimal:
             self.load_button.hide()
             self.save_button.hide()
@@ -82,7 +83,7 @@ class ConsoleWidget(QWidget):
         self.table_view.setModel(proxymodel)
         self._proxymodel = proxymodel
         self._datamodel = proxymodel.sourceModel()
-                
+
         self._columnwidth = (600, 140, 200, 430, 200, 600)
         for idx, width in enumerate(self._columnwidth):
             self.table_view.horizontalHeader().resizeSection(idx, width)
@@ -567,14 +568,14 @@ class ConsoleWidget(QWidget):
             exclude_filters.append(item[2])
             filter_settings = instance_settings.get_settings('exclude_filter_' + str(index))
             item[1].save_settings(filter_settings)
-        instance_settings.set_value('exclude_filters', exclude_filters)
+        instance_settings.set_value('exclude_filters', pack(exclude_filters))
 
         highlight_filters = []
         for index, item in enumerate(self._highlight_filters):
             highlight_filters.append(item[2])
             filter_settings = instance_settings.get_settings('highlight_filter_' + str(index))
             item[1].save_settings(filter_settings)
-        instance_settings.set_value('highlight_filters', highlight_filters)
+        instance_settings.set_value('highlight_filters', pack(highlight_filters))
 
     def restore_settings(self, pluggin_settings, instance_settings):
         if instance_settings.contains('table_splitter'):
@@ -595,7 +596,7 @@ class ConsoleWidget(QWidget):
             item[1].delete_button.setChecked(True)
         self._delete_exclude_filter()
         if instance_settings.contains('exclude_filters'):
-            exclude_filters = instance_settings.value('exclude_filters')
+            exclude_filters = unpack(instance_settings.value('exclude_filters'))
             if exclude_filters is not None:
                 for index, item in enumerate(exclude_filters):
                     self._add_exclude_filter(item)
@@ -608,7 +609,7 @@ class ConsoleWidget(QWidget):
             item[1].delete_button.setChecked(True)
         self._delete_highlight_filter()
         if instance_settings.contains('highlight_filters'):
-            highlight_filters = instance_settings.value('highlight_filters')
+            highlight_filters = unpack(instance_settings.value('highlight_filters'))
             if highlight_filters is not None:
                 for index, item in enumerate(highlight_filters):
                     self._add_highlight_filter(item)
