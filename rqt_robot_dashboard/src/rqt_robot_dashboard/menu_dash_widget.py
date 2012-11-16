@@ -30,34 +30,47 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""
-.. module:: widgets
-    :synopsis: Widgets for the rqt_robot_dashboard.
-
-.. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>, Aaron Blasdel <ablasdel@willowgarage.com>
-
-This module provides a set of standard widgets for using with the Dashboard class.
-
-To use them you must provide instances of them to your dashboard in its :func:`get_widgets` method. For example::
-    
-    from rqt_robot_dashboard.dashboard import Dashboard
-    from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
-
-    class MyDashboard(Dashboard):
-        def get_widgets(self):
-            self.monitor = MonitorDashWidget(self.context)
-            self.console = ConsoleDashWidget(self.context)
-            self.battery = BatteryDashWidget(self.context)
-
-            return [[self.monitor, self.console],[self.battery]]
-
-Would create a simple dashboard with the ability to open a rqt_robot_monitor and a ROS console and monitor the battery.
-"""
-
+from QtGui import QMenu, QToolButton
 from .icon_tool_button import IconToolButton
-from .battery_dash_widget import BatteryDashWidget
-from .console_dash_widget import ConsoleDashWidget
-from .menu_dash_widget import MenuDashWidget
-from .monitor_dash_widget import MonitorDashWidget
-from .nav_view_dash_widget import NavViewDashWidget
+
+
+class MenuDashWidget(IconToolButton):
+    """
+    A widget which displays a pop-up menu when clicked
+
+    :param name: The name to give this widget.
+    :type name: str
+    :param icon: The icon to display in this widgets button.
+    :type icon: str
+    """
+    def __init__(self, name, icons=None, clicked_icons=None, icon_paths=[]):
+        if icons == None:
+            icons = [['ic-motors.svg']]
+        super(MenuDashWidget, self).__init__(name, icons=icons, suppress_overlays=True, icon_paths=icon_paths)
+        self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.update_state(0)
+
+        self.pressed.disconnect(self._pressed)
+        self.released.disconnect(self._released)
+
+        self._menu = QMenu()
+        self._menu.aboutToHide.connect(self._released)
+        self._menu.aboutToShow.connect(self._pressed)
+
+        self.setMenu(self._menu)
+
+    def add_separator(self):
+        return self._menu.addSeparator()
+
+    def add_action(self, name, callback):
+        """
+        Add an action to the menu, and return the newly created action.
+
+        :param name: The name of the action.
+        :type name: str
+        :param callback: Function to be called when this item is pressed.
+        :type callback: callable
+        """
+        return self._menu.addAction(name, callback)
 

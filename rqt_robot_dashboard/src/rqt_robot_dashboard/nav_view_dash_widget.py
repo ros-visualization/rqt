@@ -30,34 +30,34 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""
-.. module:: widgets
-    :synopsis: Widgets for the rqt_robot_dashboard.
-
-.. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>, Aaron Blasdel <ablasdel@willowgarage.com>
-
-This module provides a set of standard widgets for using with the Dashboard class.
-
-To use them you must provide instances of them to your dashboard in its :func:`get_widgets` method. For example::
-    
-    from rqt_robot_dashboard.dashboard import Dashboard
-    from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
-
-    class MyDashboard(Dashboard):
-        def get_widgets(self):
-            self.monitor = MonitorDashWidget(self.context)
-            self.console = ConsoleDashWidget(self.context)
-            self.battery = BatteryDashWidget(self.context)
-
-            return [[self.monitor, self.console],[self.battery]]
-
-Would create a simple dashboard with the ability to open a rqt_robot_monitor and a ROS console and monitor the battery.
-"""
-
+from rqt_nav_view import NavViewWidget
 from .icon_tool_button import IconToolButton
-from .battery_dash_widget import BatteryDashWidget
-from .console_dash_widget import ConsoleDashWidget
-from .menu_dash_widget import MenuDashWidget
-from .monitor_dash_widget import MonitorDashWidget
-from .nav_view_dash_widget import NavViewDashWidget
 
+
+class NavViewDashWidget(IconToolButton):
+    """
+    A widget which launches a nav_view widget in order to view and interact with the ROS nav stack
+
+    :param context: The plugin context in which to dsiplay the nav_view
+    :type context: qt_gui.plugin_context.PluginContext
+    :param name: The widgets name
+    :type name: str
+    """
+    def __init__(self, context, name='NavView', icon_paths=[]):
+        super(NavViewDashWidget, self).__init__(name, icons=[['ic-navigation.svg']], suppress_overlays=True, icon_paths=icon_paths)
+        self.context = context
+
+        self._nav_view = None
+
+        self.clicked.connect(self._show_nav_view)
+
+    def _show_nav_view(self):
+        if not self._nav_view:
+            #TODO: There should be some way to customize the params for nav_view creation
+            self._nav_view = NavViewWidget() 
+            self._nav_view.destroyed.connect(self._view_closed)
+
+        self.context.add_widget(self._nav_view)
+
+    def _view_closed(self):
+        self._nav_view = None
