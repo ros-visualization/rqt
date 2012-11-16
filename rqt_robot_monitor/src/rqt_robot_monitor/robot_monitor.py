@@ -248,7 +248,11 @@ shutdown function needs to be called when the class terminates.
 class RobotMonitorWidget(QWidget):
     # sig_err = Signal(str, int)
     # sig_warn = Signal(str, str, int)    
-    _sig_clear = Signal()
+    _sig_clear = Signal()    
+    _sig_tree_nodes_updated = Signal(int)
+    _TREE_ALL = 1
+    _TREE_WARN = 2
+    _TREE_ERR = 3
 
     def __init__(self, context, topic):
         super(RobotMonitorWidget, self).__init__()
@@ -263,15 +267,16 @@ class RobotMonitorWidget(QWidget):
         self._warn_statusitems = []  # StatusItem. Contains ALL DEGREES 
                                  # (device top level, device' _sub) in parallel. 
         self._err_statusitems = []  # StatusItem
-        
-        self._sig_clear.connect(self._clear)
-        
+
         self.tree_all_devices.itemDoubleClicked.connect(self._tree_clicked)
         self.warn_tree.itemDoubleClicked.connect(self._tree_clicked)
         self.err_tree.itemDoubleClicked.connect(self._tree_clicked)
         
         self.tree_all_devices.resizeColumnToContents(0)
-        # self.tree_all_devices.resizeColumnToContents(1)
+        
+        self._sig_clear.connect(self._clear)
+        self._sig_tree_nodes_updated.connect(self._tree_nodes_updated)
+
         # self.tree_all_devices.sortByColumn(0, Qt.AscendingOrder) 
         #      No effect - sorting didn't get enabled.
         
@@ -296,8 +301,7 @@ class RobotMonitorWidget(QWidget):
         
     def _cb(self, msg):        
         if not self.paused:            
-            # self._sig_clear.emit()
-            self._update_devices_tree(msg)
+            self._update_devices_tree(msg)       
             self._update_warns_errors(msg)
             self.timeline_pane.add_message(msg)            
         
@@ -395,7 +399,18 @@ class RobotMonitorWidget(QWidget):
                                new_status_item.name)
                 self.tree_all_devices.addTopLevelItem(new_status_item)
         # self.tree_all_devices.addTopLevelItems(new_statusitems_toplv)
-        
+        self._sig_tree_nodes_updated.emit(self._TREE_ALL)
+    
+    def _tree_nodes_updated(self, tree_type):
+        tree_obj = None
+        if self._TREE_ALL == tree_type:
+            tree_obj = self.tree_all_devices
+        elif self._TREE_WARN == tree_type:
+            tree_obj = self.warn_tree       
+        if self._TREE_ERR == tree_type:
+            tree_obj = self.err_tree
+        tree_obj.resizeColumnToContents(0)
+            
     '''
     Return an array that contains DiagnosticStatus only at the top level of 
     the given msg.
@@ -659,6 +674,8 @@ class RobotMonitorWidget(QWidget):
                                   'statusitem.lev=%s ', level)
                     continue
                 itemtree.addTopLevelItem(statitem_new)
+        self._sig_tree_nodes_updated.emit(self._TREE_WARN)
+        self._sig_tree_nodes_updated.emit(self._TREE_ERR)
             
     def _close(self):  # 10/24/Isaac/When this is called?
         rospy.logdebug('RobotMonitorWidget in _close')
