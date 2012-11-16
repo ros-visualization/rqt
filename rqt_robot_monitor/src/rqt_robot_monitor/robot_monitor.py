@@ -297,10 +297,8 @@ class RobotMonitorWidget(QWidget):
     def _cb(self, msg):        
         if not self.paused:            
             # self._sig_clear.emit()
-            rospy.logdebug('_cb 00')
             self._update_devices_tree(msg)
             self._update_warns_errors(msg)
-            rospy.logdebug('_cb 22')
             self.timeline_pane.add_message(msg)            
         
         self.num_diag_msg_received += 1
@@ -655,7 +653,11 @@ class RobotMonitorWidget(QWidget):
                 statitem_new.setText(1, diag_stat_new.message)
                 statitem_new.setIcon(0, _IMG_DICT[level])
                 # all_lev_statitems_tobe_shown.append(statitem_new)                
-                statitems_existing.append(statitem_new)                
+                statitems_existing.append(statitem_new)
+                if itemtree == None:
+                    rospy.loginfo('   _update_flat_tree itemtree is None ' +
+                                  'statusitem.lev=%s ', level)
+                    continue
                 itemtree.addTopLevelItem(statitem_new)
             
     def _close(self):  # 10/24/Isaac/When this is called?
