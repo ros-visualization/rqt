@@ -16,8 +16,8 @@ set(rqt_rviz_INCLUDE_DIRECTORIES
 
 qt4_wrap_cpp(rqt_rviz_MOCS ${rqt_rviz_HDRS})
 
-rosbuild_include(pluginlib hide_plugin_symbols)
-pluginlib_hide_plugin_symbols(rqt_rviz RViz)
+#rosbuild_include(pluginlib hide_plugin_symbols)
+#pluginlib_hide_plugin_symbols(rqt_rviz RViz)
 
 include_directories(${PROJECT_NAME} ${rqt_rviz_INCLUDE_DIRECTORIES})
 rosbuild_add_library(${PROJECT_NAME} ${rqt_rviz_SRCS} ${rqt_rviz_MOCS})

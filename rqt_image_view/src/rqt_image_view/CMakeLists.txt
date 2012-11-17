@@ -23,8 +23,8 @@ set(rqt_image_view_INCLUDE_DIRECTORIES
 qt4_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
 qt4_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
 
-rosbuild_include(pluginlib hide_plugin_symbols)
-pluginlib_hide_plugin_symbols(rqt_image_view ImageView)
+#rosbuild_include(pluginlib hide_plugin_symbols)
+#pluginlib_hide_plugin_symbols(rqt_image_view ImageView)
 
 include_directories(${PROJECT_NAME} ${rqt_image_view_INCLUDE_DIRECTORIES})
 rosbuild_add_library(${PROJECT_NAME} ${rqt_image_view_SRCS} ${rqt_image_view_MOCS} ${rqt_image_view_UIS_H})
