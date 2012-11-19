@@ -113,12 +113,12 @@ class IconToolButton(QToolButton):
         """
         if clicked_icons is not None and len(icons) != len(clicked_icons):
             rospy.logerr("%s: icons and clicked states are unequal"%self.name)
-            icons = clicked_icons = ['icon_not_found.svg']
+            icons = clicked_icons = ['ic-missing-icon.svg']
         if not (type(icons) is list and type(icons[0]) is list and type(icons[0][0] is str)):
             raise(IndexError("icons must be a list of lists of strings"))
         if len(icons) <= 0:
             rospy.logerr("%s: Icons not supplied"%self.name)
-            icons = clicked_icons = ['icon_not_found.svg']
+            icons = clicked_icons = ['ic-missing-icon.svg']
         if len(icons) == 1 and suppress_overlays == False:
             if icons[0][0][-4].lower() == '.svg':
                 icons.append(icons[0] + ['ol-warn-badge.svg'])

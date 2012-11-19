@@ -184,7 +184,7 @@ class IconHelper(object):
             elif '.' in path and os.path.exists(os.path.join(image_path, 'nonsvg/' + path)):
                 return os.path.join(image_path, 'nonsvg/' + path)
         rospy.logwarn
-        return os.path.join(self.__image_paths[-1], 'icon_not_found.svg')
+        return os.path.join(self.__image_paths[-1], 'ic-missing-icon.svg')
 
     def build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
         """
