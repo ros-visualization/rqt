@@ -28,7 +28,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospkg
+import os
+
+from catkin_pkg.package import parse_package
+
+from rospkg import RosPack
+from rospkg.common import MANIFEST_FILE, PACKAGE_FILE
+from rospkg.manifest import parse_manifest_file
 
 from .ros_plugin_provider import RosPluginProvider
 
@@ -42,10 +48,33 @@ class RospkgPluginProvider(RosPluginProvider):
 
     def _find_plugins(self, export_tag):
         plugins = []
-        r = rospkg.RosPack()
+        r = RosPack()
         for package_name in r.list():
-            manifest = r.get_manifest(package_name)
-            exports = manifest.get_export(export_tag, 'plugin')
-            for export in exports:
-                plugins.append([package_name, str(export)])
+            path = r.get_path(package_name)
+            manifest_path = os.path.join(path, MANIFEST_FILE)
+            if os.path.isfile(manifest_path):
+                try:
+                    manifest = parse_manifest_file(path, MANIFEST_FILE)
+                except InvalidManifest as e:
+                    qWarning('Could not parse manifest "%s":\n%s' % (manifest_path, e))
+                    continue
+                exports = manifest.get_export(export_tag, 'plugin')
+                for export in exports:
+                    plugins.append([package_name, str(export)])
+                continue
+            package_path = os.path.join(path, PACKAGE_FILE)
+            if os.path.isfile(package_path):
+                try:
+                    package = parse_package(package_path)
+                except InvalidPackage as e:
+                    qWarning('Could not parse package "%s":\n%s' % (package_path, e))
+                    continue
+                for export in package.exports:
+                    if export.tagname != export_tag or 'plugin' not in export.attributes:
+                        continue
+                    plugin_path = export.attributes['plugin']
+                    if plugin_path.startswith('${prefix}/'):
+                        plugin_path = os.path.join(path, plugin_path[10:])
+                    plugins.append([package_name, plugin_path])
+                continue
         return plugins

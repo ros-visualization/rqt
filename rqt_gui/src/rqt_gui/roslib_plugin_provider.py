@@ -28,7 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
+import roslib.rospack
 
 from .ros_plugin_provider import RosPluginProvider
 
