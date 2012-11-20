@@ -18,5 +18,5 @@
   <depend stack="std_msgs"/> <!-- std_msgs -->
   <depend stack="vision_opencv"/> <!-- cv_bridge -->
   <depend stack="visualization"/> <!-- rviz -->
-  <depend stack="pr2_power_board"/> <!-- rqt_pr2_dashboard -->
+  <depend stack="pr2_power_drivers"/> <!-- rqt_pr2_dashboard -->
 </stack>
