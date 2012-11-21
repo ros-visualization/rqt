@@ -67,7 +67,9 @@ TODO Following non-class functions need to be considered about porting out to
 @return: string
 '''
 def get_nice_name(status_name):
-    return status_name.split('/')[-1]
+    name = status_name.split('/')[-1]
+    rospy.logdebug(' get_nice_name name = %s', name)
+    return name
 
 def remove_parent_name(status_name):
     return ('/'.join(status_name.split('/')[2:])).strip()
@@ -297,13 +299,13 @@ class RobotMonitorWidget(QWidget):
         self._last_message_time = 0.0
         
         self._timer = QTimer()
-        #self._timer.timerEvent.connect(self._update_message_state)
+        # self._timer.timerEvent.connect(self._update_message_state)
         self._timer.timeout.connect(self._update_message_state)
         self._timer.start(1000);
 
-        #self._have_message = False
-        #self._empty_id = None
-        #self.reset_monitor()    
+        # self._have_message = False
+        # self._empty_id = None
+        # self.reset_monitor()    
                  
         self.num_diag_msg_received = 0  # For debug
         
@@ -382,15 +384,15 @@ class RobotMonitorWidget(QWidget):
                                    times_warnings,
                                    get_nice_name(diagnostic_status_new.name),
                                    diagnostic_status_new.message)
-                    rospy.logdebug('_update_dev_tree 111 text to show=%s',
+                    rospy.logdebug('_update_dev_tree 1 text to show=%s',
                                    base_text)
                     statusitem.setText(0, base_text)
                     statusitem.setText(1, diagnostic_status_new.message)
                 else:
-                    rospy.logdebug('_update_dev_tree 222 text to show=%s',
+                    rospy.logdebug('_update_dev_tree 2 text to show=%s',
                                    base_text)
                     statusitem.setText(0, base_text)
-                    statusitem.setText(1, '-')
+                    statusitem.setText(1, 'OK')
        
             else:
                 new_status_item = StatusItem(diagnostic_status_new)
@@ -414,7 +416,7 @@ class RobotMonitorWidget(QWidget):
                                'diagnostic_status_new.name %s',
                                new_status_item.name)
                 self.tree_all_devices.addTopLevelItem(new_status_item)
-        # self.tree_all_devices.addTopLevelItems(new_statusitems_toplv)
+
         self._sig_tree_nodes_updated.emit(self._TREE_ALL)
     
     def _tree_nodes_updated(self, tree_type):
@@ -456,12 +458,14 @@ class RobotMonitorWidget(QWidget):
     def _contains(self, key, statusitems):
         names = [get_nice_name(k.name) for k in statusitems]
         
-        rospy.logdebug('\t_contains len of input = %d', len(statusitems))
-        for elem in names:  # This loop is only for debug 
-            rospy.logdebug('\t_contains CONTAINED KEY= %s', elem)
+        rospy.logdebug('\t_contains len of names=%d statusitems=%d',
+                       len(names), len(statusitems))
+#        for name in names:  # This loop is only for debug 
+#            rospy.loginfo('\t_contains Required key=%s CONTAINED KEY= %s', 
+#                          key, name)
         
         if key in names:
-            rospy.logdebug('** _contains key IS contained.')
+            rospy.logdebug(' _contains key IS contained.')
             return names.index(key)
         else:
             rospy.logdebug('** _contains key IS NOT contained.')
@@ -478,8 +482,8 @@ class RobotMonitorWidget(QWidget):
     @param msg: DiagnosticArray 
     """
     def _update_warns_errors(self, diag_array):
-        # self._update_flat_tree_3(diag_array, self._toplv_statusitems)
-        self._update_flat_tree(diag_array)
+        self._update_flat_tree_3(diag_array, self._toplv_statusitems)
+        # self._update_flat_tree(diag_array)
        
     def pause(self, msg):
         self.paused = True
@@ -491,15 +495,23 @@ class RobotMonitorWidget(QWidget):
         self.paused = False
 
     '''
-    11/5/2012/Isaac/Not really called from anywhere.
+    11/5/2012/Isaac/Seems not really kicked from anywhere.
     '''
     def _clear(self):
         rospy.logdebug(' RobotMonitorWidget _clear called ')
         self.err_tree.clear()
         self.warn_tree.clear()
-    
+
     '''
-    Added 11/12/2012 Still buggy
+    Update the given flat tree (ie. tree that doesn't show children nodes - 
+    all of its elements will be shown on top level) with 
+    all the DiagnosticStatus instances contained in the given DiagnosticArray, 
+    regardless of the level of the device in a device category.
+    
+    @param diag_arr: a DiagnosticArray instance.
+    @param statusitems_curr_toplevel: list of StatusItem.
+    
+    @author: Isaac Saito
     '''
     def _update_flat_tree_3(self, diag_arr, statusitems_curr_toplevel):
         devicenames_toplevel_curr = [get_nice_name(k.name) 
@@ -507,16 +519,19 @@ class RobotMonitorWidget(QWidget):
         for diag_stat_new in diag_arr.status:
             stat_lv_new = diag_stat_new.level
             dev_name = diag_stat_new.name
-            dev_index_warn_curr = self._contains(dev_name,
+            dev_index_warn_curr = self._contains(get_nice_name(dev_name),
                                                  self._warn_statusitems)
-            dev_index_err_curr = self._contains(dev_name, self._err_statusitems)
+            dev_index_err_curr = self._contains(get_nice_name(dev_name), 
+                                                self._err_statusitems)            
             headline = "%s" % diag_stat_new.name
+            rospy.logdebug('###_update_flat_tree_3 index warn= %d err= %d %s',
+                           dev_index_warn_curr, dev_index_err_curr, headline)
             if DiagnosticStatus.OK == stat_lv_new:
                 if 0 <= dev_index_warn_curr:
                     statitem_curr = self._remove_statitem(dev_index_warn_curr,
                                                           self._warn_statusitems,
                                                           self.warn_tree)
-                    statitem_curr.warning_id = None                    
+                    statitem_curr.warning_id = None
                 elif 0 <= dev_index_err_curr:
                     statitem_curr = self._remove_statitem(dev_index_err_curr,
                                                           self._err_statusitems,
@@ -536,6 +551,7 @@ class RobotMonitorWidget(QWidget):
                     self._add_statitem(statitem_new, self._warn_statusitems,
                                        self.warn_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
+                    self._warn_statusitems.append(statitem_new)
             elif DiagnosticStatus.ERROR == stat_lv_new:
                 if 0 <= dev_index_warn_curr:
                     statitem_curr = self._remove_statitem(dev_index_warn_curr,
@@ -549,17 +565,22 @@ class RobotMonitorWidget(QWidget):
                     self._add_statitem(statitem_new, self._err_statusitems,
                                        self.err_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
-
+        
+        self._sig_tree_nodes_updated.emit(self._TREE_WARN)
+        self._sig_tree_nodes_updated.emit(self._TREE_ERR)
+        
     '''
     @author: Isaac Saito
     '''
-    def _add_statitem(self, statusitem, statitem_list, tree, headline,
-                      statusmsg, statlevel):
+    def _add_statitem(self, statusitem, statitem_list, 
+                      tree, headline, statusmsg, statlevel):
         statusitem.setText(0, headline)
         statusitem.setText(1, statusmsg)
         statusitem.setIcon(0, _IMG_DICT[statlevel])
         statitem_list.append(statusitem)                
         tree.addTopLevelItem(statusitem)
+        rospy.logdebug(' _add_statitem statitem_list length=%d', 
+                       len(statitem_list))
         
     '''
     @author: Isaac Saito
@@ -569,7 +590,6 @@ class RobotMonitorWidget(QWidget):
         tree.takeTopLevelItem(tree.indexOfTopLevelItem(statitem_existing))
         item_list.pop(item_index)
         return statitem_existing
-
         
     '''
     Update the given flat tree (that doesn't show children. 
@@ -688,7 +708,7 @@ class RobotMonitorWidget(QWidget):
                 # all_lev_statitems_tobe_shown.append(statitem_new)                
                 statitems_existing.append(statitem_new)
                 if itemtree == None:
-                    rospy.loginfo('   _update_flat_tree itemtree is None ' +
+                    rospy.logdebug('   _update_flat_tree itemtree is None ' + 
                                   'statusitem.lev=%s ', level)
                     continue
                 itemtree.addTopLevelItem(statitem_new)
@@ -712,27 +732,19 @@ class RobotMonitorWidget(QWidget):
     def _update_message_state(self):
         current_time = rospy.get_time()
         time_diff = current_time - self._last_message_time
-        rospy.loginfo('_update_message_state time_diff= %s', time_diff)
+        rospy.logdebug('_update_message_state time_diff= %s', time_diff)
         if (time_diff > 10.0):
-            self.timeline_pane._msg_label.setText("Last message received " +
+            self.timeline_pane._msg_label.setText("Last message received " + 
                                                "%s seconds ago"
-                                               %(int(time_diff)))
-            #self._message_status_text.SetForegroundColour(color_dict[2])
-            #self._tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
-            #self._error_tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
-            #self._warning_tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
+                                               % (int(time_diff)))
             self._is_stale = True
         else:
             seconds_string = "seconds"
             if (int(time_diff) == 1):
                 seconds_string = "second"
-            self.timeline_pane._msg_label.setText("Last message received " +
-                                                  "%s %s ago"%(int(time_diff), 
+            self.timeline_pane._msg_label.setText("Last message received " + 
+                                                  "%s %s ago" % (int(time_diff),
                                                                seconds_string))
-            #self._message_status_text.SetForegroundColour(color_dict[0])
-            #self._tree_ctrl.SetBackgroundColour(wx.WHITE)
-            #self._error_tree_ctrl.SetBackgroundColour(wx.WHITE)
-            #self._warning_tree_ctrl.SetBackgroundColour(wx.WHITE)
             self._is_stale = False        
             
     # 11/19/2012/Isaac _close will be deleted.        
@@ -761,5 +773,6 @@ class RobotMonitorWidget(QWidget):
         # unsubscribe from Topics
         self._sub.unregister()
 
-        # stop timers --> no timer in use.
-        
+        # stop timers 
+        self._timer.stop()
+        del self._timer
