@@ -62,22 +62,13 @@ class TimelinePane(QWidget):
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
                                'rqt_robot_monitor_timelinepane.ui')
         loadUi(ui_file, self, {'TimelineView': TimelineView})
-        
-        # self._layout = QHBoxLayout()        
-        # self._timeline_view = QGraphicsView() # Commented out by Ze'ev.
-        # parent._timeline_view = TimelinePane.TimelineView(self)
-        # self._timeline_view = parent._timeline_view # Copying
-        # parent.hlayout_timeline.addWidget(parent._timeline_view)
-
+  
         self._scene = QGraphicsScene(self._timeline_view)
         self._colors = [QColor('green'), QColor('yellow'), QColor('red')]
         self._timeline_view.setScene(self._scene)
         
         self._messages = [None for x in range(20)] # DiagnosticStatus
         self._mq = [1 for x in range(20)] 
-
-        #self._timeline_view.show()
-        # parent.hlayout_timeline.addWidget(self._timeline_view)
 
         self.pause_button.clicked.connect(self._pause)
         self.update.connect(self.redraw)
@@ -98,6 +89,7 @@ class TimelinePane(QWidget):
                                        QColor('black'),
                                        self._colors[m])
             rospy.logdebug('in TimelinePane redraw i=%d m=%d', i, m)
+            
         rospy.logdebug('TimelinePane redraw ENDS')
 
     '''

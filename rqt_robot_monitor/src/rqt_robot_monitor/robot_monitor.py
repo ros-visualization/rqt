@@ -41,8 +41,8 @@ import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 from python_qt_binding import loadUi
+from python_qt_binding.QtCore import Signal, Qt, QTimer
 from python_qt_binding.QtGui import QWidget, QTreeWidgetItem, QTextEdit, QIcon
-from python_qt_binding.QtCore import Signal, Qt
 
 from inspector_window import InspectorWindow
 from timeline_pane import TimelinePane
@@ -254,6 +254,10 @@ class RobotMonitorWidget(QWidget):
     _TREE_WARN = 2
     _TREE_ERR = 3
 
+    '''
+    @param context:
+    @param topic:  
+    '''
     def __init__(self, context, topic):
         super(RobotMonitorWidget, self).__init__()
         ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -262,6 +266,7 @@ class RobotMonitorWidget(QWidget):
         
         obj_name = 'Robot Monitor'
         self.setObjectName(obj_name)
+        self.setWindowTitle(obj_name)        
         
         self._toplv_statusitems = []  # StatusItem
         self._warn_statusitems = []  # StatusItem. Contains ALL DEGREES 
@@ -288,9 +293,18 @@ class RobotMonitorWidget(QWidget):
         self.vlayout_top.addWidget(self.timeline_pane)                
 
         self.paused = False
+        self._is_stale = False
+        self._last_message_time = 0.0
+        
+        self._timer = QTimer()
+        #self._timer.timerEvent.connect(self._update_message_state)
+        self._timer.timeout.connect(self._update_message_state)
+        self._timer.start(1000);
 
-        self.setWindowTitle('Robot Monitor')   
-             
+        #self._have_message = False
+        #self._empty_id = None
+        #self.reset_monitor()    
+                 
         self.num_diag_msg_received = 0  # For debug
         
         self.topic = topic
@@ -303,7 +317,9 @@ class RobotMonitorWidget(QWidget):
         if not self.paused:            
             self._update_devices_tree(msg)       
             self._update_warns_errors(msg)
-            self.timeline_pane.add_message(msg)            
+            self.timeline_pane.add_message(msg)
+            
+            self._on_new_message_received(msg)            
         
         self.num_diag_msg_received += 1
         rospy.logdebug('  RobotMonitorWidget _cb #%d',
@@ -431,6 +447,8 @@ class RobotMonitorWidget(QWidget):
         return ret
 
     '''
+    TODO Needs renamed to better describing one.
+    
     @param key: string
     @param statusitems: DiagnosticStatus[]  
     @return: int of index that key is found in array. -1 if not found
@@ -676,12 +694,53 @@ class RobotMonitorWidget(QWidget):
                 itemtree.addTopLevelItem(statitem_new)
         self._sig_tree_nodes_updated.emit(self._TREE_WARN)
         self._sig_tree_nodes_updated.emit(self._TREE_ERR)
+
+    '''
+    Copied from robot_monitor
+    
+    \brief Called whenever a new message is received by the timeline.  
+     Different from new_message in that it
+     is called even if the timeline is paused, and only when a new message is 
+     received, not when the timeline is scrubbed
+    '''
+    def _on_new_message_received(self, msg):
+        self._last_message_time = rospy.get_time()
+        
+    '''
+    @author: Isaac Saito (ported from robot_monitor)
+    '''
+    def _update_message_state(self):
+        current_time = rospy.get_time()
+        time_diff = current_time - self._last_message_time
+        rospy.loginfo('_update_message_state time_diff= %s', time_diff)
+        if (time_diff > 10.0):
+            self.timeline_pane._msg_label.setText("Last message received " +
+                                               "%s seconds ago"
+                                               %(int(time_diff)))
+            #self._message_status_text.SetForegroundColour(color_dict[2])
+            #self._tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
+            #self._error_tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
+            #self._warning_tree_ctrl.SetBackgroundColour(wx.LIGHT_GREY)
+            self._is_stale = True
+        else:
+            seconds_string = "seconds"
+            if (int(time_diff) == 1):
+                seconds_string = "second"
+            self.timeline_pane._msg_label.setText("Last message received " +
+                                                  "%s %s ago"%(int(time_diff), 
+                                                               seconds_string))
+            #self._message_status_text.SetForegroundColour(color_dict[0])
+            #self._tree_ctrl.SetBackgroundColour(wx.WHITE)
+            #self._error_tree_ctrl.SetBackgroundColour(wx.WHITE)
+            #self._warning_tree_ctrl.SetBackgroundColour(wx.WHITE)
+            self._is_stale = False        
             
-    def _close(self):  # 10/24/Isaac/When this is called?
-        rospy.logdebug('RobotMonitorWidget in _close')
-        if self._sub:
-            self._sub.unregister()
-            self._sub = None
+    # 11/19/2012/Isaac _close will be deleted.        
+#    def _close(self):  # 10/24/Isaac/When this is called?
+#        rospy.logdebug('RobotMonitorWidget in _close')
+#        if self._sub:
+#            self._sub.unregister()
+#            self._sub = None
 
     '''
     This needs to be called whenever this class terminates.
