@@ -36,7 +36,7 @@ from rqt_console.console_widget import ConsoleWidget
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 from .icon_tool_button import IconToolButton
-    
+
 
 class ConsoleDashWidget(IconToolButton):
     """
