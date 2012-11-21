@@ -68,12 +68,12 @@ class InspectorWindow(QWidget):
         self.snaps = []
         self.snapshot.clicked.connect(self.take_snapshot)
 
-        self._sig_write.connect(self.write_kv)
+        self._sig_write.connect(self.write_key_val)
         self._sig_newline.connect(lambda: self.disp.insertPlainText('\n'))
         self._sig_clear.connect(lambda: self.disp.clear())
 
         self.setLayout(self.layout_vertical)
-        self.setGeometry(0, 0, 300, 400)  # TODO better to be configurable where to appear. 
+        self.setGeometry(0, 0, 400, 600)  # TODO better to be configurable where to appear. 
         self.show()
         self.update_children(status)
     '''
@@ -85,7 +85,7 @@ class InspectorWindow(QWidget):
         self.sig_close_window.emit()        
         self.close()
                 
-    def write_kv(self, k, v):
+    def write_key_val(self, k, v):
         self.disp.setFontWeight(75)
         self.disp.insertPlainText(k)
         self.disp.insertPlainText(': ')

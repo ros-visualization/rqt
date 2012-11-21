@@ -303,10 +303,6 @@ class RobotMonitorWidget(QWidget):
         self._timer.timeout.connect(self._update_message_state)
         self._timer.start(1000);
 
-        # self._have_message = False
-        # self._empty_id = None
-        # self.reset_monitor()    
-                 
         self.num_diag_msg_received = 0  # For debug
         
         self.topic = topic
@@ -574,6 +570,10 @@ class RobotMonitorWidget(QWidget):
     '''
     def _add_statitem(self, statusitem, statitem_list, 
                       tree, headline, statusmsg, statlevel):
+        
+        if 'Warning' == statusmsg or 'Error' == statusmsg:
+            return 
+        
         statusitem.setText(0, headline)
         statusitem.setText(1, statusmsg)
         statusitem.setIcon(0, _IMG_DICT[statlevel])
