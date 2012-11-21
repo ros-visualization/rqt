@@ -36,7 +36,7 @@ from rqt_console.console_widget import ConsoleWidget
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 from .icon_tool_button import IconToolButton
-
+    
 
 class ConsoleDashWidget(IconToolButton):
     """
@@ -88,13 +88,13 @@ class ConsoleDashWidget(IconToolButton):
         try:
             if self._console_shown:
                 self.context.remove_widget(self._console)
+                self._console_shown = not self._console_shown
             else:
                 self.context.add_widget(self._console)
+                self._console_shown = not self._console_shown
         except Exception as e:
-            pass
-        finally:
             self._console_shown = not self._console_shown
-
+            self._show_console()
  
     def _insert_messages(self):
         self._mutex.lock()
