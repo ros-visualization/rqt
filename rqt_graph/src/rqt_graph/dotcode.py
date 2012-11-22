@@ -376,12 +376,10 @@ class RosGraphDotcodeGenerator:
             self._add_edge(e, dotcode_factory, dotgraph=dotgraph, is_topic=(graph_mode == NODE_NODE_GRAPH))
 
         for (action_prefix, node_connections) in action_nodes.items():
-            if 'outgoing' in node_connections:
-                for out_edge in node_connections.outgoing:
-                    dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + ACTION_TOPICS_SUFFIX, out_edge.end)
-            if 'incoming' in node_connections:
-                for in_edge in node_connections.incoming:
-                    dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
+            for out_edge in node_connections.get('outgoing', []):
+                dotcode_factory.add_edge_to_graph(dotgraph, action_prefix[1:] + ACTION_TOPICS_SUFFIX, out_edge.end)
+            for in_edge in node_connections.get('incoming', []):
+                dotcode_factory.add_edge_to_graph(dotgraph, in_edge.start, action_prefix[1:] + ACTION_TOPICS_SUFFIX)
         return dotgraph
 
     def generate_dotcode(self,
