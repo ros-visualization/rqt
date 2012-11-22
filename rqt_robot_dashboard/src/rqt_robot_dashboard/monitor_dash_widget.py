@@ -103,15 +103,16 @@ class MonitorDashWidget(IconToolButton):
     def _show_monitor(self):
         try:
             if self._monitor_shown:
-                self._monitor_shown = False
                 self.context.remove_widget(self._monitor)
                 self._monitor_close()
+                self._monitor_shown = False
             else:
                 self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
                 self.context.add_widget(self._monitor)
                 self._monitor_shown = True
         except Exception as e:
             #  TODO when closeEvents is available fix this hack (It ensures the button will toggle correctly)
+            self._monitor_shown = False
             self._show_monitor()
 
     def _monitor_close(self):
