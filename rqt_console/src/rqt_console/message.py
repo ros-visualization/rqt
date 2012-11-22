@@ -110,28 +110,28 @@ class Message(QObject):
         text = text[1:]
         sc_index = text.find('";"')
         if sc_index == -1:
-            raise
+            raise ValueError('File format is incorrect, missing ";" marker')
         self._node = text[:sc_index]
         text = text[text.find('";"') + 3:]
         sc_index = text.find('";"')
         if sc_index == -1:
-            raise
+            raise ValueError('File format is incorrect, missing ";" marker')
         sec, nsec = text[:sc_index].split('.')
         self._time = (sec, nsec)
         text = text[text.find('";"') + 3:]
         sc_index = text.find('";"')
         if sc_index == -1:
-            raise
+            raise ValueError('File format is incorrect, missing ";" marker')
         self._severity = text[:sc_index]
         text = text[text.find('";"') + 3:]
         sc_index = text.find('";"')
         if sc_index == -1:
-            raise
+            raise ValueError('File format is incorrect, missing ";" marker')
         self._topics = text[:sc_index]
         text = text[text.find('";"') + 3:]
         sc_index = text.find('";"')
         if sc_index == -1:
-            raise
+            raise ValueError('File format is incorrect, missing ";" marker')
         self._location = text[:sc_index]
         text = text[sc_index + 2:]
         text = text.replace('\\"', '"')

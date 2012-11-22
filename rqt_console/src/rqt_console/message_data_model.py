@@ -230,15 +230,24 @@ class MessageDataModel(QAbstractTableModel):
                 line = filehandle.readline()
                 if not line:
                     break
+                while line[-2] != "\"":
+                    newline = filehandle.readline()
+                    if not line:
+                        qWarning('File does not appear to be a rqt_console message file: missing " at end of file')
+                        return False
+                    line = line + newline
                 lines.append(line)
             self.beginInsertRows(QModelIndex(), len(self._messages.get_message_list()), len(self._messages.get_message_list()) + len(lines) - 1)
             for line in lines:
-                self._messages.append_from_text(line)
+                try:
+                    self._messages.append_from_text(line)
+                except ValueError as e:
+                    qWarning('File does not appear to be a rqt_console message file: File line is malformed %s'%line)
             self.endInsertRows()
             self._paused = True
             return True
         else:
-            qWarning('File does not appear to be a rqt_console message file.')
+            qWarning('File does not appear to be a rqt_console message file: missing file header.')
             return False
 
     def get_message_list(self, start_time = None, end_time = None):
