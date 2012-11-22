@@ -36,7 +36,7 @@ import rospy
 
 from .message_tree_model import MessageTreeModel
 from .tree_model_completer import TreeModelCompleter
-
+from python_qt_binding.QtCore import qWarning
 
 class TopicCompleter(TreeModelCompleter):
 
@@ -49,7 +49,11 @@ class TopicCompleter(TreeModelCompleter):
         topic_list = rospy.get_published_topics()
         for topic_path, topic_type in topic_list:
             topic_name = topic_path.strip('/')
-            message_instance = roslib.message.get_message_class(topic_type)()
+            message_class = roslib.message.get_message_class(topic_type)
+            if message_class is None:
+                qWarning('TopicCompleter.update_topics(): could not get message class for topic type "%s" on topic "%s"' % (topic_type, topic_path))
+                continue
+            message_instance = message_class()
             self.model().add_message(message_instance, topic_name, topic_type, topic_path)
 
 
