@@ -9,9 +9,8 @@
 
   <depend package="qt_gui"/>
   <depend package="qt_gui_py_common"/>
-  <depend package="rqt_gui"/> <!-- only to export plugin -->
 
   <export>
-    <rqt_gui plugin="${prefix}/plugin.xml"/>
+    <qt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>

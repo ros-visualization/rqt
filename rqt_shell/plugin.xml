@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="Shell" type="rqt_shell.shell.Shell" base_class_type="rqt_gui_py::Plugin">
+  <class name="Shell" type="rqt_shell.shell.Shell" base_class_type="qt_gui_py::Plugin">
     <description>
       A Python GUI plugin providing an interactive shell.
     </description>

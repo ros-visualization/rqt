@@ -67,6 +67,7 @@ class Main(Base):
 
         # do not import earlier as it would import Qt stuff without the proper initialization from qt_gui.main
         from qt_gui.recursive_plugin_provider import RecursivePluginProvider
+        self.plugin_providers.append(ActualRosPluginProvider('qt_gui', 'qt_gui_py::Plugin'))
         self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
         self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
 

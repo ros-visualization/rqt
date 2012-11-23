@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="PyConsole" type="rqt_py_console.py_console.PyConsole" base_class_type="rqt_gui_py::Plugin">
+  <class name="PyConsole" type="rqt_py_console.py_console.PyConsole" base_class_type="qt_gui_py::Plugin">
     <description>
       A Python GUI plugin providing an interactive Python console.
     </description>

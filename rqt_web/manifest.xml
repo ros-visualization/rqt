@@ -9,7 +9,6 @@
 
   <depend package="qt_gui"/>
   <depend package="rospy"/>
-  <depend package="rqt_gui"/> <!-- only to export plugin -->
 
   <export>
     <qt_gui plugin="${prefix}/plugin.xml"/>
