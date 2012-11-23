@@ -144,7 +144,7 @@ class TopicWidget(QWidget):
             self._tree_items[topic_info._topic_name].setText(self._column_index['value'], value_text)
 
     def update_value(self, topic_name, message):
-        if hasattr(message, '__slots__'):
+        if hasattr(message, '__slots__') and hasattr(message, '_slot_types'):
             for slot_name in message.__slots__:
                 self.update_value(topic_name + '/' + slot_name, getattr(message, slot_name))
 
