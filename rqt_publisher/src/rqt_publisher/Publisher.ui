@@ -149,6 +149,9 @@
        <property name="text">
         <string/>
        </property>
+       <property name="shortcut">
+        <string>Del</string>
+       </property>
       </widget>
      </item>
      <item>

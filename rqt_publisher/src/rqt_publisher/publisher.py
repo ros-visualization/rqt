@@ -177,6 +177,11 @@ class Publisher(Plugin):
                 #qDebug('Publisher._change_publisher_expression(): removed expression for: %s' % (topic_name))
         else:
             slot_type = get_field_type(topic_name)
+            # strip possible trailing error message from expression
+            error_prefix = '# error'
+            error_prefix_pos = expression.find(error_prefix)
+            if error_prefix_pos >= 0:
+                expression = expression[:error_prefix_pos]
             success, _ = self._evaluate_expression(expression, slot_type)
             if success:
                 old_expression = publisher_info['expressions'].get(topic_name, None)
@@ -192,9 +197,10 @@ class Publisher(Plugin):
                         publisher_info['expressions'][topic_name] = old_expression
                     else:
                         del publisher_info['expressions'][topic_name]
-                    return '%s: %s' % (error_str, expression)
+                    return '%s %s: %s' % (expression, error_prefix, error_str)
+                return expression
             else:
-                return 'error evaluating as "%s": %s' % (slot_type.__name__, expression)
+                return '%s %s evaluating as "%s"' % (expression, error_prefix, slot_type.__name__)
 
     def _extract_array_info(self, type_str):
         array_size = None
