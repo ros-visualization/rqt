@@ -1,12 +1,12 @@
 <library path="src">
   <class name="Plot" type="rqt_plot.plot.Plot" base_class_type="rqt_gui_py::Plugin">
     <description>
-      A Python GUI plugin plotting data from ROS messages using PyQwt5.
+      A plugin visualizing numeric values in a 2D plot using different plotting backends.
     </description>
     <qtgui>
       <label>Plot</label>
       <icon type="theme">utilities-system-monitor</icon>
-      <statustip>A Python GUI plugin plotting data from ROS messages using PyQwt5.</statustip>
+      <statustip>A plugin visualizing numeric values in a 2D plot using different plotting backends.</statustip>
     </qtgui>
   </class>
 </library>

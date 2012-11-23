@@ -1,6 +1,6 @@
 <package>
   <description brief="Plugin for plotting numeric values">
-    rqt_plot provides a GUI plugin for visualizing numeric values in a 2D plot using PyQwt5.
+    rqt_plot provides a GUI plugin visualizing numeric values in a 2D plot using different plotting backends.
   </description>
   <author>Dorian Scholz</author>
   <license>BSD</license>
