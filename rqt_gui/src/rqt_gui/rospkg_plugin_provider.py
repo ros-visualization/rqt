@@ -30,11 +30,11 @@
 
 import os
 
-from catkin_pkg.package import parse_package
+from python_qt_binding.QtCore import qWarning
 
 from rospkg import RosPack
 from rospkg.common import MANIFEST_FILE, PACKAGE_FILE
-from rospkg.manifest import parse_manifest_file
+from rospkg.manifest import parse_manifest_file, InvalidManifest
 
 from .ros_plugin_provider import RosPluginProvider
 
@@ -50,31 +50,38 @@ class RospkgPluginProvider(RosPluginProvider):
         plugins = []
         r = RosPack()
         for package_name in r.list():
-            path = r.get_path(package_name)
-            manifest_path = os.path.join(path, MANIFEST_FILE)
-            if os.path.isfile(manifest_path):
+            package_path = r.get_path(package_name)
+            manifest_file_path = os.path.join(package_path, MANIFEST_FILE)
+            if os.path.isfile(manifest_file_path):
                 try:
-                    manifest = parse_manifest_file(path, MANIFEST_FILE)
+                    manifest = parse_manifest_file(package_path, MANIFEST_FILE)
                 except InvalidManifest as e:
-                    qWarning('Could not parse manifest "%s":\n%s' % (manifest_path, e))
+                    qWarning('Could not parse manifest "%s":\n%s' % (manifest_file_path, e))
                     continue
                 exports = manifest.get_export(export_tag, 'plugin')
                 for export in exports:
                     plugins.append([package_name, str(export)])
                 continue
-            package_path = os.path.join(path, PACKAGE_FILE)
-            if os.path.isfile(package_path):
+            
+            package_file_path = os.path.join(package_path, PACKAGE_FILE)
+            if os.path.isfile(package_file_path):
+                # only try to import catkin if a PACKAGE_FILE is found
                 try:
-                    package = parse_package(package_path)
+                    from catkin_pkg.package import parse_package, InvalidPackage
+                except ImportError as e:
+                    qWarning('Package "%s" has a package file, but import of parser failed:\n%s' % (package_path, e))
+                    continue
+                try:
+                    package = parse_package(package_file_path)
                 except InvalidPackage as e:
-                    qWarning('Could not parse package "%s":\n%s' % (package_path, e))
+                    qWarning('Could not parse package file "%s":\n%s' % (package_file_path, e))
                     continue
                 for export in package.exports:
                     if export.tagname != export_tag or 'plugin' not in export.attributes:
                         continue
                     plugin_path = export.attributes['plugin']
                     if plugin_path.startswith('${prefix}/'):
-                        plugin_path = os.path.join(path, plugin_path[10:])
+                        plugin_path = os.path.join(package_path, plugin_path[10:])
                     plugins.append([package_name, plugin_path])
                 continue
         return plugins
