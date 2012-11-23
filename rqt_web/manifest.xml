@@ -1,17 +1,17 @@
 <package>
   <description brief="rqt_web">
-      rqt_web is a a Python GUI plugin for displaying and interacting with web tools.
+    rqt_web is a a Python GUI plugin for displaying and interacting with web tools.
   </description>
   <author>Aaron Blasdel</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rqt_web</url>
-  <depend package="rospy"/>
+
   <depend package="qt_gui"/>
+  <depend package="rospy"/>
+  <depend package="rqt_gui"/> <!-- only to export plugin -->
+
   <export>
-      <rqt_gui plugin="${prefix}/plugin.xml"/>
+    <qt_gui plugin="${prefix}/plugin.xml"/>
   </export>
-
 </package>
-
-

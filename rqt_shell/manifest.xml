@@ -1,15 +1,17 @@
 <package>
   <description brief="rqt_shell">
-      rqt_shell is a Python GUI plugin providing an interactive shell.
+    rqt_shell is a Python GUI plugin providing an interactive shell.
   </description>
   <author>Dorian Scholz</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rqt_shell</url>
+
   <depend package="qt_gui"/>
   <depend package="qt_gui_py_common"/>
-  <export>
-      <rqt_gui plugin="${prefix}/plugin.xml"/>
-  </export>
+  <depend package="rqt_gui"/> <!-- only to export plugin -->
 
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
 </package>
