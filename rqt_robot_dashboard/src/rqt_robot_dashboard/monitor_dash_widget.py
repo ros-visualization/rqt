@@ -112,7 +112,7 @@ class MonitorDashWidget(IconToolButton):
 
     def _monitor_close(self):
         if self._monitor_shown:
-            with QMutexLocker(self._close_mutex)
+            with QMutexLocker(self._close_mutex):
                 self._monitor_shown = False
                 self._monitor.shutdown()
                 self._monitor.close()

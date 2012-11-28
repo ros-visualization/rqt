@@ -96,7 +96,7 @@ class ConsoleDashWidget(IconToolButton):
             self._show_console()
  
     def _insert_messages(self):
-        with QMutexLocker(self._mutex)
+        with QMutexLocker(self._mutex):
             msgs = self._datamodel._insert_message_queue
             self._datamodel._insert_message_queue = []
         self._datamodel.insert_rows(msgs)
@@ -111,7 +111,7 @@ class ConsoleDashWidget(IconToolButton):
 
     def _message_cb(self, msg): 
         if not self._datamodel._paused:
-            with QMutexLocker(self._mutex)
+            with QMutexLocker(self._mutex):
                 self._datamodel._insert_message_queue.append(msg)
 
     def update_rosout(self):
