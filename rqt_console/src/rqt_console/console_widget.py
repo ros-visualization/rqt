@@ -457,9 +457,9 @@ class ConsoleWidget(QWidget):
         Sets the message display label to the current value
         """
         if self._datamodel.rowCount() == self._proxymodel.rowCount():
-            tip = self.tr(self.tr('Displaying %s Messages' % (self._datamodel.rowCount())))
+            tip = self.tr('Displaying %d messages') % (self._datamodel.rowCount())
         else:
-            tip = self.tr(self.tr('Displaying %s of %s Messages' % (self._proxymodel.rowCount(), self._datamodel.rowCount())))
+            tip = self.tr('Displaying %d of %d messages') % (self._proxymodel.rowCount(), self._datamodel.rowCount())
         self.messages_label.setText(tip)
 
     def cleanup_browsers_on_close(self):
