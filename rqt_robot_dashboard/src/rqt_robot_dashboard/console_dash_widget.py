@@ -29,7 +29,7 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QMutex, QSize, QTimer
+from QtCore import QMutex, QMutexLocker, QSize, QTimer
 import os.path
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.console_widget import ConsoleWidget
@@ -54,7 +54,6 @@ class ConsoleDashWidget(IconToolButton):
         icons = [ok_icon, warn_icon, err_icon, stale_icon]
 
         super(ConsoleDashWidget, self).__init__('Console Widget', icons, icon_paths=icon_paths)
-        self.update_state(3)
 
         self.minimal = minimal
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
@@ -70,6 +69,7 @@ class ConsoleDashWidget(IconToolButton):
         self.context = context
         self.clicked.connect(self._show_console)
 
+        self.update_state(0)
         self._timer = QTimer()
         self._timer.timeout.connect(self._insert_messages)
         self._timer.start(100)
@@ -79,7 +79,6 @@ class ConsoleDashWidget(IconToolButton):
             self._console.destroyed.connect(self._console_destroyed)
         self._console_shown = False
         self.setToolTip("Rosout")
-        self.update_state(0)
 
     def _show_console(self):
         if self._console is None:
@@ -97,10 +96,9 @@ class ConsoleDashWidget(IconToolButton):
             self._show_console()
  
     def _insert_messages(self):
-        self._mutex.lock()
-        msgs = self._datamodel._insert_message_queue
-        self._datamodel._insert_message_queue = []
-        self._mutex.unlock()
+        with QMutexLocker(self._mutex)
+            msgs = self._datamodel._insert_message_queue
+            self._datamodel._insert_message_queue = []
         self._datamodel.insert_rows(msgs)
 
         # The console may not yet be initialized or may have been closed
@@ -113,9 +111,8 @@ class ConsoleDashWidget(IconToolButton):
 
     def _message_cb(self, msg): 
         if not self._datamodel._paused:
-            self._mutex.lock()
-            self._datamodel._insert_message_queue.append(msg)
-            self._mutex.unlock()
+            with QMutexLocker(self._mutex)
+                self._datamodel._insert_message_queue.append(msg)
 
     def update_rosout(self):
         summary_dur = 30.0

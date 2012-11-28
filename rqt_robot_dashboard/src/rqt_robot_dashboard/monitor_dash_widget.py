@@ -54,8 +54,6 @@ class MonitorDashWidget(IconToolButton):
 
         super(MonitorDashWidget, self).__init__('MonitorWidget', icons, icon_paths=icon_paths)
 
-        self.update_state(2)
-
         self.setFixedSize(self._icons[0].actualSize(QSize(50, 30)))
 
         self._monitor = None
@@ -66,8 +64,6 @@ class MonitorDashWidget(IconToolButton):
         self.context = context
         self.clicked.connect(self._show_monitor)
 
-        self.update_state(3)
-
         self._monitor_shown = False
         self.setToolTip('Diagnostics')
 
@@ -76,7 +72,6 @@ class MonitorDashWidget(IconToolButton):
         self._stall_timer = QTimer()
         self._stall_timer.timeout.connect(self._stalled)
         self._stalled()
-        self._is_stale = True
 
     def toplevel_state_callback(self, msg):
         self._is_stale = False
@@ -116,12 +111,12 @@ class MonitorDashWidget(IconToolButton):
             self._show_monitor()
 
     def _monitor_close(self):
-        locker = QMutexLocker(self._close_mutex)
         if self._monitor_shown:
-            self._monitor_shown = False
-            self._monitor.shutdown()
-            self._monitor.close()
-            self._monitor = None
+            with QMutexLocker(self._close_mutex)
+                self._monitor_shown = False
+                self._monitor.shutdown()
+                self._monitor.close()
+                self._monitor = None
 
     def shutdown_widget(self):
         if self._monitor:
