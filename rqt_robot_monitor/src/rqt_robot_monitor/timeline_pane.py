@@ -39,13 +39,15 @@ import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QGraphicsScene, QGraphicsView, QColor, QHBoxLayout, QPushButton
+from python_qt_binding.QtGui import QWidget, QGraphicsScene, QGraphicsView, QColor, QHBoxLayout, QPushButton, QIcon
 from python_qt_binding.QtCore import Signal, Qt
 
 class TimelineView(QGraphicsView):
     def __init__(self, parent):
         super(TimelineView, self).__init__()
-        self.parent = parent           
+        self.parent = parent
+        
+        self._timeline_marker = QIcon.fromTheme('system-search')
     
     '''
     @param event: QMouseEvent 
@@ -99,7 +101,7 @@ class TimelinePane(QWidget):
         xpos_clicked = event.x()
         width_each_cell_shown = float(
                        self._timeline_view.viewport().width()) / len(self._mq)
-        i = int(floor( xpos_clicked / width_each_cell_shown ))
+        i = int(floor(xpos_clicked / width_each_cell_shown))
 
         msg = self._messages[i]
         if msg:

@@ -47,8 +47,6 @@ from python_qt_binding.QtGui import QWidget, QTreeWidgetItem, QTextEdit, QIcon
 from inspector_window import InspectorWindow
 from timeline_pane import TimelinePane
 
-_ERR_LEVELS = [2, 3]
-
 # Instantiating icons that show the device status.
 _ERR_ICON = QIcon.fromTheme('face-angry')
 _WARN_ICON = QIcon.fromTheme('face-sick')
@@ -56,6 +54,12 @@ _OK_ICON = QIcon.fromTheme('face-laugh')
 _STALE_ICON = QIcon.fromTheme('face-tired')  # Added following this QA thread
                                             # http://goo.gl/83tVZ
 _IMG_DICT = {0: _OK_ICON, 1: _WARN_ICON, 2: _ERR_ICON, 3: _STALE_ICON}
+
+# DiagnosticStatus dosn't have Stale status. Related QA:http://goo.gl/83tVZ
+# It's not ideal to add STALE to DiagnosticStatus as you see in that thread,
+# but here this addition is only temporary for the purpose of implementation
+# simplicity.  
+DiagnosticStatus.STALE = 3
 
 '''
 TODO Following non-class functions need to be considered about porting out to 
@@ -548,7 +552,8 @@ class RobotMonitorWidget(QWidget):
                                        self.warn_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
                     self._warn_statusitems.append(statitem_new)
-            elif DiagnosticStatus.ERROR == stat_lv_new:
+            elif ((DiagnosticStatus.ERROR == stat_lv_new) or
+                  (DiagnosticStatus.STALE == stat_lv_new)):
                 if 0 <= dev_index_warn_curr:
                     statitem_curr = self._remove_statitem(dev_index_warn_curr,
                                                           self._warn_statusitems,
