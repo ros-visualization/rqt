@@ -48,11 +48,12 @@ from inspector_window import InspectorWindow
 from timeline_pane import TimelinePane
 
 # Instantiating icons that show the device status.
-_ERR_ICON = QIcon.fromTheme('face-angry')
-_WARN_ICON = QIcon.fromTheme('face-sick')
-_OK_ICON = QIcon.fromTheme('face-laugh')  
-_STALE_ICON = QIcon.fromTheme('face-tired')  # Added following this QA thread
-                                            # http://goo.gl/83tVZ
+_ERR_ICON = QIcon.fromTheme('dialog-error')#'face-angry')
+_WARN_ICON = QIcon.fromTheme('dialog-warning')#'face-sick')
+_OK_ICON = QIcon.fromTheme('emblem-default')#'face-laugh')
+# Added following this QA thread http://goo.gl/83tVZ  
+_STALE_ICON = QIcon.fromTheme('dialog-question')#'face-tired')
+  
 _IMG_DICT = {0: _OK_ICON, 1: _WARN_ICON, 2: _ERR_ICON, 3: _STALE_ICON}
 
 # DiagnosticStatus dosn't have Stale status. Related QA:http://goo.gl/83tVZ
