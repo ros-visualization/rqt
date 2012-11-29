@@ -30,36 +30,57 @@
 
 import roslib
 roslib.load_manifest('rqt_py_common')
+import roslib.msgs
 from rostopic import get_topic_type
+from python_qt_binding.QtCore import qDebug 
 
 def get_field_type(topic_name):
-    # get message
-    topic_type, _, message_evaluator = get_topic_type(topic_name)
+    # get topic_type and message_evaluator
+    topic_type, real_topic_name, _ = get_topic_type(topic_name)
     if topic_type is None:
-        return None
+        #qDebug('topic_helpers.get_field_type(%s): get_topic_type failed' % (topic_name))
+        return None, False
+
     message_class = roslib.message.get_message_class(topic_type)
     if message_class is None:
-        return None
-    message = message_class()
+        qDebug('topic_helpers.get_field_type(%s): get_message_class(%s) failed' % (topic_name, topic_type))
+        return None, False
+    
+    slot_path = topic_name[len(real_topic_name):]
+    return get_slot_type(message_class, slot_path)
 
-    # return field type
-    if message_evaluator:
+def get_slot_type(message_class, slot_path):
+    is_array = False
+    fields = [f for f in slot_path.split('/') if f]
+    for field_name in fields:
         try:
-            field_type = type(message_evaluator(message))
-        except Exception:
-            field_type = None
-    else:
-        field_type = type(message)
-
-    return field_type
+            field_name, _, field_index = roslib.msgs.parse_type(field_name)
+        except roslib.msgs.MsgSpecException:
+            return None, False
+        if field_name not in getattr(message_class, '__slots__', []):
+            #qDebug('topic_helpers.get_slot_type(%s, %s): field not found: %s' % (message_class, slot_path, field_name))
+            return None, False
+        slot_type = message_class._slot_types[message_class.__slots__.index(field_name)]
+        slot_type, slot_is_array, _ = roslib.msgs.parse_type(slot_type)
+        is_array = slot_is_array and field_index is None
+        if roslib.msgs.is_valid_constant_type(slot_type):
+            if slot_type == 'string':
+                message_class = str
+            elif slot_type == 'bool':
+                message_class = bool
+            else:
+                message_class = type(roslib.msgs._convert_val(slot_type, 0))
+        else:
+            message_class = roslib.message.get_message_class(slot_type)
+    return message_class, is_array
 
 def is_slot_numeric(topic_name):
-    # check for numeric field type
-    topic_base = topic_name.rsplit('[', 1)[0]
-    field_type = get_field_type(topic_base)
+    field_type, is_array = get_field_type(topic_name)
     if field_type in (int, float):
-        return True, 'topic "%s" is numeric: %s' % (topic_name, field_type)
-    elif field_type in (tuple, list) and topic_name.endswith(']'):
-        return True, 'topic "%s" is a list, hoping for a valid index...' % (topic_name)
+        if is_array:
+            message = 'topic "%s" is numeric array: %s[]' % (topic_name, field_type)
+        else:
+            message = 'topic "%s" is numeric: %s' % (topic_name, field_type)
+        return True, is_array, message
 
-    return False, 'topic "%s" is NOT numeric: %s' % (topic_name, field_type)
+    return False, is_array, 'topic "%s" is NOT numeric: %s' % (topic_name, field_type)

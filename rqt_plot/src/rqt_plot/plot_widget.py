@@ -39,9 +39,8 @@ from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
 from python_qt_binding.QtGui import QWidget, QIcon, QMenu, QAction
 
 import rospy
-from rostopic import get_topic_type
 
-from . rosplot import ROSData
+from . rosplot import ROSData, RosPlotException
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common.topic_helpers import is_slot_numeric
 
@@ -64,6 +63,7 @@ class PlotWidget(QWidget):
         self.subscribe_topic_button.setEnabled(False)
 
         self._topic_completer = TopicCompleter(self.topic_edit)
+        self._topic_completer.update_topics()
         self.topic_edit.setCompleter(self._topic_completer)
 
         self._start_time = rospy.get_time()
@@ -96,26 +96,22 @@ class PlotWidget(QWidget):
 
     @Slot('QDragEnterEvent*')
     def dragEnterEvent(self, event):
+        # get topic name
         if not event.mimeData().hasText():
             if not hasattr(event.source(), 'selectedItems') or len(event.source().selectedItems()) == 0:
                 qWarning('Plot.dragEnterEvent(): not hasattr(event.source(), selectedItems) or len(event.source().selectedItems()) == 0')
                 return
             item = event.source().selectedItems()[0]
-            ros_topic_name = item.data(0, Qt.UserRole)
-            if ros_topic_name == None:
+            topic_name = item.data(0, Qt.UserRole)
+            if topic_name == None:
                 qWarning('Plot.dragEnterEvent(): not hasattr(item, ros_topic_name_)')
                 return
-
-        # get topic name
-        if event.mimeData().hasText():
-            topic_name = str(event.mimeData().text())
         else:
-            droped_item = event.source().selectedItems()[0]
-            topic_name = str(droped_item.data(0, Qt.UserRole))
+            topic_name = str(event.mimeData().text())
 
         # check for numeric field type
-        is_numeric, message = is_slot_numeric(topic_name)
-        if is_numeric:
+        is_numeric, is_array, message = is_slot_numeric(topic_name)
+        if is_numeric and not is_array:
             event.acceptProposedAction()
         else:
             qWarning('Plot.dragEnterEvent(): rejecting: "%s"' % (message))
@@ -135,8 +131,8 @@ class PlotWidget(QWidget):
         if topic_name in ('', '/'):
             self._topic_completer.update_topics()
 
-        is_numeric, message = is_slot_numeric(topic_name)
-        self.subscribe_topic_button.setEnabled(is_numeric)
+        is_numeric, is_array, message = is_slot_numeric(topic_name)
+        self.subscribe_topic_button.setEnabled(is_numeric and not is_array)
         self.subscribe_topic_button.setToolTip(message)
 
     @Slot()
@@ -154,8 +150,11 @@ class PlotWidget(QWidget):
     def update_plot(self):
         if self.data_plot is not None:
             for topic_name, rosdata in self._rosdata.items():
-                data_x, data_y = rosdata.next()
-                self.data_plot.update_values(topic_name, data_x, data_y)
+                try:
+                    data_x, data_y = rosdata.next()
+                    self.data_plot.update_values(topic_name, data_x, data_y)
+                except RosPlotException as e:
+                    qWarning('PlotWidget.update_plot(): error in rosplot: %s' % e)
             self.data_plot.redraw()
         
     def _subscribed_topics_changed(self):
@@ -179,7 +178,7 @@ class PlotWidget(QWidget):
 
     def add_topic(self, topic_name):
         if topic_name in self._rosdata:
-            qWarning('Plot.add_topic(): topic already subscribed: %s' % topic_name)
+            qWarning('PlotWidget.add_topic(): topic already subscribed: %s' % topic_name)
             return
 
         self._rosdata[topic_name] = ROSData(topic_name, self._start_time)

@@ -110,7 +110,7 @@ class ROSData(object):
         self.sub = rospy.Subscriber(real_topic, data_class, self._ros_cb)
 
     def close(self):
-      self.sub.unregister()
+        self.sub.unregister()
 
     def _ros_cb(self, msg):
         """
@@ -128,7 +128,7 @@ class ROSData(object):
                     self.buff_x.append(rospy.get_time() - self.start_time)                    
                 #self.axes[index].plot(datax, buff_y)
             except AttributeError, e:
-                self.error = RosPlotException("Invalid topic spec [%s]: %s"%(self.name, str(e)))
+                self.error = RosPlotException("Invalid topic spec [%s]: %s" % (self.name, str(e)))
         finally:
             self.lock.release()
         
@@ -158,10 +158,10 @@ class ROSData(object):
             for f in self.field_evals:
                 val = f(val)
             return float(val)
+        except IndexError as e:
+            self.error = RosPlotException("[%s] index error for: %s" % (self.name, str(val).replace('\n', ', ')))
         except TypeError:
-            print "[%s] value was not numeric: %s"%(self.name, val)
-            #TODO: really, really shouldn't be doing this here
-            sys.exit(1)
+            self.error = RosPlotException("[%s] value was not numeric: %s" % (self.name, val))
 
 def _array_eval(field_name, slot_num):
     """

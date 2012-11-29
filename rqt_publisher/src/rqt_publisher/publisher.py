@@ -176,7 +176,9 @@ class Publisher(Plugin):
                 del publisher_info['expressions'][topic_name]
                 #qDebug('Publisher._change_publisher_expression(): removed expression for: %s' % (topic_name))
         else:
-            slot_type = get_field_type(topic_name)
+            slot_type, is_array = get_field_type(topic_name)
+            if is_array:
+                slot_type = list
             # strip possible trailing error message from expression
             error_prefix = '# error'
             error_prefix_pos = expression.find(error_prefix)

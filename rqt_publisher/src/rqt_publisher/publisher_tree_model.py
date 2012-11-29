@@ -112,7 +112,7 @@ class PublisherTreeModel(MessageTreeModel):
 
         # fill tree widget columns of top level item
         if publisher_info['enabled']:
-            top_level_row[self._column_index['enabled']].setCheckedState(Qt.Checked)
+            top_level_row[self._column_index['topic']].setCheckState(Qt.Checked)
         top_level_row[self._column_index['rate']].setText(str(publisher_info['rate']))
 
     def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
