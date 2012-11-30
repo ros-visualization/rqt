@@ -38,6 +38,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 
+#include <QMessageBox>
 #include <QPainter>
 
 namespace rqt_image_view {
@@ -225,8 +226,12 @@ void ImageView::onTopicChanged(int index)
   {
     image_transport::ImageTransport it(getNodeHandle());
     image_transport::TransportHints hints(transport.toStdString());
-    subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, hints);
-    //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
+    try {
+      subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, hints);
+      //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
+    } catch (image_transport::TransportLoadException& e) {
+      QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
+    }
   }
 }
 
