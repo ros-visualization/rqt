@@ -35,6 +35,14 @@ from rostopic import get_topic_type
 from python_qt_binding.QtCore import qDebug 
 
 def get_field_type(topic_name):
+    """
+    Get the Python type of a specific field in the given registered topic.
+    If the field is an array, the type of the array's values are returned and the is_array flag is set to True.
+    This is a static type check, so it works for unpublished topics and with empty arrays.
+    
+    :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
+    :returns: field_type, is_array
+    """
     # get topic_type and message_evaluator
     topic_type, real_topic_name, _ = get_topic_type(topic_name)
     if topic_type is None:
@@ -50,6 +58,15 @@ def get_field_type(topic_name):
     return get_slot_type(message_class, slot_path)
 
 def get_slot_type(message_class, slot_path):
+    """
+    Get the Python type of a specific slot in the given message class.
+    If the field is an array, the type of the array's values are returned and the is_array flag is set to True.
+    This is a static type check, so it works for unpublished topics and with empty arrays.
+    
+    :param message_class: message class type, ``type``, usually inherits from genpy.message.Message
+    :param slot_path: path to the slot inside the message class, ``str``, i.e. 'header/seq'
+    :returns: field_type, is_array
+    """
     is_array = False
     fields = [f for f in slot_path.split('/') if f]
     for field_name in fields:
@@ -75,6 +92,13 @@ def get_slot_type(message_class, slot_path):
     return message_class, is_array
 
 def is_slot_numeric(topic_name):
+    """
+    Check is a slot in the given topic is numeric, or an array of numeric values.
+    This is a static type check, so it works for unpublished topics and with empty arrays.
+    
+    :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
+    :returns: is_numeric, is_array, description
+    """
     field_type, is_array = get_field_type(topic_name)
     if field_type in (int, float):
         if is_array:
