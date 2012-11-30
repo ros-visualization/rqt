@@ -51,7 +51,7 @@ class PublisherTreeWidget(MessageTreeWidget):
         self._action_remove_publisher.triggered[bool].connect(self._handle_action_remove_publisher)
         self._action_publish_once = QAction(QIcon.fromTheme('media-playback-start'), 'Publish Selected Once', self)
         self._action_publish_once.triggered[bool].connect(self._handle_action_publish_once)
-        self.setItemDelegateForColumn(self.model()._column_index['rate'], SpinBoxDelegate(decimals=2, min=0, max=1000000))
+        self.setItemDelegateForColumn(self.model()._column_index['rate'], SpinBoxDelegate(min_value=0, max_value=1000000, decimals=2))
 
     @Slot()
     def remove_selected_publishers(self):
