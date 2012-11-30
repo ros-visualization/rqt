@@ -33,6 +33,7 @@
 from message_list import MessageList
 
 from python_qt_binding.QtCore import QAbstractTableModel, QDateTime, QModelIndex, Qt, qWarning
+from python_qt_binding.QtGui import QIcon
 
 
 class MessageDataModel(QAbstractTableModel):
@@ -44,7 +45,9 @@ class MessageDataModel(QAbstractTableModel):
         self._insert_message_queue = []
         self._paused = False
         self._message_limit = 20000
-
+        self._error_icon = QIcon.fromTheme('dialog-error')
+        self._warning_icon = QIcon.fromTheme('dialog-warning')
+        self._info_icon = QIcon.fromTheme('dialog-information')
     # BEGIN Required implementations of QAbstractTableModel functions
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
@@ -64,6 +67,14 @@ class MessageDataModel(QAbstractTableModel):
                         return self.timedata_to_timestring(messagelist[index.row()].time_in_seconds())
                     else:
                         return getattr(messagelist[index.row()], elements[index.column()])
+                elif role == Qt.DecorationRole and index.column() == 0:
+                    msgseverity = messagelist[index.row()].get_data(1)
+                    if msgseverity in (self.tr('Debug'), self.tr('Info')):
+                        return self._info_icon
+                    elif msgseverity in (self.tr('Warn')):
+                        return self._warning_icon
+                    elif msgseverity in (self.tr('Error'), self.tr('Fatal')):
+                        return self._error_icon
                 elif role == Qt.ToolTipRole:
                     return self.tr('Right click for menu.')
 
