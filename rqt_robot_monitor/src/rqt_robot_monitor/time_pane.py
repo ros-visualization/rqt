@@ -37,25 +37,12 @@ from math import floor
 
 import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
-
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, QGraphicsScene, QGraphicsView, QColor, QHBoxLayout, QPushButton, QIcon
+from python_qt_binding.QtGui import QWidget, QGraphicsScene, QColor
 from python_qt_binding.QtCore import Signal, Qt
 
-class TimelineView(QGraphicsView):
-    def __init__(self, parent):
-        super(TimelineView, self).__init__()
-        self.parent = parent
-        
-        self._timeline_marker = QIcon.fromTheme('system-search')
-    
-    '''
-    @param event: QMouseEvent 
-    '''
-    def mouseReleaseEvent(self, event):
-        self.parent.mouse_release(event)
-        rospy.logdebug('\tTimelineView mouseReleaseEvent ****')
-            
+from timeline import TimelineView
+
 class TimelinePane(QWidget):
     update = Signal()
     def __init__(self, parent):
