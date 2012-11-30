@@ -34,6 +34,7 @@ import os
 import roslib
 roslib.load_manifest('rqt_plot')
 
+from python_qt_binding import QT_BINDING
 from python_qt_binding.QtCore import qDebug
 from rqt_gui_py.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
@@ -86,6 +87,11 @@ class Plot(Plugin):
         super(Plot, self).__init__(context)
         self.setObjectName('Plot')
 
+        enabled_plot_types = [pt for pt in self.plot_types if pt['enabled']]
+        if not enabled_plot_types:
+            version_info = ' and PySide > 1.1.0' if QT_BINDING == 'pyside' else ''
+            raise RuntimeError('No usable plot type found. Install at least one of: PyQtGraph, MatPlotLib (at least 1.1.0%s) or Python-Qwt5.' % version_info)
+
         self._plot_type_index = 0
         self._context = context
         self._widget = PlotWidget()
@@ -96,14 +102,11 @@ class Plot(Plugin):
     def _switch_data_plot_widget(self, plot_type_index):
         # check if selected plot type is available
         if not self.plot_types[plot_type_index]['enabled']:
-            # if not, check for any other available plot type
+            # find other available plot type
             for index, plot_type in enumerate(self.plot_types):
                 if plot_type['enabled']:
                     plot_type_index = index
                     break
-            else:
-                print 'No usable plot type found. Install at least one of: PyQtGraph, MatPlotLib or Python-Qwt5'
-                return
             
         self._plot_type_index = plot_type_index
         selected_plot = self.plot_types[plot_type_index]
