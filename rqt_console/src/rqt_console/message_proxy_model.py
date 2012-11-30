@@ -96,7 +96,7 @@ class MessageProxyModel(QSortFilterProxyModel):
     # END Required implementations of QSortFilterProxyModel functions
 
     def handle_filters_changed(self):
-        self.reset()
+        self.invalidateFilter()
 
     def add_exclude_filter(self, newfilter):
         self._exclude_filters.append(newfilter)
