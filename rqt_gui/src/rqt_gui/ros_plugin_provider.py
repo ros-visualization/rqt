@@ -32,13 +32,13 @@ import __builtin__
 import os
 import sys
 import traceback
-
 from xml.etree import ElementTree
 
 from python_qt_binding.QtCore import qCritical
 
 from qt_gui.plugin_descriptor import PluginDescriptor
 from qt_gui.plugin_provider import PluginProvider
+
 
 class RosPluginProvider(PluginProvider):
 
@@ -82,10 +82,10 @@ class RosPluginProvider(PluginProvider):
         except Exception as e:
             qCritical('RosPluginProvider.load(%s) exception raised in __builtin__.__import__(%s, [%s]):\n%s' % (plugin_id, attributes['module_name'], attributes['class_from_class_type'], traceback.format_exc()))
             raise e
-        
+
         class_ref = getattr(module, attributes['class_from_class_type'], None)
         if class_ref is None:
-            qCritical('RosPluginProvider.load(%s): could not find class "%s" in module "%s"' % (plugin_id, attributes['class_from_class_type']), module)
+            qCritical('RosPluginProvider.load(%s): could not find class "%s" in module "%s"' % (plugin_id, attributes['class_from_class_type'], module))
             return None
 
         # create plugin provider instance without context
@@ -176,7 +176,7 @@ class RosPluginProvider(PluginProvider):
                         group.get('icontype', None),
                     )
 
-                # add plugin_descriptor to list 
+                # add plugin_descriptor to list
                 plugin_descriptors.append(plugin_descriptor)
 
         return plugin_descriptors

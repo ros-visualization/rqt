@@ -32,6 +32,7 @@ import roslib.rospack
 
 from .ros_plugin_provider import RosPluginProvider
 
+
 class RoslibPluginProvider(RosPluginProvider):
 
     """`RosPluginProvider` using roslib."""

@@ -40,6 +40,7 @@ roslib.load_manifest('rqt_gui')
 
 from qt_gui.main import Main as Base
 
+
 class Main(Base):
 
     def __init__(self, filename=None):

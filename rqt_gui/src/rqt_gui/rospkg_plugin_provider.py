@@ -38,6 +38,7 @@ from rospkg.manifest import parse_manifest_file, InvalidManifest
 
 from .ros_plugin_provider import RosPluginProvider
 
+
 class RospkgPluginProvider(RosPluginProvider):
 
     """`RosPluginProvider` using rospkg."""
@@ -62,7 +63,7 @@ class RospkgPluginProvider(RosPluginProvider):
                 for export in exports:
                     plugins.append([package_name, str(export)])
                 continue
-            
+
             package_file_path = os.path.join(package_path, PACKAGE_FILE)
             if os.path.isfile(package_file_path):
                 # only try to import catkin if a PACKAGE_FILE is found

@@ -36,6 +36,7 @@ import time
 
 from .ros_plugin_provider import RosPluginProvider
 
+
 class RosPluginProviderCache():
 
     """Cache persisting the plugin list to speed up start-up time."""
@@ -43,7 +44,7 @@ class RosPluginProviderCache():
     def __init__(self):
         self._cache_file = os.path.expanduser('~/.config/ros.org/rqt-plugin-cache')
         self._loaded = None
-        self._max_age = 60 * 60 * 24 # one day
+        self._max_age = 60 * 60 * 24  # one day
 
     def load(self):
         if os.path.exists(self._cache_file):
