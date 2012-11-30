@@ -34,9 +34,11 @@ import roslib
 roslib.load_manifest('rqt_py_common')
 import rospy
 
+from python_qt_binding.QtCore import qWarning
+
 from .message_tree_model import MessageTreeModel
 from .tree_model_completer import TreeModelCompleter
-from python_qt_binding.QtCore import qWarning
+
 
 class TopicCompleter(TreeModelCompleter):
 
@@ -59,7 +61,7 @@ class TopicCompleter(TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    from python_qt_binding.QtGui import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QTreeView
+    from python_qt_binding.QtGui import QApplication, QComboBox, QLineEdit, QMainWindow, QTreeView, QVBoxLayout, QWidget
     app = QApplication(sys.argv)
     mw = QMainWindow()
     widget = QWidget(mw)

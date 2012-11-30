@@ -32,14 +32,15 @@ import roslib
 roslib.load_manifest('rqt_py_common')
 import roslib.msgs
 from rostopic import get_topic_type
-from python_qt_binding.QtCore import qDebug 
+from python_qt_binding.QtCore import qDebug
+
 
 def get_field_type(topic_name):
     """
     Get the Python type of a specific field in the given registered topic.
     If the field is an array, the type of the array's values are returned and the is_array flag is set to True.
     This is a static type check, so it works for unpublished topics and with empty arrays.
-    
+
     :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
     :returns: field_type, is_array
     """
@@ -53,16 +54,17 @@ def get_field_type(topic_name):
     if message_class is None:
         qDebug('topic_helpers.get_field_type(%s): get_message_class(%s) failed' % (topic_name, topic_type))
         return None, False
-    
+
     slot_path = topic_name[len(real_topic_name):]
     return get_slot_type(message_class, slot_path)
+
 
 def get_slot_type(message_class, slot_path):
     """
     Get the Python type of a specific slot in the given message class.
     If the field is an array, the type of the array's values are returned and the is_array flag is set to True.
     This is a static type check, so it works for unpublished topics and with empty arrays.
-    
+
     :param message_class: message class type, ``type``, usually inherits from genpy.message.Message
     :param slot_path: path to the slot inside the message class, ``str``, i.e. 'header/seq'
     :returns: field_type, is_array
@@ -91,11 +93,12 @@ def get_slot_type(message_class, slot_path):
             message_class = roslib.message.get_message_class(slot_type)
     return message_class, is_array
 
+
 def is_slot_numeric(topic_name):
     """
     Check is a slot in the given topic is numeric, or an array of numeric values.
     This is a static type check, so it works for unpublished topics and with empty arrays.
-    
+
     :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
     :returns: is_numeric, is_array, description
     """

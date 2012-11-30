@@ -29,12 +29,15 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
 from python_qt_binding.QtGui import QStandardItem
+
 
 class ReadonlyItem(QStandardItem):
     def __init__(self, *args):
         super(ReadonlyItem, self).__init__(*args)
         self.setEditable(False)
+
 
 class CheckableItem(ReadonlyItem):
     def __init__(self, *args):
