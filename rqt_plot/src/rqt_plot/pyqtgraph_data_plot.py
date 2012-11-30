@@ -31,10 +31,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from python_qt_binding.QtCore import Slot, Qt
-from python_qt_binding.QtGui import QWidget, QVBoxLayout, QSizePolicy, QColor
+from python_qt_binding.QtGui import QColor, QSizePolicy, QVBoxLayout, QWidget
 
 from pyqtgraph import PlotWidget, mkPen
 import numpy
+
 
 class PyQtGraphDataPlot(QWidget):
     _colors = [Qt.red, Qt.blue, Qt.magenta, Qt.cyan, Qt.green, Qt.darkYellow, Qt.black, Qt.darkRed, Qt.gray, Qt.darkCyan]
@@ -79,14 +80,14 @@ class PyQtGraphDataPlot(QWidget):
 
     def redraw(self):
         # Set axis bounds
-        xrange, yrange = self._plot_widget.viewRange()
-        xdelta = xrange[1] - xrange[0]
-        xmax = 0
+        x_range, _ = self._plot_widget.viewRange()
+        x_delta = x_range[1] - x_range[0]
+        x_max = 0
         for curve in self._curves.values():
             if len(curve['x']) == 0:
                 continue
 
-            xmax = max(xmax, curve['x'][-1])
+            x_max = max(x_max, curve['x'][-1])
             curve['plot'].setData(curve['x'], curve['y'])
 
-        self._plot_widget.setXRange(xmax - xdelta, xmax, padding=0)
+        self._plot_widget.setXRange(x_max - x_delta, x_max, padding=0)

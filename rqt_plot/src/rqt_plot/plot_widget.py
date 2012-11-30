@@ -36,13 +36,14 @@ roslib.load_manifest('rqt_plot')
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
-from python_qt_binding.QtGui import QWidget, QIcon, QMenu, QAction
+from python_qt_binding.QtGui import QAction, QIcon, QMenu,QWidget 
 
 import rospy
 
-from . rosplot import ROSData, RosPlotException
 from rqt_py_common.topic_completer import TopicCompleter
 from rqt_py_common.topic_helpers import is_slot_numeric
+
+from . rosplot import ROSData, RosPlotException
 
 
 class PlotWidget(QWidget):
@@ -76,11 +77,11 @@ class PlotWidget(QWidget):
 
     def switch_data_plot_widget(self, data_plot):
         self.enable_timer(enabled=False)
-        
+
         self.data_plot_layout.removeWidget(self.data_plot)
         if self.data_plot is not None:
             self.data_plot.close()
-            
+
         self.data_plot = data_plot
         self.data_plot_layout.addWidget(self.data_plot)
 
@@ -156,24 +157,23 @@ class PlotWidget(QWidget):
                 except RosPlotException as e:
                     qWarning('PlotWidget.update_plot(): error in rosplot: %s' % e)
             self.data_plot.redraw()
-        
+
     def _subscribed_topics_changed(self):
         self._update_remove_topic_menu()
         if not self.pause_button.isChecked():
             # if pause button is not pressed, enable timer based on subscribed topics
-            self.enable_timer(self._rosdata) 
-        
-        
+            self.enable_timer(self._rosdata)
+
     def _update_remove_topic_menu(self):
         def make_remove_topic_function(x):
             return lambda: self.remove_topic(x)
-        
+
         self._remove_topic_menu.clear()
         for topic_name in sorted(self._rosdata.keys()):
             action = QAction(topic_name, self._remove_topic_menu)
             action.triggered.connect(make_remove_topic_function(topic_name))
             self._remove_topic_menu.addAction(action)
-            
+
         self.remove_topic_button.setMenu(self._remove_topic_menu)
 
     def add_topic(self, topic_name):
@@ -184,22 +184,22 @@ class PlotWidget(QWidget):
         self._rosdata[topic_name] = ROSData(topic_name, self._start_time)
         data_x, data_y = self._rosdata[topic_name].next()
         self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
-        
+
         self._subscribed_topics_changed()
 
     def remove_topic(self, topic_name):
         self._rosdata[topic_name].close()
         del self._rosdata[topic_name]
         self.data_plot.remove_curve(topic_name)
-        
+
         self._subscribed_topics_changed()
-        
+
     def clean_up_subscribers(self):
         for topic_name, rosdata in self._rosdata.items():
             rosdata.close()
             self.data_plot.remove_curve(topic_name)
         self._rosdata = {}
-        
+
         self._subscribed_topics_changed()
 
     def enable_timer(self, enabled=True):

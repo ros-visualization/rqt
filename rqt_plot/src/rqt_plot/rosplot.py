@@ -38,18 +38,21 @@ import sys
 import threading
 import time
 
-import roslib.names
-import roslib.message
 import rosgraph
+import roslib.message
+import roslib.names
 import rospy
 
-class RosPlotException(Exception): pass
+
+class RosPlotException(Exception):
+    pass
+
 
 def _get_topic_type(topic):
     """
     subroutine for getting the topic type
     (nearly identical to rostopic._get_topic_type, except it returns rest of name instead of fn)
-    
+
     :returns: topic type, real topic name, and rest of name referenced
       if the topic points to a field within a topic, e.g. /rosout/msg, ``str, str, str``
     """
@@ -58,7 +61,7 @@ def _get_topic_type(topic):
         val = master.getPublishedTopics('/')
     except:
         raise RosPlotException("unable to get list of topics from master")
-    matches = [(t, t_type) for t, t_type in val if t == topic or topic.startswith(t+'/')]
+    matches = [(t, t_type) for t, t_type in val if t == topic or topic.startswith(t + '/')]
     if matches:
         t, t_type = matches[0]
         if t_type == roslib.names.ANYTYPE:
@@ -69,10 +72,11 @@ def _get_topic_type(topic):
     else:
         return None, None, None
 
+
 def get_topic_type(topic):
     """
     Get the topic type (nearly identical to rostopic.get_topic_type, except it doesn't return a fn)
-    
+
     :returns: topic type, real topic name, and rest of name referenced
       if the \a topic points to a field within a topic, e.g. /rosout/msg, ``str, str, str``
     """
@@ -80,7 +84,7 @@ def get_topic_type(topic):
     if topic_type:
         return topic_type, real_topic, rest
     else:
-        print >> sys.stderr, "WARNING: topic [%s] does not appear to be published yet"%topic
+        print >> sys.stderr, "WARNING: topic [%s] does not appear to be published yet" % topic
         while not rospy.is_shutdown():
             topic_type, real_topic, rest = _get_topic_type(topic)
             if topic_type:
@@ -125,17 +129,17 @@ class ROSData(object):
                 if msg.__class__._has_header:
                     self.buff_x.append(msg.header.stamp.to_sec() - self.start_time)
                 else:
-                    self.buff_x.append(rospy.get_time() - self.start_time)                    
+                    self.buff_x.append(rospy.get_time() - self.start_time)
                 #self.axes[index].plot(datax, buff_y)
             except AttributeError, e:
                 self.error = RosPlotException("Invalid topic spec [%s]: %s" % (self.name, str(e)))
         finally:
             self.lock.release()
-        
+
     def next(self):
         """
         Get the next data in the series
-        
+
         :returns: [xdata], [ydata]
         """
         if self.error:
@@ -149,7 +153,7 @@ class ROSData(object):
         finally:
             self.lock.release()
         return buff_x, buff_y
-        
+
     def _get_data(self, msg):
         val = msg
         try:
@@ -158,10 +162,11 @@ class ROSData(object):
             for f in self.field_evals:
                 val = f(val)
             return float(val)
-        except IndexError as e:
+        except IndexError:
             self.error = RosPlotException("[%s] index error for: %s" % (self.name, str(val).replace('\n', ', ')))
         except TypeError:
             self.error = RosPlotException("[%s] value was not numeric: %s" % (self.name, val))
+
 
 def _array_eval(field_name, slot_num):
     """
@@ -173,6 +178,7 @@ def _array_eval(field_name, slot_num):
         return getattr(f, field_name).__getitem__(slot_num)
     return fn
 
+
 def _field_eval(field_name):
     """
     :param field_name: name of field to return, ``str``
@@ -181,6 +187,7 @@ def _field_eval(field_name):
     def fn(f):
         return getattr(f, field_name)
     return fn
+
 
 def generate_field_evals(fields):
     try:
@@ -195,5 +202,4 @@ def generate_field_evals(fields):
                 evals.append(_field_eval(f))
         return evals
     except Exception, e:
-        raise RosPlotException("cannot parse field reference [%s]: %s"%(fields, str(e)))
-    
+        raise RosPlotException("cannot parse field reference [%s]: %s" % (fields, str(e)))

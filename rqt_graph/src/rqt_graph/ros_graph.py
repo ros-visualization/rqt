@@ -32,8 +32,8 @@ from __future__ import division
 import os
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import QFile, QIODevice, Qt, Signal, QAbstractListModel
-from python_qt_binding.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
+from python_qt_binding.QtCore import QAbstractListModel, QFile, QIODevice, Qt, Signal
+from python_qt_binding.QtGui import QCompleter, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
 from python_qt_binding.QtSvg import QSvgGenerator
 
 import roslib
@@ -42,17 +42,15 @@ import rosgraph.impl.graph
 import rosservice
 import rostopic
 
-from .dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
+from qt_dotgraph.dot_to_qt import DotToQtGenerator
 # pydot requires some hacks
 from qt_dotgraph.pydotfactory import PydotFactory
+from rqt_gui_py.plugin import Plugin
 # TODO: use pygraphviz instead, but non-deterministic layout will first be resolved in graphviz 2.30
 # from qtgui_plugin.pygraphvizfactory import PygraphvizFactory
 
+from .dotcode import RosGraphDotcodeGenerator, NODE_NODE_GRAPH, NODE_TOPIC_ALL_GRAPH, NODE_TOPIC_GRAPH
 from .interactive_graphics_view import InteractiveGraphicsView
-
-from qt_dotgraph.dot_to_qt import DotToQtGenerator
-
-from rqt_gui_py.plugin import Plugin
 
 
 class RepeatedWordCompleter(QCompleter):

@@ -30,15 +30,15 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
 import roslib
 roslib.load_manifest('rqt_plot')
 
 from python_qt_binding import QT_BINDING
 from python_qt_binding.QtCore import qDebug
-from rqt_gui_py.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
-from plot_widget import PlotWidget
+from rqt_gui_py.plugin import Plugin
+
+from .plot_widget import PlotWidget
 
 try:
     qDebug('rqt_plot.plot: importing PyQtGraphDataPlot')
@@ -61,6 +61,7 @@ except ImportError:
     qDebug('rqt_plot.plot: import of QwtDataPlot failed')
     QwtDataPlot = None
 
+
 class Plot(Plugin):
     # plot types in order of priority
     plot_types = [
@@ -69,20 +70,21 @@ class Plot(Plugin):
             'widget_class': PyQtGraphDataPlot,
             'description': 'Based on PyQtGraph\n- installer: http://luke.campagnola.me/code/pyqtgraph',
             'enabled': PyQtGraphDataPlot is not None,
-        }, 
+        },
         {
             'title': 'MatPlot',
             'widget_class': MatDataPlot,
             'description': 'Based on MatPlotLib\n- needs most CPU\n- needs matplotlib >= 1.1.0\n- if using PySide: PySide > 1.1.0',
             'enabled': MatDataPlot is not None,
-        }, 
+        },
         {
             'title': 'QwtPlot',
             'widget_class': QwtDataPlot,
             'description': 'Based on QwtPlot\n- does not use timestamps\n- uses least CPU\n- needs Python Qwt bindings',
             'enabled': QwtDataPlot is not None,
-        }, 
+        },
     ]
+
     def __init__(self, context):
         super(Plot, self).__init__(context)
         self.setObjectName('Plot')
@@ -107,15 +109,15 @@ class Plot(Plugin):
                 if plot_type['enabled']:
                     plot_type_index = index
                     break
-            
+
         self._plot_type_index = plot_type_index
         selected_plot = self.plot_types[plot_type_index]
-        
+
         self._widget.switch_data_plot_widget(selected_plot['widget_class'](self._widget))
         self._widget.setWindowTitle(selected_plot['title'])
         if self._context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % self._context.serial_number()))
-        
+
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('plot_type', self._plot_type_index)
 
