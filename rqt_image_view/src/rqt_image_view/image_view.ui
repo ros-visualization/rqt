@@ -18,7 +18,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,1">
      <item>
       <widget class="QComboBox" name="topics_combo_box">
        <property name="sizeAdjustPolicy">
@@ -36,6 +36,35 @@
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="dynamic_range_check_box">
+       <property name="toolTip">
+        <string>Dynamic depth range</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="max_range_double_spin_box">
+       <property name="toolTip">
+        <string>Max depth</string>
+       </property>
+       <property name="suffix">
+        <string>m</string>
+       </property>
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>10.000000000000000</double>
        </property>
       </widget>
      </item>
