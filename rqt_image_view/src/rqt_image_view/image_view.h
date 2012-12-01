@@ -40,8 +40,11 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
 
+#include <opencv2/core/core.hpp>
+
 #include <QImage>
 #include <QList>
+#include <QMutex>
 #include <QString>
 #include <QSize>
 #include <QWidget>
@@ -86,6 +89,8 @@ protected slots:
 
   virtual void onZoom1(bool checked);
 
+  virtual void onDynamicRange(bool checked);
+
 protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
@@ -97,8 +102,10 @@ protected:
   image_transport::Subscriber subscriber_;
 
   QImage qimage_;
+  QMutex qimage_mutex_;
 
-  std::vector<uint8_t> conversion_buffer_;
+  cv::Mat conversion_mat_;
+
 };
 
 }

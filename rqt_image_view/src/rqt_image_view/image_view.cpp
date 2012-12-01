@@ -37,6 +37,7 @@
 #include <sensor_msgs/image_encodings.h>
 
 #include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <QMessageBox>
 #include <QPainter>
@@ -72,6 +73,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   ui_.zoom_1_push_button->setIcon(QIcon::fromTheme("zoom-original"));
   connect(ui_.zoom_1_push_button, SIGNAL(toggled(bool)), this, SLOT(onZoom1(bool)));
+  
+  connect(ui_.dynamic_range_check_box, SIGNAL(toggled(bool)), this, SLOT(onDynamicRange(bool)));
 }
 
 bool ImageView::eventFilter(QObject* watched, QEvent* event)
@@ -85,7 +88,9 @@ bool ImageView::eventFilter(QObject* watched, QEvent* event)
       // TODO: check if full draw is really necessary
       //QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
       //painter.drawImage(paint_event->rect(), qimage_);
+      qimage_mutex_.lock();
       painter.drawImage(ui_.image_frame->contentsRect(), qimage_);
+      qimage_mutex_.unlock();
     } else {
       // default image with gradient
       QLinearGradient gradient(0, 0, ui_.image_frame->frameRect().width(), ui_.image_frame->frameRect().height());
@@ -111,15 +116,24 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
   instance_settings.setValue("topic", topic);
   instance_settings.setValue("zoom1", ui_.zoom_1_push_button->isChecked());
+  instance_settings.setValue("dynamic_range", ui_.dynamic_range_check_box->isChecked());
+  instance_settings.setValue("max_range", ui_.max_range_double_spin_box->value());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
 {
-  QString topic = instance_settings.value("topic", "").toString();
   bool zoom1_checked = instance_settings.value("zoom1", false).toBool();
+  ui_.zoom_1_push_button->setChecked(zoom1_checked);
+
+  bool dynamic_range_checked = instance_settings.value("dynamic_range", false).toBool();
+  ui_.dynamic_range_check_box->setChecked(dynamic_range_checked);
+
+  double max_range = instance_settings.value("max_range", ui_.max_range_double_spin_box->value()).toDouble();
+  ui_.max_range_double_spin_box->setValue(max_range);
+
+  QString topic = instance_settings.value("topic", "").toString();
   //qDebug("ImageView::restoreSettings() topic '%s'", topic.toStdString().c_str());
   selectTopic(topic);
-  ui_.zoom_1_push_button->setChecked(zoom1_checked);
 }
 
 void ImageView::updateTopicList()
@@ -255,91 +269,69 @@ void ImageView::onZoom1(bool checked)
   }
 }
 
+void ImageView::onDynamicRange(bool checked)
+{
+  ui_.max_range_double_spin_box->setEnabled(!checked);
+}
+
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
-  QImage image;
   try
   {
-    cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
-    image = QImage(cv_ptr->image.data, cv_ptr->image.cols, cv_ptr->image.rows, QImage::Format_RGB888);
-    conversion_buffer_.resize(0);
+    // First check if we have a color format. If so, use the current tools for color conversion
+    if (sensor_msgs::image_encodings::isColor(msg->encoding) || sensor_msgs::image_encodings::isMono(msg->encoding))
+    {
+      cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
+      conversion_mat_ = cv_ptr->image;
+    }
+    else
+    {
+      cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg);
+      if (msg->encoding == "CV_8UC3")
+      {
+        // assuming it is rgb
+        conversion_mat_ = cv_ptr->image;
+      } else if (msg->encoding == "8UC1") {
+        // convert gray to rgb
+        cv::cvtColor(cv_ptr->image, conversion_mat_, CV_GRAY2RGB);
+      } else if (msg->encoding == "16UC1" || msg->encoding == "32FC1") {
+        // scale / quantify
+        double min = 0;
+        double max = ui_.max_range_double_spin_box->value();
+        if (msg->encoding == "16UC1") max *= 1000;
+        if (ui_.dynamic_range_check_box->isChecked())
+        {
+          // dynamically adjust range based on min/max in image
+          cv::minMaxLoc(cv_ptr->image, &min, &max);
+          if (min == max) {
+            // completely homogeneous images are displayed in gray
+            min = 0;
+            max = 2;
+          }
+        }
+        cv::Mat img_scaled_8u;
+        cv::Mat(cv_ptr->image-min).convertTo(img_scaled_8u, CV_8UC1, 255. / (max - min));
+        cv::cvtColor(img_scaled_8u, conversion_mat_, CV_GRAY2RGB);
+      } else {
+        qWarning("ImageView.callback_image() unhandled image encoding '%s'", msg->encoding.c_str());
+        qimage_ = QImage();
+        return;
+      }
+    }
   }
   catch (cv_bridge::Exception& e)
   {
-    if (msg->encoding == "16UC1") {
-      // downsample to 8-bit, just copy the high bytes of 16-bit words
-      //qDebug("ImageView.callback_image() downsample 16UC1 image");
-      size_t size = msg->width * msg->height;
-      conversion_buffer_.resize(3 * size);
-
-      size_t output_i = 0;
-      size_t input_row_start = 0;
-      for (size_t row = 0; row < msg->height; row++) {
-        size_t input_i = input_row_start;
-        for (size_t column = 0; column < msg->width; column++) {
-          const uint16_t* input_ptr = reinterpret_cast<const uint16_t*>(&msg->data[input_i]);
-          // pointer to high byte of 16-bit word
-          uint8_t output = *(reinterpret_cast<const uint8_t*>(input_ptr) + 1);
-          conversion_buffer_[3 * output_i] = output;
-          conversion_buffer_[3 * output_i + 1] = output;
-          conversion_buffer_[3 * output_i + 2] = output;
-          input_i += sizeof(*input_ptr);
-          output_i++;
-        }
-        input_row_start += msg->step;
-      }
-      image = QImage(&conversion_buffer_[0], msg->width, msg->height, QImage::Format_RGB888);
-
-    } else if (msg->encoding == "32FC1") {
-      // rescale floating point image and convert it to 8-bit
-      //qDebug("ImageView.callback_image() downscaling 32FC1 image");
-      size_t size = msg->width * msg->height;
-      conversion_buffer_.resize(3 * size);
-
-      // find min. and max. pixel value
-      float min_value = std::numeric_limits<float>::max();
-      float max_value = std::numeric_limits<float>::min();
-      size_t input_row_start = 0;
-      for (size_t row = 0; row < msg->height; row++) {
-        size_t input_i = input_row_start;
-        for (size_t column = 0; column < msg->width; column++) {
-          const float* input_ptr = reinterpret_cast<const float*>(&msg->data[input_i]);
-          min_value = std::min(min_value, *input_ptr);
-          max_value = std::max(max_value, *input_ptr);
-          input_i += sizeof(*input_ptr);
-        }
-        input_row_start += msg->step;
-      }
-      float dynamic_range = max_value - min_value;
-
-      // rescale and quantize
-      size_t output_i = 0;
-      input_row_start = 0;
-      for (size_t row = 0; row < msg->height; row++) {
-        size_t input_i = input_row_start;
-        for (size_t column = 0; column < msg->width; column++) {
-          const float* input_ptr = reinterpret_cast<const float*>(&msg->data[input_i]);
-          uint8_t output = ((*input_ptr - min_value) / dynamic_range) * 255u;
-          conversion_buffer_[3 * output_i] = output;
-          conversion_buffer_[3 * output_i + 1] = output;
-          conversion_buffer_[3 * output_i + 2] = output;
-          input_i += sizeof(*input_ptr);
-          output_i++;
-        }
-        input_row_start += msg->step;
-      }
-      image = QImage(&conversion_buffer_[0], msg->width, msg->height, QImage::Format_RGB888);
-
-    } else {
-      // i.e. bayer_bggr8
-      qCritical("ImageView.callback_image() could not convert from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
-      conversion_buffer_.resize(0);
-      return;
-    }
+    qWarning("ImageView.callback_image() could not convert image from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
+    qimage_ = QImage();
+    return;
   }
 
-  // copy temporary image as it uses the conversion_buffer_ for storage which is overwritten in the next cycle
+  // copy temporary image as it uses the conversion_mat_ for storage which is asynchronously overwritten in the next callback invocation
+  QImage image(conversion_mat_.data, conversion_mat_.cols, conversion_mat_.rows, QImage::Format_RGB888);
+  qimage_mutex_.lock();
   qimage_ = image.copy();
+  qimage_mutex_.unlock();
+
   ui_.image_frame->setAspectRatio(qimage_.width(), qimage_.height());
   if (!ui_.zoom_1_push_button->isEnabled())
   {
