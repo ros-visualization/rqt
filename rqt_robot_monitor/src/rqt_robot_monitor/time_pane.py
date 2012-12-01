@@ -41,7 +41,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget, QGraphicsScene, QColor
 from python_qt_binding.QtCore import Signal, Qt
 
-from timeline import TimelineView
+from .timeline import TimelineView
 
 class TimelinePane(QWidget):
     update = Signal()

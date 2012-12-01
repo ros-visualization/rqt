@@ -40,7 +40,7 @@ import rospy
 from python_qt_binding.QtGui import QWidget, QVBoxLayout, QTextEdit, QPushButton
 from python_qt_binding.QtCore import Signal, Qt
 
-from time_pane import TimelinePane
+from .time_pane import TimelinePane
 
 class InspectorWindow(QWidget):
     _sig_write = Signal(str, str)

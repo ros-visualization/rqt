@@ -44,8 +44,8 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Signal, Qt, QTimer
 from python_qt_binding.QtGui import QWidget, QTreeWidgetItem, QTextEdit, QIcon
 
-from inspector_window import InspectorWindow
-from time_pane import TimelinePane
+from .inspector_window import InspectorWindow
+from .time_pane import TimelinePane
 
 # Instantiating icons that show the device status.
 _ERR_ICON = QIcon.fromTheme('dialog-error')#'face-angry')
