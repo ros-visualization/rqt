@@ -9,6 +9,8 @@
 
   <depend package="qt_gui"/>
   <depend package="qt_gui_py_common"/>
+  <depend package="rqt_gui"/>
+  <depend package="rqt_gui_py"/>
   <depend package="rospy"/>
 
   <export>

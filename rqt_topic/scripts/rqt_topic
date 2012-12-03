@@ -4,7 +4,7 @@ import sys
 
 import roslib
 
-pkg = 'rqt_pr2_dashboard'
+pkg = 'rqt_topic'
 roslib.load_manifest(pkg)
 
 from rqt_gui.main import Main
