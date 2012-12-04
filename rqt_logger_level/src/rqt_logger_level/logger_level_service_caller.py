@@ -78,7 +78,7 @@ class LoggerLevelServiceCaller(QObject):
         try:
             service = rosservice.get_service_class_by_name(servicename)
         except rosservice.ROSServiceIOException as e:
-            qWarning(e)
+            qWarning('During get_service_class_by_name "%s":\n%s' % (servicename, e))
             return False
         request = service._request_class()
         proxy = rospy.ServiceProxy(str(servicename), service)
