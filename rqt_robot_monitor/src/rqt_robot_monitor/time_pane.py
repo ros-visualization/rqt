@@ -59,7 +59,7 @@ class TimelinePane(QWidget):
         self._messages = [None for x in range(20)] # DiagnosticStatus
         self._mq = [1 for x in range(20)] 
 
-        self.pause_button.clicked.connect(self._pause)
+        self.pause_button.clicked[bool].connect(self._pause)
         self.update.connect(self.redraw)
 
     def redraw(self):
@@ -84,17 +84,17 @@ class TimelinePane(QWidget):
     '''
     @param event: QMouseEvent 
     '''
-    def mouse_release(self, event):
-        xpos_clicked = event.x()
-        width_each_cell_shown = float(
-                       self._timeline_view.viewport().width()) / len(self._mq)
-        i = int(floor(xpos_clicked / width_each_cell_shown))
-
-        msg = self._messages[i]
-        if msg:
-            self._pause(msg)
-            if not self.pause_button.isChecked():
-                self.pause_button.toggle()
+#    def mouse_release(self, event):
+#        xpos_clicked = event.x()
+#        width_each_cell_shown = float(
+#                       self._timeline_view.viewport().width()) / len(self._mq)
+#        i = int(floor(xpos_clicked / width_each_cell_shown))
+#
+#        msg = self._messages[i]
+#        if msg:
+#            self._pause(msg)
+#            if not self.pause_button.isChecked():
+#                self.pause_button.toggle()
 
     def resizeEvent(self, event):
         self.redraw()

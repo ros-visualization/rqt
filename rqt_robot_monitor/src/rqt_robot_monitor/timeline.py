@@ -58,9 +58,9 @@ class TimelineView(QGraphicsView):
     '''
     @param event: QMouseEvent 
     '''
-    def mouseReleaseEvent(self, event):
-        self.parent.mouse_release(event)
-        rospy.logdebug('\tTimelineView mouseReleaseEvent ****')
+#    def mouseReleaseEvent(self, event):
+#        self.parent.mouse_release(event)
+#        rospy.logdebug('\tTimelineView mouseReleaseEvent ****')
         
     def on_size(self, event):
         self.Refresh()
