@@ -52,8 +52,8 @@ class TimelineView(QGraphicsView):
         #self._val = val
         #self._color_callback = color_callback
 
-    def resizeEvent(self, event):
-        self.adjustSize() #TODO Make sure this meets my requirement.
+#    def resizeEvent(self, event):
+#        self.adjustSize() #TODO Make sure this meets my requirement.
         
     '''
     @param event: QMouseEvent 
@@ -62,6 +62,6 @@ class TimelineView(QGraphicsView):
 #        self.parent.mouse_release(event)
 #        rospy.logdebug('\tTimelineView mouseReleaseEvent ****')
         
-    def on_size(self, event):
-        self.Refresh()
+#    def on_size(self, event):
+#        self.Refresh()
 
