@@ -45,6 +45,7 @@ class MonitorDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context, icon_paths=[]):
+        self._graveyard = []
         ok_icon = ['bg-green.svg', 'ic-diagnostics.svg']
         warn_icon = ['bg-yellow.svg', 'ic-diagnostics.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-diagnostics.svg', 'ol-err-badge.svg']
@@ -58,6 +59,7 @@ class MonitorDashWidget(IconToolButton):
 
         self._monitor = None
         self._close_mutex = QMutex()
+        self._show_mutex = QMutex()
 
         self._last_update = rospy.Time.now()
 
@@ -96,28 +98,29 @@ class MonitorDashWidget(IconToolButton):
         self.setToolTip("Diagnostics: Stale\nNo message received on dashboard_agg in the last 5 seconds")
 
     def _show_monitor(self):
-        try:
-            if self._monitor_shown:
-                self.context.remove_widget(self._monitor)
-                self._monitor_close()
+        with QMutexLocker(self._show_mutex):
+            try:
+                if self._monitor_shown:
+                    self.context.remove_widget(self._monitor)
+                    self._monitor_close()
+                    self._monitor_shown = False
+                else:
+                    self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
+                    self.context.add_widget(self._monitor)
+                    self._monitor_shown = True
+            except Exception as e:
+                if self._monitor_shown == False:
+                    raise
+                #  TODO when closeEvents is available fix this hack (It ensures the button will toggle correctly)
                 self._monitor_shown = False
-            else:
-                self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
-                self.context.add_widget(self._monitor)
-                self._monitor_shown = True
-        except Exception as e:
-            if self._monitor_shown == False:
-                raise
-            #  TODO when closeEvents is available fix this hack (It ensures the button will toggle correctly)
-            self._monitor_shown = False
-            self._show_monitor()
+                self._show_monitor()
 
     def _monitor_close(self):
         if self._monitor_shown:
             with QMutexLocker(self._close_mutex):
-                self._monitor_shown = False
                 self._monitor.shutdown()
                 self._monitor.close()
+                self._graveyard.append(self._monitor)
                 self._monitor = None
 
     def shutdown_widget(self):
