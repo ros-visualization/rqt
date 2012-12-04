@@ -48,11 +48,11 @@ from .inspector_window import InspectorWindow
 from .time_pane import TimelinePane
 
 # Instantiating icons that show the device status.
-_ERR_ICON = QIcon.fromTheme('dialog-error')#'face-angry')
-_WARN_ICON = QIcon.fromTheme('dialog-warning')#'face-sick')
-_OK_ICON = QIcon.fromTheme('emblem-default')#'face-laugh')
+_ERR_ICON = QIcon.fromTheme('dialog-error')
+_WARN_ICON = QIcon.fromTheme('dialog-warning')
+_OK_ICON = QIcon.fromTheme('emblem-default')
 # Added following this QA thread http://goo.gl/83tVZ  
-_STALE_ICON = QIcon.fromTheme('dialog-question')#'face-tired')
+_STALE_ICON = QIcon.fromTheme('dialog-question')
   
 _IMG_DICT = {0: _OK_ICON, 1: _WARN_ICON, 2: _ERR_ICON, 3: _STALE_ICON}
 
@@ -429,7 +429,7 @@ class RobotMonitorWidget(QWidget):
         if self._TREE_ERR == tree_type:
             tree_obj = self.err_tree
         tree_obj.resizeColumnToContents(0)
-            
+
     '''
     Return an array that contains DiagnosticStatus only at the top level of 
     the given msg.
@@ -451,27 +451,27 @@ class RobotMonitorWidget(QWidget):
 
     '''
     TODO Needs renamed to better describing one.
-    
+
     @param key: string
     @param statusitems: DiagnosticStatus[]  
     @return: int of index that key is found in array. -1 if not found
     '''
     def _contains(self, key, statusitems):
         names = [get_nice_name(k.name) for k in statusitems]
-        
+
         rospy.logdebug('\t_contains len of names=%d statusitems=%d',
                        len(names), len(statusitems))
 #        for name in names:  # This loop is only for debug 
 #            rospy.loginfo('\t_contains Required key=%s CONTAINED KEY= %s', 
 #                          key, name)
-        
+
         if key in names:
             rospy.logdebug(' _contains key IS contained.')
             return names.index(key)
         else:
             rospy.logdebug('** _contains key IS NOT contained.')
             return -1 
-        
+
     """
     Update the warning and error trees. 
     
@@ -768,7 +768,6 @@ class RobotMonitorWidget(QWidget):
         # Close all StatusItem (and each associated InspectWidget)        
         # self.tree_all_devices.clear()  # Doesn't work for the purpose 
                                          # (inspector windows don't get closed)
-              
         for item in self._err_statusitems:
             item.close()
         for item in self._warn_statusitems:
