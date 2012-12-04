@@ -62,6 +62,7 @@ class RosTfTree(QObject):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
 
         self._scene = QGraphicsScene()
+        self._scene.setBackgroundBrush(Qt.white)
         self._widget.graphics_view.setScene(self._scene)
 
         self._widget.refresh_graph_push_button.setIcon(QIcon.fromTheme('view-refresh'))
