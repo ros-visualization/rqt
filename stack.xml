@@ -19,4 +19,5 @@
   <depend stack="vision_opencv"/> <!-- cv_bridge -->
   <depend stack="visualization"/> <!-- rviz -->
   <depend stack="pr2_power_drivers"/> <!-- rqt_pr2_dashboard -->
+  <depend stack="rosgraph"/> <!-- rqt_plot -->
 </stack>

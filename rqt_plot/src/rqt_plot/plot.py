@@ -96,10 +96,64 @@ class Plot(Plugin):
 
         self._plot_type_index = 0
         self._context = context
-        self._widget = PlotWidget()
+
+        args, topics = self._process_arguments(context)
+        self._widget = PlotWidget(args, topics)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
+
+    def _process_arguments(self, context):
+        from argparse import ArgumentParser
+        parser = ArgumentParser()
+
+        # TODO add more configuration arguments here
+        parser.add_argument("-P", "--pause", action="store_true",
+                      dest="start_paused",
+                      help="start in paused state")
+
+        args, topics = parser.parse_known_args(context.argv())
+
+        # Process topic arguments into topic names
+        topic_list = []
+        for t in topics:
+            # c_topics is the list of topics to plot
+            c_topics = []
+            # compute combined topic list, t == '/foo/bar1,/baz/bar2'
+            for sub_t in [x for x in t.split(',') if x]:
+                # check for shorthand '/foo/field1:field2:field3'
+                if ':' in sub_t:
+                    base = sub_t[:sub_t.find(':')]
+                    # the first prefix includes a field name, so save then strip it off
+                    c_topics.append(base)
+                    if not '/' in base:
+                        parser.error("%s must contain a topic and field name"%sub_t)
+                    base = base[:base.rfind('/')]
+
+                    # compute the rest of the field names
+                    fields = sub_t.split(':')[1:]
+                    c_topics.extend(["%s/%s"%(base, f) for f in fields if f])
+                else:
+                    c_topics.append(sub_t)
+            # #1053: resolve command-line topic names
+            import rosgraph
+            c_topics = [rosgraph.names.script_resolve_name('rqt_plot', n) for n in c_topics]
+            if type(c_topics) == list:
+                topic_list.extend(c_topics)
+            else:
+                topic_list.append(c_topics)
+
+        #flatten for printing
+        print_topic_list = []
+        for l in topic_list:
+            if type(l) == list:
+                print_topic_list.extend(l)
+            else:
+                print_topic_list.append(l)
+
+        print "plotting topics", ', '.join(print_topic_list)
+
+        return (args, topic_list)
 
     def _switch_data_plot_widget(self, plot_type_index):
         # check if selected plot type is available

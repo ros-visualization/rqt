@@ -84,7 +84,7 @@ def get_topic_type(topic):
     if topic_type:
         return topic_type, real_topic, rest
     else:
-        print >> sys.stderr, "WARNING: topic [%s] does not appear to be published yet" % topic
+        print >> sys.stderr, "WARNING: topic [%s] does not appear to be published yet. Waiting..." % topic
         while not rospy.is_shutdown():
             topic_type, real_topic, rest = _get_topic_type(topic)
             if topic_type:

@@ -49,7 +49,7 @@ from . rosplot import ROSData, RosPlotException
 class PlotWidget(QWidget):
     _redraw_interval = 40
 
-    def __init__(self):
+    def __init__(self, arguments = None, initial_topics = None):
         super(PlotWidget, self).__init__()
         self.setObjectName('PlotWidget')
 
@@ -75,6 +75,10 @@ class PlotWidget(QWidget):
         self._update_plot_timer = QTimer(self)
         self._update_plot_timer.timeout.connect(self.update_plot)
 
+        # save command line arguments
+        self._arguments = arguments
+        self._initial_topics = initial_topics
+
     def switch_data_plot_widget(self, data_plot):
         self.enable_timer(enabled=False)
 
@@ -89,9 +93,14 @@ class PlotWidget(QWidget):
         self.data_plot.dropEvent = self.dropEvent
         self.data_plot.dragEnterEvent = self.dragEnterEvent
 
-        for topic_name, rosdata in self._rosdata.items():
-            data_x, data_y = rosdata.next()
-            self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
+        if self._initial_topics:
+            for topic_name in self._initial_topics:
+                self.add_topic(topic_name)
+            self._initial_topics = None
+        else:
+            for topic_name, rosdata in self._rosdata.items():
+                data_x, data_y = rosdata.next()
+                self.data_plot.add_curve(topic_name, topic_name, data_x, data_y)
 
         self._subscribed_topics_changed()
 
@@ -160,6 +169,9 @@ class PlotWidget(QWidget):
 
     def _subscribed_topics_changed(self):
         self._update_remove_topic_menu()
+        if self._arguments:
+            if self._arguments.start_paused:
+                self.pause_button.setChecked(True)
         if not self.pause_button.isChecked():
             # if pause button is not pressed, enable timer based on subscribed topics
             self.enable_timer(self._rosdata)
