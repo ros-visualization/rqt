@@ -10,8 +10,4 @@ roslib.load_manifest(pkg)
 from rqt_gui.main import Main
 
 main = Main()
-if '--args' in sys.argv:
-    index = sys.argv.index('--args')
-    sys.exit(main.main(sys.argv[:index] + ['-s', pkg] + sys.argv[index:]))
-else:
-    sys.exit(main.main(sys.argv + ['-s', pkg]))
+sys.exit(main.main(sys.argv, standalone=pkg))
