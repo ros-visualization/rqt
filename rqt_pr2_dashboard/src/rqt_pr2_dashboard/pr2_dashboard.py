@@ -61,11 +61,6 @@ class PR2Dashboard(Dashboard):
     :type context: qt_gui.plugin.Plugin
     """
     def setup(self, context):
-        # argparse example
-        parser = argparse.ArgumentParser()
-        self._add_args(parser)
-        parser.parse_args(context.argv())
-
         self.name = 'PR2 Dashboard'
         self.max_icon_size = QSize(50, 30)
         self.message = None
@@ -87,9 +82,6 @@ class PR2Dashboard(Dashboard):
         self._batteries = [PR2Battery(self.context)]
 
         self._dashboard_agg_sub = rospy.Subscriber('dashboard_agg', DashboardState, self.dashboard_callback)
-
-    def _add_args(self, parser):
-        parser.add_argument("-u", "--ros_master_uri", help="Set the ROS_MASTER_URI")
 
     def get_widgets(self):
         return [[self._monitor, self._console , self._motors], self._breakers, [self._runstop], self._batteries]
@@ -160,3 +152,10 @@ class PR2Dashboard(Dashboard):
     def shutdown_dashboard(self):
         self._dashboard_agg_sub.unregister()
 
+    def save_settings(self, plugin_settings, instance_settings):
+        self._console.save_settings(plugin_settings, instance_settings)
+#        self._monitor.save_settings(plugin_settings, instance_settings)
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._console.restore_settings(plugin_settings, instance_settings)
+#        self._monitor.restore_settings(plugin_settings, instance_settings)

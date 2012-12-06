@@ -128,3 +128,6 @@ class MonitorDashWidget(IconToolButton):
             self._monitor.shutdown()
         self._diagnostics_toplevel_state_sub.unregister()
 
+#    def save_settings(self, plugin_settings, instance_settings):
+#        self._plugin_settings = pluginsettings
+#        self._instance_settings = instance_settings

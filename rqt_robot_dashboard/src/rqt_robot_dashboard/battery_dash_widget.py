@@ -52,6 +52,7 @@ class BatteryDashWidget(IconToolButton):
         super(BatteryDashWidget, self).__init__(name, icons, charge_icons, icon_paths=icon_paths)
         self.setEnabled(False)
 
+        self._charge_icons = self._clicked_icons
         self.setStyleSheet('QToolButton:disabled {}')
         self.charging = False
         self.update_perc(0)

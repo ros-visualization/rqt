@@ -79,6 +79,7 @@ class PR2Battery(BatteryDashWidget):
             if (self._plugged_in):
                 drain_str = "to full charge"
                 self.setToolTip("Battery: %.2f%% \nTime %s: %d Minutes"%(self._pct * 100.0, drain_str, self._time_remaining.to_sec()/60.0))
+                self.charging = True
             self.update_perc(msg.relative_capacity)
 
     def set_stale(self):

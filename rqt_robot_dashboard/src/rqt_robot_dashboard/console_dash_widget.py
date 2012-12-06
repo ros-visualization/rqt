@@ -163,3 +163,8 @@ class ConsoleDashWidget(IconToolButton):
             self._subscriber.unsubscribe_topic()
         self._timer.stop()
 
+    def save_settings(self, plugin_settings, instance_settings):
+        self._console.save_settings(plugin_settings, instance_settings)
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        self._console.restore_settings(plugin_settings, instance_settings)
