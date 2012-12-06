@@ -97,13 +97,13 @@ class Plot(Plugin):
         self._plot_type_index = 0
         self._context = context
 
-        args, topics = self._process_arguments(context)
+        args, topics = self._process_arguments(context.argv())
         self._widget = PlotWidget(args, topics)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
 
-    def _process_arguments(self, context):
+    def _process_arguments(self, argv):
         from argparse import ArgumentParser
         parser = ArgumentParser()
 
@@ -112,7 +112,7 @@ class Plot(Plugin):
                       dest="start_paused",
                       help="start in paused state")
 
-        args, topics = parser.parse_known_args(context.argv())
+        args, topics = parser.parse_known_args(argv)
 
         # Process topic arguments into topic names
         topic_list = []
