@@ -30,38 +30,40 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# Author: Isaac Saito, Ze'ev Klapow
+# Author: Isaac Saito
+
+import os
 
 import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
-from .robot_monitor import RobotMonitorWidget
-from qt_gui.plugin import Plugin
+from python_qt_binding.QtCore import Qt
+from python_qt_binding.QtGui import QWidget
 
-class RobotMonitorPlugin(Plugin):
-    '''
-    @param context: qt_gui.PluginContext
-    '''
-    def __init__(self, context):                
-        super(RobotMonitorPlugin, self).__init__(context)        
-        self._robot_monitor = RobotMonitorWidget(context, '/diagnostics_agg')
-        if context.serial_number() > 1:
-            self.self._robot_monitor.setWindowTitle(
-                 self.self._robot_monitor.windowTitle() + 
-                      (' (%d)' % context.serial_number()))
-        context.add_widget(self._robot_monitor)
-        self.setObjectName('rqt Robot Monitor')        
+from .util_robot_monitor import Util
+
+class AbstractStatusWidget(QWidget):
+    
+    def __init__(self):
+        super(AbstractStatusWidget, self).__init__()
+   
+    def _cb(self, msg, is_forced = False):
+        """
         
-    '''
-    Overriding Plugin's function.
-    '''
-    def shutdown_plugin (self):
-        rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
-        self._robot_monitor.shutdown() # Closes unclosed popup windows.
+        @param msg: This can be a function that takes either 
+        { DiagnosticArray, DiagnosticsStatus } as an argument.
+        """
+        pass
+       
+    def _pause(self, msg):
+        pass
+    
+    def _unpause(self):
+        pass
 
-
-    def save_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor.save_settings(plugin_settings, instance_settings)
-
-    def restore_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor.restore_settings(plugin_settings, instance_settings)
+    def _get_color_for_value(queue_diagnostic, color_index):
+        pass
+    
+    def _on_pause(self, paused, diagnostic_arr):
+        pass
+    

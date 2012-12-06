@@ -87,7 +87,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pause_button">
+      <widget class="QPushButton" name="_pause_button">
        <property name="minimumSize">
         <size>
          <width>50</width>

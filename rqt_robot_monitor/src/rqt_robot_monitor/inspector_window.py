@@ -40,9 +40,11 @@ import rospy
 from python_qt_binding.QtGui import QWidget, QVBoxLayout, QTextEdit, QPushButton
 from python_qt_binding.QtCore import Signal, Qt
 
+from .abst_status_widget import AbstractStatusWidget
 from .time_pane import TimelinePane
+from .util_robot_monitor import Util
 
-class InspectorWindow(QWidget):
+class InspectorWindow(AbstractStatusWidget):
     _sig_write = Signal(str, str)
     _sig_newline = Signal()
     sig_close_window = Signal()
@@ -59,10 +61,13 @@ class InspectorWindow(QWidget):
         self.disp = QTextEdit(self)
         self.snapshot = QPushButton("Snapshot")
 
-        self.timeline = TimelinePane(self)
+        self.timeline_pane = TimelinePane(self, Util._SECONDS_TIMELINE,
+                                          self._cb,
+                                          self._get_color_for_value
+                                          )
 
         self.layout_vertical.addWidget(self.disp, 1)
-        self.layout_vertical.addWidget(self.timeline, 0)
+        self.layout_vertical.addWidget(self.timeline_pane, 0)
         self.layout_vertical.addWidget(self.snapshot)
 
         self.snaps = []
@@ -76,6 +81,14 @@ class InspectorWindow(QWidget):
         self.setGeometry(0, 0, 400, 600)  # TODO better to be configurable where to appear. 
         self.show()
         self.update_children(status)
+        
+    def _get_color_for_value(self, queue_diagnostic, color_index):
+        rospy.logdebug('InspectorWindow _get_color_for_value ' +
+                       'queue_diagnostic=%d, color_index=%d', 
+                       len(queue_diagnostic), color_index)
+        lv_index = queue_diagnostic[color_index - 1].level
+        return Util._COLOR_DICT[lv_index]
+         
     '''
     Delegated from super class.
     @author: Isaac Saito
@@ -94,17 +107,30 @@ class InspectorWindow(QWidget):
         self.disp.insertPlainText(v)
         self.disp.insertPlainText('\n')
 
-    def pause(self, msg):
+    def _pause(self, msg):
+        """
+        @todo: Create a superclass for this and RobotMonitorWidget that has
+        _pause func. 
+        """
+        
         self.update_children(msg);
         self.paused = True
 
     def unpause(self):
         self.paused = False
 
+    def _cb(self, msg, is_forced = False):
+        """Overriden"""
+        self.update_children(msg)
+        
     def update_children(self, status):
+        """
+        @param status: DiagnosticsStatus 
+        """
+        
         if not self.paused:
             self.status = status
-            self.timeline.add_message(status)
+            self.timeline_pane._new_diagnostic(status)
 
             self._sig_clear.emit()
             self._sig_write.emit("Full Name", status.name)
@@ -121,10 +147,26 @@ class InspectorWindow(QWidget):
         snap = Snapshot(self.status)
         self.snaps.append(snap)
 
-"""
-Display a single static status message. Helps facilitate copy/paste
-"""        
+    def _enable(self):
+        #wx.Panel.Enable(self)
+        #self._timeline.enable()
+        self.setEnabled(True)
+        self.timeline_pane._enable()
+        self.timeline_pane._pause_button.setDown(False)
+        
+    def _disable(self):
+        """Supposed to be called upon pausing.""" 
+        #wx.Panel.Disable(self)
+        #self._timeline.Disable()
+        self.setEnable(False)
+        self.timeline_pane._disable()
+        self._pause_button.Disable()
+        self.unpause()
+        self.timeline_pane._pause_button.setDown(True)
+        
 class Snapshot(QTextEdit):
+    """Display a single static status message. Helps facilitate copy/paste"""
+            
     def __init__(self, status):
         super(Snapshot, self).__init__()
 

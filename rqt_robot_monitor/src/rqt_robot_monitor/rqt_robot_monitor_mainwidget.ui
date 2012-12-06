@@ -10,6 +10,12 @@
     <height>831</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>100</width>
+    <height>150</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Runtime Monitor</string>
   </property>
