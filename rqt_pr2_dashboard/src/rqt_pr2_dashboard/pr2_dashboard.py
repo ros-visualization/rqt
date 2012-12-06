@@ -154,8 +154,8 @@ class PR2Dashboard(Dashboard):
 
     def save_settings(self, plugin_settings, instance_settings):
         self._console.save_settings(plugin_settings, instance_settings)
-#        self._monitor.save_settings(plugin_settings, instance_settings)
+        self._monitor.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
         self._console.restore_settings(plugin_settings, instance_settings)
-#        self._monitor.restore_settings(plugin_settings, instance_settings)
+        self._monitor.restore_settings(plugin_settings, instance_settings)

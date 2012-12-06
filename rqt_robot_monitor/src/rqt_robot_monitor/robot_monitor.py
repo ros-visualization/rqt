@@ -814,3 +814,12 @@ class RobotMonitorWidget(QWidget):
         # stop timers 
         self._timer.stop()
         del self._timer
+
+    def save_settings(self, plugin_settings, instance_settings):
+        instance_settings.set_value('splitter', self.splitter.saveState())
+
+    def restore_settings(self, plugin_settings, instance_settings):
+        if instance_settings.contains('splitter'):
+            self.splitter.restoreState(instance_settings.value('splitter'))
+        else:
+            self.splitter.setSizes([100, 100, 200])
