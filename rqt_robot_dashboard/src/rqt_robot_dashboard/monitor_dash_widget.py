@@ -135,6 +135,8 @@ class MonitorDashWidget(IconToolButton):
         self._diagnostics_toplevel_state_sub.unregister()
 
     def save_settings(self, plugin_settings, instance_settings):
+        if self._monitor_shown:
+            self._monitor.save_settings(self._plugin_settings, self._instance_settings)
         plugin_settings = self._plugin_settings
         instance_settings = self._instance_settings
 
