@@ -30,15 +30,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
+
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
-import os.path
 
-from QtGui import  QIcon, QImage, QImageReader, QMessageBox, QPainter, QPixmap
-from QtCore import QSize
-from QtSvg import QSvgRenderer
+from python_qt_binding.QtCore import QSize
+from python_qt_binding.QtGui import  QIcon, QImage, QImageReader, QMessageBox, QPainter, QPixmap
+from python_qt_binding.QtSvg import QSvgRenderer
 
-def dashinfo(msg, obj, title = 'Info'):
+
+def dashinfo(msg, obj, title='Info'):
     """
     Logs a message with ``rospy.loginfo`` and displays a ``QMessageBox`` to the user
 
@@ -58,7 +60,8 @@ def dashinfo(msg, obj, title = 'Info'):
 
     obj._message_box = box
 
-def dashwarn(msg, obj, title = 'Warning'):
+
+def dashwarn(msg, obj, title='Warning'):
     """
     Logs a message with ``rospy.logwarn`` and displays a ``QMessageBox`` to the user
 
@@ -78,7 +81,8 @@ def dashwarn(msg, obj, title = 'Warning'):
 
     obj._message_box = box
 
-def dasherr(msg, obj, title = 'Error'):
+
+def dasherr(msg, obj, title='Error'):
     """
     Logs a message with ``rospy.logerr`` and displays a ``QMessageBox`` to the user
 
@@ -98,12 +102,13 @@ def dasherr(msg, obj, title = 'Error'):
 
     obj._message_box = box
 
+
 class IconHelper(object):
     """
     Helper class to easily access images and build QIcons out of lists of file names
     """
-    def __init__(self, paths=[]):
-        self.__image_paths = paths
+    def __init__(self, paths=None):
+        self._image_paths = paths if paths else []
 
     def add_image_path(self, path):
         """
@@ -117,7 +122,7 @@ class IconHelper(object):
         """
         self._image_paths = [path] + self._image_paths
 
-    def make_icon(self, image_list, mode = QIcon.Normal, state = QIcon.On):
+    def make_icon(self, image_list, mode=QIcon.Normal, state=QIcon.On):
         """
         Helper function to create QIcons from lists of image files
         Warning: svg files interleaved with other files will not render correctly
@@ -178,15 +183,14 @@ class IconHelper(object):
         """
         if os.path.exists(path):
             return path
-        for image_path in self.__image_paths:
+        for image_path in self._image_paths:
             if os.path.exists(os.path.join(image_path, path)):
                 return os.path.join(image_path, path)
-            elif '.' in path and os.path.exists(os.path.join(image_path, 'nonsvg/' + path)):
-                return os.path.join(image_path, 'nonsvg/' + path)
-        rospy.logwarn
-        return os.path.join(self.__image_paths[-1], 'ic-missing-icon.svg')
+            elif '.' in path and os.path.exists(os.path.join(image_path, 'nonsvg', path)):
+                return os.path.join(image_path, 'nonsvg', path)
+        return os.path.join(self._image_paths[-1], 'ic-missing-icon.svg')
 
-    def build_icon(self, image_name_list, mode = QIcon.Normal, state = QIcon.On):
+    def build_icon(self, image_name_list, mode=QIcon.Normal, state=QIcon.On):
         """
         Convenience function to create an icon from a list of file names
 
@@ -201,4 +205,3 @@ class IconHelper(object):
         for name in image_name_list:
             found_list.append(self.find_image(name))
         return self.make_icon(found_list, mode, state)
-

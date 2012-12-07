@@ -46,7 +46,7 @@ class PR2Battery(BatteryDashWidget):
         :param context: the plugin context
         :type context: qt_gui.plugin.Plugin
         """
-        super(PR2Battery, self).__init__(context, 'PR2 Battery')
+        super(PR2Battery, self).__init__('PR2 Battery')
 
         self._power_consumption = 0.0
         self._pct = 0
@@ -56,7 +56,6 @@ class PR2Battery(BatteryDashWidget):
 
         self.setFixedSize(self._icons[1].actualSize(QSize(50,30)))
 
-        self.charging = False
         self.update_perc(0)
 
     def set_power_state(self, msg):

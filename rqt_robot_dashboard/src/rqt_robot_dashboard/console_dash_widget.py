@@ -29,12 +29,14 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from QtCore import QMutex, QMutexLocker, QSize, QTimer
-import os.path
+
+from python_qt_binding.QtCore import QMutex, QMutexLocker, QSize, QTimer
+
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
+
 from .icon_tool_button import IconToolButton
 
 
@@ -45,7 +47,7 @@ class ConsoleDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    def __init__(self, context, icon_paths=[], minimal=True):
+    def __init__(self, context, icon_paths=None, minimal=True):
         ok_icon = ['bg-green.svg', 'ic-console.svg']
         warn_icon = ['bg-yellow.svg', 'ic-console.svg', 'ol-warn-badge.svg']
         err_icon = ['bg-red.svg', 'ic-console.svg', 'ol-err-badge.svg']
@@ -91,10 +93,10 @@ class ConsoleDashWidget(IconToolButton):
             else:
                 self.context.add_widget(self._console)
                 self._console_shown = not self._console_shown
-        except Exception as e:
+        except Exception:
             self._console_shown = not self._console_shown
             self._show_console()
- 
+
     def _insert_messages(self):
         with QMutexLocker(self._mutex):
             msgs = self._datamodel._insert_message_queue
@@ -109,7 +111,7 @@ class ConsoleDashWidget(IconToolButton):
         except:
             pass
 
-    def _message_cb(self, msg): 
+    def _message_cb(self, msg):
         if not self._datamodel._paused:
             with QMutexLocker(self._mutex):
                 self._datamodel._insert_message_queue.append(msg)
@@ -133,22 +135,22 @@ class ConsoleDashWidget(IconToolButton):
 
         tooltip = ""
         if (summary.fatal):
-            tooltip += "\nFatal: %s"%(summary.fatal)
+            tooltip += "\nFatal: %s" % (summary.fatal)
         if (summary.error):
-            tooltip += "\nError: %s"%(summary.error)
+            tooltip += "\nError: %s" % (summary.error)
         if (summary.warn):
-            tooltip += "\nWarn: %s"%(summary.warn)
+            tooltip += "\nWarn: %s" % (summary.warn)
         if (summary.info):
-            tooltip += "\nInfo: %s"%(summary.info)
+            tooltip += "\nInfo: %s" % (summary.info)
         if (summary.debug):
-            tooltip += "\nDebug: %s"%(summary.debug)
+            tooltip += "\nDebug: %s" % (summary.debug)
 
         if (len(tooltip) == 0):
             tooltip = "Rosout: no recent activity"
         else:
             tooltip = "Rosout: recent activity:" + tooltip
 
-        if (tooltip != self.toolTip()):
+        if tooltip != self.toolTip():
             self.setToolTip(tooltip)
 
     def _console_destroyed(self):
