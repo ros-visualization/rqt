@@ -81,9 +81,9 @@ class RobotMonitorWidget(AbstractStatusWidget):
                                  # (device top level, device' _sub) in parallel. 
         self._err_statusitems = []  # StatusItem
 
-        self.tree_all_devices.itemDoubleClicked.connect(self._tree_clicked)
-        self.warn_tree.itemDoubleClicked.connect(self._tree_clicked)
-        self.err_tree.itemDoubleClicked.connect(self._tree_clicked)
+        self.tree_all_devices.itemDoubleClicked.connect(self.tree_clicked)
+        self.warn_tree.itemDoubleClicked.connect(self.tree_clicked)
+        self.err_tree.itemDoubleClicked.connect(self.tree_clicked)
         
         self.tree_all_devices.resizeColumnToContents(0)
         
@@ -158,13 +158,13 @@ class RobotMonitorWidget(AbstractStatusWidget):
         rospy.logdebug('RobotMonitorWidget resizeEvent')
         self.timeline_pane._redraw()
                  
-    def _tree_clicked(self, item, column):
+    def tree_clicked(self, item, column):
         """
         @param item: QTreeWidgetItem
         @param column: int
         """
 
-        rospy.logdebug('RobotMonitorWidget _tree_clicked col=%d', column) 
+        rospy.logdebug('RobotMonitorWidget tree_clicked col=%d', column) 
         item.on_click()
         
     def _update_devices_tree(self, diag_array):

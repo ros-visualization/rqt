@@ -47,12 +47,13 @@ from .util_robot_monitor import Util
 class InspectorWindow(AbstractStatusWidget):
     _sig_write = Signal(str, str)
     _sig_newline = Signal()
-    sig_close_window = Signal()
+    _sig_close_window = Signal()
     _sig_clear = Signal()
     
-    def __init__(self, status):
+    def __init__(self, status, close_callback):
         super(InspectorWindow, self).__init__()
         self.status = status
+        self._close_callback = close_callback
         self.setWindowTitle(status.name)
         self.paused = False
 
@@ -76,6 +77,7 @@ class InspectorWindow(AbstractStatusWidget):
         self._sig_write.connect(self.write_key_val)
         self._sig_newline.connect(lambda: self.disp.insertPlainText('\n'))
         self._sig_clear.connect(lambda: self.disp.clear())
+        self._sig_close_window.connect(self._close_callback)
 
         self.setLayout(self.layout_vertical)
         self.setGeometry(0, 0, 400, 600)  # TODO better to be configurable where to appear. 
@@ -95,7 +97,7 @@ class InspectorWindow(AbstractStatusWidget):
     '''
     def closeEvent(self, event):    
         # emit signal that should be slotted by StatusItem
-        self.sig_close_window.emit()        
+        self._sig_close_window.emit()        
         self.close()
                 
     def write_key_val(self, k, v):
@@ -120,9 +122,21 @@ class InspectorWindow(AbstractStatusWidget):
         self.paused = False
 
     def _cb(self, msg, is_forced = False):
-        """Overriden"""
-        self.update_children(msg)
+        """
         
+        @param status: DiagnosticsStatus
+        
+        Overriden 
+        """
+        
+        if not self.paused:
+            self.timeline_pane._new_diagnostic(msg)
+            
+            if is_forced:
+                self.update_children(msg)
+        rospy.loginfo('InspectorWin _cb len of queue=%d', 
+                      len(self.timeline_pane._queue_diagnostic))
+                   
     def update_children(self, status):
         """
         @param status: DiagnosticsStatus 
