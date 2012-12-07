@@ -63,4 +63,4 @@ class RobotMonitorPlugin(Plugin):
         self._robot_monitor.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor._restore_settings(plugin_settings, instance_settings)
+        self._robot_monitor.restore_settings(plugin_settings, instance_settings)
