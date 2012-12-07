@@ -2,16 +2,15 @@ import roslib;roslib.load_manifest('rqt_nav_view')
 import rospy
 import tf
 
+import numpy
 import random
 
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PolygonStamped, PointStamped
 
-from QtCore import Signal, QPointF
-from QtGui import QWidget, QPixmap, QImage, QGraphicsView, QGraphicsScene, QPainterPath, QPen, QColor, QPolygonF, QPushButton, QVBoxLayout, QHBoxLayout
+from python_qt_binding.QtCore import Signal, QPointF
+from python_qt_binding.QtGui import QWidget, QPixmap, QImage, QGraphicsView, QGraphicsScene, QPainterPath, QPen, QColor, QPolygonF, QPushButton, QVBoxLayout, QHBoxLayout, QColor, qRgb
 
-from PIL import Image
-from PIL.ImageQt import ImageQt
 
 class PathInfo(object):
     def __init__(self, name=None):
@@ -52,7 +51,6 @@ class NavView(QGraphicsView):
         self.setDragMode(QGraphicsView.ScrollHandDrag)
 
         self._map = None
-        self._map_orig = None
         self._map_item = None
 
         self.w = 0
@@ -80,47 +78,29 @@ class NavView(QGraphicsView):
 
     def wheelEvent(self, event):
         event.ignore()
-        
         if event.delta() > 0:
-            self.zoom_in(2)
+            self.scale(1.15, 1.15)
         else:
-            self.zoom_out(2)
+            self.scale(0.85, 0.85)
 
     def map_cb(self, msg):
         self.resolution = msg.info.resolution
         self.w = msg.info.width
         self.h = msg.info.height
 
-        data = []
+        a = numpy.array(msg.data, dtype=numpy.uint8, copy=False, order='C')
+        a = a.reshape((self.h, self.w))
+        if self.w % 4:
+            e = numpy.empty((self.h, 4 - self.w % 4), dtype=a.dtype, order='C')
+            a = numpy.append(a, e, axis=1)
+        image = QImage(a.reshape((a.shape[0] * a.shape[1])), self.w, self.h, QImage.Format_Indexed8)
 
-        # Get correct colors
-        for c in msg.data:
-            if c == 100:
-                data.append((0, 0, 0))
-            elif c == 0:
-                data.append((255, 255, 255))
-            else:
-                data.append((127, 127, 127))
-
-        im = Image.new('RGB', (self.w, self.h))
-        im.putdata(data)
-        self._map = im
-        self._map_orig = self._map
-
-        self.map_changed.emit()
-
-    def zoom_in(self, amount):
-        self.w = self.w * amount
-        self.h = self.h * amount
-        self._map = self._map_orig.resize((self.w, self.h))
-        self.resolution = self.resolution / amount
-        self.map_changed.emit()
-
-    def zoom_out(self, amount):
-        self.w = self.w / amount
-        self.h = self.h / amount
-        self._map = self._map_orig.resize((self.w, self.h))
-        self.resolution = self.resolution * amount
+        for i in range(101):
+            image.setColor(i, qRgb(i * 2.55, i * 2.55, i * 2.55))
+        image.setColor(101, qRgb(255, 0, 0))  # not used indices
+        image.setColor(255, qRgb(0, 0, 150))  # color for unknown value -1
+        self._map = image
+        self.setSceneRect(0,0, self.w, self.h)
         self.map_changed.emit()
 
     def add_path(self, name):
@@ -212,9 +192,8 @@ class NavView(QGraphicsView):
         if self._map_item:
             self._scene.removeItem(self._map_item)
 
-        self.pix = ImageQt(self._map)
-        self.setSceneRect(0,0, self.w, self.h)
-        self._map_item = self._scene.addPixmap(QPixmap.fromImage(self.pix))
+        pixmap = QPixmap.fromImage(self._map)
+        self._map_item = self._scene.addPixmap(pixmap)
 
         # Everything must be mirrored
         self._mirror(self._map_item)
