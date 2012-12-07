@@ -109,7 +109,7 @@ class MonitorDashWidget(IconToolButton):
                 else:
                     self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
                     if self._plugin_settings:
-                        self._monitor.restore_settings(self._plugin_settings, self._instance_settings)
+                        self._monitor._restore_settings(self._plugin_settings, self._instance_settings)
                     self.context.add_widget(self._monitor)
                     self._monitor_shown = True
             except Exception as e:
@@ -123,20 +123,20 @@ class MonitorDashWidget(IconToolButton):
         if self._monitor_shown:
             with QMutexLocker(self._close_mutex):
                 if self._plugin_settings:
-                    self._monitor.save_settings(self._plugin_settings, self._instance_settings)
-                self._monitor.shutdown()
+                    self._monitor._save_settings(self._plugin_settings, self._instance_settings)
+                self._monitor._shutdown()
                 self._monitor.close()
                 self._graveyard.append(self._monitor)
                 self._monitor = None
 
     def shutdown_widget(self):
         if self._monitor:
-            self._monitor.shutdown()
+            self._monitor._shutdown()
         self._diagnostics_toplevel_state_sub.unregister()
 
     def save_settings(self, plugin_settings, instance_settings):
         if self._monitor_shown:
-            self._monitor.save_settings(self._plugin_settings, self._instance_settings)
+            self._monitor._save_settings(self._plugin_settings, self._instance_settings)
         plugin_settings = self._plugin_settings
         instance_settings = self._instance_settings
 

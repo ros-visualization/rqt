@@ -300,11 +300,13 @@ class TimelineView(QGraphicsView):
         length_tl = ((self._max_num_seconds + 1) - 
                      self._min_num_seconds)
 
-        width_cell = width_tl / float(length_tl)
         len_queue = length_tl
+        #w = float(width_tl / len_queue) # This returns always 0 in 
+                                         # the 1st decimal point, which causes
+                                         # timeline not fit nicely.
+        w = width_tl / float(len_queue)
  
-        for i, m in enumerate(self._parent._get_diagnostic_queue()):
-            w = float(width_tl / len_queue)
+        for i, m in enumerate(self._parent._get_diagnostic_queue()):            
             h = self.viewport().height()
             
             # Figure out each cell's color.
@@ -316,18 +318,21 @@ class TimelineView(QGraphicsView):
             else:
                 qcolor = QColor('grey')
             
-            # For adding gradation to the cell color. Not used yet.
+            # TODO For adding gradation to the cell color. Not used yet.
             end_color = QColor(0.5 * QColor('red').value(),
                                0.5 * QColor('green').value(),
                                0.5 * QColor('blue').value())
-                        
+
             rect = self._parent._scene.addRect(w * i, 0, w, h, 
-                                               QColor('white'), qcolor)            
+                                               QColor('white'), qcolor)
+            rospy.logdebug('TimelineView._slot_redraw #%d th loop w=%s width_tl=%s',
+                          i, w, width_tl)            
         
         # Setting marker.
-        xpos_marker = ((self._xpos_marker - 1) * width_cell + 
-                       (width_cell / 2.0) - 
-                       (self._timeline_marker_width / 2.0))
+        #xpos_marker = ((self._xpos_marker - 1) * width_cell + 
+                       #(width_cell / 2.0) -
+        xpos_marker = ((self._xpos_marker - 1) * w +
+                       (w / 2.0) - (self._timeline_marker_width / 2.0))
         pos_marker = QPointF(xpos_marker, 0)
                 
         # Need to instantiate marker everytime since it gets deleted 
