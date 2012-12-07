@@ -489,7 +489,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
     '''
     This needs to be called whenever this class terminates.
     '''
-    def shutdown(self):
+    def _shutdown(self):
         rospy.logdebug('RobotMonitorWidget in _shutdown')
         # Close all StatusItem (and each associated InspectWidget)        
         # self.tree_all_devices.clear()  # Doesn't work for the purpose 
@@ -528,10 +528,10 @@ class RobotMonitorWidget(AbstractStatusWidget):
                                # this yield error when color_index > 0.   
                 
 
-    def save_settings(self, plugin_settings, instance_settings):
+    def _save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('splitter', self.splitter.saveState())
 
-    def restore_settings(self, plugin_settings, instance_settings):
+    def _restore_settings(self, plugin_settings, instance_settings):
         if instance_settings.contains('splitter'):
             self.splitter.restoreState(instance_settings.value('splitter'))
         else:
