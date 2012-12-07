@@ -51,7 +51,6 @@ class NavView(QGraphicsView):
         self.setDragMode(QGraphicsView.ScrollHandDrag)
 
         self._map = None
-        self._map_orig = None
         self._map_item = None
 
         self.w = 0
@@ -79,11 +78,10 @@ class NavView(QGraphicsView):
 
     def wheelEvent(self, event):
         event.ignore()
-        
         if event.delta() > 0:
-            self.zoom_in(2)
+            self.scale(1.15, 1.15)
         else:
-            self.zoom_out(2)
+            self.scale(0.85, 0.85)
 
     def map_cb(self, msg):
         self.resolution = msg.info.resolution
@@ -102,23 +100,7 @@ class NavView(QGraphicsView):
         image.setColor(101, qRgb(255, 0, 0))  # not used indices
         image.setColor(255, qRgb(0, 0, 150))  # color for unknown value -1
         self._map = image
-        self._map_orig = self._map
-        self.map_changed.emit()
-
-    def zoom_in(self, amount):
-        # TODO re-implement with viewport scaling
-        self.w = self.w * amount
-        self.h = self.h * amount
-        self._map = self._map_orig.scaled(self.w, self.h)
-        self.resolution = self.resolution / amount
-        self.map_changed.emit()
-
-    def zoom_out(self, amount):
-        # TODO re-implement with viewport scaling
-        self.w = self.w / amount
-        self.h = self.h / amount
-        self._map = self._map_orig.scaled(self.w, self.h)
-        self.resolution = self.resolution * amount
+        self.setSceneRect(0,0, self.w, self.h)
         self.map_changed.emit()
 
     def add_path(self, name):
@@ -210,7 +192,6 @@ class NavView(QGraphicsView):
         if self._map_item:
             self._scene.removeItem(self._map_item)
 
-        self.setSceneRect(0,0, self.w, self.h)
         pixmap = QPixmap.fromImage(self._map)
         self._map_item = self._scene.addPixmap(pixmap)
 
