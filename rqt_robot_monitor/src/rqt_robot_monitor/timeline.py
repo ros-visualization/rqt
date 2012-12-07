@@ -60,8 +60,8 @@ class TimelineView(QGraphicsView):
         self._xpos_marker = 0
         self._color_callback = None
         
-        self._timeline_marker_width = 20
-        self._timeline_marker_height = 20
+        self._timeline_marker_width = 15
+        self._timeline_marker_height = 15
         
         self._sig_update.connect(self._slot_redraw)
         # self._color_callback = parent._color_callback
@@ -190,7 +190,9 @@ class TimelineView(QGraphicsView):
 #        #self.repaint() #Emits warning "QPixmap: It is not safe to use pixmaps 
 #                        #outside the GUI thread"
 #        self._sig_update.emit()
-        self._set_xpos_marker(self._xpos_marker)
+        
+        #self._set_xpos_marker(self._xpos_marker)
+        self._set_xpos_marker(max_val)
 
     def _set_xpos_marker(self, len_queue):
         """Copied from robot_monitor"""

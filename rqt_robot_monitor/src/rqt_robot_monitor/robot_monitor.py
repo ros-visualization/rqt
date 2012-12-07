@@ -45,7 +45,6 @@ from python_qt_binding.QtGui import QIcon, QTextEdit, QWidget
 
 from .abst_status_widget import AbstractStatusWidget
 from .chronologic_state import InstantaneousState, StatusItem
-from .inspector_window import InspectorWindow
 from .time_pane import TimelinePane
 from .util_robot_monitor import Util
 
@@ -123,13 +122,18 @@ class RobotMonitorWidget(AbstractStatusWidget):
     def _cb(self, msg, is_forced = False):
         """
         @param msg: DiagnosticArray
+        @param is_forced: bool. Intended for non-incoming-msg trigger 
+                          (in particular, from child object like TimelinePane). 
         @author: Isaac Saito
         """
         if not self.paused and not is_forced:
             self.timeline_pane._new_diagnostic(msg)
             self._update_devices_tree(msg)       
             self._update_warns_errors(msg)
-            self.on_new_message_received(msg)            
+            self.on_new_message_received(msg)
+            
+            self.notify_statitems(msg)
+                        
             rospy.logdebug('  RobotMonitorWidget _cb stamp=%s',
                        msg.header.stamp)
         elif is_forced:
@@ -139,12 +143,27 @@ class RobotMonitorWidget(AbstractStatusWidget):
         self.num_diag_msg_received += 1
         rospy.logdebug('  RobotMonitorWidget _cb #%d',
                        self.num_diag_msg_received)
-        
-    '''
-    @param item: QTreeWidgetItem 
-    @param column: int 
-    '''
+    
+    def notify_statitems(self, diag_arr):
+        for si_new in diag_arr.status:
+            si_prev = Util._get_correspondent_statitem(si_new.name, 
+                                                       self._toplv_statusitems)
+            if si_prev:
+                si_prev.update_children(si_new, diag_arr)
+                rospy.logdebug('  RobotMonitorWidget notify_statitems name=%s',
+                               si_new.name)  
+                return
+                       
+    def resizeEvent(self, evt):
+        rospy.logdebug('RobotMonitorWidget resizeEvent')
+        self.timeline_pane._redraw()
+                 
     def _tree_clicked(self, item, column):
+        """
+        @param item: QTreeWidgetItem
+        @param column: int
+        """
+
         rospy.logdebug('RobotMonitorWidget _tree_clicked col=%d', column) 
         item.on_click()
         
@@ -378,43 +397,72 @@ class RobotMonitorWidget(AbstractStatusWidget):
                            dev_index_warn_curr, dev_index_err_curr, headline)
             if DiagnosticStatus.OK == stat_lv_new:
                 if 0 <= dev_index_warn_curr:
-                    statitem_curr = self._remove_statitem(dev_index_warn_curr,
+                    statitem_curr = self._get_statitem(dev_index_warn_curr,
                                                           self._warn_statusitems,
                                                           self.warn_tree)
                     statitem_curr.warning_id = None
                 elif 0 <= dev_index_err_curr:
-                    statitem_curr = self._remove_statitem(dev_index_err_curr,
+                    statitem_curr = self._get_statitem(dev_index_err_curr,
                                                           self._err_statusitems,
                                                           self.err_tree)
                     statitem_curr.error_id = None
             elif DiagnosticStatus.WARN == stat_lv_new:
+                statitem = None
                 if 0 <= dev_index_err_curr:
-                    statitem_curr = self._remove_statitem(dev_index_err_curr,
-                                                          self._err_statusitems,
-                                                          self.err_tree)
-                    self.add_statitem(statitem_curr, self._warn_statusitems,
+                    # If the corresponding statusitem is in error tree,
+                    # move it to warn tree.
+                    statitem = self._get_statitem(dev_index_err_curr,
+                                                  self._err_statusitems,
+                                                  self.err_tree)
+                    self.add_statitem(statitem, self._warn_statusitems,
                                       self.warn_tree, headline, 
                                       diag_stat_new.message, stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
-                    statitem_new = StatusItem(diag_stat_new)
-                    self.add_statitem(statitem_new, self._warn_statusitems,
-                                       self.warn_tree, headline,
-                                       diag_stat_new.message, stat_lv_new)
-                    self._warn_statusitems.append(statitem_new)
+                    # If the corresponding statusitem isn't found, 
+                    # create new obj.
+                    statitem = StatusItem(diag_stat_new)
+                    self.add_statitem(statitem, self._warn_statusitems,
+                                      self.warn_tree, headline,
+                                      diag_stat_new.message, stat_lv_new)
+                    self._warn_statusitems.append(statitem)
+                elif (0 < dev_index_warn_curr):
+                    # If the corresponding statusitem is already in warn tree,
+                    # obtain the instance.
+                    statitem = self._get_statitem(dev_index_warn_curr,
+                                                  self._warn_statusitems)
+
+                if statitem: # If not None
+                    # Updating statusitem will keep popup window also update.
+                    dict_status = statitem.update_children(diag_stat_new, diag_arr)
             elif ((DiagnosticStatus.ERROR == stat_lv_new) or
                   (DiagnosticStatus.STALE == stat_lv_new)):
+                statitem = None
                 if 0 <= dev_index_warn_curr:
-                    statitem_curr = self._remove_statitem(dev_index_warn_curr,
-                                                          self._warn_statusitems,
-                                                          self.warn_tree)
-                    self.add_statitem(statitem_curr, self._err_statusitems,
+                    # If the corresponding statusitem is in warn tree,
+                    # move it to err tree.
+                    statitem = self._get_statitem(dev_index_warn_curr,
+                                                  self._warn_statusitems,
+                                                  self.warn_tree)
+                    self.add_statitem(statitem, self._err_statusitems,
                                       self.err_tree, headline,
                                       diag_stat_new.message, stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
-                    statitem_new = StatusItem(diag_stat_new)
-                    self.add_statitem(statitem_new, self._err_statusitems,
+                    # If the corresponding statusitem isn't found, 
+                    # create new obj.
+                    statitem = StatusItem(diag_stat_new)
+                    self.add_statitem(statitem, self._err_statusitems,
                                       self.err_tree, headline,
                                       diag_stat_new.message, stat_lv_new)
+                elif (0 < dev_index_err_curr):
+                    # If the corresponding statusitem is already in err tree,
+                    # obtain the instance.
+                    statitem = self._get_statitem(dev_index_err_curr,
+                                                  self._err_statusitems)
+
+                if statitem: # If not None
+                    # Updating statusitem will keep popup window also update.
+                    dict_status = statitem.update_children(diag_stat_new, 
+                                                           diag_arr)                    
         
         self._sig_tree_nodes_updated.emit(self._TREE_WARN)
         self._sig_tree_nodes_updated.emit(self._TREE_ERR)
@@ -436,13 +484,16 @@ class RobotMonitorWidget(AbstractStatusWidget):
         rospy.logdebug(' add_statitem statitem_list length=%d',
                        len(statitem_list))
            
-    '''
-    @author: Isaac Saito
-    '''            
-    def _remove_statitem(self, item_index, item_list, tree):
+    def _get_statitem(self, item_index, item_list, tree = None, mode = 2):
+        """
+        @param mode: 1 = remove from given list, 2 = w/o removing.
+        @author: Isaac Saito
+        """
         statitem_existing = item_list[item_index]
-        tree.takeTopLevelItem(tree.indexOfTopLevelItem(statitem_existing))
-        item_list.pop(item_index)
+        if 1 == mode:
+            tree.takeTopLevelItem(tree.indexOfTopLevelItem(statitem_existing))
+            item_list.pop(item_index)
+        #elif 2 == mode:
         return statitem_existing
 
     def on_new_message_received(self, msg):

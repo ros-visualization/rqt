@@ -52,10 +52,10 @@ class TimelinePane(QWidget):
     
     _sig_update = Signal()
         
-    def __init__(self, parent, len_timeline,                   
-                 msg_callback, 
+    def __init__(self, parent, len_timeline,
+                 msg_callback,
                  color_callback,
-                 pause_callback = None):
+                 pause_callback=None):
         """
         
         @param msg_callback: This can be a function that takes either 
@@ -84,7 +84,7 @@ class TimelinePane(QWidget):
         self._msg_callback = msg_callback
         
         self._timeline_view._set_init_data(1, len_timeline, 5,
-                                           #self._get_color_for_value)
+                                           # self._get_color_for_value)
                                            color_callback)
   
         self._scene = QGraphicsScene(self._timeline_view)
@@ -92,7 +92,7 @@ class TimelinePane(QWidget):
         self._timeline_view.setScene(self._scene)        
         self._timeline_view.show()
         
-        #self._messages = [None for x in range(len_timeline)]  # DiagnosticStatus
+        # self._messages = [None for x in range(len_timeline)]  # DiagnosticStatus
         # self._queue_diagnostic = [1 for x in range(20)] 
         self._queue_diagnostic = deque()
         self._len_timeline = len_timeline
@@ -114,7 +114,7 @@ class TimelinePane(QWidget):
                                                    self._queue_diagnostic)
         i = int(floor(xpos_clicked / width_each_cell_shown))
 
-        #msg = self._messages[i]
+        # msg = self._messages[i]
         msg = self._queue_diagnostic[i]
         if msg:
             self._parent._on_pause(True, msg)
@@ -147,7 +147,8 @@ class TimelinePane(QWidget):
         """
         if paused:
             self._pause_button.setDown(True)
-            #self._parent._pause(self._messages[-1])
+            self._paused = True
+            # self._parent._pause(self._messages[-1])
             self._parent._pause(self._queue_diagnostic[-1])
         else:
             self._paused = False
@@ -179,9 +180,9 @@ class TimelinePane(QWidget):
 
         self._last_sec_marker_at = xpos_marker
         
-        ## TODO Pause InspectionWindow if any.
-        #if (not self._paused and self._pause_callback is not None):            
-            #self._pause_callback(True)
+        # # TODO Pause InspectionWindow if any.
+        # if (not self._paused and self._pause_callback is not None):            
+            # self._pause_callback(True)
             
         self._pause(True)
         # self._pause_button.SetBackgroundColour(wx.Colour(123, 193, 255))
@@ -209,7 +210,7 @@ class TimelinePane(QWidget):
         Copied from robot_monitor.
         """
         
-        self._last_msg = msg # Shouldn't this sit after self._paused return?
+        self._last_msg = msg  # Shouldn't this sit after self._paused return?
                              # Original robot_monitor does this way.   
         
         # if (self._message_receipt_callback is not None):
@@ -222,25 +223,22 @@ class TimelinePane(QWidget):
         
         self._queue_diagnostic.append(msg)
         if (len(self._queue_diagnostic) > self._len_timeline):
-            # self._queue.popleft()
             self._queue_diagnostic.popleft()
             
         new_len = len(self._queue_diagnostic)                   
         self._timeline_view._set_range(1, new_len)
         
-        if (self._tracking_latest):                 
-            self._timeline_view._set_xpos_marker(new_len)
-            # self._msg_callback(msg)
-        else:
-            rospy.loginfo('In MessageTimeline _new_msg not calling redraw')
-        
-        # self._timeline_view.update() #Want this to trigger paintEvent
-        # self._scene.update() #no use
-        # self._timeline_view.paintEvent(None) #Unsafe
-        self._sig_update.emit()
-        # self._slot_redraw()       
+#        if (self._tracking_latest):                 
+#            self._timeline_view._set_xpos_marker(new_len)         
+#        else:
+#            rospy.loginfo('In MessageTimeline _new_msg not calling redraw')
+
+        self._sig_update.emit()   
         rospy.logdebug(' TimelinePane _new_msg new_len=%d', new_len)
-            
+           
+    def _redraw(self):
+        self._sig_update.emit() 
+          
     def _get_diagnostic_queue(self):
         """
         

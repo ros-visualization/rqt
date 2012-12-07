@@ -37,8 +37,8 @@
      <widget class="QTreeWidget" name="err_tree">
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>100</height>
+        <width>75</width>
+        <height>25</height>
        </size>
       </property>
       <property name="alternatingRowColors">
@@ -61,8 +61,8 @@
      <widget class="QTreeWidget" name="warn_tree">
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>100</height>
+        <width>75</width>
+        <height>25</height>
        </size>
       </property>
       <property name="alternatingRowColors">
@@ -85,8 +85,8 @@
      <widget class="QTreeWidget" name="tree_all_devices">
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>100</height>
+        <width>75</width>
+        <height>25</height>
        </size>
       </property>
       <property name="alternatingRowColors">

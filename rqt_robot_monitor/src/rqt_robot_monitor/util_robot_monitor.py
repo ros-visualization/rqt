@@ -159,4 +159,21 @@ class Util(object):
                 
         #return Util._IMG_DICT[level]
         rospy.logdebug(' get_color_for_message color lv=%d', level)
-        return Util._COLOR_DICT[level]    
+        return Util._COLOR_DICT[level]
+    
+    @staticmethod
+    def _get_correspondent_statitem(key, list_obj):
+        """
+        
+        @param key: String
+        @param list_obj: DiagnosticsStatus
+        @return: StatusItem
+        """
+        names_from_list = [Util.get_nice_name(k.name) for k in list_obj]
+        key_niced = Util.get_nice_name(key)
+        rospy.logdebug(' _get_correspondent_statitem key_niced=%s list=%s',
+                      key_niced, list_obj)  
+        if key_niced in names_from_list:
+            return list_obj[names_from_list.index(key_niced)]
+        return None            
+    

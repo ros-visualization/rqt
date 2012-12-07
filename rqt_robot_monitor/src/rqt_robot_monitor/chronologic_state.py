@@ -183,15 +183,15 @@ class StatusItem(QTreeWidgetItem):
     def strip_child(self, child):
         return child.replace(self.name, '')
     
-    '''
-    Because Isaac failed to find a way to call a destructor of a class in 
-     python in general, he made this function, intending it to be called by 
-     its parent object (in this case RobotMonitorWidget's instance) 
-     every timeline when a certain node gets removed.
-    
-    @author: Isaac Saito
-    '''        
     def close(self):
+        """
+        Because Isaac failed to find a way to call a destructor of a class in
+        python in general, he made this function, intending it to be called by
+        its parent object (in this case RobotMonitorWidget's instance)
+        every timeline when a certain node gets removed.
+        
+        @author: Isaac Saito
+        """
         if self.inspector:
             # del self.inspector # Doesn't _close the window
             self.inspector.close()
