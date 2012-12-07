@@ -74,6 +74,8 @@ class MonitorDashWidget(IconToolButton):
         self._stall_timer = QTimer()
         self._stall_timer.timeout.connect(self._stalled)
         self._stalled()
+        self._plugin_settings = None
+        self._instance_settings = None
 
     def toplevel_state_callback(self, msg):
         self._is_stale = False
@@ -106,7 +108,8 @@ class MonitorDashWidget(IconToolButton):
                     self._monitor_shown = False
                 else:
                     self._monitor = RobotMonitorWidget(self.context, 'diagnostics_agg')
-                    self._monitor.restore_settings(self._plugin_settings, self._instance_settings)
+                    if self._plugin_settings:
+                        self._monitor.restore_settings(self._plugin_settings, self._instance_settings)
                     self.context.add_widget(self._monitor)
                     self._monitor_shown = True
             except Exception as e:
@@ -119,7 +122,8 @@ class MonitorDashWidget(IconToolButton):
     def _monitor_close(self):
         if self._monitor_shown:
             with QMutexLocker(self._close_mutex):
-                self._monitor.save_settings(self._plugin_settings, self._instance_settings)
+                if self._plugin_settings:
+                    self._monitor.save_settings(self._plugin_settings, self._instance_settings)
                 self._monitor.shutdown()
                 self._monitor.close()
                 self._graveyard.append(self._monitor)
