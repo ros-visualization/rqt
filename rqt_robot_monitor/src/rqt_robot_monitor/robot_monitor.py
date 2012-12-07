@@ -148,15 +148,16 @@ class RobotMonitorWidget(AbstractStatusWidget):
         rospy.logdebug('RobotMonitorWidget _tree_clicked col=%d', column) 
         item.on_click()
         
-    '''
-    Update the tree from the bottom    
-    @param diag_array: DiagnosticArray 
-
-    @todo: 11/5/2012 Currently, in case some devices disappear 
-                     while running this program, there's no way to remove 
-                     those from the device-tree. 
-    '''
     def _update_devices_tree(self, diag_array):
+        """
+        Update the tree from the bottom
+        @param diag_array: DiagnosticArray
+        
+        @todo: 11/5/2012 Currently, in case some devices disappear 
+                     while running this program, there's no way to remove 
+                     those from the device-tree.
+        """
+         
         statusnames_curr_toplevel = [Util.get_nice_name(k.name) 
                                      for k in self._toplv_statusitems]  
         # Only the k variable that pops up at the end is 
@@ -170,11 +171,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
                                                  # in toplevel since last time. 
                 statusitem = self._toplv_statusitems[
                                         statusnames_curr_toplevel.index(name)]
-                
-                # TODO 10/30/2012/Isaac/Next lines (where status update_
-                #                       children occurs) can cause flickering 
-                #                       as the number of nodes increase.
-                #                       Can refer to orig robot_model for ideas
+
                 dict_status = statusitem.update_children(diagnostic_status_new,
                                                          diag_array)
                 times_errors = dict_status['times_errors']
@@ -355,18 +352,20 @@ class RobotMonitorWidget(AbstractStatusWidget):
         self.err_tree.clear()
         self.warn_tree.clear()
 
-    '''
-    Update the given flat tree (ie. tree that doesn't show children nodes - 
-    all of its elements will be shown on top level) with 
-    all the DiagnosticStatus instances contained in the given DiagnosticArray, 
-    regardless of the level of the device in a device category.
-    
-    @param diag_arr: a DiagnosticArray instance.
-    @param statusitems_curr_toplevel: list of StatusItem.
-    
-    @author: Isaac Saito
-    '''
     def _update_flat_tree(self, diag_arr, statusitems_curr_toplevel):
+        """
+        
+        Update the given flat tree (ie. tree that doesn't show children nodes - 
+        all of its elements will be shown on top level) with 
+        all the DiagnosticStatus instances contained in the given DiagnosticArray, 
+        regardless of the level of the device in a device category.
+    
+        @param diag_arr: a DiagnosticArray instance.
+        @param statusitems_curr_toplevel: list of StatusItem.
+    
+        @author: Isaac Saito
+        """
+        
         for diag_stat_new in diag_arr.status:
             stat_lv_new = diag_stat_new.level
             dev_name = diag_stat_new.name
@@ -394,9 +393,8 @@ class RobotMonitorWidget(AbstractStatusWidget):
                                                           self._err_statusitems,
                                                           self.err_tree)
                     self.add_statitem(statitem_curr, self._warn_statusitems,
-                                       self.warn_tree,
-                                       headline, diag_stat_new.message,
-                                       stat_lv_new)
+                                      self.warn_tree, headline, 
+                                      diag_stat_new.message, stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     statitem_new = StatusItem(diag_stat_new)
                     self.add_statitem(statitem_new, self._warn_statusitems,
@@ -410,13 +408,13 @@ class RobotMonitorWidget(AbstractStatusWidget):
                                                           self._warn_statusitems,
                                                           self.warn_tree)
                     self.add_statitem(statitem_curr, self._err_statusitems,
-                                       self.err_tree, headline,
-                                       diag_stat_new.message, stat_lv_new)
+                                      self.err_tree, headline,
+                                      diag_stat_new.message, stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     statitem_new = StatusItem(diag_stat_new)
                     self.add_statitem(statitem_new, self._err_statusitems,
-                                       self.err_tree, headline,
-                                       diag_stat_new.message, stat_lv_new)
+                                      self.err_tree, headline,
+                                      diag_stat_new.message, stat_lv_new)
         
         self._sig_tree_nodes_updated.emit(self._TREE_WARN)
         self._sig_tree_nodes_updated.emit(self._TREE_ERR)
