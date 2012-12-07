@@ -393,13 +393,13 @@ class RobotMonitorWidget(AbstractStatusWidget):
                     statitem_curr = self._remove_statitem(dev_index_err_curr,
                                                           self._err_statusitems,
                                                           self.err_tree)
-                    self._add_statitem(statitem_curr, self._warn_statusitems,
+                    self.add_statitem(statitem_curr, self._warn_statusitems,
                                        self.warn_tree,
                                        headline, diag_stat_new.message,
                                        stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     statitem_new = StatusItem(diag_stat_new)
-                    self._add_statitem(statitem_new, self._warn_statusitems,
+                    self.add_statitem(statitem_new, self._warn_statusitems,
                                        self.warn_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
                     self._warn_statusitems.append(statitem_new)
@@ -409,12 +409,12 @@ class RobotMonitorWidget(AbstractStatusWidget):
                     statitem_curr = self._remove_statitem(dev_index_warn_curr,
                                                           self._warn_statusitems,
                                                           self.warn_tree)
-                    self._add_statitem(statitem_curr, self._err_statusitems,
+                    self.add_statitem(statitem_curr, self._err_statusitems,
                                        self.err_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     statitem_new = StatusItem(diag_stat_new)
-                    self._add_statitem(statitem_new, self._err_statusitems,
+                    self.add_statitem(statitem_new, self._err_statusitems,
                                        self.err_tree, headline,
                                        diag_stat_new.message, stat_lv_new)
         
@@ -424,7 +424,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
     '''
     @author: Isaac Saito
     '''
-    def _add_statitem(self, statusitem, statitem_list,
+    def add_statitem(self, statusitem, statitem_list,
                       tree, headline, statusmsg, statlevel):
         
         if 'Warning' == statusmsg or 'Error' == statusmsg:
@@ -435,7 +435,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
         statusitem.setIcon(0, Util._IMG_DICT[statlevel])
         statitem_list.append(statusitem)                
         tree.addTopLevelItem(statusitem)
-        rospy.logdebug(' _add_statitem statitem_list length=%d',
+        rospy.logdebug(' add_statitem statitem_list length=%d',
                        len(statitem_list))
            
     '''
@@ -528,8 +528,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
         return Util._get_color_for_message(queue_diagnostic[color_index - 1])
                                # When _queue_diagnostic is empty,
                                # this yield error when color_index > 0.   
-            
-    
+                
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('splitter', self.splitter.saveState())

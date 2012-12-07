@@ -46,8 +46,8 @@ class RobotMonitorPlugin(Plugin):
         super(RobotMonitorPlugin, self).__init__(context)        
         self._robot_monitor = RobotMonitorWidget(context, '/diagnostics_agg')
         if context.serial_number() > 1:
-            self.self._robot_monitor.setWindowTitle(
-                 self.self._robot_monitor.windowTitle() + 
+            self._robot_monitor.setWindowTitle(
+                 self._robot_monitor.windowTitle() + 
                       (' (%d)' % context.serial_number()))
         context.add_widget(self._robot_monitor)
         self.setObjectName('rqt Robot Monitor')        
@@ -59,9 +59,8 @@ class RobotMonitorPlugin(Plugin):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
         self._robot_monitor.shutdown() # Closes unclosed popup windows.
 
-
     def save_settings(self, plugin_settings, instance_settings):
         self._robot_monitor.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor.restore_settings(plugin_settings, instance_settings)
+        self._robot_monitor._restore_settings(plugin_settings, instance_settings)
