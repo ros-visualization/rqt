@@ -29,23 +29,26 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from .util import IconHelper
 
-from QtCore import Signal
-from QtGui import QToolButton
-import os.path
+import os
+
+from python_qt_binding.QtCore import Signal
+from python_qt_binding.QtGui import QToolButton
+import rospy
+
+from .util import IconHelper
 
 
 class IconToolButton(QToolButton):
     """
-    This is the base class for all widgets. 
+    This is the base class for all widgets.
     It provides state and icon switching support as well as convenience functions for creating icons.
 
     :raises IndexError: if ``icons`` is not a list of lists of strings
 
     :param name: name of the object
     :type name: str
-    :param icons: A list of lists of strings to create icons for the states of this button. 
+    :param icons: A list of lists of strings to create icons for the states of this button.
     If only one is supplied then ok, warn, error, stale icons will be created with overlays
     :type icons: list
     :param clicked_icons: A list of clicked state icons. len must equal icons
@@ -57,7 +60,8 @@ class IconToolButton(QToolButton):
     :type icon_paths: list of lists of strings
     """
     state_changed = Signal(int)
-    def __init__(self, name, icons, clicked_icons=None, suppress_overlays=False, icon_paths=[]):
+
+    def __init__(self, name, icons, clicked_icons=None, suppress_overlays=False, icon_paths=None):
         super(IconToolButton, self).__init__()
 
         self.name = name
@@ -68,7 +72,7 @@ class IconToolButton(QToolButton):
         self.released.connect(self._released)
 
         import rospkg
-        icon_paths = icon_paths + [['rqt_robot_dashboard', 'images']]
+        icon_paths = (icon_paths if icon_paths else []) + [['rqt_robot_dashboard', 'images']]
         paths = []
         for path in icon_paths:
             paths.append(os.path.join(rospkg.RosPack().get_path(path[0]), path[1]))
@@ -81,7 +85,7 @@ class IconToolButton(QToolButton):
 
     def update_state(self, state):
         """
-        Set the state of this button. 
+        Set the state of this button.
         This will also update the icon for the button based on the ``self._icons`` list
 
         :raises IndexError: If state is not a proper index to ``self._icons``
@@ -93,7 +97,7 @@ class IconToolButton(QToolButton):
             self.__state = state
             self.state_changed.emit(self.__state)
         else:
-            raise(IndexError("%s update_state received invalid state: %s"(self.name, state)))
+            raise IndexError("%s update_state received invalid state: %s" % (self.name, state))
 
     def set_icon_lists(self, icons, clicked_icons=None, suppress_overlays=False):
         """
@@ -102,7 +106,7 @@ class IconToolButton(QToolButton):
 
         :raises IndexError: if ``icons`` is not a list of lists of strings
 
-        :param icons: A list of lists of strings to create icons for the states of this button. 
+        :param icons: A list of lists of strings to create icons for the states of this button.
         If only one is supplied then ok, warn, error, stale icons will be created with overlays
         :type icons: list
         :param clicked_icons: A list of clicked state icons. len must equal icons
@@ -112,12 +116,12 @@ class IconToolButton(QToolButton):
 
         """
         if clicked_icons is not None and len(icons) != len(clicked_icons):
-            rospy.logerr("%s: icons and clicked states are unequal"%self.name)
+            rospy.logerr("%s: icons and clicked states are unequal" % self.name)
             icons = clicked_icons = ['ic-missing-icon.svg']
         if not (type(icons) is list and type(icons[0]) is list and type(icons[0][0] is str)):
             raise(IndexError("icons must be a list of lists of strings"))
         if len(icons) <= 0:
-            rospy.logerr("%s: Icons not supplied"%self.name)
+            rospy.logerr("%s: Icons not supplied" % self.name)
             icons = clicked_icons = ['ic-missing-icon.svg']
         if len(icons) == 1 and suppress_overlays == False:
             if icons[0][0][-4].lower() == '.svg':
@@ -150,4 +154,3 @@ class IconToolButton(QToolButton):
 
     def _released(self):
         self.setIcon(self._icons[self.__state])
-

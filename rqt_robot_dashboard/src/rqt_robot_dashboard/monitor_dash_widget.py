@@ -112,7 +112,7 @@ class MonitorDashWidget(IconToolButton):
                         self._monitor._restore_settings(self._plugin_settings, self._instance_settings)
                     self.context.add_widget(self._monitor)
                     self._monitor_shown = True
-            except Exception as e:
+            except Exception:
                 if self._monitor_shown == False:
                     raise
                 #  TODO when closeEvents is available fix this hack (It ensures the button will toggle correctly)

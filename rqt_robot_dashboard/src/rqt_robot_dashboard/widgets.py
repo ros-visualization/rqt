@@ -39,7 +39,7 @@
 This module provides a set of standard widgets for using with the Dashboard class.
 
 To use them you must provide instances of them to your dashboard in its :func:`get_widgets` method. For example::
-    
+
     from rqt_robot_dashboard.dashboard import Dashboard
     from rqt_robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
 
@@ -60,4 +60,3 @@ from .console_dash_widget import ConsoleDashWidget
 from .menu_dash_widget import MenuDashWidget
 from .monitor_dash_widget import MonitorDashWidget
 from .nav_view_dash_widget import NavViewDashWidget
-

@@ -33,11 +33,10 @@
 import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
 
-from python_qt_binding import loadUi
-
 from python_qt_binding.QtCore import QSize
 from python_qt_binding.QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
 from qt_gui.plugin import Plugin
+
 
 class Dashboard(Plugin):
     """
@@ -54,16 +53,14 @@ class Dashboard(Plugin):
         if not hasattr(self, 'name'):
             self.name = 'Dashboard'
         if not hasattr(self, 'max_icon_size'):
-            self.max_icon_size = QSize( 50, 30)
+            self.max_icon_size = QSize(50, 30)
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(self.max_icon_size)
         self._main_widget.setObjectName(self.name)
         self._main_widget.setWindowTitle(self.name)
         if context.serial_number() > 1:
-            self._mainwindow.setWindowTitle(self._mainwindow.windowTitle() + (' (%d)' % context.serial_number()))
+            self._main_widget.setWindowTitle(self._main_widget.windowTitle() + (' (%d)' % context.serial_number()))
         widgets = self.get_widgets()
-
-        layout = QHBoxLayout()
 
         self._widgets = []
         for v in widgets:
@@ -72,7 +69,7 @@ class Dashboard(Plugin):
                     self._main_widget.addWidget(i)
                     self._widgets.append(i)
                 except:
-                    raise(Exception("All widgets must be a subclass of QWidget!"))
+                    raise Exception("All widgets must be a subclass of QWidget!")
 
             self._main_widget.addSeparator()
 
@@ -111,7 +108,7 @@ class Dashboard(Plugin):
 
     def get_widgets(self):
         """
-        Most of the dashboard customization should be done here. 
+        Most of the dashboard customization should be done here.
         If this function is not overriden the dashboard will display nothing.
 
         :returns: List of lists containing dashboard widgets.

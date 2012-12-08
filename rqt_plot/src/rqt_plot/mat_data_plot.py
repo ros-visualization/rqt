@@ -36,6 +36,7 @@ if QT_BINDING == 'pyside':
         from pkg_resources import parse_version
     except:
         import re
+
         def parse_version(s):
             return [int(x) for x in re.sub(r'(\.0+)*$', '', s).split('.')]
     if parse_version(QT_BINDING_VERSION) <= parse_version('1.1.2'):
