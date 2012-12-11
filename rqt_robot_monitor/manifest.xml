@@ -7,6 +7,8 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rqt_robot_monitor</url>
   <depend package="rospy"/>
+  <depend package="diagnostic_msgs"/>
+  <depend package="python_qt_binding"/>
   <depend package="rqt_gui"/>
   <depend package="rqt_gui_py"/>
   <export>

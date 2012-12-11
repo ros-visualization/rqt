@@ -41,7 +41,7 @@ from python_qt_binding.QtGui import QBrush, QColor, QGraphicsPixmapItem, QGraphi
 
 class TimelineView(QGraphicsView):
     """
-    When you instantiate this class, do NOT forget to call _set_init_data to 
+    When you instantiate this class, do NOT forget to call set_init_data to 
     set necessary data.
     """
     
@@ -63,13 +63,13 @@ class TimelineView(QGraphicsView):
         self._timeline_marker_width = 15
         self._timeline_marker_height = 15
         
-        self._sig_update.connect(self._slot_redraw)
+        self._sig_update.connect(self.slot_redraw)
         # self._color_callback = parent._color_callback
         #self._sig_on_marker.connect(parent.on_slider_scroll)
         
         self.setUpdatesEnabled(True) #In a trial to enable update()
 
-    def _set_init_data(self, min_xpos_marker, max_num_seconds, 
+    def set_init_data(self, min_xpos_marker, max_num_seconds, 
                        xpos_marker, color_callback):
         """
         This function needs to be called right after the class is instantiated,
@@ -91,7 +91,7 @@ class TimelineView(QGraphicsView):
     ## Enabling this will collide with QGraphicsScene and ends up 
     ## with QGraphicsScene not being updated.
         # rospy.logdebug('test')
-        # self.parent._slot_redraw()
+        # self.parent.slot_redraw()
         
     def redraw(self, event):
         """
@@ -171,7 +171,7 @@ class TimelineView(QGraphicsView):
 #    def resizeEvent(self, event):
 #        self.adjustSize()  # TODO Make sure this meets my requirement.
 
-    def _set_range(self, min_val, max_val):
+    def set_range(self, min_val, max_val):
         """
         
         Copied from robot_monitor
@@ -181,30 +181,30 @@ class TimelineView(QGraphicsView):
         """
         self._min_num_seconds = min_val
         self._max_num_seconds = max_val
-        rospy.logdebug(' TimelineView _set_range _min_num_seconds=%s max=%s',
+        rospy.logdebug(' TimelineView set_range _min_num_seconds=%s max=%s',
                        self._min_num_seconds,
                        self._max_num_seconds)
-#        self._xpos_marker = self.clamp(self._xpos_marker, self._min_num_seconds, 
+#        self._xpos_marker = self._clamp(self._xpos_marker, self._min_num_seconds, 
 #                                       self._max_num_seconds)
 #        #self.Refresh()
 #        #self.repaint() #Emits warning "QPixmap: It is not safe to use pixmaps 
 #                        #outside the GUI thread"
 #        self._sig_update.emit()
         
-        #self._set_xpos_marker(self._xpos_marker)
-        self._set_xpos_marker(max_val)
+        #self.set_xpos_marker(self._xpos_marker)
+        self.set_xpos_marker(max_val)
 
-    def _set_xpos_marker(self, len_queue):
+    def set_xpos_marker(self, len_queue):
         """Copied from robot_monitor"""
 
-        self._xpos_marker = self.clamp(int(len_queue),
+        self._xpos_marker = self._clamp(int(len_queue),
                                        self._min_num_seconds, 
                                        self._max_num_seconds)
-        rospy.logdebug(' TimelineView _set_xpos_marker len_queue=%s _xpos_marker=%s', 
+        rospy.logdebug(' TimelineView set_xpos_marker len_queue=%s _xpos_marker=%s', 
                       len_queue, self._xpos_marker)
         #self._sig_update.emit()
         
-    def _get_xpos_marker(self):
+    def get_xpos_marker(self):
         return self._xpos_marker        
                 
     def mouseReleaseEvent(self, event):
@@ -214,7 +214,7 @@ class TimelineView(QGraphicsView):
         '''
 
         self._parent.mouse_release(event)
-        self._set_val_from_x(event.pos().x())
+        self.set_val_from_x(event.pos().x())
         
         # TODO Figure out what's done by this in wx.
         # wx.PostEvent(self.GetEventHandler(),
@@ -226,7 +226,7 @@ class TimelineView(QGraphicsView):
     @param event: QMouseEvent 
     '''        
     def mousePressEvent(self, evt):
-        self._set_val_from_x(evt.pos().x())
+        self.set_val_from_x(evt.pos().x())
                 
         # TODO Figure out what's done by this in wx.
         # wx.PostEvent(self.GetEventHandler(),
@@ -235,7 +235,7 @@ class TimelineView(QGraphicsView):
         #self._sig_on_marker.emit()
         self._parent.on_slider_scroll(evt)
         
-    def _set_val_from_x(self, x):
+    def set_val_from_x(self, x):
         '''
         Called when marker is moved by user.
         
@@ -251,7 +251,7 @@ class TimelineView(QGraphicsView):
         width_cell = width / float(length_tl_in_second)
         x_marker_float = x / width_cell + 1
         self.set_marker_pos(x_marker_float)
-        rospy.logdebug('TimelineView _set_val_from_x x=%s width_cell=%s ' +
+        rospy.logdebug('TimelineView set_val_from_x x=%s width_cell=%s ' +
                       'length_tl_in_second=%s set_marker_pos=%s', 
                       x, width_cell, length_tl_in_second, self._xpos_marker)
 
@@ -259,14 +259,14 @@ class TimelineView(QGraphicsView):
         '''
         Copied from robot_monitor. Originally called SetValue.
         '''
-        self._xpos_marker = self.clamp(int(val),
+        self._xpos_marker = self._clamp(int(val),
                                        self._min_num_seconds,
                                        self._max_num_seconds)
         #self.repaint()  # # This might result in segfault.
         self._sig_update.emit()  
                                   
            
-    def clamp(self, val, min, max):
+    def _clamp(self, val, min, max):
         """
         Judge if val is within the range given by min & max.
         If not, return either min or max.
@@ -278,7 +278,7 @@ class TimelineView(QGraphicsView):
         
         Copied from robot_monitor.
         """        
-        rospy.logdebug(' TimelineView clamp val=%s min=%s max=%s', 
+        rospy.logdebug(' TimelineView _clamp val=%s min=%s max=%s', 
                        val, min, max)
         if (val < min):
             return min
@@ -286,11 +286,11 @@ class TimelineView(QGraphicsView):
             return max
         return val
                 
-    def _slot_redraw(self):
+    def slot_redraw(self):
         """
         Gets called either when new msg comes in or when marker is moved by user.
-        """
-        
+        """      
+               
         self._parent._scene.clear()
 
         is_enabled = self.isEnabled()
@@ -308,14 +308,14 @@ class TimelineView(QGraphicsView):
                                          # timeline not fit nicely.
         w = width_tl / float(len_queue)
  
-        for i, m in enumerate(self._parent._get_diagnostic_queue()):            
+        for i, m in enumerate(self._parent.get_diagnostic_queue()):            
             h = self.viewport().height()
             
             # Figure out each cell's color.
             qcolor = None
             color_index = i + self._min_num_seconds
             if (is_enabled):
-                qcolor = self._color_callback(self._parent._get_diagnostic_queue(),
+                qcolor = self._color_callback(self._parent.get_diagnostic_queue(),
                                               color_index)                
             else:
                 qcolor = QColor('grey')
@@ -327,7 +327,7 @@ class TimelineView(QGraphicsView):
 
             rect = self._parent._scene.addRect(w * i, 0, w, h, 
                                                QColor('white'), qcolor)
-            rospy.logdebug('TimelineView._slot_redraw #%d th loop w=%s width_tl=%s',
+            rospy.logdebug('TimelineView.slot_redraw #%d th loop w=%s width_tl=%s',
                           i, w, width_tl)            
         
         # Setting marker.
@@ -339,15 +339,14 @@ class TimelineView(QGraphicsView):
                 
         # Need to instantiate marker everytime since it gets deleted 
         # in every loop by scene.clear()
-        timeline_marker = self.instantiate_tl_icon()
+        timeline_marker = self._instantiate_tl_icon()
         timeline_marker.setPos(pos_marker)
         self._parent._scene.addItem(timeline_marker)
         # self._timeline_marker.paint(painter, qrect)
-        rospy.logdebug(' _slot_redraw xpos_marker=%s self._timeline_marker=%s ' + 
-                      'pos_marker=%s',
-                      xpos_marker, timeline_marker, pos_marker)
+        rospy.logdebug(' slot_redraw xpos_marker(int)=%s length_tl=%s',
+                      int(xpos_marker), length_tl)
 
-    def instantiate_tl_icon(self):
+    def _instantiate_tl_icon(self):
         timeline_marker_icon = QIcon.fromTheme('system-search')
         timeline_marker_icon_pixmap = timeline_marker_icon.pixmap(
                                                 self._timeline_marker_width,

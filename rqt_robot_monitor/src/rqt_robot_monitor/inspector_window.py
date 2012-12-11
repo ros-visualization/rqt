@@ -51,6 +51,16 @@ class InspectorWindow(AbstractStatusWidget):
     _sig_clear = Signal()
     
     def __init__(self, status, close_callback):
+        """
+        
+        @todo: UI construction that currently is done in this method, 
+               needs to be done in .ui file.
+               
+        @param status: DiagnosticStatus
+        @param close_callback: When the instance of this class (InspectorWindow)
+                               terminates, this callback gets called.
+        """
+        
         super(InspectorWindow, self).__init__()
         self.status = status
         self._close_callback = close_callback
@@ -64,7 +74,7 @@ class InspectorWindow(AbstractStatusWidget):
 
         self.timeline_pane = TimelinePane(self, Util._SECONDS_TIMELINE,
                                           self._cb,
-                                          self._get_color_for_value
+                                          self.get_color_for_value
                                           )
 
         self.layout_vertical.addWidget(self.disp, 1)
@@ -72,20 +82,20 @@ class InspectorWindow(AbstractStatusWidget):
         self.layout_vertical.addWidget(self.snapshot)
 
         self.snaps = []
-        self.snapshot.clicked.connect(self.take_snapshot)
+        self.snapshot.clicked.connect(self._take_snapshot)
 
-        self._sig_write.connect(self.write_key_val)
+        self._sig_write.connect(self._write_key_val)
         self._sig_newline.connect(lambda: self.disp.insertPlainText('\n'))
         self._sig_clear.connect(lambda: self.disp.clear())
         self._sig_close_window.connect(self._close_callback)
 
         self.setLayout(self.layout_vertical)
-        self.setGeometry(0, 0, 400, 600)  # TODO better to be configurable where to appear. 
+        self.setGeometry(0, 0, 400, 600)  # TODO better to be configurable where to appear.
         self.show()
-        self.update_children(status)
+        self.update_status_display(status)
         
-    def _get_color_for_value(self, queue_diagnostic, color_index):
-        rospy.logdebug('InspectorWindow _get_color_for_value ' +
+    def get_color_for_value(self, queue_diagnostic, color_index):
+        rospy.logdebug('InspectorWindow get_color_for_value ' +
                        'queue_diagnostic=%d, color_index=%d', 
                        len(queue_diagnostic), color_index)
         lv_index = queue_diagnostic[color_index - 1].level
@@ -100,7 +110,7 @@ class InspectorWindow(AbstractStatusWidget):
         self._sig_close_window.emit()        
         self.close()
                 
-    def write_key_val(self, k, v):
+    def _write_key_val(self, k, v):
         self.disp.setFontWeight(75)
         self.disp.insertPlainText(k)
         self.disp.insertPlainText(': ')
@@ -109,17 +119,20 @@ class InspectorWindow(AbstractStatusWidget):
         self.disp.insertPlainText(v)
         self.disp.insertPlainText('\n')
 
-    def _pause(self, msg):
+    def pause(self, msg):
         """
         @todo: Create a superclass for this and RobotMonitorWidget that has
-        _pause func. 
+        pause func. 
         """
         
-        self.update_children(msg);
+        rospy.logdebug('InspectorWin pause PAUSED')
         self.paused = True
+        self.update_status_display(msg);
 
-    def unpause(self):
+    def unpause(self, msg):
+        rospy.logdebug('InspectorWin pause UN-PAUSED')
         self.paused = False
+        #self.update_status_display(msg);
 
     def _cb(self, msg, is_forced = False):
         """
@@ -130,22 +143,30 @@ class InspectorWindow(AbstractStatusWidget):
         """
         
         if not self.paused:
-            self.timeline_pane._new_diagnostic(msg)
             
+            #if is_forced:
+            self.update_status_display(msg)
+            rospy.logdebug('InspectorWin _cb len of queue=%d self.paused=%s',
+                          len(self.timeline_pane._queue_diagnostic), self.paused)
+            
+        else:
             if is_forced:
-                self.update_children(msg)
-        rospy.loginfo('InspectorWin _cb len of queue=%d', 
-                      len(self.timeline_pane._queue_diagnostic))
+                self.update_status_display(msg, True)
+                rospy.logdebug('@@@InspectorWin _cb PAUSED window updated')
+            else:
+                rospy.logdebug('@@@InspectorWin _cb PAUSED not updated')
                    
-    def update_children(self, status):
+    def update_status_display(self, status, is_forced = False):
         """
         @param status: DiagnosticsStatus 
         """
         
-        if not self.paused:
-            self.status = status
-            self.timeline_pane._new_diagnostic(status)
+        if not self.paused or (self.paused and is_forced):
+            self.timeline_pane.new_diagnostic(status)
+              
+            rospy.logdebug('InspectorWin update_status_display 1')
 
+            self.status = status
             self._sig_clear.emit()
             self._sig_write.emit("Full Name", status.name)
             self._sig_write.emit("Component", status.name.split('/')[-1])
@@ -157,26 +178,26 @@ class InspectorWindow(AbstractStatusWidget):
             for v in status.values:
                 self._sig_write.emit(v.key, v.value)
 
-    def take_snapshot(self):
+    def _take_snapshot(self):
         snap = Snapshot(self.status)
         self.snaps.append(snap)
 
-    def _enable(self):
+    def enable(self):
         #wx.Panel.Enable(self)
         #self._timeline.enable()
         self.setEnabled(True)
-        self.timeline_pane._enable()
-        self.timeline_pane._pause_button.setDown(False)
+        self.timeline_pane.enable()
+        self.timeline_pane.pause_button.setDown(False)
         
-    def _disable(self):
+    def disable(self):
         """Supposed to be called upon pausing.""" 
         #wx.Panel.Disable(self)
         #self._timeline.Disable()
         self.setEnable(False)
-        self.timeline_pane._disable()
-        self._pause_button.Disable()
+        self.timeline_pane.disable()
+        self.pause_button.Disable()
         self.unpause()
-        self.timeline_pane._pause_button.setDown(True)
+        self.timeline_pane.pause_button.setDown(True)
         
 class Snapshot(QTextEdit):
     """Display a single static status message. Helps facilitate copy/paste"""

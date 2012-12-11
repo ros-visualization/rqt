@@ -57,10 +57,10 @@ class RobotMonitorPlugin(Plugin):
     '''
     def shutdown_plugin (self):
         rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
-        self._robot_monitor._shutdown() # Closes unclosed popup windows.
+        self._robot_monitor.shutdown() # Closes unclosed popup windows.
 
     def save_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor._save_settings(plugin_settings, instance_settings)
+        self._robot_monitor.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        self._robot_monitor._restore_settings(plugin_settings, instance_settings)
+        self._robot_monitor.restore_settings(plugin_settings, instance_settings)

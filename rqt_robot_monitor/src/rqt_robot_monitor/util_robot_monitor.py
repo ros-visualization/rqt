@@ -68,6 +68,12 @@ class Util(object):
     # simplicity.  
     DiagnosticStatus.STALE = 3
     
+    _DICTKEY_TIMES_ERROR = 'times_errors'
+    _DICTKEY_TIMES_WARN = 'times_warnings'
+    _DICTKEY_INDEX = 'index'
+    _DICTKEY_STATITEM = 'statitem'
+
+    
     def __init__(self):
         super(Util, self).__init__()
     
@@ -162,18 +168,60 @@ class Util(object):
         return Util._COLOR_DICT[level]
     
     @staticmethod
-    def _get_correspondent_statitem(key, list_obj):
+    def get_correspondent(key, list_statitem):
         """
         
-        @param key: String
-        @param list_obj: DiagnosticsStatus
+        @param key: String.  
+        @param list_statitem: DiagnosticsStatus
         @return: StatusItem
         """
-        names_from_list = [Util.get_nice_name(k.name) for k in list_obj]
+        names_from_list = [Util.get_nice_name(k.name) for k in list_statitem]
         key_niced = Util.get_nice_name(key)
-        rospy.logdebug(' _get_correspondent_statitem key_niced=%s list=%s',
-                      key_niced, list_obj)  
+        index_key = -1        
+        statitem_key = None
         if key_niced in names_from_list:
-            return list_obj[names_from_list.index(key_niced)]
-        return None            
-    
+            index_key = names_from_list.index(key_niced)
+            statitem_key = list_statitem[index_key]
+            rospy.logdebug(' get_correspondent index_key=%s statitem_key=%s',
+                          index_key, statitem_key)
+        return {Util._DICTKEY_INDEX : index_key,
+                Util._DICTKEY_STATITEM : statitem_key}
+
+    @staticmethod
+    def get_correspondent_index(key, statusitems):
+        """
+        @deprecated: Use get_correspondent
+        
+        @param key: string
+        @param statusitems: DiagnosticStatus[]
+        @return: int of index that key is found in array. -1 if not found
+        """
+
+        names = [Util.get_nice_name(k.name) for k in statusitems]
+        
+        rospy.logdebug('\tget_correspondent_index len of names=%d statusitems=%d',
+                       len(names), len(statusitems))
+        
+        if key in names:
+            rospy.logdebug(' get_correspondent_index key IS contained.')
+            return names.index(key)
+        else:
+            rospy.logdebug('** get_correspondent_index key IS NOT contained.')
+            return -1 
+
+    @staticmethod
+    def get_children(name, diag_array):
+        """
+        
+        @param msg: DiagnosticArray
+        @return: DiagnosticStatus[]
+        """
+        
+        ret = []
+        for k in diag_array.status:  # k is DiagnosticStatus. 
+            if k.name.startswith(name):  # Starting with self.name means k 
+                                       # is either top/parent node or its child.
+                if not k.name == name:  # Child's name must be different 
+                                            # from that of the top/parent node.  
+                    ret.append(k)
+        return ret      

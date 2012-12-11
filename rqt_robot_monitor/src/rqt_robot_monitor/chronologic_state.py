@@ -66,16 +66,16 @@ class StatusItem(QTreeWidgetItem):
         
         self.setText(0, '/' + Util.get_nice_name(self.name))
         
-    def _get_name(self):
+    def get_name(self):
         return self.name
 
-    def _enable(self):
+    def enable(self):
         if self.inspector:
-            self.inspector._enable()
+            self.inspector.enable()
         
-    def _disable(self):
+    def disable(self):
         if self.inspector:
-            self.inspector._disable()
+            self.inspector.disable()
         
     '''
     Replace old status with the passed one.
@@ -85,21 +85,7 @@ class StatusItem(QTreeWidgetItem):
     def update(self, status):
         self.status = status
         
-    '''
-    @param msg: DiagnosticArray 
-    @return: DiagnosticStatus[]
-    '''
-    def _get_children(self, diag_array):
-        ret = []
-        for k in diag_array.status:  # k is DiagnosticStatus. 
-            if k.name.startswith(self.name):  # Starting with self.name means k 
-                                       # is either top/parent node or its child.
-                if not k.name == self.name:  # Child's name must be different 
-                                            # from that of the top/parent node.  
-                    ret.append(k)
-        return ret
-
-    def update_children(self, diag_status, diag_array):
+    def update_children(self, status_new, diag_array):
         """
         
         Recursive for tree node's children.
@@ -109,12 +95,12 @@ class StatusItem(QTreeWidgetItem):
         @param msg: DiagnosticArray
         """
          
-        self.status = diag_status
+        self.status = status_new
 
         if self.inspector:
-            self.inspector.update_children(diag_status)
+            self.inspector.update_status_display(self.status)
         
-        children_diag_statuses = self._get_children(diag_array)
+        children_diag_statuses = Util.get_children(self.name, diag_array)
 
         names_toplevel_local = [s.name for s in self._children_statusitems]
         new_statusitems = []
@@ -142,8 +128,7 @@ class StatusItem(QTreeWidgetItem):
             if name in names_toplevel_local:
                 index_child = names_toplevel_local.index(name)                
                 status_item = self._children_statusitems[ index_child ]
-                status_item.update_children(child_diagnostic_status,
-                                            diag_array)  # Recursive call.
+                status_item.update_children(child_diagnostic_status, diag_array)  # Recursive call.
                 Util._update_status_images(child_diagnostic_status, status_item)
                 rospy.logdebug(' StatusItem update 33 index= %d dev_name= %s',
                                index_child, device_name)
@@ -163,7 +148,8 @@ class StatusItem(QTreeWidgetItem):
  
         rospy.logdebug(' ------ Statusitem.update_children err=%d warn=%d',
                        errors, warnings)
-        return { 'times_errors' : errors, 'times_warnings' : warnings }
+        return {Util._DICTKEY_TIMES_ERROR : errors, 
+                Util._DICTKEY_TIMES_WARN : warnings}
 
     def on_click(self):
         if not self.inspector:

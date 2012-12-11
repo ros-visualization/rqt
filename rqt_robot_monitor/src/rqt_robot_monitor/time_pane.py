@@ -83,7 +83,7 @@ class TimelinePane(QWidget):
         self._pause_callback = pause_callback
         self._msg_callback = msg_callback
         
-        self._timeline_view._set_init_data(1, len_timeline, 5,
+        self._timeline_view.set_init_data(1, len_timeline, 5,
                                            # self._get_color_for_value)
                                            color_callback)
   
@@ -102,7 +102,7 @@ class TimelinePane(QWidget):
         self._last_msg = None
         
         self._pause_button.clicked[bool].connect(self._pause)
-        self._sig_update.connect(self._timeline_view._slot_redraw)     
+        self._sig_update.connect(self._timeline_view.slot_redraw)     
      
     def mouse_release(self, event):
         """
@@ -113,11 +113,13 @@ class TimelinePane(QWidget):
                        self._timeline_view.viewport().width()) / len(
                                                    self._queue_diagnostic)
         i = int(floor(xpos_clicked / width_each_cell_shown))
+        rospy.logdebug('mouse_release i=%d width_each_cell_shown=%s', 
+                       i, width_each_cell_shown)        
 
         # msg = self._messages[i]
         msg = self._queue_diagnostic[i]
         if msg:
-            self._parent._on_pause(True, msg)
+            self._parent.on_pause(True, msg)
             
             if not self._pause_button.isChecked():
                 self._pause_button.toggle()
@@ -141,23 +143,30 @@ class TimelinePane(QWidget):
         pausing timeline pane and timeline itself (which is not as of now..).
         
         @todo: Think about optimal way to call functions in parent class
-        (_pause, _unpause). Use callback or just calling via parent instance?
+        (pause, _unpause). Use callback or just calling via parent instance?
         
         @param paused: bool
         """
+        
+        rospy.logdebug('TimelinePane pause isPaused?=%s', paused)
+        
         if paused:
             self._pause_button.setDown(True)
             self._paused = True
+            self._tracking_latest = False
             # self._parent._pause(self._messages[-1])
-            self._parent._pause(self._queue_diagnostic[-1])
+            self._parent.pause(self._queue_diagnostic[-1])
         else:
-            self._paused = False
             self._pause_button.setDown(False)
-            self._parent._unpause()
+            self._paused = False
+            self._tracking_latest = True
+            self._parent.unpause(self._queue_diagnostic[-1])
+            rospy.logdebug('Objs; parent=%s, parent._unpause obj=%s', 
+                          self._parent,
+                          self._parent.unpause)
             
-            if (self._last_msg is not None):
-                self._tracking_latest = True
-                self._new_diagnostic(self._last_msg)
+            #if (self._last_msg is not None):
+            #self.new_diagnostic(self._last_msg)
 
     def on_slider_scroll(self, evt):
         """
@@ -167,7 +176,7 @@ class TimelinePane(QWidget):
         @param evt: QMouseEvent 
         
         """
-        xpos_marker = self._timeline_view._get_xpos_marker() - 1
+        xpos_marker = self._timeline_view.get_xpos_marker() - 1
         rospy.logdebug('on_slider_scroll xpos_marker=%s _last_sec_marker_at=%s',
                       xpos_marker, self._last_sec_marker_at)
         if (xpos_marker == self._last_sec_marker_at):
@@ -187,8 +196,7 @@ class TimelinePane(QWidget):
         self._pause(True)
         # self._pause_button.SetBackgroundColour(wx.Colour(123, 193, 255))
         
-        self._paused = True
-        self._tracking_latest = False
+        #self._paused = True
         
         # Fetch corresponding previous DiagsnoticArray instance from queue,
         # and _sig_update trees.
@@ -196,7 +204,7 @@ class TimelinePane(QWidget):
         if self._msg_callback:      
             self._msg_callback(msg, True)
 
-    def _new_diagnostic(self, msg):
+    def new_diagnostic(self, msg):
         """
         Callback for new msg for TimelinePane class.
         
@@ -225,8 +233,8 @@ class TimelinePane(QWidget):
         if (len(self._queue_diagnostic) > self._len_timeline):
             self._queue_diagnostic.popleft()
             
-        new_len = len(self._queue_diagnostic)                   
-        self._timeline_view._set_range(1, new_len)
+        new_len = len(self._queue_diagnostic)
+        self._timeline_view.set_range(1, new_len)
         
 #        if (self._tracking_latest):                 
 #            self._timeline_view._set_xpos_marker(new_len)         
@@ -234,12 +242,12 @@ class TimelinePane(QWidget):
 #            rospy.loginfo('In MessageTimeline _new_msg not calling redraw')
 
         self._sig_update.emit()   
-        rospy.logdebug(' TimelinePane _new_msg new_len=%d', new_len)
+        rospy.logdebug(' TimelinePane new_diagnostic new_len=%d', new_len)
            
-    def _redraw(self):
+    def redraw(self):
         self._sig_update.emit() 
           
-    def _get_diagnostic_queue(self):
+    def get_diagnostic_queue(self):
         """
         
         @return: a queue that contains either DiagnosticArray or 

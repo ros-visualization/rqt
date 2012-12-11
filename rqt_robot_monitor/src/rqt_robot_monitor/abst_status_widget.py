@@ -55,15 +55,15 @@ class AbstractStatusWidget(QWidget):
         """
         pass
        
-    def _pause(self, msg):
+    def pause(self, msg):
         pass
     
-    def _unpause(self):
+    def unpause(self, msg):
         pass
 
-    def _get_color_for_value(queue_diagnostic, color_index):
+    def get_color_for_value(queue_diagnostic, color_index):
         pass
     
-    def _on_pause(self, paused, diagnostic_arr):
+    def on_pause(self, paused, diagnostic_arr):
         pass
     
