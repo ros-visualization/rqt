@@ -30,20 +30,18 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import QObject, Signal
+from .base_filter import BaseFilter
 
 
-class NodeFilter(QObject):
+class NodeFilter(BaseFilter):
     """
     Contains filter logic for a single node filter
     If the message's node text matches any of the text in the stored list
     then it is considered a match.
     """
-    filter_changed_signal = Signal()
 
     def __init__(self):
         super(NodeFilter, self).__init__()
-        self._enabled = True
         self._list = []
 
     def set_list(self, list_):
@@ -53,20 +51,8 @@ class NodeFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._list = list_
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_enabled(self, checked):
-        """
-        Setter for _enabled
-        :param checked" boolean flag to set ''bool''
-        :emits filter_changed_signal: Always
-        """
-        self._enabled = checked
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
+        if self.is_enabled():
+            self.start_emit_timer()
 
     def test_message(self, message):
         """
@@ -76,7 +62,8 @@ class NodeFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        for item in self._list:
-            if message._node == item.text():
-                return True
+        if self.is_enabled():
+            for item in self._list:
+                if message._node == item.text():
+                    return True
         return False

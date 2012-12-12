@@ -14,7 +14,7 @@
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
 #  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to endorse or promote products derived
+#    contributors may be used to stoporse or promote products derived
 #    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -30,40 +30,42 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from .base_filter import BaseFilter
+from python_qt_binding.QtCore import QObject, QTimer, Signal
 
 
-class TopicFilter(BaseFilter):
+class BaseFilter(QObject):
     """
-    Contains filter logic for a single topic filter
-    If the message's topic text matches any of the text in the stored list
-    then it is considered a match.
+    Contains basic functions common to all filters. Handles enabled code and 
     """
+    filter_changed_signal = Signal()
 
     def __init__(self):
-        super(TopicFilter, self).__init__()
-        self._list = []
+        super(QObject, self).__init__()
+        self._enabled = True
 
-    def set_list(self, list_):
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self.filter_changed_signal.emit)
+    
+    def start_emit_timer(self, msec = None):
         """
-        Setter for _list
-        :param list_" list of items to store for filtering ''list of QListWidgetItem''
-        :emits filter_changed_signal: If _enabled is true
+        Starts a timer to emit a signal to refresh the filters after the filter is changed
+        :param msec: number of msecs to wait before emitting the signal to change the filter ''int''
         """
-        self._list = list_
-        if self.is_enabled():
-            self.start_emit_timer()
+        if msec is None:
+            self._timer.start(10)
+        else:
+            self._timer.start(msec)
 
-    def test_message(self, message):
+    def is_enabled(self):
+        return self._enabled
+
+    def set_enabled(self, checked):
         """
-        Tests if the message matches the filter.
-        If the message's topic text matches any of the text in the stored list
-        then it is considered a match.
-        :param message: the message to be tested against the filters, ''Message''
-        :returns: True if the message matches, ''bool''
+        Setter for _enabled
+        :param checked: boolean flag to set ''bool''
+        :emits filter_changed_signal: Always
         """
-        if self.is_enabled():
-            for item in self._list:
-                if item.text() in message._topics.split(', '):
-                    return True
-        return False
+        self._enabled = checked
+        self.start_emit_timer(200)
+

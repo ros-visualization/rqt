@@ -30,21 +30,20 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import QDateTime, QObject, Signal
+from python_qt_binding.QtCore import QDateTime
+from .base_filter import BaseFilter
 
 
-class TimeFilter(QObject):
+class TimeFilter(BaseFilter):
     """
     Contains filter logic for a single time filter
     If _stop_time_enabled is true then the message's time value must be between the dates provided
     to be considered a match
     If _stop_time_enabled is false then the time must simply be after _start_time
     """
-    filter_changed_signal = Signal()
 
     def __init__(self):
         super(TimeFilter, self).__init__()
-        self._enabled = True
         self._start_time = QDateTime()
         self._stop_time = QDateTime()
         self._stop_time_enabled = True
@@ -56,8 +55,8 @@ class TimeFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._start_time = time
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        if self.is_enabled():
+            self.start_emit_timer()
 
     def set_stop_time(self, time):
         """
@@ -66,8 +65,8 @@ class TimeFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._stop_time = time
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        if self.is_enabled():
+            self.start_emit_timer()
 
     def set_stop_time_enabled(self, checked):
         """
@@ -76,20 +75,8 @@ class TimeFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._stop_time_enabled = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_enabled(self, checked):
-        """
-        Setter for _enabled
-        :param checked" boolean flag to set ''bool''
-        :emits filter_changed_signal: Always
-        """
-        self._enabled = checked
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
+        if self.is_enabled():
+            self.start_emit_timer()
 
     def test_message(self, message):
         """
@@ -100,6 +87,7 @@ class TimeFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
+
         message_time = message.time_as_qdatetime()
         if message_time < self._start_time:
             return False

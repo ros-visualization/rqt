@@ -30,10 +30,11 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import QObject, QRegExp, Signal
+from python_qt_binding.QtCore import QRegExp
+from .base_filter import BaseFilter
 
 
-class LocationFilter(QObject):
+class LocationFilter(BaseFilter):
     """
     Contains filter logic for a single location filter. If the regex flag is False
     simple 'is this in that' text matching is used on _text. If the regex flag is True
@@ -43,12 +44,9 @@ class LocationFilter(QObject):
     The filter_changed signal should be connected to a slot which notifies the
     overall filtering system that it needs to reevaluate all entries.
     """
-    filter_changed_signal = Signal()
 
     def __init__(self):
         super(LocationFilter, self).__init__()
-        self._enabled = True
-
         self._text = ''
         self._regex = False
 
@@ -59,8 +57,8 @@ class LocationFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._text = text
-        if self._enabled:
-            self.filter_changed_signal.emit()
+        if self.is_enabled():
+            self.start_emit_timer(500)
 
     def set_regex(self, checked):
         """
@@ -69,20 +67,8 @@ class LocationFilter(QObject):
         :emits filter_changed_signal: If _enabled is true
         """
         self._regex = checked
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_enabled(self, checked):
-        """
-        Setter for _enabled
-        :param checked" boolean flag to set ''bool''
-        :emits filter_changed_signal: Always
-        """
-        self._enabled = checked
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
+        if self.is_enabled():
+            self.start_emit_timer(500)
 
     def test_message(self, message):
         """
@@ -95,7 +81,7 @@ class LocationFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        if self._text != '':
+        if self.is_enabled() and self._text != '':
             if self._regex:
                 temp = self._text
                 if temp[0] != '^':

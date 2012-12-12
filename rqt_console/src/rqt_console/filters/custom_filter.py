@@ -9,25 +9,22 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import QObject, Signal
-
+from .base_filter import BaseFilter
 from .message_filter import MessageFilter
 from .node_filter import NodeFilter
 from .severity_filter import SeverityFilter
 from .topic_filter import TopicFilter
 
 
-class CustomFilter(QObject):
+class CustomFilter(BaseFilter):
     """
     Contains filter logic for the custom filter which allows message, severity,
     node and topic filtering simultaniously. All of these filters must match
     together or the custom filter does not match
     """
-    filter_changed_signal = Signal()
 
     def __init__(self):
         super(CustomFilter, self).__init__()
-        self._enabled = True
 
         self._message = MessageFilter()
         self._message.filter_changed_signal.connect(self.relay_emit_signal)
@@ -43,21 +40,17 @@ class CustomFilter(QObject):
         :signal: emits filter_changed_signal
         :param checked: enables the filters if checked is True''bool''
         """
-        self._enabled = checked
         self._message.set_enabled(checked)
         self._severity.set_enabled(checked)
         self._node.set_enabled(checked)
         self._topic.set_enabled(checked)
-        self.filter_changed_signal.emit()
+        super(CustomFilter, self).set_enabled(checked)
 
     def relay_emit_signal(self):
         """
         Passes any signals emitted by the child filters along
         """
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
+        self.start_emit_timer(1)
 
     def test_message(self, message):
         """

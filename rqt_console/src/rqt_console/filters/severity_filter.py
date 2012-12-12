@@ -30,43 +30,28 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import QObject, Signal
+from .base_filter import BaseFilter
 
 
-class SeverityFilter(QObject):
+class SeverityFilter(BaseFilter):
     """
     Contains filter logic for a single severity filter
     If the message's severity text matches any of the text in the stored list
     then it is considered a match.
     """
-    filter_changed_signal = Signal()
-
     def __init__(self):
         super(SeverityFilter, self).__init__()
         self._list = []
-        self._enabled = True
 
     def set_list(self, list_):
         """
         Setter for _list
-        :param list_" list of items to store for filtering ''list of QListWidgetItem''
+        :param list_: list of items to store for filtering ''list of QListWidgetItem''
         :emits filter_changed_signal: If _enabled is true
         """
         self._list = list_
-        if self._enabled:
-            self.filter_changed_signal.emit()
-
-    def set_enabled(self, checked):
-        """
-        Setter for _enabled
-        :param checked" boolean flag to set ''bool''
-        :emits filter_changed_signal: Always
-        """
-        self._enabled = checked
-        self.filter_changed_signal.emit()
-
-    def is_enabled(self):
-        return self._enabled
+        if self.is_enabled():
+            self.start_emit_timer()
 
     def test_message(self, message):
         """
@@ -76,7 +61,8 @@ class SeverityFilter(QObject):
         :param message: the message to be tested against the filters, ''Message''
         :returns: True if the message matches, ''bool''
         """
-        for item in self._list:
-            if message._severity == item.text():
-                return True
+        if self.is_enabled():
+            for item in self._list:
+                if message._severity == item.text():
+                    return True
         return False
