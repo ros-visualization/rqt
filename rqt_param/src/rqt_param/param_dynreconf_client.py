@@ -68,11 +68,11 @@ class ClientWidget(GroupWidget):
             for widget in self.editor_widgets:
                 if isinstance(widget, EditorWidget):
                     if widget.name in names:
-                        rospy.loginfo('EDITOR widget.name=%s', widget.name)
+                        rospy.logdebug('EDITOR widget.name=%s', widget.name)
                         widget.update_value(config[widget.name])
                 elif isinstance(widget, GroupWidget):
                     cfg = find_cfg(config, widget.name)
-                    rospy.loginfo('GROUP widget.name=%s', widget.name)
+                    rospy.logdebug('GROUP widget.name=%s', widget.name)
                     widget.update_group(cfg)
                 
     def close(self):

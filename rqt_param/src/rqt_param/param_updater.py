@@ -69,7 +69,7 @@ class ParamUpdater(threading.Thread):
             try:
                 updated = self._reconf.update_configuration(update)
             except rospy.ServiceException as ex:
-                rospy.loginfo('Could not update configuration')
+                rospy.logdebug('Could not update configuration')
             except Exception as exc:
                 raise exc
 
