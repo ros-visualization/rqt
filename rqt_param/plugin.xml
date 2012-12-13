@@ -1,0 +1,21 @@
+<library path="src">
+  <class name="Param" type="rqt_param.param_plugin.ParamPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Python GUI plugin to introspect parameters from param server.
+    </description>
+    <qtgui>
+      <!-- optional grouping...
+      <group>
+        <label>Group</group>
+      </group>
+      <group>
+        <label>Subgroup</group>
+      </group>
+      -->
+      <label>Param</label>
+      <icon type="theme">system-help</icon>
+      <!--  <statustip>Great user interface to provide real value.</statustip> -->
+      <statustip>Provide feature to edit parameter over time</statustip>
+    </qtgui>
+  </class>
+</library>
