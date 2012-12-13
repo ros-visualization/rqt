@@ -14,10 +14,9 @@
   <depend stack="image_common"/> <!-- image_transport -->
   <depend stack="nodelet_core"/> <!-- nodelet -->
   <depend stack="qt_gui_core"/> <!-- qt_dotgraph, qt_gui_core, qt_gui_cpp -->
-  <depend stack="ros_comm"/> <!-- roscpp, rosgraph, rosmsg, rosnode, rospy, rosservice, rostopic -->
+  <depend stack="ros_comm"/> <!-- roscpp, rosgraph, rosmsg, rosnode, rospy, rosservice, rostopic, rosgraph-->
   <depend stack="std_msgs"/> <!-- std_msgs -->
   <depend stack="vision_opencv"/> <!-- cv_bridge -->
   <depend stack="visualization"/> <!-- rviz -->
   <depend stack="pr2_power_drivers"/> <!-- rqt_pr2_dashboard -->
-  <depend stack="rosgraph"/> <!-- rqt_plot -->
 </stack>
