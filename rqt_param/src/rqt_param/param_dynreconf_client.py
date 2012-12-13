@@ -41,14 +41,13 @@ from .param_updater import ParamUpdater
 
 class ClientWidget(GroupWidget):
     """
-    130s) A wrapper of dynamic_reconfigure.client instance.
-    This is also QWidget. Represents the pane on right side where you modify params.
-    @param reconf: 
+    A wrapper of dynamic_reconfigure.client instance.
+    Represents the pane on right side where you modify params.
     """
         
     def __init__(self, reconf):
         """
-        @param reconf: dyn reconf client.
+        @type reconf: dynamic_reconfigure.client.
         """ 
     
         super(ClientWidget, self).__init__(ParamUpdater(reconf),

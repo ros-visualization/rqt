@@ -36,13 +36,13 @@ import os
 
 import dynamic_reconfigure.client
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QPushButton, QComboBox, QScrollArea, QTreeWidget, QTreeWidgetItem, QWidget
+from python_qt_binding.QtGui import QWidget
 import rospy
 
+from .param_dynreconf_client import ClientWidget
 from .param_editors import EditorWidget, BooleanEditor, DoubleEditor, EnumEditor, IntegerEditor, StringEditor
 from .param_groups import GroupWidget
 from .param_updater import ParamUpdater
-from .param_dynreconf_client import ClientWidget
 
 class ParameditWidget(QWidget):
     def __init__(self):

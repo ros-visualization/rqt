@@ -76,19 +76,19 @@ class EditorWidget(QWidget):
     def update_configuration(self, value):
         self.updater.update({self.name : value})
 
-    '''
-    Should be overridden in subclass.
-    
-    @param grid: ???
-    @param row: ???  
-    '''
     def display(self, grid, row):
+        """
+        Should be overridden in subclass.
+    
+        :type grid: ???
+        :type row: ???
+        """  
         pass
 
-    '''
-    Should be overridden in subclass.
-    '''
     def close(self):
+        """
+        Should be overridden in subclass.
+        """
         pass
 
 class BooleanEditor(EditorWidget):
@@ -124,10 +124,6 @@ class StringEditor(EditorWidget):
     def edit_finished(self):
         self._update(self._paramval_lineedit.text())
     
-    '''
-    @param grid: ???
-    @param row: ???  
-    '''
     def display(self, grid, row):
         grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
         grid.addWidget(self, row, 1)
@@ -148,8 +144,9 @@ class IntegerEditor(EditorWidget):
         self._slider_horizontal.setRange(self.min, self.max)
         self._slider_horizontal.sliderReleased.connect(self.slider_released)
         self._slider_horizontal.sliderMoved.connect(self.update_text)
-
-        #self._paramval_lineEdit = QLineEdit()   
+        
+        #TODO(Isaac) Fix that the naming of _paramval_lineEdit instance is not 
+        #            consistent among Editor's subclasses. 
         self._paramval_lineEdit.setValidator(QIntValidator(self.min,
                                                            self.max, self))
         self._paramval_lineEdit.editingFinished.connect(self.editing_finished)

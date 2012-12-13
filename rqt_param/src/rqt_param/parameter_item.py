@@ -34,9 +34,6 @@
 
 from __future__ import division
 
-import os
-import sys
-
 import dynamic_reconfigure.client
 from python_qt_binding.QtCore import Qt, QVariant
 import rospy
@@ -75,7 +72,7 @@ class ParameterItem(ReadonlyItem):
                         
     def get_param_name_toplv(self):
         """
-        @return: String of the top level param name.
+        :rtype: String of the top level param name.
         """ 
 
         return self._name_top
@@ -85,8 +82,7 @@ class ParameterItem(ReadonlyItem):
     
     def get_param_names(self):
         """
-        
-        @return: List of string. Null if param
+        :rtype: List of string. Null if param
         """
     
         #TODO what if self._list_paramname is empty or null?
