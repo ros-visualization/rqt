@@ -32,12 +32,10 @@
 #
 # Author: Isaac Saito, Ze'ev Klapow
 
-import os
-
-import roslib;roslib.load_manifest('rqt_robot_monitor')
-import rospy
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 from python_qt_binding.QtGui import QTreeWidgetItem
+import roslib;roslib.load_manifest('rqt_robot_monitor')
+import rospy
 
 from .inspector_window import InspectorWindow
 from .util_robot_monitor import Util
@@ -49,9 +47,9 @@ class StatusItem(QTreeWidgetItem):
     """
         
     def __init__(self, status):
-        '''
-        @param status: DiagnosticStatus
-        '''
+        """
+        :type status: DiagnosticStatus
+        """
         super(StatusItem, self).__init__(QTreeWidgetItem.UserType)
     
         self._children_statusitems = []
@@ -77,12 +75,12 @@ class StatusItem(QTreeWidgetItem):
         if self.inspector:
             self.inspector.disable()
         
-    '''
-    Replace old status with the passed one.
-        
-    @param status: DiagnosticsStatus 
-    '''
     def update(self, status):
+        """
+        Replace old status with the passed one.
+        
+        :type status: DiagnosticsStatus
+        """
         self.status = status
         
     def update_children(self, status_new, diag_array):
@@ -91,8 +89,8 @@ class StatusItem(QTreeWidgetItem):
         Recursive for tree node's children.
         Update text on treeWidgetItem, set icon on it.
         
-        @param status: DiagnosticStatus
-        @param msg: DiagnosticArray
+        :type status: DiagnosticStatus
+        :type msg: DiagnosticArray
         """
          
         self.status = status_new
@@ -157,10 +155,7 @@ class StatusItem(QTreeWidgetItem):
                                              self.close_inspector_window)                        
         else:
             self.inspector.activateWindow()
-            
-    '''
-    @author: Isaac Saito
-    '''        
+                 
     def close_inspector_window(self):
         rospy.logdebug(' ------ Statusitem close_inspector_window 1')
         self.inspector = None
@@ -173,12 +168,10 @@ class StatusItem(QTreeWidgetItem):
         Because Isaac failed to find a way to call a destructor of a class in
         python in general, he made this function, intending it to be called by
         its parent object (in this case RobotMonitorWidget's instance)
-        every timeline when a certain node gets removed.
-        
-        @author: Isaac Saito
+        every timeline when a certain node gets removed.        
         """
         if self.inspector:
-            # del self.inspector # Doesn't _close the window
+            # del self.inspector # This doesn't _close the window
             self.inspector.close()
             
         # _close children.
@@ -306,11 +299,6 @@ class InstantaneousState(object):
         removed.sort(cmp=lambda l,
                      r: cmp(l.status.name, r.status.name), 
                      reverse=True)
-        
-        #added_keys = [a.status.name for a in added]
-        #if len(added_keys) > 0: print "Added: ", added_keys
-        #removed_keys = [r.status.name for r in removed]
-        #if (len(removed_keys) > 0): print "Removed: ", removed_keys
         
         return (added, removed, self._items)
             

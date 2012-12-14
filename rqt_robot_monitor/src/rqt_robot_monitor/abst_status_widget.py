@@ -47,11 +47,12 @@ class AbstractStatusWidget(QWidget):
     def __init__(self):
         super(AbstractStatusWidget, self).__init__()
    
-    def _cb(self, msg, is_forced = False):
+    def new_diag(self, msg, is_forced = False):
         """
         
-        @param msg: This can be a function that takes either 
-        { DiagnosticArray, DiagnosticsStatus } as an argument.
+        :param msg: This can be a function that takes either 
+                    { DiagnosticArray, DiagnosticsStatus } as an argument.
+        :param is_forced: If True then update occurs even when paused. 
         """
         pass
        

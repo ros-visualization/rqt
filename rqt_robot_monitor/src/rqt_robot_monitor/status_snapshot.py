@@ -32,48 +32,33 @@
 #
 # Author: Isaac Saito, Ze'ev Klapow
 
-from qt_gui.plugin import Plugin
+from python_qt_binding.QtGui import QTextEdit
 import roslib;roslib.load_manifest('rqt_robot_monitor')
-import rospy
 
-from .robot_monitor import RobotMonitorWidget
+class StatusSnapshot(QTextEdit):
+    """Display a single static status message. Helps facilitate copy/paste"""
+            
+    def __init__(self, status):
+        super(StatusSnapshot, self).__init__()
 
-class RobotMonitorPlugin(Plugin):
+        self._write("Full Name", status.name)
+        self._write("Component", status.name.split('/')[-1])
+        self._write("Hardware ID", status.hardware_id)
+        self._write("Level", status.level)
+        self._write("Message", status.message)
+        self.insertPlainText('\n')
 
-    def __init__(self, context):
-        """
-        :type context: qt_gui.PluginContext
-        """
-        super(RobotMonitorPlugin, self).__init__(context)        
-        self._robot_monitor = RobotMonitorWidget(context, '/diagnostics_agg')
-        if context.serial_number() > 1:
-            self._robot_monitor.setWindowTitle(
-                 self._robot_monitor.windowTitle() + 
-                      (' (%d)' % context.serial_number()))
-        context.add_widget(self._robot_monitor)
-        self.setObjectName('rqt Robot Monitor')        
-        
-    def shutdown_plugin (self):
-        """
-        Call RobotMonitorWidget's corresponding function.
-        
-        Overriding Plugin's method.
-        """
-        rospy.logdebug('In RobotMonitorPlugin shutdown_plugin')
-        self._robot_monitor.shutdown() # Closes unclosed popup windows.
+        for value in status.values:
+            self._write(value.key, value.value)
 
-    def save_settings(self, plugin_settings, instance_settings):
-        """
-        Call RobotMonitorWidget's corresponding function.
-        
-        Overriding Plugin's method.
-        """
-        self._robot_monitor.save_settings(plugin_settings, instance_settings)
+        self.setGeometry(0, 0, 300, 400)
+        self.show()
 
-    def restore_settings(self, plugin_settings, instance_settings):
-        """
-        Call RobotMonitorWidget's corresponding function.
-        
-        Overriding Plugin's method.
-        """
-        self._robot_monitor.restore_settings(plugin_settings, instance_settings)
+    def _write(self, k, v):
+        self.setFontWeight(75)
+        self.insertPlainText(str(k))
+        self.insertPlainText(': ')
+     
+        self.setFontWeight(50)
+        self.insertPlainText(str(v))
+        self.insertPlainText('\n')           
