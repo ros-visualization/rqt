@@ -38,6 +38,8 @@ from python_qt_binding.QtCore import qDebug
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog
 from rqt_gui_py.plugin import Plugin
 
+from rqt_py_common.ini_helper import pack, unpack
+
 from .plot_widget import PlotWidget
 
 try:
@@ -97,8 +99,8 @@ class Plot(Plugin):
         self._plot_type_index = 0
         self._context = context
 
-        args, topics = self._process_arguments(context.argv())
-        self._widget = PlotWidget(args, topics)
+        self._args, self._initial_topics = self._process_arguments(context.argv())
+        self._widget = PlotWidget(self._args, self._initial_topics)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
@@ -111,7 +113,9 @@ class Plot(Plugin):
         parser.add_argument("-P", "--pause", action="store_true",
                       dest="start_paused",
                       help="start in paused state")
-
+        parser.add_argument("-e", "--empty", action="store_true",
+                            dest="start_empty",
+                            help="Ignore data in ini file at startup")
         args, topics = parser.parse_known_args(argv)
 
         # Process topic arguments into topic names
@@ -151,8 +155,6 @@ class Plot(Plugin):
             else:
                 print_topic_list.append(l)
 
-        print "plotting topics", ', '.join(print_topic_list)
-
         return (args, topic_list)
 
     def _switch_data_plot_widget(self, plot_type_index):
@@ -174,9 +176,16 @@ class Plot(Plugin):
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('plot_type', self._plot_type_index)
+        instance_settings.set_value('topics', pack(self._widget._rosdata.keys()))
 
     def restore_settings(self, plugin_settings, instance_settings):
         self._switch_data_plot_widget(int(instance_settings.value('plot_type', 0)))
+
+        if len(self._widget._rosdata.keys()) == 0 and not self._args.start_empty:
+            topics = unpack(instance_settings.value('topics', []))
+            if topics:
+                for topic in topics:
+                    self._widget.add_topic(topic)
 
     def trigger_configuration(self):
         dialog = SimpleSettingsDialog(title='Plot Options')
