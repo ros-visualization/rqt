@@ -39,6 +39,8 @@ from python_qt_binding.QtCore import QRect, QRegExp, Qt, qWarning
 import time
 import datetime
 
+from rqt_py_common.ini_helper import pack, unpack
+
 from .filters.custom_filter import CustomFilter
 from .filters.location_filter import LocationFilter
 from .filters.message_filter import MessageFilter
@@ -52,7 +54,6 @@ from .filters.filter_wrapper_widget import FilterWrapperWidget
 from .filters.list_filter_widget import ListFilterWidget
 from .filters.text_filter_widget import TextFilterWidget
 from .filters.time_filter_widget import TimeFilterWidget
-from .filters.filter_utils import pack, unpack
 
 from .text_browse_dialog import TextBrowseDialog
 

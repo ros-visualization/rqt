@@ -36,7 +36,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QWidget
 
-from .filter_utils import pack, unpack
+from rqt_py_common.ini_helper import pack, unpack
 
 
 class ListFilterWidget(QWidget):
