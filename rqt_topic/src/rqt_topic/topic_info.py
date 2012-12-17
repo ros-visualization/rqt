@@ -51,10 +51,10 @@ class TopicInfo(ROSTopicHz):
         self._reset_data()
         try:
             self.message_class, self._topic_name, _ = get_topic_class(topic_name)
-        except Exception:
+        except Exception as e:
+            self.message_class = None
             self._topic_name = None
-            qWarning('TopicInfo.__init__(): can not get topic info for "%s"' % topic_name)
-            return
+            qWarning('TopicInfo.__init__(): can not get message class info for "%s":\n%s' % (topic_name, e))
 
     def _reset_data(self):
         self.last_message = None
