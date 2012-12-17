@@ -126,29 +126,29 @@ class MatDataPlot(QWidget):
         xmax = 0
         for curve in self._curves.values():
             data_x, data_y, plot = curve
+            data_x = numpy.array(data_x)
+            data_y = numpy.array(data_y)
             if len(data_x) == 0:
                 continue
 
             xmax = max(xmax, data_x[-1])
-            self._canvas.axes.set_xbound(lower=xmax - 5, upper=xmax)
 
             if ymin is None:
-                ymin = min(data_y)
-                ymax = max(data_y)
+                ymin = min(data_y[-100:])
+                ymax = max(data_y[-100:])
             else:
-                ymin = min(min(data_y), ymin)
-                ymax = max(max(data_y), ymax)
+                ymin = min(min(data_y[-100:]), ymin)
+                ymax = max(max(data_y[-100:]), ymax)
 
             # pad the min/max
             delta = max(ymax - ymin, 0.1)
             ymin -= .05 * delta
             ymax += .05 * delta
 
-            self._canvas.axes.set_ybound(lower=ymin, upper=ymax)
+            plot.set_data(data_x, data_y)
 
-        # Set plot data on current axes
-        for curve in self._curves.values():
-            data_x, data_y, plot = curve
-            plot.set_data(numpy.array(data_x), numpy.array(data_y))
+        if ymin is not None:
+            self._canvas.axes.set_xbound(lower=xmax - 5, upper=xmax)
+            self._canvas.axes.set_ybound(lower=ymin, upper=ymax)
 
         self._canvas.draw()
