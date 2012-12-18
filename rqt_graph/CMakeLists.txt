@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(rqt_graph)
+# Load catkin and all dependencies required for this package
+find_package(catkin REQUIRED COMPONENTS rqt_gui qt_dotgraph rosgraph roslib rosnode rostopic rosservice)
+catkin_package()
+catkin_python_setup()
 
-rosbuild_init()
-
-
-rosbuild_add_pyunit(test/dotcode_test.py)
+catkin_add_nosetests(test/dotcode_test.py)
