@@ -1,5 +1,6 @@
 <package>
   <name>rqt_gui_cpp</name>
+  <version>0</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
   <maintainer email='ablasdel@willowgarage.com'>Aaron Blasdel</maintainer>
 
