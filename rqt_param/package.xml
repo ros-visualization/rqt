@@ -1,6 +1,6 @@
 <package>
   <name>rqt_param</name>
-  <version>0</version>
+  <version>0.1.7</version>
   <description>This rqt plugin provides the way to view and edit the parameters, as well as to introspect the parameters over time.</description>
   <maintainer email='isaito@willowgarage.com'>Isaac Saito</maintainer>
 
