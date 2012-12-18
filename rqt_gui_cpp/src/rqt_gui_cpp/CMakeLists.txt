@@ -6,7 +6,7 @@ SET(rqt_gui_cpp_SRCS
   roscpp_plugin_provider.cpp
 )
 
-rosbuild_add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS})
+add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS})
 target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
 if(APPLE) 
