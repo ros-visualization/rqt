@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ratio_layouted_frame.h"
+#include <rqt_image_view/ratio_layouted_frame.h>
 
 #include <assert.h>
 

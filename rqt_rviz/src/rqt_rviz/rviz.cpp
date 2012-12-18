@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rviz.h"
+#include <rqt_rviz/rviz.h>
 
 #include <pluginlib/class_list_macros.h>
 #include <OGRE/OgreLogManager.h>
