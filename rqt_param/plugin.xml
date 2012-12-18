@@ -1,12 +1,12 @@
 <library path="src">
   <class name="Param" type="rqt_param.param_plugin.ParamPlugin" base_class_type="rqt_gui_py::Plugin">
     <description>
-      Python GUI plugin to introspect parameters from param server.
+      Python GUI to introspect parameters from param server using dynamic_reconfigure.
     </description>
     <qtgui>
-      <label>Parameter Editor</label>
+      <label>Parameter</label>
       <icon type="theme">accessories-text-editor</icon>
-      <statustip>Provide feature to edit parameter over time</statustip>
+      <statustip>Python GUI to introspect parameters from param server using dynamic_reconfigure.</statustip>
     </qtgui>
   </class>
 </library>

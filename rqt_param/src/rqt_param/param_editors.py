@@ -106,8 +106,9 @@ class BooleanEditor(EditorWidget):
         self._checkbox.setChecked(value)
 
     def display(self, grid, row):
-        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
-        grid.addWidget(self, row, 1)
+#        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
+#        grid.addWidget(self, row, 1)
+        grid.addRow(QLabel(self.name, self))
 
 class StringEditor(EditorWidget):
     def __init__(self, updater, config):
@@ -125,8 +126,9 @@ class StringEditor(EditorWidget):
         self._update(self._paramval_lineedit.text())
     
     def display(self, grid, row):
-        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
-        grid.addWidget(self, row, 1)
+#        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
+#        grid.addWidget(self, row, 1)
+        grid.addRow(QLabel(self.name), self)
 
 class IntegerEditor(EditorWidget):
     def __init__(self, updater, config):
@@ -173,8 +175,9 @@ class IntegerEditor(EditorWidget):
         self._paramval_lineEdit.setText(str(val))
 
     def display(self, grid, row):
-        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
-        grid.addWidget(self, row, 1)
+#        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
+#        grid.addWidget(self, row, 1)
+        grid.addRow(QLabel(self.name), self)
 
 class DoubleEditor(EditorWidget):
     def __init__(self, updater, config):
@@ -248,8 +251,8 @@ class DoubleEditor(EditorWidget):
         self._paramval_lineEdit.setText(str(val))
 
     def display(self, grid, row):
-        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
-        grid.addWidget(self, row, 1)
+        #grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
+        grid.addRow(QLabel(self.name), self)
 
 class EnumEditor(EditorWidget):
     def __init__(self, updater, config):
@@ -281,6 +284,7 @@ class EnumEditor(EditorWidget):
         self._combobox.setCurrentIndex(self.values.index(val))
 
     def display(self, grid, row):
-        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
-        grid.addWidget(self, row, 1)
-
+#        grid.addWidget(QLabel(self.name), row, 0, Qt.AlignRight)
+#        grid.addWidget(self, row, 1)
+        grid.addRow(QLabel(self.name), self)
+        

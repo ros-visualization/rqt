@@ -33,7 +33,7 @@
 # Author: Isaac Saito, Ze'ev Klapow
 
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QGridLayout, QGroupBox, QLabel, QPushButton, QTabWidget, QWidget
+from python_qt_binding.QtGui import QFormLayout, QGroupBox, QLabel, QPushButton, QTabWidget, QWidget
 import rospy
 
 from .param_editors import BooleanEditor, DoubleEditor, EditorWidget, EDITOR_TYPES, EnumEditor, IntegerEditor, StringEditor
@@ -71,63 +71,76 @@ def find_cfg(config, name):
     return cfg
 
 class GroupWidget(QWidget):
-    
+    """
+    (Isaac's guess as of 12/13/2012) 
+    This class bonds multiple Editor instances that are associated with
+    a single node as a group. 
+    """
+
     def __init__(self, updater, config):
         """
         :param config: defined in dynamic_reconfigure.client.Client
+        :type config: Dictionary?
         """
-         
+
         super(GroupWidget, self).__init__()
         self.state = config['state']
         self.name = config['name']
-        
-        self.tab_bar = None # Every group can have one tab bar
+
+        self.tab_bar = None  # Every group can have one tab bar
         self.tab_bar_shown = False
 
-        self.grid = QGridLayout()
+        #self.grid = QGridLayout()
+        self.grid = QFormLayout()
 
-        self.updater = updater 
+        self.updater = updater
 
         self.editor_widgets = []
         self.add_widgets(config)
 
         # Labels should not stretch
-        self.grid.setColumnStretch(1,1)
+        #self.grid.setColumnStretch(1, 1)
         self.setLayout(self.grid)
 
-    def add_widgets(self, descr):        
+    def add_widgets(self, config):
+        """
+        :type config: Dict?
+        """
         i_debug = 0
-        for param in descr['parameters']:
+        for param in config['parameters']:
             if param['edit_method']:
                 widget = EnumEditor(self.updater, param)
             elif param['type'] in EDITOR_TYPES:
                 widget = eval(EDITOR_TYPES[param['type']])(self.updater, param)
 
             self.editor_widgets.append(widget)
-            rospy.logdebug('groups.add_widgets i=%d', i_debug)
+            rospy.logdebug('groups.add_widgets num editors=%d', i_debug)
             i_debug += 1
-        
+
         g_debug = 0
-        for name, group in descr['groups'].items():
+        for name, group in config['groups'].items():
             if group['type'] == 'tab':
                 widget = TabGroup(self, self.updater, group)
             elif group['type'] in _GROUP_TYPES.keys():
                 widget = eval(_GROUP_TYPES[group['type']])(self.updater, group)
 
             self.editor_widgets.append(widget)
-            rospy.logdebug('groups.add_widgets g=%d', g_debug)
+            rospy.logdebug('groups.add_widgets num groups=%d', g_debug)
             g_debug += 1
 
         for i, ed in enumerate(self.editor_widgets):
             ed.display(self.grid, i)
 
+        rospy.logdebug('GroupWidget.add_widgets len(self.editor_widgets)=%d',
+                      len(self.editor_widgets))
+
     def display(self, grid, row):
-        #groups span across all columns
+        # groups span across all columns
         grid.addWidget(self, row, 0, 1, -1)
 
     def update_group(self, config):
         self.state = config['state']
-        
+
         # TODO: should use config.keys but this method doesnt exist
         names = [name for name, v in config.items()]
 
@@ -205,4 +218,4 @@ class ApplyGroup(BoxGroup):
         self.button.clicked.connect(self.updater.apply_update)
 
         rows = self.grid.rowCount()
-        self.grid.addWidget(self.button, rows+1, 1, Qt.AlignRight)
+        self.grid.addWidget(self.button, rows + 1, 1, Qt.AlignRight)

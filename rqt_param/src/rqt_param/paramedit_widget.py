@@ -39,7 +39,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
 import rospy
 
-from .param_dynreconf_client import ClientWidget
+from .dynreconf_client_widget import DynreconfClientWidget
 from .param_editors import EditorWidget, BooleanEditor, DoubleEditor, EnumEditor, IntegerEditor, StringEditor
 from .param_groups import GroupWidget
 from .param_updater import ParamUpdater
@@ -57,21 +57,25 @@ class ParameditWidget(QWidget):
         self.destroyed.connect(self.close)  # func in mercurial?
 
     def show_reconf(self, node):
+        """
+        
+        :type node:
+        """
         rospy.logdebug('ParameditWidget.show str(node)=%s', str(node))
 
-        reconf = None        
+        dynreconf_client = None        
         try:
-            reconf = dynamic_reconfigure.client.Client(str(node), 
+            dynreconf_client = dynamic_reconfigure.client.Client(str(node), 
                                                                   timeout=5.0)
         except rospy.exceptions.ROSException:
             rospy.logerr("Could not connect to %s" % node)
-            #@todo: Needs to show err msg on GUI too. 
+            #TODO(Isaac) Needs to show err msg on GUI too. 
             return
         finally:
             if self._dynreconf_client:
-                self._dynreconf_client.close()
+                self._dynreconf_client.close() #Close old GUI client.
 
-        self._dynreconf_client = ClientWidget(reconf) 
+        self._dynreconf_client = DynreconfClientWidget(dynreconf_client) 
         # Client gets renewed every time different node was clicked.
 
         self._paramedit_scrollarea.setWidget(self._dynreconf_client)

@@ -37,7 +37,7 @@ from __future__ import division
 import os
 import sys
 
-import dynamic_reconfigure.client
+import dynamic_reconfigure as dyn_reconf
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Signal
 from python_qt_binding.QtGui import QStandardItemModel, QWidget
@@ -50,7 +50,7 @@ class NodeSelectorWidget(QWidget):
     _COL_NAMES = ['Node']
 
     # public signal
-    _sig_node_selected = Signal(str)
+    sig_node_selected = Signal(str)
 
     def __init__(self):
         super(NodeSelectorWidget, self).__init__()
@@ -110,7 +110,7 @@ class NodeSelectorWidget(QWidget):
         node_name_selected = self.get_full_grn_recur(index_current, '')
         rospy.logdebug('_selection_changed_slot node_name_selected=%s',
                        node_name_selected)
-        self._sig_node_selected.emit(node_name_selected)
+        self.sig_node_selected.emit(node_name_selected)
 
     def get_full_grn_recur(self, model_index, str_grn):
         """
@@ -148,10 +148,10 @@ class NodeSelectorWidget(QWidget):
         #             are associated with nodes. In order to handle independent
         #             params, different approach needs taken.
         try:
-            nodes = dynamic_reconfigure.find_reconfigure_services()
+            nodes = dyn_reconf.find_reconfigure_services()
         except rosservice.ROSServiceIOException as e:
             rospy.logerr("Reconfigure GUI cannot connect to master.")
-            raise e  # TODO Make sure 'raise' returns/finalizes this func.
+            raise e  #TODO Make sure 'raise' here returns or finalizes this func.
 
         if not nodes == self._nodes_previous:
             paramname_prev = ''

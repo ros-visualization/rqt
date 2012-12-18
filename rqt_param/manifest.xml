@@ -1,6 +1,6 @@
 <package>
   <description brief="rqt_param">
-   This rqt plugin provides the way to view and edit the parameters,
+   rqt_param plugin provides the way to view and edit the parameters,
    as well as to introspect the parameters over time.
   </description>
   <author>Isaac Saito, Ze'ev Klapow</author>

@@ -70,7 +70,7 @@ class ParamWidget(QWidget):
         self._splitter.insertWidget(0, nodesel)
         self._splitter.insertWidget(1, reconf_widget)
         
-        nodesel._sig_node_selected.connect(reconf_widget.show_reconf)
+        nodesel.sig_node_selected.connect(reconf_widget.show_reconf)
      
         if node is not None:
             title = self._TITLE_PLUGIN + ' %s' % node
