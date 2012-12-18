@@ -61,7 +61,8 @@ class PublisherWidget(QWidget):
         self._topic_dict = {}
         self._update_thread = WorkerThread(self._update_thread_run, self._update_finished)
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Publisher.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_publisher'), 'resource', 'Publisher.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox, 'PublisherTreeWidget': PublisherTreeWidget})
         self.refresh_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.refresh_button.clicked.connect(self.refresh_combo_boxes)

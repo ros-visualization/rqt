@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "image_view.h"
+#include <rqt_image_view/image_view.h>
 
 #include <pluginlib/class_list_macros.h>
 #include <ros/master.h>

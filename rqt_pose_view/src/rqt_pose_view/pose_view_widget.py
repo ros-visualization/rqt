@@ -30,6 +30,7 @@
 
 from __future__ import division
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
@@ -50,7 +51,8 @@ class PoseViewWidget(QWidget):
 
     def __init__(self, plugin):
         super(PoseViewWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PoseViewWidget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_pose_view'), 'resource', 'PoseViewWidget.ui')
         loadUi(ui_file, self)
         self._plugin = plugin
 

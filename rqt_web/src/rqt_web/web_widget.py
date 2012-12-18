@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QUrl
@@ -46,7 +47,8 @@ class WebWidget(QWidget):
         :param url: If url is empty then a navigation bar is shown otherwise the url is loaded and the navigation bar is hidden, ''str'' 
         """
         super(WebWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'web_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_web'), 'resource', 'web_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('WebWidget')
 

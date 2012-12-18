@@ -32,6 +32,7 @@
 
 from datetime import datetime
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QDateTime
@@ -47,7 +48,8 @@ class TimeFilterWidget(QWidget):
         the min and max time to be displayed, ''list of tuple''
         """
         super(TimeFilterWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'time_filter_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource/filters', 'time_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('TimeFilterWidget')
         self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter

@@ -1,0 +1,28 @@
+<package>
+  <name>rqt_srv</name>
+  <version>0.1.7</version>
+  <description>A Python GUI plugin for introspecting available ROS message types.</description>
+  <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/rqt_srv</url>
+  <url type="repository">https://github.com/ros-visualization/rqt</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
+  <author>Aaron Blasdel</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rosmsg</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+  <run_depend>rqt_msg</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>
+
+

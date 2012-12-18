@@ -85,7 +85,8 @@ class RosPackGraph(Plugin):
         self.dot_to_qt = DotToQtGenerator()
 
         self._widget = QWidget()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosPackGraph.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_dep'), 'resource', 'RosPackGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosPackGraphUi')
         if context.serial_number() > 1:

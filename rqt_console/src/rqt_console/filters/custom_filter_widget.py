@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
@@ -42,7 +43,8 @@ from rqt_py_common.ini_helper import pack, unpack
 class CustomFilterWidget(QWidget):
     def __init__(self, parentfilter, display_list_args):
         super(CustomFilterWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'custom_filter_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource/filters', 'custom_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('CustomFilterWidget')
         self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter
