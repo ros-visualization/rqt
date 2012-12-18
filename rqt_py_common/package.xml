@@ -1,0 +1,21 @@
+<package>
+  <name>rqt_py_common</name>
+  <description>rqt_py_common provides common functionality for GUI plugins written in Python.</description>
+  <maintainer email='scholz@sim.tu-darmstadt.de'>Dorian Scholz</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/rqt_py_common</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
+  <author>Dorian Scholz</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>qt_gui</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>rostopic</build_depend>
+  <run_depend>qt_gui</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>rostopic</run_depend>
+</package>

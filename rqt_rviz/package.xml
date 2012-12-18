@@ -1,0 +1,25 @@
+<package>
+  <name>rqt_rviz</name>
+  <description>rqt_rviz provides a GUI plugin embedding RViz.</description>
+  <maintainer email='scholz@sim.tu-darmstadt.de'>Dorian Scholz</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/rqt_rviz</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
+  <author>Dorian Scholz</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rqt_gui</build_depend>
+  <build_depend>rqt_gui_cpp</build_depend>
+  <build_depend>rviz</build_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_cpp</run_depend>
+  <run_depend>rviz</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>

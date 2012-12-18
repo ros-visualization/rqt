@@ -1,0 +1,28 @@
+<package>
+  <name>rqt_gui_cpp</name>
+  <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
+  <maintainer email='ablasdel@willowgarage.com'>Aaron Blasdel</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/rqt_gui_cpp</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
+  <author>Dirk Thomas</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>qt_gui</build_depend>
+  <build_depend>qt_gui_cpp</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>nodelet</build_depend>
+  <run_depend>qt_gui</run_depend>
+  <run_depend>qt_gui_cpp</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>nodelet</run_depend>
+  
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrqt_gui_cpp"/>
+    <qt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>
