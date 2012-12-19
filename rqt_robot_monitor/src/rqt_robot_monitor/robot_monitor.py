@@ -444,6 +444,11 @@ class RobotMonitorWidget(AbstractStatusWidget):
                     self._add_statitem(statitem, self._err_statusitems,
                                       self.err_tree, headline,
                                       diag_stat_new.message, stat_lv_new)
+                elif (0 <= dev_index_err_curr):
+                    # If the corresponding statusitem is already in err tree,
+                    # obtain the instance.
+                    statitem = self._get_statitem(dev_index_err_curr,
+                                                  self._err_statusitems)
                 elif (dev_index_warn_curr < 0 and dev_index_err_curr < 0):
                     # If the corresponding statusitem isn't found, 
                     # create new obj.
@@ -451,11 +456,7 @@ class RobotMonitorWidget(AbstractStatusWidget):
                     self._add_statitem(statitem, self._err_statusitems,
                                       self.err_tree, headline,
                                       diag_stat_new.message, stat_lv_new)
-                elif (0 < dev_index_err_curr):
-                    # If the corresponding statusitem is already in err tree,
-                    # obtain the instance.
-                    statitem = self._get_statitem(dev_index_err_curr,
-                                                  self._err_statusitems)
+
 
                 if statitem: # If not None
                     # Updating statusitem will keep popup window also update.
