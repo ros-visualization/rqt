@@ -214,10 +214,9 @@ class InstantaneousState(object):
         
     def update(self, msg):
         """        
-        
-        @param msg: DiagnosticArray
-        
         Copied from robot_monitor. 
+        
+        :type msg: DiagnosticArray
         """
         
         removed = []

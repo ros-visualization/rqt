@@ -43,8 +43,8 @@ from python_qt_binding.QtGui import QColor, QIcon
 class Util(object):
     """
     
-    @todo: Utils and common configs are mixed in this class.
     """
+    #TODO(Isaac) Utils and common configs are mixed in this class.
     
     _SECONDS_TIMELINE = 30
     
@@ -82,9 +82,9 @@ class Util(object):
         """
         Taken from robot_monitor.robot_monitor_panel.py.
         
-        @param status: DiagnosticStatus         
-        @param node: StatusItem 
-        @author: Isaac Saito 
+        :type status: DiagnosticStatus         
+        :type node: StatusItem 
+        :author: Isaac Saito 
         """
 
         name = diagnostic_status.name
@@ -99,13 +99,13 @@ class Util(object):
                 statusitem.last_level = level
                 return
                
-    '''
-    @param param: status_name is a string that may consists of status names that 
-                  are delimited by slash.   
-    @return: string
-    '''
     @staticmethod
     def get_nice_name(status_name):
+        """
+        :param: status_name is a string that may consists of status names that 
+                  are delimited by slash.
+        :rtype: str
+        """
         name = status_name.split('/')[-1]
         rospy.logdebug(' get_nice_name name = %s', name)
         return name
@@ -133,14 +133,14 @@ class Util(object):
     def _get_color_for_message(msg, mode = 0):
         """ 
         
-        @param msg: Either DiagnosticArray or DiagnosticsStatus.
-        @param mode: int. When 0, this func will iterate msg to find 
+        Copied from robot_monitor.
+
+        :param msg: Either DiagnosticArray or DiagnosticsStatus.
+        :param mode: int. When 0, this func will iterate msg to find 
                      DiagnosticsStatus.level and put it into a dict.
                      When 1, this func finds DiagnosticsStatus.level from msg
                      without iteration (thus, msg is expected to be
                      DiagnosticsStatus instance). 
-         
-        Copied from robot_monitor.
         """
                 
         level = 0
@@ -171,9 +171,9 @@ class Util(object):
     def get_correspondent(key, list_statitem):
         """
         
-        @param key: String.  
-        @param list_statitem: DiagnosticsStatus
-        @return: StatusItem
+        :type key: String.  
+        :type list_statitem: DiagnosticsStatus
+        :rtype: StatusItem
         """
         names_from_list = [Util.get_nice_name(k.name) for k in list_statitem]
         key_niced = Util.get_nice_name(key)
@@ -188,33 +188,11 @@ class Util(object):
                 Util._DICTKEY_STATITEM : statitem_key}
 
     @staticmethod
-    def get_correspondent_index(key, statusitems):
-        """
-        @deprecated: Use get_correspondent
-        
-        @param key: string
-        @param statusitems: DiagnosticStatus[]
-        @return: int of index that key is found in array. -1 if not found
-        """
-
-        names = [Util.get_nice_name(k.name) for k in statusitems]
-        
-        rospy.logdebug('\tget_correspondent_index len of names=%d statusitems=%d',
-                       len(names), len(statusitems))
-        
-        if key in names:
-            rospy.logdebug(' get_correspondent_index key IS contained.')
-            return names.index(key)
-        else:
-            rospy.logdebug('** get_correspondent_index key IS NOT contained.')
-            return -1 
-
-    @staticmethod
     def get_children(name, diag_array):
         """
         
-        @param msg: DiagnosticArray
-        @return: DiagnosticStatus[]
+        :type msg: DiagnosticArray
+        :rtype: DiagnosticStatus[]
         """
         
         ret = []
