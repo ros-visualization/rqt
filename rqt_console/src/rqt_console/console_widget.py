@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QApplication, QCursor, QFileDialog, QIcon, QItemSelectionModel, QMenu, QMessageBox, QTableView, QWidget
@@ -73,7 +74,8 @@ class ConsoleWidget(QWidget):
         :param minimal: if true the load, save and column buttons will be hidden as well as the filter splitter, ''bool''
         """
         super(ConsoleWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource', 'console_widget.ui')
         loadUi(ui_file, self, {'ConsoleTableView': ConsoleTableView})
 
         if minimal:

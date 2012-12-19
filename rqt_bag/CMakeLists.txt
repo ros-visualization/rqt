@@ -8,3 +8,7 @@ catkin_python_setup()
 install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+install(DIRECTORY resource
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
