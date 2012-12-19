@@ -5,7 +5,8 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
     packages=['rqt_robot_steering'],
-    package_dir={'': 'src'}
+    package_dir={'': 'src'},
+    scripts=['scripts/rqt_robot_steering']
 )
 
 setup(**d)

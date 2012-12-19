@@ -7,6 +7,7 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} 
 	CATKIN_DEPENDS rqt_gui rqt_gui_cpp rviz
 )
+catkin_python_setup()
 
 find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 include(${QT_USE_FILE})

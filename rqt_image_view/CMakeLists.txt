@@ -32,6 +32,7 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} 
 	CATKIN_DEPENDS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge
 )
+catkin_python_setup()
 
 qt4_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
 qt4_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})

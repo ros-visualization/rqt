@@ -4,9 +4,9 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
-    packages=['rqt_gui'],
+    packages=['rqt_rviz'],
     package_dir={'': 'src'},
-    scripts=['bin/rqt_gui']
+    scripts=['scripts/rqt_rviz']
 )
 
 setup(**d)
