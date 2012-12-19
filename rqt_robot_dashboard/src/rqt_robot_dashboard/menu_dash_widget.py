@@ -45,7 +45,7 @@ class MenuDashWidget(IconToolButton):
     """
     def __init__(self, name, icons=None, clicked_icons=None, icon_paths=[]):
         if icons == None:
-            icons = [['ic-motors.svg']]
+            icons = [['bg-grey.svg', 'ic-motors.svg']]
         super(MenuDashWidget, self).__init__(name, icons=icons, suppress_overlays=True, icon_paths=icon_paths)
         self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
         self.setPopupMode(QToolButton.InstantPopup)
