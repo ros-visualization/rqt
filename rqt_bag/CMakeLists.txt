@@ -5,3 +5,6 @@ find_package(catkin REQUIRED COMPONENTS rospy rqt_gui rqt_gui_py roslib rosbag)
 catkin_package()
 catkin_python_setup()
 
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

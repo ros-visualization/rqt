@@ -4,3 +4,7 @@ project(rqt_web)
 find_package(catkin REQUIRED COMPONENTS )
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

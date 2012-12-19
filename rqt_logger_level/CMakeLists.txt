@@ -4,3 +4,7 @@ project(rqt_logger_level)
 find_package(catkin REQUIRED COMPONENTS rospy rqt_gui rqt_gui_py )
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

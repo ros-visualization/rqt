@@ -4,3 +4,7 @@ project(rqt_publisher)
 find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_py rqt_py_common qt_gui_py_common rosmsg)
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

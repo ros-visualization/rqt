@@ -4,3 +4,7 @@ project(rqt_robot_steering)
 find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_py rostopic geometry_msgs)
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

@@ -4,3 +4,7 @@ project(rqt_shell)
 find_package(catkin REQUIRED COMPONENTS qt_gui qt_gui_py_common rqt_gui rqt_gui_py)
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

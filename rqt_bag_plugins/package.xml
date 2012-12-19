@@ -33,6 +33,6 @@
   <run_depend>sensor_msgs</run_depend>
 
   <export>
-    <rqt_gui plugin="${prefix}/plugin.xml"/>
+    <rqt_bag plugin="rqt_bag_plugins.plugins" />
   </export>
 </package>

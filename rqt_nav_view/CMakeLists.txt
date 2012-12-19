@@ -4,3 +4,11 @@ project(rqt_nav_view)
 find_package(catkin REQUIRED COMPONENTS  rospy rqt_gui rqt_gui_py tf nav_msgs geometry_msgs)
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

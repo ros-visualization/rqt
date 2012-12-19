@@ -4,3 +4,4 @@ project(rqt_gui)
 find_package(catkin REQUIRED COMPONENTS qt_gui)
 catkin_package()
 catkin_python_setup()
+

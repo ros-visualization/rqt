@@ -4,3 +4,7 @@ project(rqt_param)
 find_package(catkin REQUIRED COMPONENTS rospy dynamic_reconfigure qt_gui rqt_gui rqt_gui_py rqt_py_common)
 catkin_package()
 catkin_python_setup()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

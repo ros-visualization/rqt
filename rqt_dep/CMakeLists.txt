@@ -6,3 +6,7 @@ catkin_package()
 catkin_python_setup()
 
 catkin_add_nosetests(test/dotcode_pack_test.py)
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
