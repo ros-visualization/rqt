@@ -17,11 +17,10 @@
   <build_depend>rqt_gui</build_depend>
   <build_depend>rospy</build_depend>
 
-  <run_depend>qt_gui</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rospy</run_depend>
   
   <export>
-    <qt_gui plugin="${prefix}/plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>
