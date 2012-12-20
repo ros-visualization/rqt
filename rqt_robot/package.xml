@@ -1,7 +1,7 @@
 <package>
   <name>rqt_robot</name>
   <version>0.1.7</version>
-  <description>Meta Package of rqt plugins for use with robots.</description>
+  <description>Metapackage of rqt plugins for use with robots.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 
   <license>BSD</license>
@@ -11,8 +11,6 @@
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
 
   <author email="ablasdel@willowgarage.com">Aaron Blasdel</author>
-
-  <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>rqt_core</run_depend>
   <run_depend>rqt_nav_view</run_depend>

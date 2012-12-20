@@ -1,7 +1,7 @@
 <package>
   <name>rqt_core</name>
   <version>0.1.7</version>
-  <description>rqt is a framwork for plugin development using qt and ros.</description>
+  <description>rqt is a framework for plugin development using Qt and ROS.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 
   <license>BSD</license>
@@ -11,8 +11,6 @@
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
 
   <author email="ablasdel@willowgarage.com">Aaron Blasdel</author>
-
-  <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>rqt_bag</run_depend>
   <run_depend>rqt_bag_plugins</run_depend>
