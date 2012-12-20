@@ -4,7 +4,7 @@ import sys
 
 import roslib
 
-pkg = 'rqt_param'
+pkg = 'rqt_reconfigure'
 roslib.load_manifest(pkg)
 
 from rqt_gui.main import Main

@@ -32,59 +32,59 @@
 #
 # Author: Isaac Saito, Ze'ev Klapow
 
-import os
-
 import dynamic_reconfigure.client
-from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
 import rospy
 
-from .dynreconf_client_widget import DynreconfClientWidget
 from .param_editors import EditorWidget, BooleanEditor, DoubleEditor, EnumEditor, IntegerEditor, StringEditor
 from .param_groups import GroupWidget
 from .param_updater import ParamUpdater
 
-class ParameditWidget(QWidget):
-    def __init__(self):
-        super(ParameditWidget, self).__init__()
-        
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
-                               'ui/paramedit_pane.ui')
-        loadUi(ui_file, self)
-                
-        self._dynreconf_client = None
+class DynreconfClientWidget(GroupWidget):
+    """
+    A wrapper of dynamic_reconfigure.client instance.
+    Represents a widget where users can view and modify ROS params.
+    """
 
-        self.destroyed.connect(self.close)  # func in mercurial?
-
-    def show_reconf(self, node):
+    def __init__(self, reconf):
+        """
+        @type reconf: dynamic_reconfigure.client
         """
         
-        :type node:
-        """
-        rospy.logdebug('ParameditWidget.show str(node)=%s', str(node))
+        group_desc = reconf.get_group_descriptions()
+        rospy.logdebug('DynreconfClientWidget.group_desc=%s', group_desc)
+        super(DynreconfClientWidget, self).__init__(ParamUpdater(reconf), 
+                                                    group_desc)
 
-        dynreconf_client = None        
-        try:
-            dynreconf_client = dynamic_reconfigure.client.Client(str(node), 
-                                                                  timeout=5.0)
-        except rospy.exceptions.ROSException:
-            rospy.logerr("Could not connect to %s" % node)
-            #TODO(Isaac) Needs to show err msg on GUI too. 
-            return
-        finally:
-            if self._dynreconf_client:
-                self._dynreconf_client.close() #Close old GUI client.
+        self.setMinimumWidth(150)
 
-        self._dynreconf_client = DynreconfClientWidget(dynreconf_client) 
-        # Client gets renewed every time different node was clicked.
+        self.reconf = reconf
 
-        self._paramedit_scrollarea.setWidget(self._dynreconf_client)
-        self._paramedit_scrollarea.setWidgetResizable(True)
+        self.updater.start()
+        self.reconf.config_callback = self.config_callback
+
+    def config_callback(self, config):
+        
+        #TODO(Isaac) Think about replacing callback architecture with signals.
+         
+        if config is not None:
+            # TODO: should use config.keys but this method doesnt exist
+            names = [name for name, v in config.items()]
+
+            for widget in self.editor_widgets:
+                if isinstance(widget, EditorWidget):
+                    if widget.name in names:
+                        rospy.logdebug('EDITOR widget.name=%s', widget.name)
+                        widget.update_value(config[widget.name])
+                elif isinstance(widget, GroupWidget):
+                    cfg = find_cfg(config, widget.name)
+                    rospy.logdebug('GROUP widget.name=%s', widget.name)
+                    widget.update_group(cfg)
 
     def close(self):
-        if self._dynreconf_client is not None:
-            # Clear out the old widget
-            self._dynreconf_client.close()
-            self._dynreconf_client = None
+        self.reconf.close()
+        self.updater.stop()
 
-            self._paramedit_scrollarea.deleteLater()
+        for w in self.editor_widgets:
+            w.close()
+
+        self.deleteLater()

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rqt_param)
+project(rqt_reconfigure)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED)
 catkin_package()
@@ -9,6 +9,6 @@ install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-install(PROGRAMS scripts/rqt_param
+install(PROGRAMS scripts/rqt_reconfigure
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

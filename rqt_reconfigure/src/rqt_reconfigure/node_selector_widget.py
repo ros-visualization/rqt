@@ -41,6 +41,7 @@ import dynamic_reconfigure as dyn_reconf
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Signal
 from python_qt_binding.QtGui import QStandardItemModel, QWidget
+import rospkg
 import rospy
 import rosservice
 
@@ -56,8 +57,8 @@ class NodeSelectorWidget(QWidget):
         super(NodeSelectorWidget, self).__init__()
         self.stretch = None
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/node_selector.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'node_selector.ui')
         loadUi(ui_file, self)
 
         #  Setup treeview and models

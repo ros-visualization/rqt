@@ -49,7 +49,7 @@
   <customwidget>
    <class>ParameditWidget</class>
    <extends>QWidget</extends>
-   <header>rqt_param.paramedit_widget</header>
+   <header>rqt_reconfigure.paramedit_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets> 

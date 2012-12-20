@@ -97,7 +97,7 @@
   <customwidget>
    <class>NodeSelectorWidget</class>
    <extends>QWidget</extends>
-   <header>rqt_param.node_selector_widget</header>
+   <header>rqt_reconfigure.node_selector_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -34,7 +34,7 @@
 
 import unittest
 
-from rqt_param.ros_param import Parameter
+from rqt_reconfigure.ros_param import Parameter
 
 '''
 @author: Isaac Saito

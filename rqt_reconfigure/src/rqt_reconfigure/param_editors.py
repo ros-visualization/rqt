@@ -39,6 +39,7 @@ from dynamic_reconfigure.msg import Config as ConfigMsg
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, Signal
 from python_qt_binding.QtGui import QCheckBox, QComboBox, QDoubleValidator, QIntValidator, QHBoxLayout, QLabel, QLineEdit, QPainter, QSlider, QWidget 
+import rospkg
 import rospy
 
 from .param_updater import ParamUpdater
@@ -95,8 +96,8 @@ class BooleanEditor(EditorWidget):
     def __init__(self, updater, config): 
         super(BooleanEditor, self).__init__(updater, config)
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/editor_bool.ui')                
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'editor_bool.ui')
         loadUi(ui_file, self)  
         
         self.update_value(config['default'])
@@ -113,8 +114,8 @@ class BooleanEditor(EditorWidget):
 class StringEditor(EditorWidget):
     def __init__(self, updater, config):
         super(StringEditor, self).__init__(updater, config)
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/editor_string.ui')    
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'editor_string.ui')
         loadUi(ui_file, self) 
                 
         self._paramval_lineedit.editingFinished.connect(self.edit_finished)
@@ -134,8 +135,8 @@ class IntegerEditor(EditorWidget):
     def __init__(self, updater, config):
         super(IntegerEditor, self).__init__(updater, config)
         
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/editor_number.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'editor_number.ui')
         loadUi(ui_file, self) 
 
         self.min = int(config['min'])
@@ -183,8 +184,8 @@ class DoubleEditor(EditorWidget):
     def __init__(self, updater, config):
         super(DoubleEditor, self).__init__(updater, config)
         
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/editor_number.ui')                
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'editor_number.ui')
         loadUi(ui_file, self) 
 
         # Handle unbounded doubles nicely
@@ -258,8 +259,8 @@ class EnumEditor(EditorWidget):
     def __init__(self, updater, config):
         super(EnumEditor, self).__init__(updater, config)
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'ui/editor_enum.ui')                
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_reconfigure'), 'resource', 'editor_enum.ui')
         loadUi(ui_file, self) 
         
         try:
