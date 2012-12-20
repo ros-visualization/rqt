@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import bag_helper
-from plugin.message_view       import MessageView
-from plugin.topic_message_view import TopicMessageView
-from plugin.timeline_renderer  import TimelineRenderer
+from plugins.message_view       import MessageView
+from plugins.topic_message_view import TopicMessageView
+from plugins.timeline_renderer  import TimelineRenderer
 from timeline_cache            import TimelineCache

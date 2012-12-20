@@ -25,6 +25,6 @@
   <run_depend>std_msgs</run_depend>
 
   <export>
-    <rqt_bag plugin="rqt_bag_plugins.plugins" />
+    <rqt_bag plugin="${prefix}/plugin.xml"/>
   </export>
 </package>

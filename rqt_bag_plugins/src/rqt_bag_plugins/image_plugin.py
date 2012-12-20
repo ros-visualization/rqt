@@ -29,3 +29,23 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+from rqt_bag.plugins.plugin import Plugin
+
+from .image_timeline_renderer import ImageTimelineRenderer
+from .image_view import ImageView
+
+
+class ImagePlugin(Plugin):
+
+    def __init__(self):
+        pass
+
+    def get_view_class(self):
+        return ImageView
+
+    def get_renderer_class(self):
+        return ImageTimelineRenderer
+
+    def get_message_types(self):
+        return ['sensor_msgs/Image', 'sensor_msgs/CompressedImage']

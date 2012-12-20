@@ -1,6 +1,6 @@
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2009, Willow Garage, Inc.
+# Copyright (c) 2012, Willow Garage, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,32 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# Revision $Id$
 
-from image_timeline_renderer import ImageTimelineRenderer
-from image_view              import ImageView
 
-def get_rqt_bag_plugins():
+class Plugin(object):
+
     """
-    :returns: list of tuples, each tuple is of the form ( Child of TopicMessageView, Child of TimelineRenderer, list of msgs to use this viewer with)
-    To allow your plugin to be run on all message types use this list:  ['*']
-    To omit the renderer component simply pass None to the TimelineRenderer portion
+    Interface for rqt_bag plugins.
+    User-defined plugins may either subclass `rqt_bag.plugin.Plugin` or according to duck typing implement only the needed methods.
     """
-    return [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage'])]
+
+    def __init__(self):
+        pass
+
+    def get_view_class(self):
+        """Return a class which is a child of rqt_bag.plugin.topic_message_view.TopicMessageView."""
+        raise NotImplementedError()
+
+    def get_renderer_class(self):
+        """
+        Return a class which is a child of rqt_bag.plugin.timeline_renderer.TimelineRenderer.
+        To omit the renderer component simply return None.
+        """
+        return None
+
+    def get_message_types(self):
+        """
+        Return  alist of message types which this plugin operates on.
+        To allow your plugin to be run on all message types return ['*'].
+        """
+        return []
