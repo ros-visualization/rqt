@@ -49,7 +49,8 @@ from rqt_console.text_browse_dialog import TextBrowseDialog
 class MessagesWidget(QWidget):
     def __init__(self, mode=rosmsg.MODE_MSG):
         super(MessagesWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'messages.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_msg'), 'resource', 'messages.ui')
         loadUi(ui_file, self, {'MessagesTreeView': MessagesTreeView})
         self.setObjectName('MessagesUi')
         self._mode = mode

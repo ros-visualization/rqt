@@ -1,12 +1,35 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(rqt_gui_cpp)
+# Load catkin and all dependencies required for this package
+find_package(catkin REQUIRED COMPONENTS qt_gui qt_gui_cpp roscpp nodelet)
+catkin_package(
+	INCLUDE_DIRS include 
+	LIBRARIES ${PROJECT_NAME} 
+	CATKIN_DEPENDS qt_gui qt_gui_cpp roscpp nodelet
+)
 
-set(ROS_BUILD_TYPE Debug)
+include_directories(include ${catkin_INCLUDE_DIRS})
 
-rosbuild_init()
+find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+include(${QT_USE_FILE})
 
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+SET(rqt_gui_cpp_SRCS
+  src/rqt_gui_cpp/nodelet_plugin_provider.cpp
+  src/rqt_gui_cpp/roscpp_plugin_provider.cpp
+)
 
-add_subdirectory(src)
+add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
+if(APPLE) 
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+endif()
+
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)

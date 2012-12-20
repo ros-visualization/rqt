@@ -33,6 +33,7 @@
 # Author: Isaac Saito, Ze'ev Klapow
 
 import os
+import rospkg
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 from python_qt_binding import loadUi
@@ -69,8 +70,8 @@ class RobotMonitorWidget(AbstractStatusWidget):
         """
           
         super(RobotMonitorWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'rqt_robot_monitor_mainwidget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_robot_monitor'), 'resource', 'rqt_robot_monitor_mainwidget.ui')
         loadUi(ui_file, self)
         
         obj_name = 'Robot Monitor'

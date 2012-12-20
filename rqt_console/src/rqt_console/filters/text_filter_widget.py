@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
@@ -44,7 +45,8 @@ class TextFilterWidget(QWidget):
         :param display_list_args: empty list, ''list''
         """
         super(TextFilterWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'text_filter_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource/filters', 'text_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('TextFilterWidget')
         self._parentfilter = parentfilter  # When data is changed it is stored in the parent filter

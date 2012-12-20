@@ -31,18 +31,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
 import py_console_text_edit
 
+
 class PyConsoleWidget(QWidget):
     def __init__(self, context=None):
         super(PyConsoleWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'py_console_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_py_console'), 'resource', 'py_console_widget.ui')
         loadUi(ui_file, self, {'PyConsoleTextEdit': py_console_text_edit.PyConsoleTextEdit})
         self.setObjectName('PyConsoleWidget')
-        
+
         my_locals = {
             'context': context
         }

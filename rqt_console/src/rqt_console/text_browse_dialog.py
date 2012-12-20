@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QDialog
@@ -45,6 +46,7 @@ class TextBrowseDialog(QDialog):
         :param text: value to set the text of the widget to, ''str''
         """
         super(TextBrowseDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'text_browse_dialog.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource', 'text_browse_dialog.ui')
         loadUi(ui_file, self)
         self.text_browser.setText(text)

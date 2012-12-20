@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import qWarning
@@ -46,7 +47,8 @@ class LoggerLevelWidget(QWidget):
         :param caller: service caller instance for sending service calls, ''LoggerLevelServiceCaller''
         """
         super(LoggerLevelWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'logger_level.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_logger_level'), 'resource', 'logger_level.ui')
         loadUi(ui_file, self)
         self.setObjectName('LoggerLevelWidget')
         self._caller = caller

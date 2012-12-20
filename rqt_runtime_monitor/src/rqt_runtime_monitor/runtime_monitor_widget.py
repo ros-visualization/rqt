@@ -33,6 +33,7 @@
 #
 import roslib
 import rospy
+import rospkg
 import os
 import sys
 
@@ -61,12 +62,13 @@ class TreeItem(QObject):
 class RuntimeMonitorWidget(QWidget):
     def __init__(self, topic="/diagnostics"):
         super(RuntimeMonitorWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'runtime_monitor_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_runtime_monitor'), 'resource', 'runtime_monitor_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('RuntimeMonitorWidget')
 
         self._mutex = threading.Lock()
-    
+
         self._error_icon = QIcon.fromTheme('dialog-error')
         self._warning_icon = QIcon.fromTheme('dialog-warning')
         self._ok_icon = QIcon.fromTheme('dialog-information')

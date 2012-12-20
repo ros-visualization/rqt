@@ -41,6 +41,7 @@ from python_qt_binding.QtCore import QPointF, QSize, Qt, Signal
 from python_qt_binding.QtGui import QColor, QIcon, QGraphicsScene, QWidget
 import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
+import rospkg
 
 from .timeline import TimelineView
 from .util_robot_monitor import Util
@@ -67,8 +68,8 @@ class TimelinePane(QWidget):
         super(TimelinePane, self).__init__()
         self._parent = parent
         
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                               'rqt_robot_monitor_timelinepane.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_robot_monitor'), 'resource', 'rqt_robot_monitor_timelinepane.ui')
         loadUi(ui_file, self, {'TimelineView': TimelineView})   
         
         self._pause_callback = pause_callback

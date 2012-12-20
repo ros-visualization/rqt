@@ -5,13 +5,14 @@ from __future__ import division
 import os
 
 
-PKG = 'rqt_tf_tree' # this package name
+PKG = 'rqt_tf_tree'  # this package name
 
 import roslib
 roslib.load_manifest(PKG)
 roslib.load_manifest('tf2_tools')
 
 import rospy
+import rospkg
 
 from tf2_msgs.srv import FrameGraph
 import tf2_ros
@@ -55,7 +56,8 @@ class RosTfTree(QObject):
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosTfTree.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_tf_tree'), 'resource', 'RosTfTree.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosTfTreeUi')
         if context.serial_number() > 1:
