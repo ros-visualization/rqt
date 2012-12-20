@@ -35,7 +35,6 @@
 import os
 import copy
 
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 from diagnostic_msgs.msg import DiagnosticStatus
 from python_qt_binding.QtGui import QColor, QIcon

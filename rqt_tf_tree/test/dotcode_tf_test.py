@@ -34,8 +34,6 @@
 import unittest
 import rospkg
 
-import roslib; roslib.load_manifest('tf')
-
 import tf
 from tf.srv import *
 

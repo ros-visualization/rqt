@@ -29,8 +29,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import roslib
-roslib.load_manifest('rqt_gui_py')
 import rospy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider

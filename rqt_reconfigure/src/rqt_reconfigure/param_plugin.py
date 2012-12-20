@@ -32,9 +32,6 @@
 #
 # Author: Isaac Saito
 
-import roslib
-roslib.load_manifest('rqt_reconfigure')
-
 from rqt_gui_py.plugin import Plugin
 import rospy
 

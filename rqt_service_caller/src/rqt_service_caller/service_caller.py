@@ -30,9 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_service_caller')
-
 from rqt_gui_py.plugin import Plugin
 from .service_caller_widget import ServiceCallerWidget
 

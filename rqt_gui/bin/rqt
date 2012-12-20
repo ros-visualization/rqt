@@ -9,8 +9,7 @@ try:
     p = r.get_path('rqt_gui')
     sys.path.append(os.path.join(p, 'src'))
 except ImportError:
-    import roslib
-    roslib.load_manifest('rqt_gui')
+    pass
 
 from rqt_gui.main import Main
 main = Main(os.path.abspath(__file__))

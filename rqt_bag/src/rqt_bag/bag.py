@@ -30,9 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_bag')
-
 from qt_gui.plugin import Plugin
 
 from .bag_widget import BagWidget

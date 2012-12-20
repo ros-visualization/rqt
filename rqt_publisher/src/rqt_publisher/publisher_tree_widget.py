@@ -30,9 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_publisher')
-
 from python_qt_binding.QtCore import Signal, Slot
 from python_qt_binding.QtGui import QAction, QIcon
 

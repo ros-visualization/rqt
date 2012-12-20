@@ -2,12 +2,7 @@
 
 import sys
 
-import roslib
-
-pkg = 'rqt_robot_steering'
-roslib.load_manifest(pkg)
-
 from rqt_gui.main import Main
 
 main = Main()
-sys.exit(main.main(sys.argv, standalone=pkg))
+sys.exit(main.main(sys.argv, standalone='rqt_robot_steering'))

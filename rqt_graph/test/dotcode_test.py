@@ -35,8 +35,6 @@ import unittest
 import rospkg
 
 import os
-import roslib
-roslib.load_manifest('rqt_graph')
 from rqt_graph.dotcode import RosGraphDotcodeGenerator
 
 PKG='rqt_graph'

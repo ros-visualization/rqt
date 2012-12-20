@@ -36,8 +36,6 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
 from python_qt_binding.QtGui import QAction, QMenu, QWidget
 
-import roslib
-roslib.load_manifest('rqt_pose_view')
 import rospy
 from rostopic import get_topic_class
 from tf.transformations import quaternion_matrix, quaternion_about_axis

@@ -31,8 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import roslib
-roslib.load_manifest('rqt_plot')
 import rospkg
 
 from python_qt_binding import loadUi

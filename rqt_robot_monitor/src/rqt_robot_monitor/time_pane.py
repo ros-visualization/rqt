@@ -39,7 +39,6 @@ import os
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QPointF, QSize, Qt, Signal
 from python_qt_binding.QtGui import QColor, QIcon, QGraphicsScene, QWidget
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 import rospkg
 

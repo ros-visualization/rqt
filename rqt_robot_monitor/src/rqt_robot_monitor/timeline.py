@@ -32,7 +32,6 @@
 #
 # Author: Isaac Saito, Ze'ev Klapow
 
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from python_qt_binding import loadUi

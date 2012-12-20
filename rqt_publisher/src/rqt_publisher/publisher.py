@@ -37,8 +37,6 @@ import time
 
 from python_qt_binding.QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
 
-import roslib
-roslib.load_manifest('rqt_publisher')
 import rospy
 import genpy
 from rqt_gui_py.plugin import Plugin

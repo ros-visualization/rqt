@@ -34,7 +34,6 @@
 
 import os
 
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from python_qt_binding.QtCore import Qt

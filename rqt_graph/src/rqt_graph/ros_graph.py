@@ -37,8 +37,6 @@ from python_qt_binding.QtCore import QAbstractListModel, QFile, QIODevice, Qt, S
 from python_qt_binding.QtGui import QCompleter, QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget
 from python_qt_binding.QtSvg import QSvgGenerator
 
-import roslib
-roslib.load_manifest('rqt_graph')
 import rosgraph.impl.graph
 import rosservice
 import rostopic

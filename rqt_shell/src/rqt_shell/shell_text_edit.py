@@ -33,8 +33,6 @@
 import sys
 import subprocess
 
-import roslib
-roslib.load_manifest('rqt_shell')
 from qt_gui_py_common.console_text_edit import ConsoleTextEdit
 
 class ShellTextEdit(ConsoleTextEdit):

@@ -31,8 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import roslib
-roslib.load_manifest('rqt_shell')
 
 from python_qt_binding.QtGui import QFont, QMessageBox, QIcon
 from python_qt_binding.QtCore import QProcess, SIGNAL, QTextCodec, Signal

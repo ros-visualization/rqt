@@ -30,8 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-PKG = 'rqt_bag_plugins'
-import roslib; roslib.load_manifest(PKG)
 import rospy
 
 import array

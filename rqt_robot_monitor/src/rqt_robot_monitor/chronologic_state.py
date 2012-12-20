@@ -34,7 +34,6 @@
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 from python_qt_binding.QtGui import QTreeWidgetItem
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from .inspector_window import InspectorWindow

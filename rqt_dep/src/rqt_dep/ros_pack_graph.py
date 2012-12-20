@@ -11,8 +11,6 @@ from python_qt_binding.QtCore import QFile, QIODevice, Qt, Signal, Slot, QAbstra
 from python_qt_binding.QtGui import QFileDialog, QGraphicsScene, QIcon, QImage, QPainter, QWidget, QCompleter
 from python_qt_binding.QtSvg import QSvgGenerator
 
-import roslib
-roslib.load_manifest('rqt_dep')
 import rosservice
 import rostopic
 

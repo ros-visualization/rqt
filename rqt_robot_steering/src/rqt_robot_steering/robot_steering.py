@@ -36,8 +36,6 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Slot
 from python_qt_binding.QtGui import QKeySequence, QShortcut, QWidget
 
-import roslib
-roslib.load_manifest('rqt_robot_steering')
 import rospy
 
 from geometry_msgs.msg import Twist

@@ -5,12 +5,6 @@ from __future__ import division
 import os
 
 
-PKG = 'rqt_tf_tree'  # this package name
-
-import roslib
-roslib.load_manifest(PKG)
-roslib.load_manifest('tf2_tools')
-
 import rospy
 import rospkg
 

@@ -38,7 +38,6 @@ from python_qt_binding import QT_BINDING, QT_BINDING_VERSION
 from python_qt_binding.QtCore import Qt, Signal
 
 import roslib
-roslib.load_manifest('rqt_py_console')
 from qt_gui_py_common.console_text_edit import ConsoleTextEdit
 
 class PyConsoleTextEdit(ConsoleTextEdit):

@@ -30,9 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_logger_level')
-
 from qt_gui.plugin import Plugin
 
 from .logger_level_widget import LoggerLevelWidget

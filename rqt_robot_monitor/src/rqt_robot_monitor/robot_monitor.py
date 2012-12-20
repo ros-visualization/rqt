@@ -39,7 +39,6 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Signal
 from python_qt_binding.QtGui import QIcon, QTextEdit, QWidget
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from .abst_status_widget import AbstractStatusWidget

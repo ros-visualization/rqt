@@ -36,8 +36,6 @@ from StringIO import StringIO
 
 from python_qt_binding.QtCore import qWarning
 
-import roslib
-roslib.load_manifest('rqt_topic')
 import rospy
 from rostopic import get_topic_class, ROSTopicHz
 

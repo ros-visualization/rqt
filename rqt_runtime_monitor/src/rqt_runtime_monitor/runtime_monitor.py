@@ -32,8 +32,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import roslib
-roslib.load_manifest('rqt_runtime_monitor')
 import rospy
 
 from qt_gui.plugin import Plugin

@@ -28,9 +28,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_pose_view')
-
 from rqt_gui_py.plugin import Plugin
 
 from .pose_view_widget import PoseViewWidget

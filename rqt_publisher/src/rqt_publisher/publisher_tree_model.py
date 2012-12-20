@@ -31,9 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import threading
 
-import roslib
-roslib.load_manifest('rqt_publisher')
-
 from python_qt_binding.QtCore import Qt, Signal
 from python_qt_binding.QtGui import QStandardItem
 

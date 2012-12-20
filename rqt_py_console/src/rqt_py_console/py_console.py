@@ -30,9 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-roslib.load_manifest('rqt_py_console')
-
 from python_qt_binding.QtGui import QVBoxLayout, QWidget
 from qt_gui.plugin import Plugin
 from qt_gui_py_common.simple_settings_dialog import SimpleSettingsDialog

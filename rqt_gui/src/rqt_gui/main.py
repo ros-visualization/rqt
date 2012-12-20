@@ -36,9 +36,6 @@ import argparse
 import os
 import sys
 
-import roslib
-roslib.load_manifest('rqt_gui')
-
 from qt_gui.main import Main as Base
 
 

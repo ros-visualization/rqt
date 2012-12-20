@@ -33,8 +33,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import roslib
-roslib.load_manifest('rqt_shell')
 
 from python_qt_binding.QtCore import QProcess, QTimer, Signal
 from python_qt_binding.QtGui import QX11EmbedContainer

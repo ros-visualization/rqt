@@ -38,9 +38,6 @@ import sys, os
 # get mock from pypi as 'mock'
 from mock import Mock, MagicMock, patch
 
-import roslib
-roslib.load_manifest('rqt_dep')
-
 from rqt_dep.dotcode_pack import RosPackageGraphDotcodeGenerator
 
 

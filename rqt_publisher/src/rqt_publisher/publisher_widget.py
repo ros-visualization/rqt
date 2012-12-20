@@ -37,8 +37,6 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Signal, Slot, QThread
 from python_qt_binding.QtGui import QIcon, QWidget
 
-import roslib
-roslib.load_manifest('rqt_publisher')
 import rosmsg
 import rospkg
 import rospy

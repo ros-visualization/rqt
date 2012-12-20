@@ -33,7 +33,6 @@
 # Author: Isaac Saito, Ze'ev Klapow
 
 from python_qt_binding.QtGui import QTextEdit
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 
 class StatusSnapshot(QTextEdit):
     """Display a single static status message. Helps facilitate copy/paste"""

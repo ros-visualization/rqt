@@ -33,7 +33,6 @@
 # Author: Isaac Saito, Ze'ev Klapow
 
 from qt_gui.plugin import Plugin
-import roslib;roslib.load_manifest('rqt_robot_monitor')
 import rospy
 
 from .robot_monitor import RobotMonitorWidget
