@@ -100,4 +100,4 @@ void RosCppPluginProvider::init_node()
 
 }
 
-PLUGINLIB_DECLARE_CLASS(rqt_gui_cpp, RosCppPluginProvider, rqt_gui_cpp::RosCppPluginProvider, qt_gui_cpp::PluginProvider)
+PLUGINLIB_EXPORT_CLASS(rqt_gui_cpp::RosCppPluginProvider, qt_gui_cpp::PluginProvider)

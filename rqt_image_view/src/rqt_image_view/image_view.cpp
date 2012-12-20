@@ -343,4 +343,4 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 
 }
 
-PLUGINLIB_DECLARE_CLASS(rqt_image_view, ImageView, rqt_image_view::ImageView, rqt_gui_cpp::Plugin)
+PLUGINLIB_EXPORT_CLASS(rqt_image_view::ImageView, rqt_gui_cpp::Plugin)

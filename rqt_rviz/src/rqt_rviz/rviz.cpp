@@ -129,4 +129,4 @@ bool RViz::eventFilter(QObject* watched, QEvent* event)
 
 }
 
-PLUGINLIB_DECLARE_CLASS(rqt_rviz, RViz, rqt_rviz::RViz, rqt_gui_cpp::Plugin)
+PLUGINLIB_EXPORT_CLASS(rqt_rviz::RViz, rqt_gui_cpp::Plugin)
