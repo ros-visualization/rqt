@@ -1,0 +1,42 @@
+<package>
+  <name>rqt_core</name>
+  <version>0.1.7</version>
+  <description>rqt is a framwork for plugin development using qt and ros.</description>
+  <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/rqt_core</url>
+  <url type="repository">https://github.com/ros-visualization/rqt</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
+  <author email="ablasdel@willowgarage.com">Aaron Blasdel</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rqt_bag</run_depend>
+  <run_depend>rqt_bag_plugins</run_depend>
+  <run_depend>rqt_console</run_depend>
+  <run_depend>rqt_dep</run_depend>
+  <run_depend>rqt_graph</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_cpp</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+  <run_depend>rqt_image_view</run_depend>
+  <run_depend>rqt_logger_level</run_depend>
+  <run_depend>rqt_msg</run_depend>
+  <run_depend>rqt_param</run_depend>
+  <run_depend>rqt_plot</run_depend>
+  <run_depend>rqt_publisher</run_depend>
+  <run_depend>rqt_py_common</run_depend>
+  <run_depend>rqt_py_console</run_depend>
+  <run_depend>rqt_service_caller</run_depend>
+  <run_depend>rqt_shell</run_depend>
+  <run_depend>rqt_srv</run_depend>
+  <run_depend>rqt_topic</run_depend>
+  <run_depend>rqt_web</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
