@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QDialog
@@ -47,7 +48,8 @@ class ConsoleSubscriberDialog(QDialog):
         :param limit: displayed in the message buffer size spin box, ''int''
         """
         super(QDialog, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'console_subscriber_dialog.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource', 'console_subscriber_dialog.ui')
         loadUi(ui_file, self)
         topics.sort(reverse=True)
         for topic in topics:

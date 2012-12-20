@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
@@ -53,7 +54,8 @@ class ListFilterWidget(QWidget):
         contain an optional variable to pass into that function 'display_list_args[1]'
         """
         super(ListFilterWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'list_filter_widget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_console'), 'resource/filters', 'list_filter_widget.ui')
         loadUi(ui_file, self)
         self.setObjectName('ListFilterWidget')
         self._parentfilter = parentfilter  # When data is changed we need to store it in the parent filter

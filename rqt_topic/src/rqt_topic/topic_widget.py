@@ -40,6 +40,8 @@ from python_qt_binding.QtGui import QHeaderView, QIcon, QMenu, QTreeWidgetItem, 
 import roslib
 roslib.load_manifest('rqt_topic')
 import rospy
+import rospkg
+
 from .topic_info import TopicInfo
 
 
@@ -49,7 +51,8 @@ class TopicWidget(QWidget):
 
     def __init__(self, plugin):
         super(TopicWidget, self).__init__()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'TopicWidget.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_topic'), 'resource', 'TopicWidget.ui')
         loadUi(ui_file, self)
         self._plugin = plugin
         self.topics_tree_widget.sortByColumn(0, Qt.AscendingOrder)

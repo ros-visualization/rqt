@@ -30,6 +30,7 @@
 
 from __future__ import division
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QAbstractListModel, QFile, QIODevice, Qt, Signal
@@ -114,7 +115,8 @@ class RosGraph(Plugin):
         # dot_to_qt transforms into Qt elements using dot layout
         self.dot_to_qt = DotToQtGenerator()
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RosGraph.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_graph'), 'resource', 'RosGraph.ui')
         loadUi(ui_file, self._widget, {'InteractiveGraphicsView': InteractiveGraphicsView})
         self._widget.setObjectName('RosGraphUi')
         if context.serial_number() > 1:

@@ -1,5 +1,18 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(rqt_robot_steering)
+# Load catkin and all dependencies required for this package
+find_package(catkin REQUIRED)
+catkin_package()
+catkin_python_setup()
 
-rosbuild_init()
+install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
+install(DIRECTORY resource
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(PROGRAMS scripts/rqt_robot_steering
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

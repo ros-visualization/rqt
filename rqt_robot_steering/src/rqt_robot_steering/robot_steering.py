@@ -30,6 +30,7 @@
 
 from __future__ import division
 import os
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Slot
@@ -53,7 +54,8 @@ class RobotSteering(Plugin):
         self._publisher = None
 
         self._widget = QWidget()
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'RobotSteering.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_robot_steering'), 'resource', 'RobotSteering.ui')
         loadUi(ui_file, self._widget)
         self._widget.setObjectName('RobotSteeringUi')
         if context.serial_number() > 1:

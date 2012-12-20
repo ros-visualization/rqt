@@ -33,6 +33,7 @@
 import os
 import roslib
 roslib.load_manifest('rqt_plot')
+import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
@@ -53,7 +54,8 @@ class PlotWidget(QWidget):
         super(PlotWidget, self).__init__()
         self.setObjectName('PlotWidget')
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'plot.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_plot'), 'resource', 'plot.ui')
         loadUi(ui_file, self)
         self.subscribe_topic_button.setIcon(QIcon.fromTheme('add'))
         self.remove_topic_button.setIcon(QIcon.fromTheme('remove'))

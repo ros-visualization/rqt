@@ -152,9 +152,8 @@ class RosPluginProvider(PluginProvider):
                 attributes['module_name'] = module_name.replace(os.sep, '.')
                 attributes['class_from_class_type'] = class_from_class_type
 
-                # check if plugin is available
-                module_abs_path = os.path.join(module_base_path, module_name) + '.py'
-                attributes['not_available'] = plugin_name if not os.path.exists(module_abs_path) else ''
+                # we can not check if the plugin is available without loading it
+                attributes['not_available'] = ''
 
                 plugin_descriptor = PluginDescriptor(plugin_id, attributes)
 

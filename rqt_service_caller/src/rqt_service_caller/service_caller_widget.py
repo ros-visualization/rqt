@@ -42,6 +42,7 @@ from python_qt_binding.QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import roslib
 roslib.load_manifest('rqt_service_caller')
+import rospkg
 import rospy
 import genpy
 import rosservice
@@ -64,7 +65,8 @@ class ServiceCallerWidget(QWidget):
         del self._eval_locals['__name__']
         del self._eval_locals['__doc__']
 
-        ui_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ServiceCaller.ui')
+        rp = rospkg.RosPack()
+        ui_file = os.path.join(rp.get_path('rqt_service_caller'), 'resource', 'ServiceCaller.ui')
         loadUi(ui_file, self, {'ExtendedComboBox': ExtendedComboBox})
         self.refresh_services_button.setIcon(QIcon.fromTheme('view-refresh'))
         self.call_service_button.setIcon(QIcon.fromTheme('call-start'))
