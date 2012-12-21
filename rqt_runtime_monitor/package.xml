@@ -1,6 +1,6 @@
 <package>
   <name>rqt_runtime_monitor</name>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <description>rqt_runtime_monitor provides a GUI plugin viewing DiagnosticsArray messages.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 

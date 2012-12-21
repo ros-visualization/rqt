@@ -1,6 +1,6 @@
 <package>
   <name>rqt_graph</name>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <description>rqt_graph provides a GUI plugin for visualizing the ROS computation graph.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 

@@ -1,6 +1,6 @@
 <package>
   <name>rqt_nav_view</name>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <description>rqt_nav_view provides a gui for viewing navigation maps and paths.</description>
   <maintainer email="zklapow@willowgarage.com">Ze'ev Klapow</maintainer>
 
