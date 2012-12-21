@@ -1,6 +1,6 @@
 <package>
   <name>rqt_srv</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <description>A Python GUI plugin for introspecting available ROS message types.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 

@@ -1,6 +1,6 @@
 <package>
   <name>rqt_service_caller</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <description>rqt_service_caller provides a GUI plugin for calling arbitrary services.</description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
 

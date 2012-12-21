@@ -1,6 +1,6 @@
 <package>
   <name>rqt_robot_steering</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <description>rqt_robot_steering provides a GUI plugin for steering a robot using Twist messages.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 
