@@ -20,9 +20,9 @@
   <run_depend>rospy</run_depend>
   <run_depend>rqt_graph</run_depend>
   <run_depend>rqt_gui</run_depend>
-  <run_depend>tf2</run_depend>
+  <!--<run_depend>tf2</run_depend>
 
-<!--  <export>
+  <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>-->
 </package>
