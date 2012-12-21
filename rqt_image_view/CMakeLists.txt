@@ -24,7 +24,7 @@ set(rqt_image_view_UIS
 
 set(rqt_image_view_INCLUDE_DIRECTORIES
   include
-  ${CMAKE_CURRENT_BINARY_DIR}/..
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 catkin_package(
