@@ -32,7 +32,7 @@
 
 
 from python_qt_binding.QtCore import qDebug, QPointF, QRectF, Qt, qWarning
-from python_qt_binding.QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPainterPath, QPen, QPolygonF
+from python_qt_binding.QtGui import QBrush, QCursor, QColor, QFont, QFontMetrics, QGraphicsItem, QPen, QPolygonF
 import rospy
 
 import bisect
@@ -539,11 +539,10 @@ class TimelineFrame(QGraphicsItem):
         coords = [(self._margin_left, y + (h / 2) + (self._topic_font_height / 2)) for (_, y, _, h) in self._history_bounds.values()]
 
         for text, coords in zip([t.lstrip('/') for t in topics], coords):
-            path = QPainterPath()
-            path.addText(coords[0], coords[1], self._topic_font, text)
             painter.setBrush(self._default_brush)
             painter.setPen(self._default_pen)
-            painter.drawPath(path)
+            painter.setFont(self._topic_font)
+            painter.drawText(coords[0], coords[1], text)
 
     def _draw_time_divisions(self, painter):
         """
@@ -584,11 +583,10 @@ class TimelineFrame(QGraphicsItem):
             label = self._get_label(division, stamp - start_stamp)
             label_x = x + self._major_divisions_label_indent
             if label_x + QFontMetrics(self._topic_font).width(label) < self.scene().width():
+                painter.setBrush(self._default_brush)
                 painter.setPen(self._default_pen)
-                painter.setBrush(QBrush(Qt.black))
-                path = QPainterPath()
-                path.addText(label_x, label_y, self._time_font, label)
-                painter.drawPath(path)
+                painter.setFont(self._time_font)
+                painter.drawText(label_x, label_y, label)
 
             painter.setPen(self._major_division_pen)
             painter.drawLine(x, label_y - self._time_tick_height - self._time_font_size, x, self._history_bottom)
