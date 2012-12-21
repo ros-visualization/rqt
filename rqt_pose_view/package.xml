@@ -1,6 +1,6 @@
 <package>
   <name>rqt_pose_view</name>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>rqt_pose_view provides a GUI plugin for visualizing 3D poses.</description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
 

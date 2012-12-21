@@ -1,6 +1,6 @@
 <package>
   <name>rqt_reconfigure</name>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>This rqt plugin provides the way to view and edit the dynamic reconfigure parameters, as well as to introspect the parameters.</description>
   <maintainer email="isaito@willowgarage.com">Isaac Saito</maintainer>
 

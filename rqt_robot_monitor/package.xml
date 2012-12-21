@@ -1,6 +1,6 @@
 <package>
   <name>rqt_robot_monitor</name>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>rqt_robot_monitor displays diagnostics_agg topic messages.</description>
   <maintainer email="isaito@willowgarage.com">Isaac Saito</maintainer>
 
