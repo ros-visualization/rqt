@@ -16,6 +16,7 @@
 
   <run_depend>python-rospkg</run_depend>
   <run_depend>qt_gui_py_common</run_depend>
+  <run_depend>roslib</run_depend>
   <run_depend>rosmsg</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_py</run_depend>

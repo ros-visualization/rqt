@@ -37,6 +37,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Signal, Slot, QThread
 from python_qt_binding.QtGui import QIcon, QWidget
 
+import roslib
 import rosmsg
 import rospkg
 import rospy

@@ -31,11 +31,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import roslib
 import rospy
 import rospkg
 import os
-import sys
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QIcon, QTreeWidgetItem, QWidget
@@ -43,7 +41,7 @@ from python_qt_binding.QtCore import Qt, QTimer, QObject
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
-import threading, time
+import threading
 import cStringIO
 import copy
 
