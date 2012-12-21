@@ -15,6 +15,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>qt_gui</run_depend>
+  <run_depend>roslib</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rostopic</run_depend>
 </package>
