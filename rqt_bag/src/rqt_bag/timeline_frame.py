@@ -810,13 +810,13 @@ class TimelineFrame(QGraphicsItem):
         elif division >= 5 * 60:  # >5m divisions: show minutes
             return '%dm' % mins
         elif division >= 1:  # >1s divisions: show minutes:seconds
-            return '%d:%02d' % (mins, secs)
+            return '%d:%02dm' % (mins, secs)
         elif division >= 0.1:  # >0.1s divisions: show seconds.0
-            return '%d.%s' % (secs, str(int(10.0 * (elapsed - int(elapsed)))))
+            return '%d.%ss' % (secs, str(int(10.0 * (elapsed - int(elapsed)))))
         elif division >= 0.01:  # >0.1s divisions: show seconds.0
-            return '%d.%02d' % (secs, int(100.0 * (elapsed - int(elapsed))))
+            return '%d.%02ds' % (secs, int(100.0 * (elapsed - int(elapsed))))
         else:  # show seconds.00
-            return '%d.%03d' % (secs, int(1000.0 * (elapsed - int(elapsed))))
+            return '%d.%03ds' % (secs, int(1000.0 * (elapsed - int(elapsed))))
 
     # Pixel location/time conversion functions
     def map_x_to_stamp(self, x, clamp_to_visible=True):
