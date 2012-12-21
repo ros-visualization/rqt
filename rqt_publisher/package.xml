@@ -1,6 +1,6 @@
 <package>
   <name>rqt_publisher</name>
-  <version>0.1.7</version>
+  <version>0.2.4</version>
   <description>rqt_publisher provides a GUI plugin for publishing arbitrary messages with fixed or computed field values.</description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
 

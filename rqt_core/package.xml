@@ -1,6 +1,6 @@
 <package>
   <name>rqt_core</name>
-  <version>0.1.7</version>
+  <version>0.2.4</version>
   <description>rqt is a framework for plugin development using Qt and ROS.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 
@@ -23,11 +23,11 @@
   <run_depend>rqt_image_view</run_depend>
   <run_depend>rqt_logger_level</run_depend>
   <run_depend>rqt_msg</run_depend>
-  <run_depend>rqt_param</run_depend>
   <run_depend>rqt_plot</run_depend>
   <run_depend>rqt_publisher</run_depend>
   <run_depend>rqt_py_common</run_depend>
   <run_depend>rqt_py_console</run_depend>
+  <run_depend>rqt_reconfigure</run_depend>
   <run_depend>rqt_service_caller</run_depend>
   <run_depend>rqt_shell</run_depend>
   <run_depend>rqt_srv</run_depend>

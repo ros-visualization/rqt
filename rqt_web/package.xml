@@ -1,6 +1,6 @@
 <package>
   <name>rqt_web</name>
-  <version>0.1.7</version>
+  <version>0.2.4</version>
   <description>rqt_web is a a Python GUI plugin for displaying and interacting with web tools.</description>
   <maintainer email="ablasdel@gmail.com">Aaron Blasdel</maintainer>
 

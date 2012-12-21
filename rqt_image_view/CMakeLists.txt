@@ -24,7 +24,7 @@ set(rqt_image_view_UIS
 
 set(rqt_image_view_INCLUDE_DIRECTORIES
   include
-  ${CMAKE_CURRENT_BINARY_DIR}/..
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 catkin_package(
@@ -54,4 +54,8 @@ install(TARGETS ${PROJECT_NAME}
  
 install(PROGRAMS scripts/rqt_image_view
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
