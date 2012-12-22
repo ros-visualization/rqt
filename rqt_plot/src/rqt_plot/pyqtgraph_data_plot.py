@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from python_qt_binding.QtCore import Slot, Qt
-from python_qt_binding.QtGui import QColor, QSizePolicy, QVBoxLayout, QWidget
+from python_qt_binding.QtGui import QColor, QVBoxLayout, QWidget
 
 from pyqtgraph import PlotWidget, mkPen
 import numpy

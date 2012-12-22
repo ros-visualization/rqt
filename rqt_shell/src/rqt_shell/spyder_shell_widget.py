@@ -30,12 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-
-from python_qt_binding.QtGui import QFont, QMessageBox, QIcon
+from python_qt_binding.QtGui import QFont, QIcon
 from python_qt_binding.QtCore import QProcess, SIGNAL, QTextCodec, Signal
 
-from spyderlib.config import get_icon
 from spyderlib.widgets.externalshell.baseshell import ExternalShellBase
 from spyderlib.widgets.shell import TerminalWidget
 
@@ -44,6 +41,7 @@ class SpyderShellWidget(ExternalShellBase):
     """Spyder Shell Widget: execute a shell in a separate process using spyderlib's ExternalShellBase"""
     SHELL_CLASS = TerminalWidget
     close_signal = Signal()
+
     def __init__(self, parent=None):
         ExternalShellBase.__init__(self, parent=parent, fname=None, wdir='.',
                                    history_filename='.history',
@@ -56,42 +54,42 @@ class SpyderShellWidget(ExternalShellBase):
 
         # capture tab key
         #self.shell._key_tab = self._key_tab
-        
+
         self.shell.set_pythonshell_font(QFont('Mono'))
 
         # Additional python path list
         self.path = []
-        
+
         # For compatibility with the other shells that can live in the external console
         self.is_ipython_kernel = False
         self.connection_file = None
-        
+
         self.create_process()
-    
+
     def get_icon(self):
         return QIcon()
-    
+
     def create_process(self):
         self.shell.clear()
-            
+
         self.process = QProcess(self)
         self.process.setProcessChannelMode(QProcess.MergedChannels)
-        
+
         env = [unicode(key_val_pair) for key_val_pair in self.process.systemEnvironment()]
         env.append('TERM=xterm')
         env.append('COLORTERM=gnome-terminal')
         self.process.setEnvironment(env)
-        
+
         # Working directory
         if self.wdir is not None:
             self.process.setWorkingDirectory(self.wdir)
-                        
+
         self.process.readyReadStandardOutput.connect(self.write_output)
         self.process.finished.connect(self.finished)
         self.process.finished.connect(self.close_signal)
-        
+
         self.process.start('/bin/bash', ['-i'])
-            
+
         running = self.process.waitForStarted()
         self.set_running_state(running)
         if not running:
@@ -99,7 +97,7 @@ class SpyderShellWidget(ExternalShellBase):
         else:
             self.shell.setFocus()
             self.emit(SIGNAL('started()'))
-            
+
         return self.process
 
     def shutdown(self):
@@ -110,7 +108,7 @@ class SpyderShellWidget(ExternalShellBase):
         self.process.write('\t')
         self.process.waitForBytesWritten(-1)
         self.write_output()
-    
+
     def send_to_process(self, text):
         if not isinstance(text, basestring):
             text = unicode(text)
@@ -118,6 +116,6 @@ class SpyderShellWidget(ExternalShellBase):
             text += '\n'
         self.process.write(QTextCodec.codecForLocale().fromUnicode(text))
         self.process.waitForBytesWritten(-1)
-        
+
     def keyboard_interrupt(self):
         self.send_ctrl_to_process('c')

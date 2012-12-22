@@ -137,8 +137,6 @@ class MonitorDashWidget(IconToolButton):
     def save_settings(self, plugin_settings, instance_settings):
         if self._monitor_shown:
             self._monitor.save_settings(self._plugin_settings, self._instance_settings)
-        plugin_settings = self._plugin_settings
-        instance_settings = self._instance_settings
 
     def restore_settings(self, plugin_settings, instance_settings):
         self._plugin_settings = plugin_settings

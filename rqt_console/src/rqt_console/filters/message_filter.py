@@ -33,6 +33,7 @@
 from python_qt_binding.QtCore import QRegExp
 from .base_filter import BaseFilter
 
+
 class MessageFilter(BaseFilter):
     """
     Contains filter logic for a single message filter. If the regex flag is False

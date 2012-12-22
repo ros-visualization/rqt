@@ -35,7 +35,7 @@ import math
 import random
 import time
 
-from python_qt_binding.QtCore import Slot, qDebug, QSignalMapper, QTimer, qWarning
+from python_qt_binding.QtCore import Slot, QSignalMapper, QTimer, qWarning
 
 import roslib
 import rospy
@@ -222,7 +222,7 @@ class Publisher(Plugin):
         if base_message_type is None:
             print 'Could not create message of type "%s".' % base_type_str
             return None
-        
+
         if array_size is not None:
             message = []
             for _ in range(array_size):
@@ -239,19 +239,19 @@ class Publisher(Plugin):
             value = eval(expression, {}, self._eval_locals)
         except Exception:
             successful_eval = False
-            
+
         if slot_type is str:
             if successful_eval:
                 value = str(value)
-            else: 
+            else:
                 # for string slots just convert the expression to str, if it did not evaluate successfully
                 value = str(expression)
             successful_eval = True
-        
+
         elif successful_eval:
             type_set = set((slot_type, type(value)))
             # check if value's type and slot_type belong to the same type group, i.e. array types, numeric types
-            # and if they do, make sure values's type is converted to the exact slot_type 
+            # and if they do, make sure values's type is converted to the exact slot_type
             if type_set <= set((list, tuple)) or type_set <= set((int, float)):
                 # convert to the right type
                 value = slot_type(value)

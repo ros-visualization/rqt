@@ -35,7 +35,7 @@ from __future__ import division
 import math
 import sys
 
-from python_qt_binding.QtCore import QEvent, QPointF, QTimer, Qt, SIGNAL, Signal, Slot
+from python_qt_binding.QtCore import QEvent, QPointF, Qt, SIGNAL, Signal, Slot
 from python_qt_binding.QtGui import QPen, QVector2D
 import Qwt
 
@@ -198,7 +198,7 @@ class QwtDataPlot(Qwt.QwtPlot):
     def mouseMoveEvent(self, event):
         canvas_x = event.x() - self.canvas().x()
         canvas_y = event.y() - self.canvas().y()
-        if event.buttons() & Qt.MiddleButton: # middle button moves the canvas
+        if event.buttons() & Qt.MiddleButton:  # middle button moves the canvas
             delta_x = self._last_canvas_x - canvas_x
             delta_y = canvas_y - self._last_canvas_y
             self.move_canvas(delta_x, delta_y)

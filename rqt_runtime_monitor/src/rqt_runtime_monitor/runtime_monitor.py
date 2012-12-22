@@ -32,11 +32,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import rospy
-
 from qt_gui.plugin import Plugin
 
 from .runtime_monitor_widget import RuntimeMonitorWidget
+
 
 class RuntimeMonitor(Plugin):
 

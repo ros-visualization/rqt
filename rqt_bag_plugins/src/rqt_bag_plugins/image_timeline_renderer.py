@@ -33,18 +33,16 @@
 import rospy
 
 import sys
-import threading
-import time
 
 import Image
 import ImageQt
 
-from rqt_bag import bag_helper, TimelineCache, TimelineRenderer
+from rqt_bag import TimelineCache, TimelineRenderer
 
 import image_helper
 
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QBrush, QPen, QBitmap, QPixmap
+from python_qt_binding.QtGui import QBrush, QPen, QPixmap
 
 
 class ImageTimelineRenderer(TimelineRenderer):
@@ -90,7 +88,6 @@ class ImageTimelineRenderer(TimelineRenderer):
         painter.setBrush(QBrush(Qt.white))
         painter.drawRect(x, y, width, height - thumbnail_gap)
         thumbnail_width = None
-        thumbnail_right = None
 
         while True:
             available_width = (x + width) - thumbnail_x

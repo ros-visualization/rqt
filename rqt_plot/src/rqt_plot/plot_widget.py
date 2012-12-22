@@ -35,7 +35,7 @@ import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, qWarning, Slot
-from python_qt_binding.QtGui import QAction, QIcon, QMenu,QWidget 
+from python_qt_binding.QtGui import QAction, QIcon, QMenu, QWidget
 
 import rospy
 
@@ -48,7 +48,7 @@ from . rosplot import ROSData, RosPlotException
 class PlotWidget(QWidget):
     _redraw_interval = 40
 
-    def __init__(self, arguments = None, initial_topics = None):
+    def __init__(self, arguments=None, initial_topics=None):
         super(PlotWidget, self).__init__()
         self.setObjectName('PlotWidget')
 

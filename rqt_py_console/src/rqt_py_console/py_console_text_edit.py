@@ -39,11 +39,12 @@ from python_qt_binding.QtCore import Qt, Signal
 
 from qt_gui_py_common.console_text_edit import ConsoleTextEdit
 
+
 class PyConsoleTextEdit(ConsoleTextEdit):
     _color_stdin = Qt.darkGreen
     _multi_line_char = ':'
     _multi_line_indent = '    '
-    _prompt = ('>>> ', '... ') # prompt for single and multi line
+    _prompt = ('>>> ', '... ')  # prompt for single and multi line
     exit = Signal()
 
     def __init__(self, parent=None):
@@ -59,10 +60,9 @@ class PyConsoleTextEdit(ConsoleTextEdit):
 
     def update_interpreter_locals(self, newLocals):
         self._interpreter_locals.update(newLocals)
-        
+
     def _exec_code(self, code):
         try:
             self._interpreter.runsource(code)
-        except SystemExit: # catch sys.exit() calls, so they don't close the whole gui
+        except SystemExit:  # catch sys.exit() calls, so they don't close the whole gui
             self.exit.emit()
-        

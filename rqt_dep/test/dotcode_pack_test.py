@@ -32,16 +32,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import unittest
-import rospkg
-import sys, os
 
 # get mock from pypi as 'mock'
-from mock import Mock, MagicMock, patch
+from mock import Mock, patch
 
 from rqt_dep.dotcode_pack import RosPackageGraphDotcodeGenerator
 
 
-PKG='rqt_deps'
+PKG = 'rqt_deps'
+
 
 class DotcodeGeneratorTest(unittest.TestCase):
 
@@ -65,4 +64,3 @@ class DotcodeGeneratorTest(unittest.TestCase):
 if __name__ == '__main__':
     import rosunit
     rosunit.unitrun(PKG, 'test_packages_only', DotcodeGeneratorTest)
-

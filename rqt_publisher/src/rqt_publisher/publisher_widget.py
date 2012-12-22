@@ -34,7 +34,7 @@ from __future__ import division
 import os
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Signal, Slot, QThread
+from python_qt_binding.QtCore import Signal, Slot
 from python_qt_binding.QtGui import QIcon, QWidget
 
 import roslib
@@ -42,7 +42,7 @@ import rosmsg
 import rospkg
 import rospy
 
-from qt_gui_py_common.worker_thread import WorkerThread 
+from qt_gui_py_common.worker_thread import WorkerThread
 from rqt_py_common.extended_combo_box import ExtendedComboBox
 from .publisher_tree_widget import PublisherTreeWidget
 

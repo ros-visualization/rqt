@@ -128,12 +128,12 @@ class Plot(Plugin):
                     # the first prefix includes a field name, so save then strip it off
                     c_topics.append(base)
                     if not '/' in base:
-                        parser.error("%s must contain a topic and field name"%sub_t)
+                        parser.error("%s must contain a topic and field name" % sub_t)
                     base = base[:base.rfind('/')]
 
                     # compute the rest of the field names
                     fields = sub_t.split(':')[1:]
-                    c_topics.extend(["%s/%s"%(base, f) for f in fields if f])
+                    c_topics.extend(["%s/%s" % (base, f) for f in fields if f])
                 else:
                     c_topics.append(sub_t)
             # #1053: resolve command-line topic names

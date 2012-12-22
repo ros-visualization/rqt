@@ -30,28 +30,21 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import shutil
-import sys
-import threading
-import time
-
-import numpy
-
 import Image
 import ImageQt
 
-from rqt_bag import bag_helper, TopicMessageView
+from rqt_bag import TopicMessageView
 import image_helper
 
-from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QBrush, QFileDialog, QFont, QGraphicsScene, QGraphicsView, QIcon, QPainterPath, QPen, QPixmap, QPushButton
+from python_qt_binding.QtGui import QGraphicsScene, QGraphicsView, QPixmap
+
 
 class ImageView(TopicMessageView):
     """
     Popup image viewer
     """
     name = 'Image'
+
     def __init__(self, timeline, parent):
         super(ImageView, self).__init__(timeline, parent)
 
@@ -70,7 +63,7 @@ class ImageView(TopicMessageView):
         self._scene = QGraphicsScene()
         self._image_view.setScene(self._scene)
         parent.layout().addWidget(self._image_view)
-        
+
     # MessageView implementation
     def _resizeEvent(self, event):
         # TODO make this smarter. currently there will be no scrollbar even if the timeline extends beyond the viewable area
@@ -84,7 +77,7 @@ class ImageView(TopicMessageView):
         TopicMessageView.message_viewed(self, bag, msg_details)
         topic, msg, t = msg_details[:3]
         if not msg:
-            self.set_image(None, topic, stamp)
+            self.set_image(None, topic, 'no message')
         else:
             self.set_image(msg, topic, msg.header.stamp)
 
@@ -95,7 +88,7 @@ class ImageView(TopicMessageView):
     # End MessageView implementation
     def put_image_into_scene(self):
         if self._image:
-            resized_image = self._image.resize((self._image_view.size().width()-2, self._image_view.size().height()-2), self.quality)
+            resized_image = self._image.resize((self._image_view.size().width() - 2, self._image_view.size().height() - 2), self.quality)
 
             QtImage = ImageQt.ImageQt(resized_image)
             pixmap = QPixmap.fromImage(QtImage)

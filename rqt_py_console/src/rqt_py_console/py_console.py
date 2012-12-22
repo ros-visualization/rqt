@@ -40,7 +40,8 @@ try:
     _has_spyderlib = True
 except ImportError:
     _has_spyderlib = False
-        
+
+
 class PyConsole(Plugin):
     """
     Plugin providing an interactive Python console
@@ -48,7 +49,7 @@ class PyConsole(Plugin):
     def __init__(self, context):
         super(PyConsole, self).__init__(context)
         self.setObjectName('PyConsole')
-        
+
         self._context = context
         self._use_spyderlib = _has_spyderlib
         self._console_widget = None
@@ -58,12 +59,11 @@ class PyConsole(Plugin):
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         self._context.add_widget(self._widget)
-        
-            
+
     def _switch_console_widget(self):
         self._widget.layout().removeWidget(self._console_widget)
         self.shutdown_console_widget()
-        
+
         if _has_spyderlib and self._use_spyderlib:
             self._console_widget = SpyderConsoleWidget(self._context)
             self._widget.setWindowTitle('SpyderConsole')
@@ -74,7 +74,6 @@ class PyConsole(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % self._context.serial_number()))
 
         self._widget.layout().addWidget(self._console_widget)
-        
 
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('use_spyderlib', self._use_spyderlib)
@@ -84,7 +83,7 @@ class PyConsole(Plugin):
         self._switch_console_widget()
 
     def trigger_configuration(self):
-        options=[
+        options = [
             {'title': 'SpyderConsole', 'description': 'Advanced Python console with tab-completion (needs spyderlib to be installed).', 'enabled': _has_spyderlib},
             {'title': 'PyConsole', 'description': 'Simple Python console.'},
         ]
@@ -95,11 +94,10 @@ class PyConsole(Plugin):
         if self._use_spyderlib != new_use_spyderlib:
             self._use_spyderlib = new_use_spyderlib
             self._switch_console_widget()
-        
+
     def shutdown_console_widget(self):
         if self._console_widget is not None and hasattr(self._console_widget, 'shutdown'):
             self._console_widget.shutdown()
 
     def shutdown_plugin(self):
         self.shutdown_console_widget()
-

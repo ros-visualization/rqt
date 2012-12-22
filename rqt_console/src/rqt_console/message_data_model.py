@@ -48,7 +48,9 @@ class MessageDataModel(QAbstractTableModel):
         self._error_icon = QIcon.fromTheme('dialog-error')
         self._warning_icon = QIcon.fromTheme('dialog-warning')
         self._info_icon = QIcon.fromTheme('dialog-information')
+
     # BEGIN Required implementations of QAbstractTableModel functions
+
     def rowCount(self, parent=None):
         return len(self._messages.get_message_list())
 
@@ -252,8 +254,8 @@ class MessageDataModel(QAbstractTableModel):
             for line in lines:
                 try:
                     self._messages.append_from_text(line)
-                except ValueError as e:
-                    qWarning('File does not appear to be a rqt_console message file: File line is malformed %s'%line)
+                except ValueError:
+                    qWarning('File does not appear to be a rqt_console message file: File line is malformed %s' % line)
             self.endInsertRows()
             self._paused = True
             return True
@@ -261,7 +263,7 @@ class MessageDataModel(QAbstractTableModel):
             qWarning('File does not appear to be a rqt_console message file: missing file header.')
             return False
 
-    def get_message_list(self, start_time = None, end_time = None):
+    def get_message_list(self, start_time=None, end_time=None):
         """
         :param start_time: time to start in timestamp form (including decimal
         fractions of a second is acceptable, ''unixtimestamp'' (Optional)

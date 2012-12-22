@@ -35,7 +35,7 @@ from python_qt_binding.QtCore import QObject, QTimer, Signal
 
 class BaseFilter(QObject):
     """
-    Contains basic functions common to all filters. Handles enabled code and 
+    Contains basic functions common to all filters. Handles enabled code and
     """
     filter_changed_signal = Signal()
 
@@ -46,8 +46,8 @@ class BaseFilter(QObject):
         self._timer = QTimer(self)
         self._timer.setSingleShot(True)
         self._timer.timeout.connect(self.filter_changed_signal.emit)
-    
-    def start_emit_timer(self, msec = None):
+
+    def start_emit_timer(self, msec=None):
         """
         Starts a timer to emit a signal to refresh the filters after the filter is changed
         :param msec: number of msecs to wait before emitting the signal to change the filter ''int''
@@ -68,4 +68,3 @@ class BaseFilter(QObject):
         """
         self._enabled = checked
         self.start_emit_timer(200)
-

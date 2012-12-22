@@ -30,10 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
 
 from python_qt_binding.QtCore import QSize
-from python_qt_binding.QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
+from python_qt_binding.QtGui import QToolBar
 from qt_gui.plugin import Plugin
 
 

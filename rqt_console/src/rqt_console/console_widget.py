@@ -142,8 +142,8 @@ class ConsoleWidget(QWidget):
             self.table_splitter.setSizes([1, 1])
         self.exclude_table.resizeColumnsToContents()
         self.highlight_table.resizeColumnsToContents()
- 
-    def get_message_summary(self, start_time_offset = None, end_time_offset = None):
+
+    def get_message_summary(self, start_time_offset=None, end_time_offset=None):
         """
         :param start_time: number of seconds before now to start, ''int'' (optional)
         :param end_time: number of seconds before now to end, ''int'' (optional)
@@ -160,8 +160,10 @@ class ConsoleWidget(QWidget):
             end_time = None
 
         message_subset = self._datamodel.get_message_list(start_time, end_time)
+
         class Message_Summary(object):
             __slots__ = 'fatal', 'error', 'warn', 'info', 'debug'
+
             def __init__(self, messages):
                 self.fatal = 0
                 self.error = 0

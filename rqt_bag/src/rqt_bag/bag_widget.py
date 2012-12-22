@@ -38,7 +38,7 @@ import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QFileDialog, QGraphicsView, QLabel, QIcon, QStatusBar, QWidget
+from python_qt_binding.QtGui import QFileDialog, QGraphicsView, QIcon, QWidget
 
 import rosbag
 import bag_helper
@@ -107,7 +107,7 @@ class BagWidget(QWidget):
         self.keyPressEvent = self.on_key_press
         # TODO when the closeEvent is properly called by ROS_GUI implement that event instead of destroyed
         self.destroyed.connect(self.handle_destroy)
-        
+
         self.graphics_view.keyPressEvent = self.graphics_view_on_key_press
         self.play_button.setEnabled(False)
         self.thumbs_button.setEnabled(False)
@@ -154,17 +154,15 @@ class BagWidget(QWidget):
             self._handle_zoom_in_clicked()
         elif key == Qt.Key_Down or key == Qt.Key_PageDown:
             self._handle_zoom_out_clicked()
-#        elif key == Qt.Key_Pause: 
-#            self._timeline.toggle_recording()
 
     def handle_destroy(self, args):
         self._timeline.handle_close()
 
     def handle_close(self, event):
         self.shutdown_all()
-        
+
         event.accept()
-    
+
     def _resizeEvent(self, event):
         # TODO The -2 allows a buffer zone to make sure the scroll bars do not appear when not needed. On some systems (Lucid) this doesn't function properly
         # need to look at a method to determine the maximum size of the scene that will maintain a proper no scrollbar fit in the view.
@@ -227,6 +225,7 @@ class BagWidget(QWidget):
             self.load_button.setEnabled(False)
             self._recording = True
             self._timeline.record_bag(record_filename)
+
     def _handle_load_clicked(self):
         filename = QFileDialog.getOpenFileName(self, self.tr('Load from File'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
@@ -248,7 +247,7 @@ class BagWidget(QWidget):
         filename = QFileDialog.getSaveFileName(self, self.tr('Save selected region to file...'), '.', self.tr('Bag files {.bag} (*.bag)'))
         if filename[0] != '':
             self._timeline.copy_region_to_bag(filename[0])
-    
+
     def _update_status_bar(self):
         if self._timeline._timeline_frame.playhead is None or self._timeline._timeline_frame.start_stamp is None:
             return
@@ -287,6 +286,6 @@ class BagWidget(QWidget):
         except:
             return
     # Shutdown all members
-    
+
     def shutdown_all(self):
         self._timeline.handle_close()

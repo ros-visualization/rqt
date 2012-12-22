@@ -43,8 +43,8 @@ class WebWidget(QWidget):
     def __init__(self, url=None):
         """
         Class to load a webpage in a widget.
-        
-        :param url: If url is empty then a navigation bar is shown otherwise the url is loaded and the navigation bar is hidden, ''str'' 
+
+        :param url: If url is empty then a navigation bar is shown otherwise the url is loaded and the navigation bar is hidden, ''str''
         """
         super(WebWidget, self).__init__()
         rp = rospkg.RosPack()

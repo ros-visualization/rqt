@@ -49,6 +49,7 @@ except ImportError:
     SpyderShellWidget = None
     _has_spyderlib = False
 
+
 class Shell(Plugin):
     """
     Plugin providing an interactive shell
@@ -56,43 +57,44 @@ class Shell(Plugin):
     # shell types in order of priority
     shell_types = [
         {
-            'title': 'XTerm', 
+            'title': 'XTerm',
             'widget_class': XTermWidget,
-            'description': 'Fully functional embedded XTerm (needs xterm and only works on X11).', 
+            'description': 'Fully functional embedded XTerm (needs xterm and only works on X11).',
             'enabled': _has_xterm,
-        }, 
+        },
         {
-            'title': 'SpyderShell', 
+            'title': 'SpyderShell',
             'widget_class': SpyderShellWidget,
             'description': 'Advanced shell (needs spyderlib).',
             'enabled': _has_spyderlib,
-        }, 
+        },
         {
-            'title': 'SimpleShell', 
+            'title': 'SimpleShell',
             'widget_class': ShellWidget,
             'description': 'Simple shell for executing non-interactive finite commands.',
             'enabled': True,
         },
     ]
+
     def __init__(self, context):
         super(Shell, self).__init__(context)
         self._context = context
         self.setObjectName('Shell')
 
         self._widget = None
-        
+
     def _switch_shell_widget(self):
         # check for available shell type
         while not self.shell_types[self._shell_type_index]['enabled']:
             self._shell_type_index += 1
         selected_shell = self.shell_types[self._shell_type_index]
-        
+
         if self._widget is not None:
             if hasattr(self._widget, 'close_signal'):
                 self._widget.close_signal.disconnect(self._context.close_plugin)
             self._context.remove_widget(self._widget)
             self._widget.close()
-        
+
         self._widget = selected_shell['widget_class']()
         self._widget.setWindowTitle(selected_shell['title'])
         if self._context.serial_number() > 1:

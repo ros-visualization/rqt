@@ -57,16 +57,16 @@ class Web(Plugin):
         #self._web = WebWidget('http://ros.org')
         #context.add_widget(self._web)
 
-        #  To change the url at a later time use this function 
+        #  To change the url at a later time use this function
         # self._web.set_url('http://willowgarage.com')
 
     def shutdown_plugin(self):
         pass
 
     def save_settings(self, plugin_settings, instance_settings):
-        # NOTE: This line is required to save the url bar autocompleter data between sessions 
+        # NOTE: This line is required to save the url bar autocompleter data between sessions
         self._web.save_settings(instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        # NOTE: This line is required to restore the url bar autocompleter data between sessions 
+        # NOTE: This line is required to restore the url bar autocompleter data between sessions
         self._web.restore_settings(instance_settings)

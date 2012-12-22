@@ -52,9 +52,10 @@ from .timeline_menu import TimelinePopupMenu
 class BagTimeline(QGraphicsScene):
     """
     BagTimeline contains bag files, all information required to display the bag data visualization on the screen
-    Also handles events 
+    Also handles events
     """
     status_bar_changed_signal = Signal()
+
     def __init__(self, context):
         """
         :param context: plugin context hook to enable adding rqt_bag plugin widgets as ROS_GUI snapin panes, ''PluginContext''
@@ -94,8 +95,8 @@ class BagTimeline(QGraphicsScene):
         self.popups = set()
         self._views = []
         self._listeners = {}
-        
-        # Initialize scene  
+
+        # Initialize scene
         self._timeline_frame = TimelineFrame()
         self._timeline_frame.setPos(0, 0)
         self.addItem(self._timeline_frame)
@@ -162,7 +163,7 @@ class BagTimeline(QGraphicsScene):
 
             self._timeline_frame.index_cache_cv.notify()
 
-    #TODO Rethink API and if these need to be visible 
+    #TODO Rethink API and if these need to be visible
     def _get_start_stamp(self):
         """
         :return: first stamp in the bags, ''rospy.Time''
@@ -444,7 +445,7 @@ class BagTimeline(QGraphicsScene):
 
     def on_mousewheel(self, event):
         self._timeline_frame.on_mousewheel(event)
-    
+
     # Zooming
 
     def zoom_in(self):
@@ -455,13 +456,13 @@ class BagTimeline(QGraphicsScene):
 
     def reset_zoom(self):
         self._timeline_frame.reset_zoom()
-    
+
     def translate_timeline_left(self):
         self._timeline_frame.translate_timeline_left()
 
     def translate_timeline_right(self):
         self._timeline_frame.translate_timeline_right()
-    
+
     ### Publishing
     def is_publishing(self, topic):
         return self._player and self._player.is_publishing(topic)

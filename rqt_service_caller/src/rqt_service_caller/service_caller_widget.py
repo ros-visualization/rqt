@@ -37,7 +37,7 @@ import random
 import time
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, Slot, qDebug, qWarning
+from python_qt_binding.QtCore import Qt, Slot, qWarning
 from python_qt_binding.QtGui import QIcon, QMenu, QTreeWidgetItem, QWidget
 
 import rospkg
@@ -88,7 +88,7 @@ class ServiceCallerWidget(QWidget):
             self.splitter.setOrientation(Qt.Horizontal)
 
     def trigger_configuration(self):
-        new_orientation = Qt.Vertical if self.splitter.orientation() == Qt.Horizontal else Qt.Horizontal 
+        new_orientation = Qt.Vertical if self.splitter.orientation() == Qt.Horizontal else Qt.Horizontal
         self.splitter.setOrientation(new_orientation)
 
     @Slot()

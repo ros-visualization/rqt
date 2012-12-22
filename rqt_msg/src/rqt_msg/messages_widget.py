@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import rospy
+
 import rospkg
 import rosmsg
 import roslib
@@ -40,7 +40,6 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QAction, QIcon, QMenu, QMessageBox, QTreeView, QWidget
 
-from .messages_tree_model import MessagesTreeModel
 from .messages_tree_view import MessagesTreeView
 
 from rqt_console.text_browse_dialog import TextBrowseDialog
@@ -88,7 +87,7 @@ class MessagesWidget(QWidget):
             if message_class is not None:
                 self._messages.append(message)
 
-        self._messages = [ x.split('/')[1] for x in self._messages]
+        self._messages = [x.split('/')[1] for x in self._messages]
 
         self.message_combo.clear()
         self.message_combo.addItems(self._messages)
@@ -120,11 +119,11 @@ class MessagesWidget(QWidget):
         menu.addAction(raw_action)
 
         action = menu.exec_(event.globalPos())
-        
+
         if action == raw_action or action == text_action:
             selected = self.messages_tree.selectedIndexes()
             selected_type = selected[1].data()
-            
+
             if selected_type[-2:] == '[]':
                 selected_type = selected_type[:-2]
             browsetext = None
@@ -135,7 +134,7 @@ class MessagesWidget(QWidget):
                     browsetext = rosmsg.get_srv_text(selected_type, action == raw_action)
                 else:
                     raise
-            except rosmsg.ROSMsgException, e:
+            except rosmsg.ROSMsgException:
                 QMessageBox.warning(self, self.tr('Warning'), self.tr('The selected item component does not have text to view.'))
             if browsetext is not None:
                 self._browsers.append(TextBrowseDialog(browsetext))
@@ -146,4 +145,3 @@ class MessagesWidget(QWidget):
     def cleanup_browsers_on_close(self):
         for browser in self._browsers:
             browser.close()
-

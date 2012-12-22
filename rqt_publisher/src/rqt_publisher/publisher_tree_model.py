@@ -37,6 +37,7 @@ from python_qt_binding.QtGui import QStandardItem
 from rqt_py_common.message_tree_model import MessageTreeModel
 from rqt_py_common.data_items import ReadonlyItem, CheckableItem
 
+
 class PublisherTreeModel(MessageTreeModel):
     _column_names = ['topic', 'type', 'rate', 'expression']
     item_value_changed = Signal(int, str, str, str, object)

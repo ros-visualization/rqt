@@ -40,7 +40,7 @@ from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PolygonStamped, PointStamped
 
 from python_qt_binding.QtCore import Signal, QPointF
-from python_qt_binding.QtGui import QWidget, QPixmap, QImage, QGraphicsView, QGraphicsScene, QPainterPath, QPen, QColor, QPolygonF, QPushButton, QVBoxLayout, QHBoxLayout, QColor, qRgb
+from python_qt_binding.QtGui import QWidget, QPixmap, QImage, QGraphicsView, QGraphicsScene, QPainterPath, QPen, QPolygonF, QVBoxLayout, QColor, qRgb
 
 
 class PathInfo(object):
@@ -53,10 +53,12 @@ class PathInfo(object):
 
         self.name = name
 
+
 class NavViewWidget(QWidget):
-    def __init__(self, map_topic = '/map', 
-                 paths = ['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'], 
-                 polygons= ['/move_base/local_costmap/robot_footprint']):
+
+    def __init__(self, map_topic='/map',
+                 paths=['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'],
+                 polygons=['/move_base/local_costmap/robot_footprint']):
         super(NavViewWidget, self).__init__()
         self._layout = QVBoxLayout()
 
@@ -66,18 +68,20 @@ class NavViewWidget(QWidget):
 
         self.setLayout(self._layout)
 
+
 class NavView(QGraphicsView):
     map_changed = Signal()
     path_changed = Signal(str)
     polygon_changed = Signal(str)
-    def __init__(self, map_topic = '/map', 
-                 paths = ['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'], 
-                 polygons= ['/move_base/local_costmap/robot_footprint']):
+
+    def __init__(self, map_topic='/map',
+                 paths=['/move_base/SBPLLatticePlanner/plan', '/move_base/TrajectoryPlannerROS/local_plan'],
+                 polygons=['/move_base/local_costmap/robot_footprint']):
         super(NavView, self).__init__()
 
         self.map_changed.connect(self._update)
         self.destroyed.connect(self.close)
-        
+
         #ScrollHandDrag
         self.setDragMode(QGraphicsView.ScrollHandDrag)
 
@@ -97,7 +101,7 @@ class NavView(QGraphicsView):
         self._scene = QGraphicsScene()
 
         self._tf = tf.TransformListener()
-        self.map_sub = rospy.Subscriber('/map', OccupancyGrid, self.map_cb) 
+        self.map_sub = rospy.Subscriber('/map', OccupancyGrid, self.map_cb)
 
         for path in paths:
             self.add_path(path)
@@ -131,11 +135,12 @@ class NavView(QGraphicsView):
         image.setColor(101, qRgb(255, 0, 0))  # not used indices
         image.setColor(255, qRgb(0, 0, 150))  # color for unknown value -1
         self._map = image
-        self.setSceneRect(0,0, self.w, self.h)
+        self.setSceneRect(0, 0, self.w, self.h)
         self.map_changed.emit()
 
     def add_path(self, name):
         path = PathInfo(name)
+
         def c(msg):
             pp = QPainterPath()
 
@@ -144,7 +149,7 @@ class NavView(QGraphicsView):
                 try:
                     self._tf.waitForTransform(msg.header.frame_id, '/map', rospy.Time(), rospy.Duration(10))
                     data = [self._tf.transformPose('/map', pose) for pose in msg.poses]
-                except tf.Exception as e:
+                except tf.Exception:
                     rospy.logerr("TF Error")
                     data = []
             else:
@@ -171,6 +176,7 @@ class NavView(QGraphicsView):
 
     def add_polygon(self, name):
         poly = PathInfo(name)
+
         def c(msg):
             if not (msg.header.frame_id == '/map' or msg.header.frame_id == ''):
                 try:
@@ -237,7 +243,7 @@ class NavView(QGraphicsView):
         if name in self._paths.keys():
             old_item = self._paths[name].item
 
-        self._paths[name].item = self._scene.addPath(self._paths[name].path, pen = QPen(QColor(*self._paths[name].color)))
+        self._paths[name].item = self._scene.addPath(self._paths[name].path, pen=QPen(QColor(*self._paths[name].color)))
 
         # Everything must be mirrored
         self._mirror(self._paths[name].item)
@@ -250,7 +256,7 @@ class NavView(QGraphicsView):
         if name in self._polygons.keys():
             old_item = self._polygons[name].item
 
-        self._polygons[name].item = self._scene.addPolygon(self._polygons[name].path, pen = QPen(QColor(*self._polygons[name].color)))
+        self._polygons[name].item = self._scene.addPolygon(self._polygons[name].path, pen=QPen(QColor(*self._polygons[name].color)))
 
         # Everything must be mirrored
         self._mirror(self._polygons[name].item)
@@ -259,6 +265,5 @@ class NavView(QGraphicsView):
             self._scene.removeItem(old_item)
 
     def _mirror(self, item):
-        item.scale(-1,1)
+        item.scale(-1, 1)
         item.translate(-self.w, 0)
-

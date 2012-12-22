@@ -39,23 +39,25 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QIcon, QTreeWidgetItem, QWidget
 from python_qt_binding.QtCore import Qt, QTimer, QObject
 
-from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+from diagnostic_msgs.msg import DiagnosticArray
 
 import threading
 import cStringIO
 import copy
 
+
 class TreeItem(QObject):
     ##\param status DiagnosticsStatus : Diagnostic data of item
     ##\param tree_node wxTreeItemId : Tree ID of item in display
     ##\param stamp ros::Time : Stamp when message was received
-    def __init__(self, status, tree_node, stamp = None):
+    def __init__(self, status, tree_node, stamp=None):
         super(TreeItem, self).__init__()
         self.status = status
         self.mark = False
         self.stale = False
         self.tree_node = tree_node
         self.stamp = stamp
+
 
 class RuntimeMonitorWidget(QWidget):
     def __init__(self, topic="/diagnostics"):
@@ -133,7 +135,7 @@ class RuntimeMonitorWidget(QWidget):
         """
         Removes all values from monitor display, resets buffers
         """
-        self._name_to_item = {} # Reset all stale topics
+        self._name_to_item = {}  # Reset all stale topics
         self._messages = []
         self._clear_tree()
 
@@ -151,20 +153,18 @@ class RuntimeMonitorWidget(QWidget):
     def _diagnostics_callback(self, message):
         with self._mutex:
             self._messages.append(message)
-        
+
         self.new_message(rospy.get_rostime())
 
-    def new_message(self, stamp = None):
+    def new_message(self, stamp=None):
         with self._mutex:
             had_errors = False
-    
+
             for message in self._messages:
                 for status in message.status:
                     was_selected = False
-                    had_item = False
                     if (self._name_to_item.has_key(status.name)):
                         item = self._name_to_item[status.name]
-                        had_item = True
                         if self.tree_widget.selectedItems() != [] and self.tree_widget.selectedItems()[0] == item:
                             was_selected = True
                         if (item.status.level == 2 and status.level != 2):
@@ -175,13 +175,13 @@ class RuntimeMonitorWidget(QWidget):
                         if (status.level == 2):
                             had_errors = True
             self._messages = []
-    
+
         if (had_errors and self._new_errors_callback != None):
             self._new_errors_callback()
 
         self._update_root_labels()
         self.update()
-      
+
     def _update_item(self, item, status, was_selected, stamp):
         change_parent = False
         if (item.status.level != status.level):
@@ -204,7 +204,7 @@ class RuntimeMonitorWidget(QWidget):
                 parent_node = self._stale_node
             else:
                 parent_node = self._error_node
-            
+
             item.tree_node.setText(0, status.name + ": " + status.message)
             item.stamp = stamp
             item.tree_node.setData(0, Qt.UserRole, item)
@@ -212,22 +212,22 @@ class RuntimeMonitorWidget(QWidget):
 
             if (status.level > 1 or status.level == -1):
                 parent_node.setExpanded(True)
-      
+
             parent_node.sortChildren(0, Qt.AscendingOrder)
-        
+
             if (was_selected):
                 item.tree_node.setSelected(True)
-      
+
         else:
             item.tree_node.setText(0, status.name + ": " + status.message)
-      
+
         item.status = status
-    
+
         if (was_selected):
             self._fillout_info(item.tree_node)
-      
+
         item.mark = True
-    
+
     def _create_item(self, status, select, expand_if_error, stamp):
         if (status.level == 0):
             parent_node = self._ok_node
@@ -237,48 +237,48 @@ class RuntimeMonitorWidget(QWidget):
             parent_node = self._stale_node
         else:
             parent_node = self._error_node
-        
+
         item = TreeItem(status, QTreeWidgetItem(parent_node, [status.name + ": " + status.message]), stamp)
         item.tree_node.setData(0, Qt.UserRole, item)
         parent_node.addChild(item.tree_node)
-    
+
         self._name_to_item[status.name] = item
-    
+
         parent_node.sortChildren(0, Qt.AscendingOrder)
-    
+
         if (select):
             item.tree_node.setSelected(True)
-        
+
         if (expand_if_error and (status.level > 1 or status.level == -1)):
             parent_node.setExpanded(True)
-        
+
         item.mark = True
-    
+
         return item
-          
+
     def _fillout_info(self, node):
         item = node.data(0, Qt.UserRole)
         if (item == None):
             return
-      
+
         status = item.status
-    
+
         s = cStringIO.StringIO()
-    
+
         s.write("<html><body>")
         s.write("<b>Component</b>: %s<br>\n" % (status.name))
         s.write("<b>Message</b>: %s<br>\n" % (status.message))
-        s.write("<b>Hardware ID</b>: %s<br><br>\n\n" % (status.hardware_id)) 
-    
+        s.write("<b>Hardware ID</b>: %s<br><br>\n\n" % (status.hardware_id))
+
         s.write('<table border="1" cellpadding="2" cellspacing="0">')
         for value in status.values:
             value.value = value.value.replace("\n", "<br>")
             s.write("<tr><td><b>%s</b></td> <td>%s</td></tr>\n" % (value.key, value.value))
-        
+
         s.write("</table></body></html>")
-        
+
         self.html_browser.setHtml(s.getvalue())
-          
+
     def _on_item_selected(self):
         current_item = self.tree_widget.selectedItems()
         if current_item is not None:
@@ -301,11 +301,10 @@ class RuntimeMonitorWidget(QWidget):
                 del self._name_to_item[item.status.name]
         else:
             event.Skip()
-        self._update_root_labels()    
+        self._update_root_labels()
         self.update()
 
-
-    def _on_timer(self ):
+    def _on_timer(self):
         for name, item in self._name_to_item.iteritems():
             node = item.tree_node
             if (item != None):
@@ -314,23 +313,23 @@ class RuntimeMonitorWidget(QWidget):
                     selected = self.tree_widget.selectedItems()
                     if selected != [] and selected[0] == node:
                         was_selected = True
-      
+
                     new_status = copy.deepcopy(item.status)
                     new_status.level = -1
                     self._update_item(item, new_status, was_selected, item.stamp)
                 item.mark = False
         self._update_root_labels()
         self.update()
-      
+
     def set_new_errors_callback(self, callback):
         self._new_errors_callback = callback
 
     def get_num_errors(self):
         return self._error_node.childCount() + self._stale_node.childCount()
-  
+
     def get_num_warnings(self):
         return self._warning_node.childCount()
-  
+
     def get_num_ok(self):
         return self._ok_node.childCount()
 
@@ -339,4 +338,3 @@ class RuntimeMonitorWidget(QWidget):
         self._error_node.setText(0, "Errors (%s)" % (self._error_node.childCount()))
         self._warning_node.setText(0, "Warnings (%s)" % (self._warning_node.childCount()))
         self._ok_node.setText(0, "Ok (%s)" % (self._ok_node.childCount()))
-

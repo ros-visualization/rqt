@@ -33,7 +33,7 @@
 import threading
 
 from python_qt_binding.QtCore import QCoreApplication, QEvent
-#from python_qt_binding.QtCore import qWarning
+from python_qt_binding.QtCore import qWarning
 
 
 class ListenerEvent(QEvent):

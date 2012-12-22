@@ -37,6 +37,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
 import shell_text_edit
 
+
 class ShellWidget(QWidget):
     def __init__(self, parent=None):
         super(ShellWidget, self).__init__(parent=parent)

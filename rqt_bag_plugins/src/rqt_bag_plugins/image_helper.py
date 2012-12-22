@@ -30,14 +30,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
-
 import array
 from cStringIO import StringIO
 import sys
 
 import Image
 import cairo
+
 
 def imgmsg_to_pil(img_msg, rgba=True):
     try:
@@ -79,22 +78,13 @@ def imgmsg_to_pil(img_msg, rgba=True):
         print >> sys.stderr, 'Can\'t convert image: %s' % ex
         return None
 
+
 def pil_bgr2rgb(pil_img):
     rgb2bgr = (0, 0, 1, 0,
                0, 1, 0, 0,
                1, 0, 0, 0)
     return pil_img.convert('RGB', rgb2bgr)
 
-def imgmsg_to_wx(img_msg):
-    # Can use rgb8 encoding directly
-    if img_msg.encoding == 'rgb8':
-        return wx.ImageFromBuffer(img_msg.width, img_msg.height, img_msg.data)
-
-    pil_img = imgmsg_to_pil(img_msg)
-    if not pil_img:
-        return None
-
-    return wx.ImageFromData(pil_img.size[0], pil_img.size[1], pil_img.tostring())
 
 def pil_to_cairo(pil_img):
     w, h = pil_img.size
@@ -102,14 +92,3 @@ def pil_to_cairo(pil_img):
     data.fromstring(pil_img.tostring())
 
     return cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32, w, h)
-
-def wxbitmap_to_cairo(bitmap):
-    image = wx.ImageFromBitmap(bitmap)
-    pil_img = Image.new('RGB', (image.GetWidth(), image.GetHeight()))
-    pil_img.fromstring(image.GetData())
-
-    pil_img = pil_bgr2rgb(pil_img)
-    if pil_img.mode != 'RGBA':
-        pil_img = pil_img.convert('RGBA')
-
-    return pil_to_cairo(pil_img)

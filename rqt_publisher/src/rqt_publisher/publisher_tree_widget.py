@@ -37,6 +37,7 @@ from .publisher_tree_model import PublisherTreeModel
 from rqt_py_common.message_tree_widget import MessageTreeWidget
 from rqt_py_common.item_delegates import SpinBoxDelegate
 
+
 class PublisherTreeWidget(MessageTreeWidget):
     remove_publisher = Signal(int)
     publish_once = Signal(int)
