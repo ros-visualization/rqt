@@ -1,6 +1,6 @@
 <package>
   <name>rqt_robot_dashboard</name>
-  <version>0.2.4</version>
+  <version>0.2.5</version>
   <description>rqt_robot_dashboard provides an infrastructure for building robot dashboard plugins in rqt.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 

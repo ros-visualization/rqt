@@ -1,6 +1,6 @@
 <package>
   <name>rqt_bag</name>
-  <version>0.2.4</version>
+  <version>0.2.5</version>
   <description>rqt_bag provides a GUI plugin for displaying and replaying ROS bag files.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 

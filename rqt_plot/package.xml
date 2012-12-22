@@ -1,6 +1,6 @@
 <package>
   <name>rqt_plot</name>
-  <version>0.2.4</version>
+  <version>0.2.5</version>
   <description>rqt_plot provides a GUI plugin visualizing numeric values in a 2D plot using different plotting backends.</description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
 
