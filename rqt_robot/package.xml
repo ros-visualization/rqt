@@ -19,7 +19,7 @@
   <run_depend>rqt_robot_monitor</run_depend>
   <run_depend>rqt_robot_steering</run_depend>
   <run_depend>rqt_runtime_monitor</run_depend>
-  <run_depend>rqt_tf_tree</run_depend>
+  <!--<run_depend>rqt_tf_tree</run_depend>-->
 
   <export>
     <metapackage/>
