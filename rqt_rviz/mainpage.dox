@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rqt_rviz provides a GUI plugin embedding RViz.
-*/

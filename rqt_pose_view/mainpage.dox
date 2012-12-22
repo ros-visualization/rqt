@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rqt_pose_view provides a GUI plugin for visualizing 3D poses.
-*/

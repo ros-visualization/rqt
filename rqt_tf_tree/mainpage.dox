@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rqt_tf_tree provides a GUI plugin for visualizing the TF tree.
-*/
