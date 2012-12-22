@@ -46,7 +46,7 @@ class RosTfTreeDotcodeGenerator(object):
         self.last_drawargs = None
         self.dotcode = None
         self.firstcall = True
-        self.listen_duration=initial_listen_duration
+        self.listen_duration = initial_listen_duration
         self.rank = None
         self.rankdir = None
         self.ranksep = None

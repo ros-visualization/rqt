@@ -35,6 +35,7 @@ from python_qt_binding.QtGui import QFont
 from spyderlib.widgets.internalshell import InternalShell
 from spyderlib.utils.module_completion import moduleCompletion
 
+
 class SpyderConsoleWidget(InternalShell):
     def __init__(self, context=None):
         my_locals = {
@@ -54,7 +55,6 @@ class SpyderConsoleWidget(InternalShell):
         super(SpyderConsoleWidget, self).run_command(*args)
         self.flush()
         self.interpreter.restore_stds()
-    
+
     def shutdown(self):
         self.exit_interpreter()
-        

@@ -39,6 +39,7 @@ roslib.load_manifest('rqt_shell')
 from python_qt_binding.QtCore import QProcess, QTimer, Signal
 from python_qt_binding.QtGui import QX11EmbedContainer
 
+
 class XTermWidget(QX11EmbedContainer):
     xterm_cmd = '/usr/bin/xterm'
     close_signal = Signal()
@@ -50,23 +51,23 @@ class XTermWidget(QX11EmbedContainer):
         self._process.finished.connect(self.close_signal)
         # let the widget finish init before embedding xterm
         QTimer.singleShot(100, self._embed_xterm)
-    
+
     def _embed_xterm(self):
         args = ['-into', str(self.winId())]
         self._process.start(self.xterm_cmd, args)
         if self._process.error() == QProcess.FailedToStart:
             print "failed to execute '%s'" % self.xterm_cmd
-        
+
     def shutdown(self):
         self._process.kill()
         self._process.waitForFinished()
 
-def is_xterm_available():
-    return os.path.isfile(XTermWidget.xterm_cmd) 
-    
-if __name__ == '__main__':
-  from PyQt4.QtGui import QApplication
-  app = QApplication([])
-  xt = XTermWidget()
-  app.exec_()
 
+def is_xterm_available():
+    return os.path.isfile(XTermWidget.xterm_cmd)
+
+if __name__ == '__main__':
+    from PyQt4.QtGui import QApplication
+    app = QApplication([])
+    xt = XTermWidget()
+    app.exec_()

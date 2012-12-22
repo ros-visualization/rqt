@@ -44,7 +44,7 @@ from .topic_message_view import TopicMessageView
 class RawView(TopicMessageView):
     name = 'Raw'
     """
-    Plugin to view a message in a treeview window 
+    Plugin to view a message in a treeview window
     The message is loaded into a custum treewidget
     """
     def __init__(self, timeline, parent):

@@ -40,6 +40,7 @@ from qt_gui.plugin import Plugin
 
 from .runtime_monitor_widget import RuntimeMonitorWidget
 
+
 class RuntimeMonitor(Plugin):
 
     def __init__(self, context):

@@ -36,6 +36,7 @@ roslib.load_manifest('rqt_service_caller')
 from rqt_gui_py.plugin import Plugin
 from .service_caller_widget import ServiceCallerWidget
 
+
 class ServiceCaller(Plugin):
 
     def __init__(self, context):
@@ -55,4 +56,3 @@ class ServiceCaller(Plugin):
 
     def trigger_configuration(self):
         self._widget.trigger_configuration()
-        

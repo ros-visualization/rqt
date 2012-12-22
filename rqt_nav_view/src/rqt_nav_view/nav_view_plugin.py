@@ -4,6 +4,7 @@ import rospy
 from .nav_view import NavViewWidget
 from qt_gui.plugin import Plugin
 
+
 class NavViewPlugin(Plugin):
     def __init__(self, context):
         super(NavViewPlugin, self).__init__(context)
@@ -15,4 +16,3 @@ class NavViewPlugin(Plugin):
         context.add_widget(self._widget)
 
         self.setObjectName('Naviation View')
-

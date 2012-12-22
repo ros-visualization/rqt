@@ -77,7 +77,7 @@ class MessageList(object):
     def header_print(self):
         return Message.header_print()
 
-    def get_messages_in_time_range(self, start_time, end_time = None):
+    def get_messages_in_time_range(self, start_time, end_time=None):
         """
         :param start_time: time to start in timestamp form (including decimal
         fractions of a second is acceptable, ''unixtimestamp''

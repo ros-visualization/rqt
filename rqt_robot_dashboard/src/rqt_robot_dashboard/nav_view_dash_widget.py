@@ -54,7 +54,7 @@ class NavViewDashWidget(IconToolButton):
     def _show_nav_view(self):
         if not self._nav_view:
             #TODO: There should be some way to customize the params for nav_view creation
-            self._nav_view = NavViewWidget() 
+            self._nav_view = NavViewWidget()
             self._nav_view.destroyed.connect(self._view_closed)
 
         self.context.add_widget(self._nav_view)

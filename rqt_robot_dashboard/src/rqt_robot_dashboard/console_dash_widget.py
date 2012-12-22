@@ -30,6 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import rospy
 from python_qt_binding.QtCore import QMutex, QMutexLocker, QSize, QTimer
 
 from rqt_console.console_subscriber import ConsoleSubscriber

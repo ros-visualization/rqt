@@ -31,7 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from python_qt_binding.QtCore import qWarning
 import bisect
 import Queue
 import threading

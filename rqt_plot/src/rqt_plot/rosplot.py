@@ -98,16 +98,16 @@ class ROSData(object):
     """
     Subscriber to ROS topic that buffers incoming data
     """
-    
+
     def __init__(self, topic, start_time):
         self.name = topic
         self.start_time = start_time
         self.error = None
-        
+
         self.lock = threading.Lock()
         self.buff_x = []
         self.buff_y = []
-        
+
         topic_type, real_topic, fields = get_topic_type(topic)
         self.field_evals = generate_field_evals(fields)
         data_class = roslib.message.get_message_class(topic_type)

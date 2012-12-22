@@ -30,19 +30,19 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import sys
 import subprocess
 
 import roslib
 roslib.load_manifest('rqt_shell')
 from qt_gui_py_common.console_text_edit import ConsoleTextEdit
 
+
 class ShellTextEdit(ConsoleTextEdit):
 
     def __init__(self, parent=None):
         super(ShellTextEdit, self).__init__(parent)
         self._add_prompt()
-        
+
     def _exec_code(self, code):
         try:
             self._pipe = subprocess.Popen([code], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

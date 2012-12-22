@@ -73,4 +73,3 @@ class MenuDashWidget(IconToolButton):
         :type callback: callable
         """
         return self._menu.addAction(name, callback)
-

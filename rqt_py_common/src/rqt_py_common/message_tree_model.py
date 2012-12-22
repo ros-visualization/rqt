@@ -91,7 +91,7 @@ class MessageTreeModel(QStandardItemModel):
 
     '''
     NOTE: I (Isaac Saito) suspect that this function might have same/similar
-          functionality with _recursive_create_items. 
+          functionality with _recursive_create_items.
 
     @summary: Evaluate current node and the previous node on the same depth.
               If the name of both nodes at the same depth is the same,

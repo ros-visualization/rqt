@@ -85,7 +85,6 @@ class Player(QObject):
         if self.timeline.play_speed <= 0.0:
             return
 
-#        topic, msg, t = msg_data
         topic, msg, _ = msg_data
 
         # Create publisher if this is the first message on the topic

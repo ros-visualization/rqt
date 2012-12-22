@@ -80,15 +80,15 @@ class MessageProxyModel(QSortFilterProxyModel):
                 if role == Qt.ForegroundRole:
                     if index.column() == 1:
                         data = index.data()
-                        severity_levels = {'Debug':QBrush(Qt.cyan), \
-                                           'Info':QBrush(Qt.darkCyan), \
-                                           'Warn':QBrush(Qt.darkYellow), \
-                                           'Error':QBrush(Qt.darkRed), \
-                                           'Fatal':QBrush(Qt.red)}
+                        severity_levels = {'Debug': QBrush(Qt.cyan), \
+                                           'Info': QBrush(Qt.darkCyan), \
+                                           'Warn': QBrush(Qt.darkYellow), \
+                                           'Error': QBrush(Qt.darkRed), \
+                                           'Fatal': QBrush(Qt.red)}
                         if data in severity_levels.keys():
                             return severity_levels[data]
                         else:
-                            raise KeyError('Unknown severity type: %s'% data)
+                            raise KeyError('Unknown severity type: %s' % data)
                     if self._highlight_filters.count_enabled_filters() > 0:
                         if not self._highlight_filters.test_message(messagelist[index.row()]):
                             return QBrush(Qt.gray)

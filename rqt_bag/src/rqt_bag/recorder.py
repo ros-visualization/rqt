@@ -46,11 +46,12 @@ import rospy
 
 import sys
 
+
 class Recorder(object):
     def __init__(self, filename, bag_lock=None, all=True, topics=[], regex=False, limit=0, master_check_interval=1.0):
         """
         Subscribe to ROS messages and record them to a bag file.
-        
+
         @param filename: filename of bag to write to
         @type  filename: str
         @param all: all topics are to be recorded [default: True]
@@ -64,23 +65,23 @@ class Recorder(object):
         @param master_check_interval: period (in seconds) to check master for new topic publications [default: 1]
         @type  master_check_interval: float
         """
-        self._all                   = all
-        self._topics                = topics
-        self._regex                 = regex
-        self._limit                 = limit
+        self._all = all
+        self._topics = topics
+        self._regex = regex
+        self._limit = limit
         self._master_check_interval = master_check_interval
 
-        self._bag                = rosbag.Bag(filename, 'w')
-        self._bag_lock           = bag_lock if bag_lock else threading.Lock()
-        self._listeners          = []
+        self._bag = rosbag.Bag(filename, 'w')
+        self._bag_lock = bag_lock if bag_lock else threading.Lock()
+        self._listeners = []
         self._subscriber_helpers = {}
-        self._limited_topics     = set()
-        self._failed_topics      = set()       
-        self._last_update        = time.time()
-        self._write_queue        = Queue.Queue()
-        self._paused             = False
-        self._stop_condition     = threading.Condition()
-        self._stop_flag          = False
+        self._limited_topics = set()
+        self._failed_topics = set()
+        self._last_update = time.time()
+        self._write_queue = Queue.Queue()
+        self._paused = False
+        self._stop_condition = threading.Condition()
+        self._stop_flag = False
 
         # Compile regular expressions
         if self._regex:
@@ -91,10 +92,11 @@ class Recorder(object):
         self._message_count = {}  # topic -> int (track number of messages recorded on each topic)
 
         self._master_check_thread = threading.Thread(target=self._run_master_check)
-        self._write_thread        = threading.Thread(target=self._run_write)
+        self._write_thread = threading.Thread(target=self._run_write)
 
     @property
-    def bag(self): return self._bag
+    def bag(self):
+        return self._bag
 
     def add_listener(self, listener):
         """
@@ -112,10 +114,17 @@ class Recorder(object):
         self._write_thread.start()
 
     @property
-    def paused(self):        return self._paused
-    def pause(self):         self._paused = True
-    def unpause(self):       self._paused = False
-    def toggle_paused(self): self._paused = not self._paused
+    def paused(self):
+        return self._paused
+
+    def pause(self):
+        self._paused = True
+
+    def unpause(self):
+        self._paused = False
+
+    def toggle_paused(self):
+        self._paused = not self._paused
 
     def stop(self):
         """
@@ -124,7 +133,7 @@ class Recorder(object):
         with self._stop_condition:
             self._stop_flag = True
             self._stop_condition.notify_all()
-        
+
         self._write_queue.put(self)
 
     ## Implementation
@@ -136,17 +145,17 @@ class Recorder(object):
             while not self._stop_flag:
                 # Check for new topics
                 for topic, datatype in master.getPublishedTopics(''):
-                    # Check if: 
+                    # Check if:
                     #    the topic is already subscribed to, or
                     #    we've failed to subscribe to it already, or
                     #    we've already reached the message limit, or
-                    #    we don't want to subscribe 
+                    #    we don't want to subscribe
                     if topic in self._subscriber_helpers or topic in self._failed_topics or topic in self._limited_topics or not self._should_subscribe_to(topic):
                         continue
 
                     try:
                         pytype = roslib.message.get_message_class(datatype)
-                        
+
                         self._message_count[topic] = 0
 
                         self._subscriber_helpers[topic] = _SubscriberHelper(self, topic, pytype)
@@ -164,7 +173,7 @@ class Recorder(object):
         # Unsubscribe from all topics
         for topic in list(self._subscriber_helpers.keys()):
             self._unsubscribe(topic)
-        
+
         # Close the bag file so that the index gets written
         try:
             self._bag.close()
@@ -174,16 +183,16 @@ class Recorder(object):
     def _should_subscribe_to(self, topic):
         if self._all:
             return True
-        
+
         if not self._regex:
             return topic in self._topics
 
         for regex in self._regexes:
             if regex.match(topic):
                 return True
-            
+
         return False
-    
+
     def _unsubscribe(self, topic):
         try:
             self._subscriber_helpers[topic].subscriber.unregister()
@@ -209,12 +218,12 @@ class Recorder(object):
             while not self._stop_flag:
                 # Wait for a message
                 item = self._write_queue.get()
-                
+
                 if item == self:
                     continue
-                
+
                 topic, m, t = item
-                
+
                 # Write to the bag
                 with self._bag_lock:
                     self._bag.write(topic, m, t)
@@ -226,10 +235,11 @@ class Recorder(object):
         except Exception, ex:
             print >> sys.stderr, 'Error write to bag: %s' % str(ex)
 
+
 class _SubscriberHelper(object):
     def __init__(self, recorder, topic, pytype):
         self.recorder = recorder
-        self.topic    = topic
+        self.topic = topic
 
         self.subscriber = rospy.Subscriber(self.topic, pytype, self.callback)
 

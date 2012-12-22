@@ -2,7 +2,8 @@
 # All rights reserved.
 
 from __future__ import division
-import os, pickle
+import os
+import pickle
 
 import rospkg
 
@@ -20,7 +21,7 @@ from .dotcode_pack import RosPackageGraphDotcodeGenerator
 from qt_dotgraph.pydotfactory import PydotFactory
 # from qt_dotgraph.pygraphvizfactory import PygraphvizFactory
 from qt_dotgraph.dot_to_qt import DotToQtGenerator
-from qt_gui_py_common.worker_thread import WorkerThread 
+from qt_gui_py_common.worker_thread import WorkerThread
 
 from rqt_gui_py.plugin import Plugin
 from rqt_graph.interactive_graphics_view import InteractiveGraphicsView
@@ -147,7 +148,7 @@ class RosPackGraph(Plugin):
 
     def shutdown_plugin(self):
         self._update_thread.kill()
-        
+
     def save_settings(self, plugin_settings, instance_settings):
         instance_settings.set_value('depth_combo_box_index', self._widget.depth_combo_box.currentIndex())
         instance_settings.set_value('directions_combo_box_index', self._widget.directions_combo_box.currentIndex())
@@ -184,7 +185,6 @@ class RosPackGraph(Plugin):
 
         self._refresh_rospackgraph(force_update=True)
 
-
     def _update_options(self):
         self._options['depth'] = self._widget.depth_combo_box.itemData(self._widget.depth_combo_box.currentIndex())
         self._options['directions'] = self._widget.directions_combo_box.itemData(self._widget.directions_combo_box.currentIndex())
@@ -206,7 +206,7 @@ class RosPackGraph(Plugin):
         self._update_thread.kill()
 
         self._update_options()
-        
+
         # avoid update if options did not change and force_update is not set
         new_options_serialized = pickle.dumps(self._options)
         if new_options_serialized == self._options_serialized and not force_update:
@@ -214,7 +214,7 @@ class RosPackGraph(Plugin):
         self._options_serialized = pickle.dumps(self._options)
 
         self._scene.setBackgroundBrush(Qt.lightGray)
-        
+
         self._update_thread.start()
 
     # this runs in a non-gui thread, so don't access widgets here directly

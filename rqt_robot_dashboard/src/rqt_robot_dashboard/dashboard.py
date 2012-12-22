@@ -34,7 +34,7 @@ import roslib;roslib.load_manifest('rqt_robot_dashboard')
 import rospy
 
 from python_qt_binding.QtCore import QSize
-from python_qt_binding.QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
+from python_qt_binding.QtGui import QToolBar
 from qt_gui.plugin import Plugin
 
 
