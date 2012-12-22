@@ -15,5 +15,6 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>qt_gui</build_depend>
+  <run_depend>catkin</run_depend>
   <run_depend>qt_gui</run_depend>
 </package>
