@@ -10,6 +10,7 @@
   <url type="repository">https://github.com/ros-visualization/rqt</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
 
+  <author>Dirk Thomas</author>
   <author email="ablasdel@willowgarage.com">Aaron Blasdel</author>
 
   <run_depend>rqt_gui</run_depend>
