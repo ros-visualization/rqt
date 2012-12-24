@@ -29,6 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import roslib
+import roslib.msgs
 from rostopic import get_topic_type
 from python_qt_binding.QtCore import qDebug
 
