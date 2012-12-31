@@ -5,3 +5,6 @@ find_package(catkin REQUIRED COMPONENTS qt_gui)
 catkin_package()
 catkin_python_setup()
 
+install(PROGRAMS bin/rqt_gui
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
