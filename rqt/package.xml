@@ -1,6 +1,6 @@
 <package>
   <name>rqt</name>
-  <version>0.2.6</version>
+  <version>0.2.7</version>
   <description>rqt is a framework for plugin development using Qt and ROS.</description>
   <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
 
