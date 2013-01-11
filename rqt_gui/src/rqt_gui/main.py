@@ -45,15 +45,21 @@ class Main(Base):
         super(Main, self).__init__(filename, 'rqt_gui')
         self._plugin_cache = None
 
-    def _add_arguments(self, parser):
-        super(Main, self)._add_arguments(parser)
-
-        parser.add_argument('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
-                          help='cache list of available plugins (trading faster start-up for not up-to-date plugin list)')
+    def main(self, argv=None, standalone=None, plugin_argument_provider=None):
+        if argv is None:
+            argv = sys.argv
 
         # ignore ROS specific remapping arguments (see http://www.ros.org/wiki/Remapping%20Arguments)
-        for arg in ['__name', '__log', '__ip', '__hostname', '__master', '__ns']:
-            parser.add_argument(arg, nargs='?', help=argparse.SUPPRESS)
+        remapping_arg_prefixes = ['__name', '__log', '__ip', '__hostname', '__master', '__ns']
+        remapping_arg_prefixes = ['%s:=' % arg for arg in remapping_arg_prefixes]
+        argv = [argv[0]] + [arg for arg in argv[1:] if not [p for p in remapping_arg_prefixes if arg.startswith(p)]]
+
+        return super(Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider)
+
+    def add_arguments(self, parser, standalone=False, plugin_argument_provider=None):
+        common_group = super(Main, self).add_arguments(parser, standalone=standalone, plugin_argument_provider=plugin_argument_provider)
+        common_group.add_argument('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
+            help='cache list of available plugins (trading faster start-up for not up-to-date plugin list)')
 
     def _add_plugin_providers(self):
         if self._options.cache_plugins:
