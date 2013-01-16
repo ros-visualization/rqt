@@ -55,7 +55,7 @@ class LayoutUtil(object):
         :author: Isaac Saito 
         """
         
-        colors_num = len(colors_alter)# + 1
+        colors_num = len(colors_alter)
         i_widget = 0
         for w in list_widgets:
             w.setAutoFillBackground(True)
@@ -63,18 +63,12 @@ class LayoutUtil(object):
             
             divisor = (i_widget + colors_num) % colors_num
             i_widget += 1
-            #if divisor == 0:
-            #    p.setColor(w.backgroundRole(), colors_alter[0])
-            #    w.setPalette(p)
-            #    continue
-            #i_colors = colors_num - divisor
+
             rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(
                                                                     divisor,
                                                                     i_widget,
                                                                     colors_num))
-            #if i_colors > 0: 
-            # Color loop starts from Qt's default color (ie. white?)
-
+  
             p.setColor(w.backgroundRole(), colors_alter[divisor])
             w.setPalette(p)
             
