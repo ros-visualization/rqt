@@ -32,13 +32,52 @@
 #
 # Author: Isaac Saito
 
+from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QWidgetItem
 import roslib
 import rospy
 
 
 class LayoutUtil(object):
-    
+
+    @staticmethod
+    def alternate_color(list_widgets, colors_alter = [Qt.white, Qt.gray]):
+        """
+        Alternate the background color of the widgets that are ordered linearly,
+        by the given list of colors.
+        
+        Originally intended for the elements of QHBoxLayout & QVBoxLayout.
+        
+        :type list_widgets: QWidget[]
+        :type colors_alter: Qt.GlobalColor[]
+        :param colors_alter: 1st element is used as initial/default color.
+         
+        :author: Isaac Saito 
+        """
+        
+        colors_num = len(colors_alter)# + 1
+        i_widget = 0
+        for w in list_widgets:
+            w.setAutoFillBackground(True)
+            p = w.palette()            
+            
+            divisor = (i_widget + colors_num) % colors_num
+            i_widget += 1
+            #if divisor == 0:
+            #    p.setColor(w.backgroundRole(), colors_alter[0])
+            #    w.setPalette(p)
+            #    continue
+            #i_colors = colors_num - divisor
+            rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(
+                                                                    divisor,
+                                                                    i_widget,
+                                                                    colors_num))
+            #if i_colors > 0: 
+            # Color loop starts from Qt's default color (ie. white?)
+
+            p.setColor(w.backgroundRole(), colors_alter[divisor])
+            w.setPalette(p)
+            
     @staticmethod
     def clear_layout(layout):
         """
