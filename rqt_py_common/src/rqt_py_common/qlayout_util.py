@@ -42,7 +42,9 @@ class LayoutUtil(object):
     @staticmethod
     def clear_layout(layout):
         """
-        Clear all items in the given layout. 
+        Clear all items in the given layout. Currently, only the instances of
+        QWidgetItem get cleared (ie. QSpaceItem is ignored). 
+        
         Originally taken from http://stackoverflow.com/a/9375273/577001
                 
         :type layout: QLayout 
