@@ -2,7 +2,7 @@
   <name>rqt</name>
   <version>0.2.8</version>
   <description>rqt is a framework for plugin development using Qt and ROS.</description>
-  <maintainer email="ablasdel@willowgarage.com">Aaron Blasdel</maintainer>
+  <maintainer email="dthomas@willowgarage.com">Dirk Thomas</maintainer>
 
   <license>BSD</license>
 
