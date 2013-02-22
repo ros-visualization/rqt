@@ -8,12 +8,14 @@
     into this package as easy as possible.
   </description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
+  <maintainer email="130s@2000.jukuin.keio.ac.jp">Isaac Saito</maintainer>
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/rqt_py_common</url>
   <url type="repository">https://github.com/ros-visualization/rqt_common_plugins</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt_common_plugins/issues</url>
   <author>Dorian Scholz</author>
+  <author>Isaac Saito</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
