@@ -111,7 +111,7 @@ class RqtRoscommUtil(object):
         rospy.loginfo('pkgs={}'.format(pkgs))
         for p in pkgs:
             d = os.path.join(rospack.get_path(p), subdir)
-            rospy.loginfo('d={}'.format(d))
+            rospy.logdebug('rospack dir={}'.format(d))
             if os.path.isdir(d):
                 yield p, d
 
