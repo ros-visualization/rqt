@@ -36,6 +36,7 @@ import os
 
 import genmsg
 import roslaunch
+from roslaunch import RLException
 import rospkg
 import rospy
 
@@ -50,44 +51,55 @@ class RqtRoscommUtil(object):
         Copied from ROSLaunchRunner.
 
         @type config: roslaunch.config.ROSLaunchConfig
-        @raise roslaunch.RLException:
+        @raise RLException:
         """
 
         # XMLRPC proxy for communicating with master, 'xmlrpclib.ServerProxy'
         param_server = config.master.get()
 
-        p = None
+        param = None
         try:
             # multi-call style xmlrpc
+            # According to API doc, get_multi() returns
+            # multicall XMLRPC proxy for communicating with master,
+            # "xmlrpclib.MultiCall"
             param_server_multi = config.master.get_multi()
 
             # clear specified parameter namespaces
             # #2468 unify clear params to prevent error
-            for p in roslaunch.launch._unify_clear_params(config.clear_params):
-                if param_server.hasParam(caller_id, p)[2]:
-                    param_server_multi.deleteParam(caller_id, p)
+            for param in roslaunch.launch._unify_clear_params(
+                                                          config.clear_params):
+                if param_server.hasParam(caller_id, param)[2]:
+                    param_server_multi.deleteParam(caller_id, param)
             r = param_server_multi()
             for code, msg, _ in r:
                 if code != 1:
-                    raise roslaunch.RLException("Failed to clear parameter: " + 
-                                                "%s" % (msg))
-
-            # multi-call objects are not reusable
-            param_server_multi = config.master.get_multi()
-            for p in config.params.itervalues():
-                # suppressing this as it causes too much spam
-                # printlog("setting parameter [%s]"%p.key)
-                param_server_multi.setParam(caller_id, p.key, p.value)
-            r = param_server_multi()
-            for code, msg, _ in r:
-                if code != 1:
-                    raise roslaunch.RLException("Failed to set parameter: " + 
-                                                "%s" % (msg))
-        except roslaunch.RLException:
+                    raise RLException("Failed to clear parameter {}: ".format(
+                                                                         msg))
+        except RLException:
             raise
         except Exception, e:
-            print("load_parameters: unable to set params (last param was " + 
-                  "[%s]): %s" % (p, e))
+            rospy.logerr("load_parameters: unable to set params " +
+                         "(last param was [{}]): {}".format(param, e))
+            raise  # re-raise as this is fatal
+
+        try:
+            # multi-call objects are not reusable
+            param_server_multi = config.master.get_multi()
+            for param in config.params.itervalues():
+                # suppressing this as it causes too much spam
+                # printlog("setting parameter [%s]"%param.key)
+                param_server_multi.setParam(caller_id, param.key, param.value)
+            r = param_server_multi()
+            for code, msg, _ in r:
+                if code != 1:
+                    raise RLException("Failed to set parameter: " +
+                                                "%s" % (msg))
+        except RLException:
+            raise
+        except Exception, e:
+            print("load_parameters: unable to set params (last param was " +
+                  "[%s]): %s" % (param, e))
             raise  # re-raise as this is fatal
         rospy.loginfo("... load_parameters complete")
 
@@ -152,7 +164,7 @@ class RqtRoscommUtil(object):
                                                RqtRoscommUtil._msg_filter(ext))
 
         result = [x for x in types]
-        #result = [x[:-len(ext)] for x in types]  # Remove extension
+        # result = [x[:-len(ext)] for x in types]  # Remove extension
 
         result.sort()
         return result
