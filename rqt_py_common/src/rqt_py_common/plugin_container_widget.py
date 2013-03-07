@@ -37,8 +37,7 @@ from __future__ import division
 import os
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QProgressBar, QWidget
+from python_qt_binding.QtGui import QWidget
 import rospkg
 import rospy
 
@@ -51,11 +50,15 @@ class PluginContainerWidget(QWidget):
     widget.
 
     In order to print msg in the msg pane provided by this class, plugin widget
-    MUST definie and emit following signals:
+    MUST define and emit following signals:
 
     - sig_sysmsg
     - sig_progress
 
+    Having said that this architecture is based on signals, it is recommended
+    that exceptions raised in classes that are used in a plugin widget be
+    aggregated in it, so that only plugin widget is responsible for emitting
+    signals.
     """
 
     def __init__(self, plugin_widget,
@@ -82,10 +85,13 @@ class PluginContainerWidget(QWidget):
             self._sysmsg_widget.hide()
 
         if on_sysprogress_bar:
-            pass
+            self._plugin_widget.sig_sysprogress.connect(self._set_sysprogress)
         else:
             self._sysprogress_bar.hide()
-            #TODO: connect signal
+
+    def _set_sysprogress(self, sysprogress):
+        #TODO: Pass progress value
+        pass
 
     def _set_sysmsg(self, sysmsg):
         """

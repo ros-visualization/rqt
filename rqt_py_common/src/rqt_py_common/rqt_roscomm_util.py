@@ -148,16 +148,17 @@ class RqtRoscommUtil(object):
 
         return [genmsg.resource_name(package, t)
                 for t in RqtRoscommUtil._list_types(
-                                                 path, subdir, file_extension)]
+                                                 path, file_extension)]
 
     @staticmethod
-    def _list_types(path, subdir, ext):
+    def _list_types(path, ext):
         """
         Taken from rosmsg
 
         List all messages in the specified package
         :param package str: name of package to search
-        :param include_depends bool: if True, will also list messages in package dependencies
+        :param include_depends bool: if True, will also list messages in
+                                     package dependencies.
         :returns [str]: message type names
         """
         types = RqtRoscommUtil._list_resources(path,
