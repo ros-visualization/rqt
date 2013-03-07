@@ -101,7 +101,7 @@ class RqtRoscommUtil(object):
             print("load_parameters: unable to set params (last param was " +
                   "[%s]): %s" % (param, e))
             raise  # re-raise as this is fatal
-        rospy.loginfo("... load_parameters complete")
+        rospy.logdebug("... load_parameters complete")
 
     @staticmethod
     def iterate_packages(subdir):
@@ -120,7 +120,7 @@ class RqtRoscommUtil(object):
         rospack = rospkg.RosPack()
 
         pkgs = rospack.list()
-        rospy.loginfo('pkgs={}'.format(pkgs))
+        rospy.logdebug('pkgs={}'.format(pkgs))
         for p in pkgs:
             d = os.path.join(rospack.get_path(p), subdir)
             rospy.logdebug('rospack dir={}'.format(d))

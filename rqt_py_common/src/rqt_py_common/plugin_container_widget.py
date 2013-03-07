@@ -40,6 +40,7 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QProgressBar, QWidget
 import rospkg
+import rospy
 
 
 class PluginContainerWidget(QWidget):
@@ -48,6 +49,13 @@ class PluginContainerWidget(QWidget):
     message. A plugin widget is the pane that provides plugin's main
     functionalities. PluginContainerWidget visually encapsulates a plugin
     widget.
+
+    In order to print msg in the msg pane provided by this class, plugin widget
+    MUST definie and emit following signals:
+
+    - sig_sysmsg
+    - sig_progress
+
     """
 
     def __init__(self, plugin_widget,
@@ -63,24 +71,29 @@ class PluginContainerWidget(QWidget):
         loadUi(ui_file, self, {'PluginContainerWidget': PluginContainerWidget})
 
         self._plugin_widget = plugin_widget
-        #self._plugin_widget.show()
         self._splitter.insertWidget(0, self._plugin_widget)
         self.setWindowTitle(self._plugin_widget.windowTitle())
 
         # Default is on for these sys status widgets. Only if the flag for them
         # are 'False', hide them.
-        if not on_sys_msg:
+        if on_sys_msg:
+            self._plugin_widget.sig_sysmsg.connect(self._set_sysmsg)
+        else:
             self._sysmsg_widget.hide()
-        if not on_sysprogress_bar:
-            self._sysprogress_bar.hide()
 
-    def set_sysmsg(self, sysmsg):
+        if on_sysprogress_bar:
+            pass
+        else:
+            self._sysprogress_bar.hide()
+            #TODO: connect signal
+
+    def _set_sysmsg(self, sysmsg):
         """
         Set system msg that's supposed to be shown in sys msg pane.
         @type sysmsg: str
         """
-        #TODO: impl
-        pass
+        rospy.loginfo('PluginContainerWidget; {}'.format(sysmsg))
+        self._sysmsg_widget.setPlainText(sysmsg)
 
     def shutdown(self):
 
