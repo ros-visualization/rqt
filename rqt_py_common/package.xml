@@ -19,8 +19,15 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <run_depend>genpy</run_depend>
   <run_depend>qt_gui</run_depend>
   <run_depend>roslib</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rostopic</run_depend>
+
+  <!-- 3/11/2013 depending on actionlib & rosbag is only temporary;
+  rosaction.py needs it. In the future this run_depend will be removed when
+  rosaction gets moved to actionlib. -->
+  <run_depend>actionlib</run_depend>
+  <run_depend>rosbag</run_depend>
 </package>
