@@ -6,7 +6,7 @@
     <li><a href = "http://ros.org/wiki/rqt_common_plugins">rqt_common_plugins</a> - ROS backend tools suite that can be used on/off robot runtime.</li>
     <li><a href = "http://ros.org/wiki/rqt_robot_plugins">rqt_robot_plugins</a> - Tools for interacting robots during their runtime.</li>
   </description>
-  <maintainer email="dthomas@willowgarage.com">Dirk Thomas</maintainer>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
 
   <license>BSD</license>
 
