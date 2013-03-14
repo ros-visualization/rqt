@@ -99,7 +99,8 @@ class PluginContainerWidget(QWidget):
         @type sysmsg: str
         """
         rospy.loginfo('PluginContainerWidget; {}'.format(sysmsg))
-        self._sysmsg_widget.setPlainText(sysmsg)
+        #self._sysmsg_widget.setPlainText(sysmsg)
+        self._sysmsg_widget.append(sysmsg)
 
     def shutdown(self):
 
