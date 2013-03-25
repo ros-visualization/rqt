@@ -38,6 +38,7 @@ from python_qt_binding.QtCore import qCritical
 
 from qt_gui.plugin_descriptor import PluginDescriptor
 from qt_gui.plugin_provider import PluginProvider
+from qt_gui.ros_package_helper import get_package_path
 
 
 class RosPluginProvider(PluginProvider):
@@ -62,8 +63,8 @@ class RosPluginProvider(PluginProvider):
         # search for plugins
         plugin_descriptors = []
         plugin_file_list = self._get_plugins(self._export_tag)
-        for plugin_name, xml_file_name in plugin_file_list:
-            plugin_descriptors += self._parse_plugin_xml(plugin_name, xml_file_name)
+        for package_name, xml_file_name in plugin_file_list:
+            plugin_descriptors += self._parse_plugin_xml(package_name, xml_file_name)
         # add list of discovered plugins to dictionary of known descriptors index by the plugin id
         for plugin_descriptor in plugin_descriptors:
             self._plugin_descriptors[plugin_descriptor.plugin_id()] = plugin_descriptor
@@ -72,7 +73,7 @@ class RosPluginProvider(PluginProvider):
     def load(self, plugin_id, plugin_context):
         # get class reference from plugin descriptor
         attributes = self._plugin_descriptors[plugin_id].attributes()
-        sys.path.append(attributes['module_base_path'])
+        sys.path.append(os.path.join(attributes['package_path'], attributes['library_path']))
 
         try:
             module = __builtin__.__import__(attributes['module_name'], fromlist=[attributes['class_from_class_type']], level=0)
@@ -106,14 +107,14 @@ class RosPluginProvider(PluginProvider):
     def _find_plugins(self, export_tag):
         raise NotImplementedError
 
-    def _parse_plugin_xml(self, plugin_name, xml_file_name):
+    def _parse_plugin_xml(self, package_name, xml_file_name):
         plugin_descriptors = []
-        plugin_path = os.path.dirname(os.path.abspath(xml_file_name))
+        package_path = get_package_path(package_name)
 
         try:
             root = ElementTree.parse(xml_file_name)
         except Exception:
-            qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" of plugin "%s"' % (xml_file_name, plugin_name))
+            qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" of plugin "%s"' % (xml_file_name, package_name))
             return plugin_descriptors
         for library_el in root.getiterator('library'):
             library_path = library_el.attrib['path']
@@ -121,8 +122,8 @@ class RosPluginProvider(PluginProvider):
             for class_el in library_el.getiterator('class'):
                 # collect common attributes
                 attributes = {
-                    'plugin_name': plugin_name,
-                    'plugin_path': plugin_path,
+                    'package_name': package_name,
+                    'package_path': package_path,
                     'library_path': library_path,
                 }
 
@@ -136,20 +137,14 @@ class RosPluginProvider(PluginProvider):
                     continue
 
                 # generate unique identifier
-                plugin_id = plugin_name
+                plugin_id = package_name
                 if 'class_name' in attributes:
                     plugin_id = plugin_id + '/' + attributes['class_name']
                 attributes['plugin_id'] = plugin_id
 
-                # base path to look for module
-                module_base_path = plugin_path
-                if library_path != '':
-                    module_base_path = os.path.join(module_base_path, library_path)
-                attributes['module_base_path'] = module_base_path
-
                 # separate module name and class name
-                module_name, class_from_class_type = os.path.split(attributes['class_type'].replace('.', os.sep))
-                attributes['module_name'] = module_name.replace(os.sep, '.')
+                module_name, class_from_class_type = attributes['class_type'].rsplit('.', 1)
+                attributes['module_name'] = module_name
                 attributes['class_from_class_type'] = class_from_class_type
 
                 # we can not check if the plugin is available without loading it

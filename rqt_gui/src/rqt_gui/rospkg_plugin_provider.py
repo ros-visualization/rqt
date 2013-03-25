@@ -80,9 +80,8 @@ class RospkgPluginProvider(RosPluginProvider):
                 for export in package.exports:
                     if export.tagname != export_tag or 'plugin' not in export.attributes:
                         continue
-                    plugin_path = export.attributes['plugin']
-                    if plugin_path.startswith('${prefix}/'):
-                        plugin_path = os.path.join(package_path, plugin_path[10:])
-                    plugins.append([package_name, plugin_path])
+                    plugin_xml_path = export.attributes['plugin']
+                    plugin_xml_path = plugin_xml_path.replace('${prefix}', package_path)
+                    plugins.append([package_name, plugin_xml_path])
                 continue
         return plugins
