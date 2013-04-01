@@ -80,20 +80,20 @@ class PluginContainerWidget(QWidget):
         # Default is on for these sys status widgets. Only if the flag for them
         # are 'False', hide them.
         if on_sys_msg:
-            self._plugin_widget.sig_sysmsg.connect(self._set_sysmsg)
+            self._plugin_widget.sig_sysmsg.connect(self.set_sysmsg)
         else:
             self._sysmsg_widget.hide()
 
         if on_sysprogress_bar:
-            self._plugin_widget.sig_sysprogress.connect(self._set_sysprogress)
+            self._plugin_widget.sig_sysprogress.connect(self.set_sysprogress)
         else:
             self._sysprogress_bar.hide()
 
-    def _set_sysprogress(self, sysprogress):
+    def set_sysprogress(self, sysprogress):
         #TODO: Pass progress value
         pass
 
-    def _set_sysmsg(self, sysmsg):
+    def set_sysmsg(self, sysmsg):
         """
         Set system msg that's supposed to be shown in sys msg pane.
         @type sysmsg: str
