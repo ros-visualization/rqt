@@ -36,6 +36,8 @@ import argparse
 import os
 import sys
 
+import rospy
+
 from qt_gui.main import Main as Base
 
 
@@ -50,9 +52,7 @@ class Main(Base):
             argv = sys.argv
 
         # ignore ROS specific remapping arguments (see http://www.ros.org/wiki/Remapping%20Arguments)
-        remapping_arg_prefixes = ['__name', '__log', '__ip', '__hostname', '__master', '__ns']
-        remapping_arg_prefixes = ['%s:=' % arg for arg in remapping_arg_prefixes]
-        argv = [argv[0]] + [arg for arg in argv[1:] if not [p for p in remapping_arg_prefixes if arg.startswith(p)]]
+        argv = rospy.myargv(argv)
 
         return super(Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider)
 
