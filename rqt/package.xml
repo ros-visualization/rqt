@@ -21,6 +21,7 @@
   <author>Dorian Scholz</author>
   <author email="ablasdel@willowgarage.com">Aaron Blasdel</author>
 
+  <buildtool_depend>catkin</buildtool_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_cpp</run_depend>
   <run_depend>rqt_gui_py</run_depend>
