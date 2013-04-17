@@ -66,6 +66,11 @@ class PluginContainerWidget(QWidget):
         """
         @param plugin_widget: The main widget of an rqt plugin.
         @type plugin_widget: QWidget
+        @type on_sys_msg: bool
+        @param on_sys_msg: If True, a pane that accommodates str messages will
+                           appear in the plugin's region.
+        @param on_sysprogress_bar: If True, a progress bar will appear in the
+                                   plugin's region.
         """
         super(PluginContainerWidget, self).__init__()
 

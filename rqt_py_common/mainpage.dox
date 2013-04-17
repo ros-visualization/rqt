@@ -1,6 +1,0 @@
-/**
-\mainpage
-\htmlinclude manifest.html
-
-\b rqt_py_common provides common functionality for GUI plugins written in Python.
-*/
