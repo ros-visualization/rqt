@@ -41,62 +41,63 @@ import rospy
 class LayoutUtil(object):
 
     @staticmethod
-    def alternate_color(list_widgets, colors_alter = [Qt.white, Qt.gray]):
+    def alternate_color(list_widgets, colors_alter=[Qt.white, Qt.gray]):
         """
-        Alternate the background color of the widgets that are ordered linearly,
-        by the given list of colors.
-        
+        Alternate the background color of the widgets that are ordered
+        linearly, by the given list of colors.
+
         Originally intended for the elements of QHBoxLayout & QVBoxLayout.
-        
-        :type list_widgets: QWidget[]
-        :type colors_alter: Qt.GlobalColor[]
-        :param colors_alter: 1st element is used as initial/default color.
-         
-        :author: Isaac Saito 
+
+        @type list_widgets: QtGui.QWidget[]
+        @type colors_alter: QtCore.Qt.GlobalColor[]
+        @param colors_alter: 1st element is used as initial/default color.
+        @rtype: void
+
+        @author: Isaac Saito
         """
-        
+
         colors_num = len(colors_alter)
         i_widget = 0
         for w in list_widgets:
             w.setAutoFillBackground(True)
-            p = w.palette()            
-            
+            p = w.palette()
+
             divisor = (i_widget + colors_num) % colors_num
             i_widget += 1
 
             rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(
-                                                                    divisor,
-                                                                    i_widget,
-                                                                    colors_num))
-  
+                                                                   divisor,
+                                                                   i_widget,
+                                                                   colors_num))
+
             p.setColor(w.backgroundRole(), colors_alter[divisor])
             w.setPalette(p)
-            
+
     @staticmethod
     def clear_layout(layout):
         """
         Clear all items in the given layout. Currently, only the instances of
-        QWidgetItem get cleared (ie. QSpaceItem is ignored). 
-        
+        QWidgetItem get cleared (ie. QSpaceItem is ignored).
+
         Originally taken from http://stackoverflow.com/a/9375273/577001
-                
-        :type layout: QLayout 
+
+        :type layout: QLayout
         """
         for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
 
             if isinstance(item, QWidgetItem):
-                #print "widget" + str(item)
+                # print "widget" + str(item)
                 item.widget().close()
                 # or
                 # item.widget().setParent(None)
             elif isinstance(item, QSpacerItem):
-                #print "spacer " + str(item)
+                # print "spacer " + str(item)
                 continue
                 # no need to do extra stuff
             else:
-                #print "layout " + str(item)
+                # print "layout " + str(item)
                 LayoutUtil.clear_layout(item.layout())
 
             # remove the item from layout
-            layout.removeItem(item) 
+            layout.removeItem(item)
