@@ -39,6 +39,7 @@ import roslaunch
 from roslaunch import RLException
 import rospkg
 import rospy
+import rostopic
 
 
 class RqtRoscommUtil(object):
@@ -200,3 +201,15 @@ class RqtRoscommUtil(object):
             """
             return os.path.isfile(f) and f.endswith(ext)
         return mfilter
+
+    @staticmethod
+    def is_roscore_running():
+        """
+        @rtype: bool
+        """
+        try:
+            # Checkif rosmaster is running or not.
+            rostopic.get_topic_class('/rosout')
+            return True
+        except rostopic.ROSTopicIOException as e:
+            return False
