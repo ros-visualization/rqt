@@ -10,7 +10,6 @@
    rqt metapackage provides a widget <a href = "http://ros.org/wiki/rqt_gui">rqt_gui</a> that enables multiple `rqt` widgets to be docked in a single window.
   </description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
-  <maintainer email="isao.saito@mavs.uta.edu">Isaac Saito</maintainer>
 
   <license>BSD</license>
 
