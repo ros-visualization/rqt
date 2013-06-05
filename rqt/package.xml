@@ -1,7 +1,11 @@
 <package>
   <name>rqt</name>
   <version>0.2.8</version>
-  <description>rqt is a Qt-based framework for GUI development for ROS. It consists of three parts/metapackages<br />
+  <description>rqt is a Qt-based framework for GUI development for ROS.<br />
+    <br />
+    To run any rqt plugins, just type in a single command "rqt", then select any plugins you want from the GUI that launches afterwards.<br />
+    <br />
+    rqt consists of three metapackages:<br />
     <ul>
      <li>rqt (you're here)</li>
      <li><a href = "http://ros.org/wiki/rqt_common_plugins">rqt_common_plugins</a> - ROS backend tools suite that can be used on/off of robot runtime.</li>
