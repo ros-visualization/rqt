@@ -36,6 +36,7 @@ import os
 import sys
 
 import rospy
+from rospkg.rospack import RosPack
 
 from qt_gui.main import Main as Base
 
@@ -59,6 +60,15 @@ class Main(Base):
         common_group = super(Main, self).add_arguments(parser, standalone=standalone, plugin_argument_provider=plugin_argument_provider)
         common_group.add_argument('-c', '--cache-plugins', dest='cache_plugins', default=False, action='store_true',
             help='cache list of available plugins (trading faster start-up for not up-to-date plugin list)')
+
+    def create_application(self, argv):
+        from python_qt_binding.QtGui import QIcon
+        app = super(Main, self).create_application(argv)
+        rp = RosPack()
+        logo = os.path.join(rp.get_path('rqt_gui'), 'resource', 'rqt.svg')
+        icon = QIcon(logo)
+        app.setWindowIcon(icon)
+        return app
 
     def _add_plugin_providers(self):
         if self._options.cache_plugins:
