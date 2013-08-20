@@ -41,6 +41,8 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
+#include <QMessageBox>
+
 #include <stdexcept>
 #include <sys/types.h>
 #include <unistd.h>
@@ -67,14 +69,31 @@ RosCppPluginProvider::~RosCppPluginProvider()
 
 void* RosCppPluginProvider::load(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
+  wait_for_master();
   init_node();
   return qt_gui_cpp::CompositePluginProvider::load(plugin_id, plugin_context);
 }
 
 qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
+  wait_for_master();
   init_node();
   return qt_gui_cpp::CompositePluginProvider::load_plugin(plugin_id, plugin_context);
+}
+
+void RosCppPluginProvider::wait_for_master()
+{
+  while (!ros::master::check())
+  {
+    QMessageBox* mb = new QMessageBox(QMessageBox::Question, QObject::tr("Waiting for ROS master"), QObject::tr("Could not find ROS master. Either start a 'roscore' and retry or abort loading the plugin."), QMessageBox::Retry | QMessageBox::Abort);
+    mb->setDefaultButton(QMessageBox::Retry);
+    int button = mb->exec();
+    if (button == QMessageBox::Abort)
+    {
+      throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
+    }
+    delete mb;
+  }
 }
 
 void RosCppPluginProvider::init_node()
@@ -89,10 +108,6 @@ void RosCppPluginProvider::init_node()
     name << getpid();
     qDebug("RosCppPluginProvider::init_node() initialize ROS node '%s'", name.str().c_str());
     ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
-    if (!ros::master::check())
-    {
-      throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
-    }
     ros::start();
     node_initialized_ = true;
   }
