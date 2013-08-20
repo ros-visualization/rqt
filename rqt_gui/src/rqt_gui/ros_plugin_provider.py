@@ -110,6 +110,10 @@ class RosPluginProvider(PluginProvider):
     def _parse_plugin_xml(self, package_name, plugin_xml):
         plugin_descriptors = []
 
+        if not os.path.isfile(plugin_xml):
+            qCritical('RosPluginProvider._parse_plugin_xml() plugin file "%s" in package "%s" not found' % (plugin_xml, package_name))
+            return plugin_descriptors
+
         try:
             root = ElementTree.parse(plugin_xml)
         except Exception:
