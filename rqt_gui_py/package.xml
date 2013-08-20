@@ -14,9 +14,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>qt_gui</build_depend>
   <build_depend>rqt_gui</build_depend>
   <build_depend>rospy</build_depend>
 
+  <run_depend version_gte="0.2.17">qt_gui</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rospy</run_depend>
   
