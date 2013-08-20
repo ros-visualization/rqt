@@ -32,6 +32,7 @@ import os
 import rospy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
+from qt_gui.errors import PluginLoadError
 
 from python_qt_binding.QtCore import qDebug, qWarning
 from python_qt_binding.QtGui import QMessageBox
@@ -66,7 +67,7 @@ class RosPyPluginProvider(CompositePluginProvider):
                 mb.setDefaultButton(QMessageBox.Retry)
                 button = mb.exec_()
                 if button == QMessageBox.Abort:
-                    raise RuntimeError('RosPyPluginProvider._init_node() could not find ROS master')
+                    raise PluginLoadError('RosPyPluginProvider._init_node() could not find ROS master')
 
     def _init_node(self):
         # initialize node once
