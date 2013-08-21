@@ -32,8 +32,10 @@ import os
 import rospy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
+from qt_gui.errors import PluginLoadError
 
 from python_qt_binding.QtCore import qDebug, qWarning
+from python_qt_binding.QtGui import QMessageBox
 
 try:
     from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
@@ -50,27 +52,22 @@ class RosPyPluginProvider(CompositePluginProvider):
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
 
-    def discover(self):
-        descriptors = super(RosPyPluginProvider, self).discover()
-
-        if not self._master_found():
-            qWarning('RosPyPluginProvider.discover() could not find ROS master, all rospy-based plugins are disabled')
-            # mark all plugins as "not_available"
-            for descriptor in descriptors:
-                descriptor.attributes()['not_available'] = 'no ROS master found (roscore needs to be started before the GUI)'
-
-        return descriptors
-
     def load(self, plugin_id, plugin_context):
+        self._wait_for_master()
         self._init_node()
         return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)
 
-    def _master_found(self):
-        try:
-            rospy.get_master().getSystemState()
-            return True
-        except Exception:
-            return False
+    def _wait_for_master(self):
+        while True:
+            try:
+                rospy.get_master().getSystemState()
+                break
+            except Exception:
+                mb = QMessageBox(QMessageBox.Question, self.tr('Waiting for ROS master'), self.tr("Could not find ROS master. Either start a 'roscore' and retry or abort loading the plugin."), QMessageBox.Retry | QMessageBox.Abort)
+                mb.setDefaultButton(QMessageBox.Retry)
+                button = mb.exec_()
+                if button == QMessageBox.Abort:
+                    raise PluginLoadError('RosPyPluginProvider._init_node() could not find ROS master')
 
     def _init_node(self):
         # initialize node once

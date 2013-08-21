@@ -55,6 +55,8 @@ public:
 
 protected:
 
+  void wait_for_master();
+
   void init_node();
 
   bool node_initialized_;
