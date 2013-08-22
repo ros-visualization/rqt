@@ -1,6 +1,11 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.10 (2013-08-21)
+-------------------
+* add application icon (`#82 <https://github.com/ros-visualization/rqt/issues/82>`_)
+* improve error message when plugin xml file does not exist
+
 0.2.9 (2013-06-06)
 ------------------
 * make plugin resources relative to plugin.xml (`ros-visualization/qt_gui_core#16 <https://github.com/ros-visualization/qt_gui_core/issues/16>`_)

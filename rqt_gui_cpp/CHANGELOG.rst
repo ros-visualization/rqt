@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.10 (2013-08-21)
+-------------------
+* check for master before loading a plugin and ask the user if not found (`#67 <https://github.com/ros-visualization/rqt/issues/67>`_)
+
 0.2.9 (2013-06-06)
 ------------------
 
