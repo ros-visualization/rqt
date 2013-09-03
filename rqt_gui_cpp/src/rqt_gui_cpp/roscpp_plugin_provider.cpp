@@ -69,14 +69,12 @@ RosCppPluginProvider::~RosCppPluginProvider()
 
 void* RosCppPluginProvider::load(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
-  wait_for_master();
   init_node();
   return qt_gui_cpp::CompositePluginProvider::load(plugin_id, plugin_context);
 }
 
 qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
-  wait_for_master();
   init_node();
   return qt_gui_cpp::CompositePluginProvider::load_plugin(plugin_id, plugin_context);
 }
@@ -108,8 +106,13 @@ void RosCppPluginProvider::init_node()
     name << getpid();
     qDebug("RosCppPluginProvider::init_node() initialize ROS node '%s'", name.str().c_str());
     ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
+    wait_for_master();
     ros::start();
     node_initialized_ = true;
+  }
+  else
+  {
+    wait_for_master();
   }
 }
 
