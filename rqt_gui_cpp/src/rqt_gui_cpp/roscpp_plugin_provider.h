@@ -35,6 +35,9 @@
 
 #include <qt_gui_cpp/composite_plugin_provider.h>
 
+#include <QMessageBox>
+#include <QThread>
+
 #include <string>
 
 namespace rqt_gui_cpp {
@@ -61,6 +64,22 @@ protected:
 
   bool node_initialized_;
 
+  QMessageBox* wait_for_master_dialog_;
+
+  QThread* wait_for_master_thread_;
+
+};
+
+class WaitForMasterThread
+  : public QThread
+{
+  Q_OBJECT
+public:
+  WaitForMasterThread(QObject* parent = 0);
+  void run();
+  bool abort;
+signals:
+  void master_found_signal(int r);
 };
 
 }

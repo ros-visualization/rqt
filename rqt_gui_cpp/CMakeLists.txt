@@ -18,7 +18,13 @@ SET(rqt_gui_cpp_SRCS
   src/rqt_gui_cpp/roscpp_plugin_provider.cpp
 )
 
-add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS})
+set(rqt_gui_cpp_HDRS
+  src/rqt_gui_cpp/roscpp_plugin_provider.h
+)
+
+qt4_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
+
+add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS} ${rqt_gui_cpp_MOCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
 if(APPLE) 

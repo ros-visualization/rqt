@@ -41,8 +41,6 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
-#include <QMessageBox>
-
 #include <stdexcept>
 #include <sys/types.h>
 #include <unistd.h>
@@ -53,6 +51,8 @@ namespace rqt_gui_cpp {
 RosCppPluginProvider::RosCppPluginProvider()
   : qt_gui_cpp::CompositePluginProvider()
   , node_initialized_(false)
+  , wait_for_master_dialog_(0)
+  , wait_for_master_thread_(0)
 {
   QList<PluginProvider*> plugin_providers;
   plugin_providers.append(new NodeletPluginProvider("rqt_gui", "rqt_gui_cpp::Plugin"));
@@ -81,16 +81,31 @@ qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, 
 
 void RosCppPluginProvider::wait_for_master()
 {
-  while (!ros::master::check())
+  // check if master is available
+  if (ros::master::check())
   {
-    QMessageBox* mb = new QMessageBox(QMessageBox::Question, QObject::tr("Waiting for ROS master"), QObject::tr("Could not find ROS master. Either start a 'roscore' and retry or abort loading the plugin."), QMessageBox::Retry | QMessageBox::Abort);
-    mb->setDefaultButton(QMessageBox::Retry);
-    int button = mb->exec();
-    if (button == QMessageBox::Abort)
-    {
-      throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
-    }
-    delete mb;
+    return;
+  }
+  // spawn thread to detect when master becomes available
+  wait_for_master_dialog_ = new QMessageBox(QMessageBox::Question, QObject::tr("Waiting for ROS master"), QObject::tr("Could not find ROS master. Either start a 'roscore' or abort loading the plugin."), QMessageBox::Abort);
+  wait_for_master_thread_ = new WaitForMasterThread(wait_for_master_dialog_);
+  wait_for_master_thread_->start();
+  QObject::connect(wait_for_master_thread_, SIGNAL(master_found_signal(int)), wait_for_master_dialog_, SLOT(done(int)), Qt::QueuedConnection);
+  int button = wait_for_master_dialog_->exec();
+  // check if master existence was not detected by background thread
+  bool no_master = (button != QMessageBox::Ok);
+  if (no_master)
+  {
+    dynamic_cast<WaitForMasterThread*>(wait_for_master_thread_)->abort = true;
+    wait_for_master_thread_->wait();
+  }
+  wait_for_master_thread_->exit();
+  wait_for_master_thread_->deleteLater();
+  wait_for_master_dialog_->deleteLater();
+  wait_for_master_dialog_ = 0;
+  if (no_master)
+  {
+    throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
   }
 }
 
@@ -113,6 +128,28 @@ void RosCppPluginProvider::init_node()
   else
   {
     wait_for_master();
+  }
+}
+
+WaitForMasterThread::WaitForMasterThread(QObject* parent)
+  : QThread(parent)
+  , abort(false)
+{}
+
+void WaitForMasterThread::run()
+{
+  while (true)
+  {
+    usleep(100000);
+    if (abort)
+    {
+      break;
+    }
+    if (ros::master::check())
+    {
+      emit(master_found_signal(QMessageBox::Ok));
+      break;
+    }
   }
 }
 
