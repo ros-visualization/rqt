@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.11 (2013-09-06)
+-------------------
 * detect master with background thread (`ros-visualization/rqt_common_plugins#169 <https://github.com/ros-visualization/rqt_common_plugins/issues/169>`_)
 
 0.2.10 (2013-08-21)
