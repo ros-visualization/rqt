@@ -76,18 +76,12 @@ class Main(Base):
             self._plugin_cache = RosPluginProviderCache()
             self._plugin_cache.load()
 
-        try:
-            from .rospkg_plugin_provider import RospkgPluginProvider
-            ActualRosPluginProvider = RospkgPluginProvider
-        except ImportError:
-            from .roslib_plugin_provider import RoslibPluginProvider
-            ActualRosPluginProvider = RoslibPluginProvider
-
         # do not import earlier as it would import Qt stuff without the proper initialization from qt_gui.main
         from qt_gui.recursive_plugin_provider import RecursivePluginProvider
-        self.plugin_providers.append(ActualRosPluginProvider('qt_gui', 'qt_gui_py::Plugin'))
-        self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
-        self.plugin_providers.append(RecursivePluginProvider(ActualRosPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
+        from .rospkg_plugin_provider import RospkgPluginProvider
+        self.plugin_providers.append(RospkgPluginProvider('qt_gui', 'qt_gui_py::Plugin'))
+        self.plugin_providers.append(RecursivePluginProvider(RospkgPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
+        self.plugin_providers.append(RecursivePluginProvider(RospkgPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
 
     def _caching_hook(self):
         if self._plugin_cache is not None:
