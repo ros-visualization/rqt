@@ -53,14 +53,14 @@ class RosPluginProvider(PluginProvider):
         self._base_class_type = base_class_type
         self._plugin_descriptors = {}
 
-    def discover(self):
+    def discover(self, discovery_data):
         """
         Discover the plugins.
         The information of the `PluginDescriptor`s are extracted from the plugin manifests.
         """
         # search for plugins
         plugin_descriptors = []
-        plugin_file_list = self._find_plugins(self._export_tag)
+        plugin_file_list = self._find_plugins(self._export_tag, discovery_data)
         for package_name, plugin_xml in plugin_file_list:
             plugin_descriptors += self._parse_plugin_xml(package_name, plugin_xml)
         # add list of discovered plugins to dictionary of known descriptors index by the plugin id
@@ -96,7 +96,7 @@ class RosPluginProvider(PluginProvider):
     def unload(self, plugin_instance):
         pass
 
-    def _find_plugins(self, export_tag):
+    def _find_plugins(self, export_tag, discovery_data):
         raise NotImplementedError
 
     def _parse_plugin_xml(self, package_name, plugin_xml):
