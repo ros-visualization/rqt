@@ -40,12 +40,7 @@ from qt_gui.errors import PluginLoadError
 from python_qt_binding.QtCore import qDebug, Qt, qWarning, Signal
 from python_qt_binding.QtGui import QMessageBox
 
-try:
-    from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
-    ActualRosPluginProvider = RospkgPluginProvider
-except ImportError:
-    from rqt_gui.roslib_plugin_provider import RoslibPluginProvider
-    ActualRosPluginProvider = RoslibPluginProvider
+from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
 
 
 class RosPyPluginProvider(CompositePluginProvider):
@@ -53,7 +48,7 @@ class RosPyPluginProvider(CompositePluginProvider):
     _master_found_signal = Signal(int)
 
     def __init__(self):
-        super(RosPyPluginProvider, self).__init__([ActualRosPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
+        super(RosPyPluginProvider, self).__init__([RospkgPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
         self._wait_for_master_dialog = None
