@@ -8,6 +8,6 @@ catkin_python_setup()
 install(PROGRAMS bin/rqt_gui
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-install(FILES resource/rqt.svg
+install(FILES resource/rqt.png
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resource
 )

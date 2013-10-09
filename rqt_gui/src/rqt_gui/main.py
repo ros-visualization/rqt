@@ -61,7 +61,7 @@ class Main(Base):
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
         app = super(Main, self).create_application(argv)
-        logo = os.path.join(self._ros_pack.get_path('rqt_gui'), 'resource', 'rqt.svg')
+        logo = os.path.join(self._ros_pack.get_path('rqt_gui'), 'resource', 'rqt.png')
         icon = QIcon(logo)
         app.setWindowIcon(icon)
         return app
