@@ -1,6 +1,11 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* improve startup time (`#88 <https://github.com/ros-visualization/rqt/issues/88>`_)
+* new icon for rqt
+
 0.2.11 (2013-09-06)
 -------------------
 
