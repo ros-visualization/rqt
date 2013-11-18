@@ -76,7 +76,7 @@ class PluginContainerWidget(QWidget):
 
         ui_file = os.path.join(rospkg.RosPack().get_path('rqt_py_common'),
                                'resource', 'plugin_container.ui')
-        loadUi(ui_file, self, {'PluginContainerWidget': PluginContainerWidget})
+        loadUi(ui_file, self)
 
         self._plugin_widget = plugin_widget
         self._splitter.insertWidget(0, self._plugin_widget)
