@@ -1,6 +1,10 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added hash of ros package path as prefix for plugin manager settings to allow for one cache per package path setting
+
 0.2.12 (2013-10-09)
 -------------------
 * improve startup time (`#88 <https://github.com/ros-visualization/rqt/issues/88>`_)
