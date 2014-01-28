@@ -2,6 +2,9 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.3 (2014-01-08)
 ------------------
 * fix ui loading of plugin constainer widget
