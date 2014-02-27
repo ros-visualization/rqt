@@ -40,6 +40,8 @@
 #include <nodelet/loader.h>
 #include <nodelet/nodelet.h>
 
+#include <QThread>
+
 #include <string>
 
 namespace rqt_gui_cpp {
@@ -58,6 +60,8 @@ public:
 
   virtual void unload(void* instance);
 
+  virtual void shutdown();
+
 protected:
 
   void init_loader();
@@ -73,6 +77,18 @@ protected:
   boost::shared_ptr<rqt_gui_cpp::Plugin> instance_;
 
   QMap<void*, QString> instances_;
+
+  class RosSpinThread
+    : public QThread
+  {
+  public:
+    RosSpinThread(QObject* parent = 0);
+    virtual ~RosSpinThread();
+    void run();
+    bool abort;
+  };
+
+  RosSpinThread* ros_spin_thread_;
 
 };
 

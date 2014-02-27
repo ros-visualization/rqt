@@ -34,6 +34,9 @@
 
 #include "roscpp_plugin_provider.h"
 
+#include <ros/callback_queue.h>
+#include <ros/ros.h>
+
 #include <stdexcept>
 #include <boost/bind.hpp>
 
@@ -42,6 +45,7 @@ namespace rqt_gui_cpp {
 NodeletPluginProvider::NodeletPluginProvider(const QString& export_tag, const QString& base_class_type)
   : qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>(export_tag, base_class_type)
   , loader_(0)
+  , ros_spin_thread_(0)
 {}
 
 NodeletPluginProvider::~NodeletPluginProvider()
@@ -68,7 +72,24 @@ void NodeletPluginProvider::unload(void* instance)
     qCritical("NodeletPluginProvider::unload() '%s' failed", nodelet_name.toStdString().c_str());
   }
 
+  // stop and garbage ros spin thread if not needed anymore
+  if (loader_->listLoadedNodelets().empty())
+  {
+    shutdown();
+  }
+
   qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::unload(instance);
+}
+
+void NodeletPluginProvider::shutdown()
+{
+  if (ros_spin_thread_ != 0)
+  {
+    ros_spin_thread_->abort = true;
+    ros_spin_thread_->wait();
+    ros_spin_thread_->deleteLater();
+    ros_spin_thread_ = 0;
+  }
 }
 
 void NodeletPluginProvider::init_loader()
@@ -77,6 +98,13 @@ void NodeletPluginProvider::init_loader()
   if (loader_ == 0)
   {
     loader_ = new nodelet::Loader(boost::bind(&NodeletPluginProvider::create_instance, this, _1));
+  }
+
+  // spawn ros spin thread
+  if (ros_spin_thread_ == 0)
+  {
+    ros_spin_thread_ = new RosSpinThread(this);
+    ros_spin_thread_->start();
   }
 }
 
@@ -117,6 +145,22 @@ void NodeletPluginProvider::init_plugin(const QString& plugin_id, qt_gui_cpp::Pl
   }
 
   qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::init_plugin(plugin_id, plugin_context, plugin);
+}
+
+NodeletPluginProvider::RosSpinThread::RosSpinThread(QObject* parent)
+  : QThread(parent)
+  , abort(false)
+{}
+
+NodeletPluginProvider::RosSpinThread::~RosSpinThread()
+{}
+
+void NodeletPluginProvider::RosSpinThread::run()
+{
+  while (!abort)
+  {
+    ros::getGlobalCallbackQueue()->callOne(ros::WallDuration(0.1));
+  }
 }
 
 }
