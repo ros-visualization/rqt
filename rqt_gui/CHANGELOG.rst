@@ -1,6 +1,9 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.13 (2014-01-08)
 -------------------
 * added hash of ros package path as prefix for plugin manager settings to allow for one cache per package path setting
