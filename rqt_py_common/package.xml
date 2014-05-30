@@ -6,6 +6,9 @@
     Despite no plugin is provided, this package is part of the rqt_common_plugins
     repository to keep refactoring generic functionality from these common plugins
     into this package as easy as possible.
+
+    Functionality included in this package should cover generic ROS concepts and
+    should not introduce any special dependencies beside "ros_base".
   </description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
   <maintainer email="130s@2000.jukuin.keio.ac.jp">Isaac Saito</maintainer>
