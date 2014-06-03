@@ -33,6 +33,16 @@ import roslib.msgs
 from rostopic import get_topic_type
 from python_qt_binding.QtCore import qDebug
 
+def get_type_class(type_name):
+    if roslib.msgs.is_valid_constant_type(type_name):
+        if type_name == 'string':
+            return str
+        elif type_name == 'bool':
+            return bool
+        else:
+            return type(roslib.msgs._convert_val(type_name, 0))
+    else:
+        return roslib.message.get_message_class(type_name)
 
 def get_field_type(topic_name):
     """
@@ -81,15 +91,8 @@ def get_slot_type(message_class, slot_path):
         slot_type = message_class._slot_types[message_class.__slots__.index(field_name)]
         slot_type, slot_is_array, _ = roslib.msgs.parse_type(slot_type)
         is_array = slot_is_array and field_index is None
-        if roslib.msgs.is_valid_constant_type(slot_type):
-            if slot_type == 'string':
-                message_class = str
-            elif slot_type == 'bool':
-                message_class = bool
-            else:
-                message_class = type(roslib.msgs._convert_val(slot_type, 0))
-        else:
-            message_class = roslib.message.get_message_class(slot_type)
+
+        message_class = get_type_class(slot_type)
     return message_class, is_array
 
 
