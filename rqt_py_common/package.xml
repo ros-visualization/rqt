@@ -11,7 +11,6 @@
     should not introduce any special dependencies beside "ros_base".
   </description>
   <maintainer email="scholz@sim.tu-darmstadt.de">Dorian Scholz</maintainer>
-  <maintainer email="130s@2000.jukuin.keio.ac.jp">Isaac Saito</maintainer>
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/rqt_py_common</url>
