@@ -32,4 +32,8 @@
   rosaction gets moved to actionlib. -->
   <run_depend>actionlib</run_depend>
   <run_depend>rosbag</run_depend>
+
+  <export>
+    <architecture_independent/>
+  </export>
 </package>
