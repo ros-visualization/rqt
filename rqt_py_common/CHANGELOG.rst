@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* improve topic helpers to make more things plottable (`#246 <https://github.com/ros-visualization/rqt_common_plugins/issues/246>`_)
+* export architecture_independent flag in package.xml (`#254 <https://github.com/ros-visualization/rqt_common_plugins/issues/254>`_)
+
 0.3.6 (2014-06-02)
 ------------------
 
