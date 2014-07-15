@@ -2,6 +2,9 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.3.7 (2014-07-11)
 ------------------
 * improve topic helpers to make more things plottable (`#246 <https://github.com/ros-visualization/rqt_common_plugins/issues/246>`_)
