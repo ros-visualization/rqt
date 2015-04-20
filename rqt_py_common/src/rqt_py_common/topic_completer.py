@@ -45,6 +45,11 @@ class TopicCompleter(TreeModelCompleter):
         super(TopicCompleter, self).__init__(parent)
         self.setModel(MessageTreeModel())
 
+    def splitPath(self, path):
+        # to handle array subscriptions, e.g. /topic/field[1]/subfield[2]
+        # we need to separate array subscriptions by an additional /
+        return super(TopicCompleter,self).splitPath(path.replace('[','/['))
+
     def update_topics(self):
         self.model().clear()
         topic_list = rospy.get_published_topics()
