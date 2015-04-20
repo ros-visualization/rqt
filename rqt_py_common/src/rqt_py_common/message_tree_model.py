@@ -72,7 +72,7 @@ class MessageTreeModel(QStandardItemModel):
                 child_slot = getattr(slot, child_slot_name)
                 self._recursive_create_items(row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
 
-        elif type(slot) in (list, tuple) and (len(slot) > 0) and hasattr(slot[0], '__slots__'):
+        elif type(slot) in (list, tuple) and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
             for index, child_slot in enumerate(slot):
                 child_slot_name = '[%d]' % index
