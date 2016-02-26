@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from python_qt_binding.QtCore import QModelIndex
-from python_qt_binding.QtGui import QDoubleSpinBox, QItemDelegate
+from python_qt_binding.QtWidgets import QDoubleSpinBox, QItemDelegate
 
 
 class SpinBoxDelegate(QItemDelegate):
