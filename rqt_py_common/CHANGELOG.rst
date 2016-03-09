@@ -2,8 +2,8 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.13 (2016-03-08)
+-------------------
 * added unittest for MessageTreeModel
 * fixed message_tree_model to list individual elements of simple-type array elements
 * fixed topic_completer to handle array subscriptions
