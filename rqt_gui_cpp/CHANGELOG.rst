@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* switch to Qt5 (`#106 <https://github.com/ros-visualization/rqt/pull/106>`_)
+
 0.2.14 (2014-03-04)
 -------------------
 * add ros spinner thread for cpp plugins (`#95 <https://github.com/ros-visualization/rqt/issues/95>`_)

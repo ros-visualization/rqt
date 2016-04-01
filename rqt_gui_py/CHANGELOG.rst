@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* switch to Qt5 (`#106 <https://github.com/ros-visualization/rqt/pull/106>`_)
+
 0.2.14 (2014-03-04)
 -------------------
 
