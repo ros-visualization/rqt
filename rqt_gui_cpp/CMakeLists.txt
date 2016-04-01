@@ -10,8 +10,7 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-include(${QT_USE_FILE})
+find_package(Qt5Widgets REQUIRED)
 
 SET(rqt_gui_cpp_SRCS
   src/rqt_gui_cpp/nodelet_plugin_provider.cpp
@@ -22,10 +21,10 @@ set(rqt_gui_cpp_HDRS
   src/rqt_gui_cpp/roscpp_plugin_provider.h
 )
 
-qt4_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
+qt5_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
 
 add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS} ${rqt_gui_cpp_MOCS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Qt5::Widgets)
 
 if(APPLE) 
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")

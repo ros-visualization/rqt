@@ -38,7 +38,7 @@ from qt_gui.composite_plugin_provider import CompositePluginProvider
 from qt_gui.errors import PluginLoadError
 
 from python_qt_binding.QtCore import qDebug, Qt, qWarning, Signal
-from python_qt_binding.QtGui import QMessageBox
+from python_qt_binding.QtWidgets import QMessageBox
 
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
 
