@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add missing build dependency
+
 0.3.0 (2016-04-01)
 ------------------
 * switch to Qt5 (`#106 <https://github.com/ros-visualization/rqt/pull/106>`_)
