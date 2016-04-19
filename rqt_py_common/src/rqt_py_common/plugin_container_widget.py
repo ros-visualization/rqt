@@ -37,7 +37,7 @@ from __future__ import division
 import os
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtWidgets import QWidget
 import rospkg
 import rospy
 
