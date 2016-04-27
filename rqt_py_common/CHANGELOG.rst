@@ -2,6 +2,10 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Support Qt 5 (in Kinetic and higher) as well as Qt 4 (in Jade and earlier) (`#359 <https://github.com/ros-visualization/rqt_common_plugins/pull/359>`_)
+
 0.3.13 (2016-03-08)
 -------------------
 * added unittest for MessageTreeModel
