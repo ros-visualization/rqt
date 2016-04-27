@@ -30,8 +30,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+try:
+    from python_qt_binding.QtCore import QSortFilterProxyModel  # Qt 5
+except ImportError:
+    from python_qt_binding.QtGui import QSortFilterProxyModel  # Qt 4
 from python_qt_binding.QtCore import Qt, Signal, Slot
-from python_qt_binding.QtGui import QComboBox, QCompleter, QSortFilterProxyModel
+from python_qt_binding.QtWidgets import QComboBox, QCompleter
 
 
 class ExtendedComboBox(QComboBox):

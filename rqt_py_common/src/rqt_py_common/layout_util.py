@@ -33,7 +33,7 @@
 # Author: Isaac Saito
 
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtGui import QWidgetItem
+from python_qt_binding.QtWidgets import QWidgetItem
 import roslib
 import rospy
 
