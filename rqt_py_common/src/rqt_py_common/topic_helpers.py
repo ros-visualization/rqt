@@ -30,8 +30,10 @@
 
 import roslib
 import roslib.msgs
+import roslib.message
 from rostopic import get_topic_type
 from python_qt_binding.QtCore import qDebug
+
 
 def get_type_class(type_name):
     if roslib.msgs.is_valid_constant_type(type_name):
@@ -43,6 +45,7 @@ def get_type_class(type_name):
             return type(roslib.msgs._convert_val(type_name, 0))
     else:
         return roslib.message.get_message_class(type_name)
+
 
 def get_field_type(topic_name):
     """
@@ -113,3 +116,71 @@ def is_slot_numeric(topic_name):
         return True, is_array, message
 
     return False, is_array, 'topic "%s" is NOT numeric: %s' % (topic_name, field_type)
+
+
+def find_slots_by_type_dfs(msg_class, slot_type):
+    """
+    Search inside msg_class for all slots of type slot_type and return their paths.
+    Uses a depth first search.
+
+    :param msg_class: The class to search in.
+    :param slot_type: The type name or class to search for (e.g. 'float64' or Quaternion).
+    :return: List of paths to slots of type slot_type inside msg_class (e.g. ['header/frame_id']).
+    """
+
+    def _find_slots(msg_class, slot_type):
+        paths = []
+        if msg_class == slot_type:
+            paths.append([])
+            return paths
+
+        for slot_name, slot_type_name in zip(msg_class.__slots__, msg_class._slot_types):
+            slot_type_name, is_array, _ = roslib.msgs.parse_type(slot_type_name)
+            if is_array:
+                slot_name += '[]'
+            if roslib.msgs.is_valid_constant_type(slot_type_name):
+                if slot_type_name == slot_type:
+                    paths.append([slot_name])
+                continue
+
+            slot_class = roslib.message.get_message_class(slot_type_name)
+            if slot_class is not None:
+                inner_paths = _find_slots(slot_class, slot_type)
+                paths.extend([[slot_name] + path for path in inner_paths])
+
+        return paths
+
+    return ['/'.join(path) for path in _find_slots(msg_class, slot_type)]
+
+
+def find_slots_by_type_bfs(msg_class, slot_type):
+    """
+    Search inside msg_class for all slots of type slot_type and return their paths.
+    Uses a breadth first search, so it will find the most shallow matches first.
+
+    :param msg_class: The class to search in.
+    :param slot_type: The type name or class to search for (e.g. 'float64' or Quaternion).
+    :return: List of paths to slots of type slot_type inside msg_class (e.g. ['header/frame_id']).
+    """
+    paths = []
+    queue = [(msg_class, [])]
+    while queue:
+        msg_class, path = queue.pop(0)
+        if msg_class == slot_type:
+            paths.append(path)
+            continue
+
+        for slot_name, slot_type_name in zip(msg_class.__slots__, msg_class._slot_types):
+            slot_type_name, is_array, _ = roslib.msgs.parse_type(slot_type_name)
+            if is_array:
+                slot_name += '[]'
+            if roslib.msgs.is_valid_constant_type(slot_type_name):
+                if slot_type_name == slot_type:
+                    paths.append(path + [slot_name])
+                continue
+
+            slot_class = roslib.message.get_message_class(slot_type_name)
+            if slot_class is not None:
+                queue.append((slot_class, path + [slot_name]))
+
+    return ['/'.join(path) for path in paths]
