@@ -61,9 +61,9 @@ class TestRqtRoscommUtil(unittest.TestCase):
         pkg_num_sum = 0
         for pkg in RqtRoscommUtil.iterate_packages('launch'):
             pkg_num_sum += 1
-            print 'pkg={}'.format(pkg)
+            print('pkg={}'.format(pkg))
 
-        print pkg_num_sum
+        print(pkg_num_sum)
         self.assertEqual(pkg_num_sum, self._totalnum_pkg_contains_launch)
 
     def test_list_files(self):
@@ -79,9 +79,9 @@ class TestRqtRoscommUtil(unittest.TestCase):
         files = RqtRoscommUtil.list_files(pkg_name, subdir, file_ext)
         for file in files:
             file_num += 1
-            print 'file={}'.format(file)
+            print('file={}'.format(file))
 
-        print file_num
+        print(file_num)
         self.assertEqual(file_num, _totalnum_launches_pkg_contains)
 
 
