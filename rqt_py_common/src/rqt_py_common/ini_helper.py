@@ -60,7 +60,14 @@ def unpack(data):
     """
     if data is None or data == '':
         data = []
-    elif isinstance(data, basestring):
+    elif is_string(data):
         data = [data]
     return data
 
+
+def is_string(s):
+    """Check if the argument is a string which works for both Python 2 and 3."""
+    try:
+        return isinstance(s, basestring)
+    except NameError:
+        return isinstance(s, str)

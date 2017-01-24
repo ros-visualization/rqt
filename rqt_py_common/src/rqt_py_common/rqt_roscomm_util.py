@@ -79,7 +79,7 @@ class RqtRoscommUtil(object):
                                                                          msg))
         except RLException:
             raise
-        except Exception, e:
+        except Exception as e:
             rospy.logerr("load_parameters: unable to set params " +
                          "(last param was [{}]): {}".format(param, e))
             raise  # re-raise as this is fatal
@@ -87,7 +87,7 @@ class RqtRoscommUtil(object):
         try:
             # multi-call objects are not reusable
             param_server_multi = config.master.get_multi()
-            for param in config.params.itervalues():
+            for param in config.params.values():
                 # suppressing this as it causes too much spam
                 # printlog("setting parameter [%s]"%param.key)
                 param_server_multi.setParam(caller_id, param.key, param.value)
@@ -98,7 +98,7 @@ class RqtRoscommUtil(object):
                                                 "%s" % (msg))
         except RLException:
             raise
-        except Exception, e:
+        except Exception as e:
             print("load_parameters: unable to set params (last param was " +
                   "[%s]): %s" % (param, e))
             raise  # re-raise as this is fatal
