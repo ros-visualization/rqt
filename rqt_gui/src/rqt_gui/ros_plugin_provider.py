@@ -28,7 +28,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import __builtin__
+try:
+    import __builtin__
+except ImportError:
+    import builtins as __builtin__
 import os
 import sys
 import traceback
@@ -88,7 +91,11 @@ class RosPluginProvider(PluginProvider):
             return None
 
         # create plugin provider instance without context
-        if class_ref.__init__.func_code.co_argcount == 1 and plugin_context is None:
+        try:
+            code = class_ref.__init__.func_code
+        except AttributeError:
+            code = class_ref.__init__.__code__
+        if code.co_argcount == 1 and plugin_context is None:
             return class_ref()
         # create plugin instance
         return class_ref(plugin_context)
