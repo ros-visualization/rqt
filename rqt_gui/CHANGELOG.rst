@@ -3,7 +3,7 @@ Changelog for package rqt_gui
 
 0.3.2 (2017-01-24)
 ------------------
-* use Python 3 compatible syntax (`#81 <https://github.com/ros-visualization/qt_gui_core/pull/81>`_)
+* use Python 3 compatible syntax (`#113 <https://github.com/ros-visualization/rqt/pull/113>`_)
 
 0.3.1 (2016-04-01)
 ------------------
