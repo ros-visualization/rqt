@@ -1,6 +1,10 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* version bump to match version of migrated package `rqt_py_common`
+
 0.3.2 (2017-01-24)
 ------------------
 * use Python 3 compatible syntax (`#113 <https://github.com/ros-visualization/rqt/pull/113>`_)
