@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* version bump to match version of migrated package `rqt_py_common`
+
 0.2.14 (2014-03-04)
 -------------------
 * add ros spinner thread for cpp plugins (`#95 <https://github.com/ros-visualization/rqt/issues/95>`_)

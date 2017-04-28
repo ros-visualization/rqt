@@ -1,6 +1,10 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* version bump to match version of migrated package `rqt_py_common`
+
 0.2.14 (2014-03-04)
 -------------------
 
