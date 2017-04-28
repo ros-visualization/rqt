@@ -1,6 +1,6 @@
 <package>
   <name>rqt_gui_cpp</name>
-  <version>0.2.14</version>
+  <version>0.4.7</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
 
@@ -22,7 +22,7 @@
   <run_depend version_gte="0.2.22">qt_gui_cpp</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>nodelet</run_depend>
-  
+
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrqt_gui_cpp"/>
     <qt_gui plugin="${prefix}/plugin.xml"/>
