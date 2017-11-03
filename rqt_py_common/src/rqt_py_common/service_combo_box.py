@@ -36,15 +36,21 @@ from extended_combo_box import ExtendedComboBox
 from python_qt_binding.QtCore import QStringListModel
 
 class ServiceComboBox(ExtendedComboBox):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, delay=500):
         super(ServiceComboBox, self).__init__(parent)
-        # I attempted to create a timer to update the service list automatically,
-        # but the timer runs in a different thread and PyQt is not thread-safe.
-        # A ROS node must also be initialized for rospy to function.
-        #self.update_timer = rospy.Timer(rospy.Duration.from_sec(0.5), self.on_update)
+        self.setModel(QStringListModel(self.get_service_list()))
+        self.update_timer = QTimer()
+        self.update_timer.setInterval(delay)
+        self.update_timer.timeout.connect(self.update)
+        self.update_timer.start()
 
-    def update_list(self):
-        combo.setModel(QStringListModel(sorted(set(rosservice.get_service_list()))))
+    def get_service_list(self):
+        return sorted(set(rosservice.get_service_list()))
+
+    def update(self):
+        currentText = self.currentText()
+        self.model().setStringList(self.get_service_list())
+        self.setCurrentText(currentText)
 
 if __name__ == "__main__":
     import sys
@@ -54,9 +60,6 @@ if __name__ == "__main__":
 
     # Create the combo box itself.
     combo = ServiceComboBox()
-    # Clear the list of services and pull a new one. Do this on a regular basis, such as when
-    # a user changes an option or clicks a Refresh button.
-    combo.update_list()
 
     # Make sure your combo box is 
     combo.resize(600, 40)

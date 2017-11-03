@@ -36,12 +36,13 @@ from extended_combo_box import ExtendedComboBox
 from python_qt_binding.QtCore import QStringListModel
 
 class TopicComboBox(ExtendedComboBox):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, delay=500):
         super(TopicComboBox, self).__init__(parent)
-        # I attempted to create a timer to update the topic list automatically,
-        # but the timer runs in a different thread and PyQt is not thread-safe.
-        # A ROS node must also be initialized for rospy to function.
-        #self.update_timer = rospy.Timer(rospy.Duration.from_sec(0.5), self.on_update)
+        self.setModel(QStringListModel(self.get_action_list()))
+        self.update_timer = QTimer()
+        self.update_timer.setInterval(delay)
+        self.update_timer.timeout.connect(self.update)
+        self.update_timer.start()
 
     def get_topic_list(self):
         # TO-DO: Replace with rostopic.get_topic_list() when ros/ros_comm#1154 is merged.
@@ -56,9 +57,12 @@ class TopicComboBox(ExtendedComboBox):
             subs_out.append((topic, "", nodes))
         return (pubs_out, subs_out)
 
-    def update_list(self):
-        pubs, subs = self.get_topic_list()
-        combo.setModel(QStringListModel(sorted(set([x for x,_,_ in pubs] + [x for x,_,_ in subs]))))
+    def update(self):
+        currentText = self.currentText()
+        pubs, subs = get_topic_list()
+        topics = sorted(set([x for x,_,_ in pubs] + [x for x,_,_ in subs]))
+        combo.setModel(QStringListModel(topics))
+        self.setCurrentText(currentText)
 
 if __name__ == "__main__":
     import sys
@@ -68,9 +72,6 @@ if __name__ == "__main__":
 
     # Create the combo box itself.
     combo = TopicComboBox()
-    # Clear the list of topics and pull a new one. Do this on a regular basis, such as when
-    # a user changes an option or clicks a Refresh button.
-    combo.update_list()
 
     # Make sure your combo box is 
     combo.resize(600, 40)
