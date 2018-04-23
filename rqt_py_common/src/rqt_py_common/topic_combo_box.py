@@ -31,37 +31,26 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-#import rostopic
+import rostopic
 from extended_combo_box import ExtendedComboBox
-from python_qt_binding.QtCore import QStringListModel
+from python_qt_binding.QtCore import QStringListModel, QTimer
 
 class TopicComboBox(ExtendedComboBox):
     def __init__(self, parent=None, delay=500):
         super(TopicComboBox, self).__init__(parent)
-        self.setModel(QStringListModel(self.get_action_list()))
+        self.setModel(QStringListModel(self.get_topic_list()))
         self.update_timer = QTimer()
         self.update_timer.setInterval(delay)
         self.update_timer.timeout.connect(self.update)
         self.update_timer.start()
 
     def get_topic_list(self):
-        # TO-DO: Replace with rostopic.get_topic_list() when ros/ros_comm#1154 is merged.
-        # In the meantime this copies code from there.
-        import rosgraph
-        pubs, subs, _ = rosgraph.Master('/rostopic').getSystemState()
-        pubs_out = []
-        for topic, nodes in pubs:
-            pubs_out.append((topic, "", nodes))
-        subs_out = []
-        for topic, nodes in subs:
-            subs_out.append((topic, "", nodes))
-        return (pubs_out, subs_out)
+        pubs, subs = rostopic.get_topic_list()
+        return sorted(set([x for x,_,_ in pubs] + [x for x,_,_ in subs]))
 
     def update(self):
         currentText = self.currentText()
-        pubs, subs = get_topic_list()
-        topics = sorted(set([x for x,_,_ in pubs] + [x for x,_,_ in subs]))
-        combo.setModel(QStringListModel(topics))
+        combo.setModel(QStringListModel(self.get_topic_list()))
         self.setCurrentText(currentText)
 
 if __name__ == "__main__":

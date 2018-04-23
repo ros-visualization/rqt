@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-#import rostopic
+import rostopic
 from extended_combo_box import ExtendedComboBox
 from python_qt_binding.QtCore import QStringListModel, QTimer
 
@@ -44,21 +44,8 @@ class ActionComboBox(ExtendedComboBox):
         self.update_timer.timeout.connect(self.update)
         self.update_timer.start()
 
-    def get_topic_list(self):
-        # TO-DO: Replace with rostopic.get_topic_list() when ros/ros_comm#1154 is merged.
-        # In the meantime this copies code from there.
-        import rosgraph
-        pubs, subs, _ = rosgraph.Master('/rostopic').getSystemState()
-        pubs_out = []
-        for topic, nodes in pubs:
-            pubs_out.append((topic, "", nodes))
-        subs_out = []
-        for topic, nodes in subs:
-            subs_out.append((topic, "", nodes))
-        return (pubs_out, subs_out)
-
     def get_action_list(self):
-        pubs, subs = self.get_topic_list()
+        pubs, subs = rostopic.get_topic_list()
         topics = sorted(set([x for x,_,_ in pubs + subs]))
         # Action filter code from https://github.com/mcgill-robotics/rosaction/blob/master/src/rosaction/__init__.py#L151
         return [x[:-5] for x in topics if x.endswith("goal") and x.replace("/goal", "/cancel") in topics]

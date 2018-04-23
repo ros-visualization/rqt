@@ -33,7 +33,7 @@
 import rospy
 import rosservice
 from extended_combo_box import ExtendedComboBox
-from python_qt_binding.QtCore import QStringListModel
+from python_qt_binding.QtCore import QStringListModel, QTimer
 
 class ServiceComboBox(ExtendedComboBox):
     def __init__(self, parent=None, delay=500):
