@@ -22,5 +22,7 @@ install(DIRECTORY resource
 )
 
 if(CATKIN_ENABLE_TESTING)
-  catkin_add_nosetests(test)
+  catkin_add_nosetests(test/test_rqt_common_unit.py)
+  catkin_add_nosetests(test/test_rqt_ros_graph.py)
+  catkin_add_nosetests(test/test_rqt_roscomm_util.py)
 endif()

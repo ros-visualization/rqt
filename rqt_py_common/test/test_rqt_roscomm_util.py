@@ -48,16 +48,13 @@ class TestRqtRoscommUtil(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUp(self)
 
-        self._totalnum_pkg_contains_launch = 41  # Varies depending on system.
-
     def tearDown(self):
         unittest.TestCase.tearDown(self)
         # del self._model
 
     def test_iterate_packages(self):
         """
-        Not a very good test because the right answer that is hardcoded varies
-        depending on the system where this unittest runs.
+        Not a very good test because it only tests that the number of packages is non-zero
         """
         pkg_num_sum = 0
         for pkg in RqtRoscommUtil.iterate_packages('launch'):
@@ -65,25 +62,23 @@ class TestRqtRoscommUtil(unittest.TestCase):
             print('pkg={}'.format(pkg))
 
         print(pkg_num_sum)
-        self.assertEqual(pkg_num_sum, self._totalnum_pkg_contains_launch)
+        self.assertNotEqual(pkg_num_sum, 0)
 
     def test_list_files(self):
         """
-        Not a very good test because the right answer that is hardcoded varies
-        depending on the system where this unittest runs.
+        Not a very good test because it tests that there is at least one .msg file in std_msg
         """
         file_num = 0
-        pkg_name = 'pr2_moveit_config'
-        _totalnum_launches_pkg_contains = 15
-        subdir = 'launch'
-        file_ext = '.launch'
+        pkg_name = 'std_msgs'
+        subdir = 'msg'
+        file_ext = '.msg'
         files = RqtRoscommUtil.list_files(pkg_name, subdir, file_ext)
         for file in files:
             file_num += 1
             print('file={}'.format(file))
 
         print(file_num)
-        self.assertEqual(file_num, _totalnum_launches_pkg_contains)
+        self.assertNotEqual(file_num, 0)
 
 
 if __name__ == '__main__':
