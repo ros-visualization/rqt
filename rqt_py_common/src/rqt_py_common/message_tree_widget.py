@@ -48,7 +48,8 @@ class MessageTreeWidget(QTreeView):
             setSectionResizeMode = self.header().setResizeMode  # Qt4
         setSectionResizeMode(QHeaderView.ResizeToContents)
         self.header().setContextMenuPolicy(Qt.CustomContextMenu)
-        self.header().customContextMenuRequested.connect(self.handle_header_view_customContextMenuRequested)
+        self.header().customContextMenuRequested.connect(
+            self.handle_header_view_customContextMenuRequested)
 
         self._action_item_expand = QAction(QIcon.fromTheme('zoom-in'), 'Expand Selected', self)
         self._action_item_expand.triggered.connect(self._handle_action_item_expand)

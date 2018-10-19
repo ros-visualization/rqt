@@ -43,6 +43,7 @@ import rospy
 
 
 class PluginContainerWidget(QWidget):
+
     """
     This widget accommodates a plugin widget that needs an area to show system
     message. A plugin widget is the pane that provides plugin's main
@@ -95,7 +96,7 @@ class PluginContainerWidget(QWidget):
             self._sysprogress_bar.hide()
 
     def set_sysprogress(self, sysprogress):
-        #TODO: Pass progress value
+        # TODO: Pass progress value
         pass
 
     def set_sysmsg(self, sysmsg):
@@ -104,21 +105,21 @@ class PluginContainerWidget(QWidget):
         @type sysmsg: str
         """
         rospy.loginfo('PluginContainerWidget; {}'.format(sysmsg))
-        #self._sysmsg_widget.setPlainText(sysmsg)
+        # self._sysmsg_widget.setPlainText(sysmsg)
         self._sysmsg_widget.append(sysmsg)
 
     def shutdown(self):
 
-        #TODO: Is shutdown step necessary for PluginContainerWidget?
+        # TODO: Is shutdown step necessary for PluginContainerWidget?
 
         self._plugin_widget.shutdown()
 
     def save_settings(self, plugin_settings, instance_settings):
 
-        #Save setting of PluginContainerWidget.
+        # Save setting of PluginContainerWidget.
         instance_settings.set_value('_splitter', self._splitter.saveState())
 
-        #Save setting of ContainED widget
+        # Save setting of ContainED widget
         self._plugin_widget.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):

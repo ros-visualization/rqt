@@ -56,7 +56,8 @@ class TopicDict(object):
 
         if hasattr(field, '__slots__'):
             for slot_name in field.__slots__:
-                field_dict[topic_name]['children'].update(self._recursive_create_field_dict(slot_name, getattr(field, slot_name)))
+                field_dict[topic_name]['children'].update(
+                    self._recursive_create_field_dict(slot_name, getattr(field, slot_name)))
 
         return field_dict
 

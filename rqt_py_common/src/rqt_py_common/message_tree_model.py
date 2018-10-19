@@ -37,13 +37,14 @@ class MessageTreeModel(QStandardItemModel):
 
     def __init__(self, parent=None):
         # FIXME: why is this not working? should be the same as the following line...
-        #super(MessageTreeModel, self).__init__(parent)
+        # super(MessageTreeModel, self).__init__(parent)
         QStandardItemModel.__init__(self, parent)
 
     def add_message(self, message_instance, message_name='', message_type='', message_path=''):
         if message_instance is None:
             return
-        self._recursive_create_items(self, message_instance, message_name, message_type, message_path)
+        self._recursive_create_items(
+            self, message_instance, message_name, message_type, message_path)
 
     def _get_toplevel_items(self, index_list):
         items = [self.itemFromIndex(index) for index in index_list]
@@ -70,14 +71,16 @@ class MessageTreeModel(QStandardItemModel):
             for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
-                self._recursive_create_items(row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                self._recursive_create_items(
+                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
 
         elif type(slot) in (list, tuple) and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
             for index, child_slot in enumerate(slot):
                 child_slot_name = '[%d]' % index
                 child_slot_path = slot_path + child_slot_name
-                self._recursive_create_items(row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                self._recursive_create_items(
+                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
 
         else:
             is_leaf_node = True
@@ -132,6 +135,7 @@ class MessageTreeModel(QStandardItemModel):
         else:
             stditem = stditem_prev
 
-        rospy.logdebug('add_tree_node 1 name_curr=%s ' + '\n\t\t\t\t\tname_prev=%s row_index_parent=%d', name_curr, name_prev, row_index_parent)
+        rospy.logdebug('add_tree_node 1 name_curr=%s ' +
+                       '\n\t\t\t\t\tname_prev=%s row_index_parent=%d', name_curr, name_prev, row_index_parent)
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)

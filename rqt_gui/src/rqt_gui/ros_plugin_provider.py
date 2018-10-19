@@ -77,17 +77,20 @@ class RosPluginProvider(PluginProvider):
         sys.path.append(os.path.join(attributes['plugin_path'], attributes['library_path']))
 
         try:
-            module = __builtin__.__import__(attributes['module_name'], fromlist=[attributes['class_from_class_type']], level=0)
+            module = __builtin__.__import__(
+                attributes['module_name'], fromlist=[attributes['class_from_class_type']], level=0)
         except NotImplementedError as e:
             qCritical('RosPluginProvider.load(%s): raised an exception:\n%s' % (plugin_id, e))
             return None
         except Exception as e:
-            qCritical('RosPluginProvider.load(%s) exception raised in __builtin__.__import__(%s, [%s]):\n%s' % (plugin_id, attributes['module_name'], attributes['class_from_class_type'], traceback.format_exc()))
+            qCritical('RosPluginProvider.load(%s) exception raised in __builtin__.__import__(%s, [%s]):\n%s' % (
+                plugin_id, attributes['module_name'], attributes['class_from_class_type'], traceback.format_exc()))
             raise e
 
         class_ref = getattr(module, attributes['class_from_class_type'], None)
         if class_ref is None:
-            qCritical('RosPluginProvider.load(%s): could not find class "%s" in module "%s"' % (plugin_id, attributes['class_from_class_type'], module))
+            qCritical('RosPluginProvider.load(%s): could not find class "%s" in module "%s"' %
+                      (plugin_id, attributes['class_from_class_type'], module))
             return None
 
         # create plugin provider instance without context
@@ -110,13 +113,15 @@ class RosPluginProvider(PluginProvider):
         plugin_descriptors = []
 
         if not os.path.isfile(plugin_xml):
-            qCritical('RosPluginProvider._parse_plugin_xml() plugin file "%s" in package "%s" not found' % (plugin_xml, package_name))
+            qCritical('RosPluginProvider._parse_plugin_xml() plugin file "%s" in package "%s" not found' %
+                      (plugin_xml, package_name))
             return plugin_descriptors
 
         try:
             root = ElementTree.parse(plugin_xml)
         except Exception:
-            qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" in package "%s"' % (plugin_xml, package_name))
+            qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" in package "%s"' %
+                      (plugin_xml, package_name))
             return plugin_descriptors
         for library_el in root.getiterator('library'):
             library_path = library_el.attrib['path']

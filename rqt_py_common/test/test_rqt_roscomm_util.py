@@ -40,6 +40,7 @@ from rqt_py_common.rqt_roscomm_util import RqtRoscommUtil
 
 
 class TestRqtRoscommUtil(unittest.TestCase):
+
     """
     @author: Isaac Saito
     """
@@ -51,7 +52,7 @@ class TestRqtRoscommUtil(unittest.TestCase):
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)
-        #del self._model
+        # del self._model
 
     def test_iterate_packages(self):
         """

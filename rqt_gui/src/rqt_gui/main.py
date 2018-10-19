@@ -46,17 +46,21 @@ class Main(Base):
     def __init__(self, filename=None, ros_pack=None):
         rp = ros_pack or RosPack()
         qtgui_path = rp.get_path('qt_gui')
-        super(Main, self).__init__(qtgui_path, invoked_filename=filename, settings_filename='rqt_gui')
+        super(Main, self).__init__(
+            qtgui_path, invoked_filename=filename, settings_filename='rqt_gui')
         self._ros_pack = rp
 
     def main(self, argv=None, standalone=None, plugin_argument_provider=None):
         if argv is None:
             argv = sys.argv
 
-        # ignore ROS specific remapping arguments (see http://www.ros.org/wiki/Remapping%20Arguments)
+        # ignore ROS specific remapping arguments (see
+        # http://www.ros.org/wiki/Remapping%20Arguments)
         argv = rospy.myargv(argv)
 
-        return super(Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider, plugin_manager_settings_prefix=str(hash(os.environ['ROS_PACKAGE_PATH'])))
+        return super(
+            Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider,
+                             plugin_manager_settings_prefix=str(hash(os.environ['ROS_PACKAGE_PATH'])))
 
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
@@ -67,13 +71,16 @@ class Main(Base):
         return app
 
     def _add_plugin_providers(self):
-        # do not import earlier as it would import Qt stuff without the proper initialization from qt_gui.main
+        # do not import earlier as it would import Qt stuff without the proper
+        # initialization from qt_gui.main
         from qt_gui.recursive_plugin_provider import RecursivePluginProvider
         from .rospkg_plugin_provider import RospkgPluginProvider
         RospkgPluginProvider.rospack = self._ros_pack
         self.plugin_providers.append(RospkgPluginProvider('qt_gui', 'qt_gui_py::Plugin'))
-        self.plugin_providers.append(RecursivePluginProvider(RospkgPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
-        self.plugin_providers.append(RecursivePluginProvider(RospkgPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
+        self.plugin_providers.append(RecursivePluginProvider(
+            RospkgPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
+        self.plugin_providers.append(RecursivePluginProvider(
+            RospkgPluginProvider('rqt_gui', 'rqt_gui_py::PluginProvider')))
 
     def _add_reload_paths(self, reload_importer):
         super(Main, self)._add_reload_paths(reload_importer)

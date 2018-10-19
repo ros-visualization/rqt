@@ -48,7 +48,7 @@ class TopicCompleter(TreeModelCompleter):
     def splitPath(self, path):
         # to handle array subscriptions, e.g. /topic/field[1]/subfield[2]
         # we need to separate array subscriptions by an additional /
-        return super(TopicCompleter,self).splitPath(path.replace('[','/['))
+        return super(TopicCompleter, self).splitPath(path.replace('[', '/['))
 
     def update_topics(self):
         self.model().clear()
@@ -57,7 +57,9 @@ class TopicCompleter(TreeModelCompleter):
             topic_name = topic_path.strip('/')
             message_class = roslib.message.get_message_class(topic_type)
             if message_class is None:
-                qWarning('TopicCompleter.update_topics(): could not get message class for topic type "%s" on topic "%s"' % (topic_type, topic_path))
+                qWarning('TopicCompleter.update_topics(): '
+                         'could not get message class for topic type "%s" on topic "%s"' %
+                         (topic_type, topic_path))
                 continue
             message_instance = message_class()
             self.model().add_message(message_instance, topic_name, topic_type, topic_path)
@@ -73,13 +75,13 @@ if __name__ == '__main__':
 
     edit = QLineEdit()
     edit_completer = TopicCompleter(edit)
-    #edit_completer.setCompletionMode(QCompleter.InlineCompletion)
+    # edit_completer.setCompletionMode(QCompleter.InlineCompletion)
     edit.setCompleter(edit_completer)
 
     combo = QComboBox()
     combo.setEditable(True)
     combo_completer = TopicCompleter(combo)
-    #combo_completer.setCompletionMode(QCompleter.InlineCompletion)
+    # combo_completer.setCompletionMode(QCompleter.InlineCompletion)
     combo.lineEdit().setCompleter(combo_completer)
 
     model_tree = QTreeView()
