@@ -61,7 +61,8 @@ class RospkgPluginProvider(RosPluginProvider):
 
         plugins = []
         if crawl:
-            qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" % export_tag)
+            qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" %
+                   export_tag)
             r = RospkgPluginProvider.rospack
             for package_name in r.list():
                 package_path = r.get_path(package_name)
@@ -83,7 +84,8 @@ class RospkgPluginProvider(RosPluginProvider):
                     try:
                         from catkin_pkg.package import parse_package, InvalidPackage
                     except ImportError as e:
-                        qWarning('Package "%s" has a package file, but import of parser failed:\n%s' % (package_path, e))
+                        qWarning(
+                            'Package "%s" has a package file, but import of parser failed:\n%s' % (package_path, e))
                         continue
                     try:
                         package = parse_package(package_file_path)

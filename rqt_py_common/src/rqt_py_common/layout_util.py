@@ -65,10 +65,9 @@ class LayoutUtil(object):
             divisor = (i_widget + colors_num) % colors_num
             i_widget += 1
 
-            rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(
-                                                                   divisor,
-                                                                   i_widget,
-                                                                   colors_num))
+            rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(divisor,
+                                                                                    i_widget,
+                                                                                    colors_num))
 
             p.setColor(w.backgroundRole(), colors_alter[divisor])
             w.setPalette(p)

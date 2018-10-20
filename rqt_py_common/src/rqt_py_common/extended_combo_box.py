@@ -101,7 +101,7 @@ if __name__ == "__main__":
     combo.addItems(string_list)
 
     # or use another model
-    #combo.setModel(QStringListModel(string_list))
+    # combo.setModel(QStringListModel(string_list))
 
     combo.resize(300, 40)
     combo.show()

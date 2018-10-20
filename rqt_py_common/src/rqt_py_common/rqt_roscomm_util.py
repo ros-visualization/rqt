@@ -67,16 +67,14 @@ class RqtRoscommUtil(object):
             param_server_multi = config.master.get_multi()
 
             # clear specified parameter namespaces
-            # #2468 unify clear params to prevent error
-            for param in roslaunch.launch._unify_clear_params(
-                                                          config.clear_params):
+            # 2468 unify clear params to prevent error
+            for param in roslaunch.launch._unify_clear_params(config.clear_params):
                 if param_server.hasParam(caller_id, param)[2]:
                     param_server_multi.deleteParam(caller_id, param)
             r = param_server_multi()
             for code, msg, _ in r:
                 if code != 1:
-                    raise RLException("Failed to clear parameter {}: ".format(
-                                                                         msg))
+                    raise RLException("Failed to clear parameter {}: ".format(msg))
         except RLException:
             raise
         except Exception as e:
@@ -94,8 +92,7 @@ class RqtRoscommUtil(object):
             r = param_server_multi()
             for code, msg, _ in r:
                 if code != 1:
-                    raise RLException("Failed to set parameter: " +
-                                                "%s" % (msg))
+                    raise RLException("Failed to set parameter: %s" % (msg))
         except RLException:
             raise
         except Exception as e:
@@ -147,9 +144,7 @@ class RqtRoscommUtil(object):
 
         path = os.path.join(rospack.get_path(package), subdir)
 
-        return [genmsg.resource_name(package, t)
-                for t in RqtRoscommUtil._list_types(
-                                                 path, file_extension)]
+        return [genmsg.resource_name(package, t) for t in RqtRoscommUtil._list_types(path, file_extension)]
 
     @staticmethod
     def _list_types(path, ext):

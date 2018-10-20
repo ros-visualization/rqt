@@ -48,7 +48,8 @@ class RosPyPluginProvider(CompositePluginProvider):
     _master_found_signal = Signal(int)
 
     def __init__(self):
-        super(RosPyPluginProvider, self).__init__([RospkgPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
+        super(RosPyPluginProvider, self).__init__(
+            [RospkgPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
         self._wait_for_master_dialog = None
@@ -69,7 +70,11 @@ class RosPyPluginProvider(CompositePluginProvider):
         # spawn thread to detect when master becomes available
         self._wait_for_master_thread = threading.Thread(target=self._wait_for_master)
         self._wait_for_master_thread.start()
-        self._wait_for_master_dialog = QMessageBox(QMessageBox.Question, self.tr('Waiting for ROS master'), self.tr("Could not find ROS master. Either start a 'roscore' or abort loading the plugin."), QMessageBox.Abort)
+        self._wait_for_master_dialog = QMessageBox(QMessageBox.Question,
+                                                   self.tr('Waiting for ROS master'),
+                                                   self.tr("Could not find ROS master. Either start a 'roscore' or "
+                                                           "abort loading the plugin."),
+                                                   QMessageBox.Abort)
         self._master_found_signal.connect(self._wait_for_master_dialog.done, Qt.QueuedConnection)
         button = self._wait_for_master_dialog.exec_()
         # check if master existence was not detected by background thread

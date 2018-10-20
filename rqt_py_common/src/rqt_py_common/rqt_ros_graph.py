@@ -72,12 +72,12 @@ class RqtRosGraph(object):
             for child_grn in children_grn_list:
                 grn_full = upper_grn + child_grn
                 rospy.logdebug('grn_full={} upper_grn={} child_grn={}'.format(
-                                               grn_full, upper_grn, child_grn))
+                    grn_full, upper_grn, child_grn))
                 grn_list.append(grn_full)
         else:
             grn_list = children_grn_list
 
-        #Create a string where namespace is delimited by slash.
+        # Create a string where namespace is delimited by slash.
         grn = ''
         for s in grn_list:
             grn += RqtRosGraph.DELIM_GRN + s
@@ -122,13 +122,13 @@ class RqtRosGraph(object):
         i_child = 0
         list_grn_children_all = []
         while True:  # Loop per child.
-            grn_curr = grn_prev + RqtRosGraph.DELIM_GRN + str(
-                                                            model_index.data())
+            grn_curr = grn_prev + RqtRosGraph.DELIM_GRN + \
+                str(model_index.data())
             child_qmindex = model_index.child(i_child, 0)
 
             if (not child_qmindex.isValid()):
                 rospy.logdebug('!! DEADEND i_child=#{} grn_curr={}'.format(
-                                                           i_child, grn_curr))
+                    i_child, grn_curr))
                 if i_child == 0:
                     # Only when the current node has no children, add current
                     # GRN to the returning list.
@@ -146,9 +146,9 @@ class RqtRosGraph(object):
 
             list_grn_children_all = list_grn_children_all + list_grn_children
             rospy.logdebug('111 lennodes={} list_grn_children={}'.format(
-                                len(list_grn_children_all), list_grn_children))
+                len(list_grn_children_all), list_grn_children))
             rospy.logdebug('122 list_grn_children_all={}'.format(
-                                                        list_grn_children_all))
+                list_grn_children_all))
             i_child += 1
         return list_grn_children_all
 

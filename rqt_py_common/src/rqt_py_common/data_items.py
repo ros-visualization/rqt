@@ -34,12 +34,14 @@ from python_qt_binding.QtGui import QStandardItem
 
 
 class ReadonlyItem(QStandardItem):
+
     def __init__(self, *args):
         super(ReadonlyItem, self).__init__(*args)
         self.setEditable(False)
 
 
 class CheckableItem(ReadonlyItem):
+
     def __init__(self, *args):
         super(CheckableItem, self).__init__(*args)
         self.setCheckable(True)

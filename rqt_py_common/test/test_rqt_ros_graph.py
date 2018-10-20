@@ -41,6 +41,7 @@ from rqt_reconfigure.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):
+
     """
     :author: Isaac Saito
     """
@@ -62,8 +63,8 @@ class TestRqtRosGraph(unittest.TestCase):
 
         self._model.appendRow(node1)
 
-        #node_list = [node1, node1_1, self._node1_1_1, node1_1_2, node1_2]
-        #self._model.appendRow(node_list)
+        # node_list = [node1, node1_1, self._node1_1_1, node1_1_2, node1_2]
+        # self._model.appendRow(node_list)
 
         self._grn_node1_1_1 = '/node1/node1_1/node1_1_1'
         self._len_lower_grn_node1_1 = 2
@@ -77,10 +78,8 @@ class TestRqtRosGraph(unittest.TestCase):
                          self._grn_node1_1_1)
 
     def test_get_lower_grn_dfs(self):
-        self.assertEqual(len(RqtRosGraph.get_lower_grn_dfs(
-                                                  self._node1_1.index(),
-                                                  '')),
-                         self._len_lower_grn_node1_1)
+        self.assertEqual(
+            len(RqtRosGraph.get_lower_grn_dfs(self._node1_1.index(), '')), self._len_lower_grn_node1_1)
 
     def test_get_full_grn(self):
         self.assertEqual(RqtRosGraph.get_full_grn(self._node1_1_1.index()),

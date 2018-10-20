@@ -35,6 +35,7 @@ from python_qt_binding.QtWidgets import QDoubleSpinBox, QItemDelegate
 
 
 class SpinBoxDelegate(QItemDelegate):
+
     def __init__(self, min_value=0, max_value=100, decimals=2, *args):
         self._min = min_value
         self._max = max_value
@@ -50,6 +51,7 @@ class SpinBoxDelegate(QItemDelegate):
 
 
 class DelegateUtil(object):
+
     """
     Find out the hierarchy level of the selected item.
     see: http://stackoverflow.com/a/4208240/577001

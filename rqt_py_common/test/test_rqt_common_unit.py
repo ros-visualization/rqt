@@ -33,7 +33,9 @@
 
 import unittest
 
+
 class TestMessageTreeModel(unittest.TestCase):
+
     def test_path_names(self):
         from rqt_py_common.message_tree_model import MessageTreeModel
         from rqt_py_common.msg import Val, ArrayVal
@@ -41,13 +43,13 @@ class TestMessageTreeModel(unittest.TestCase):
         m.add_message(ArrayVal())
         root = m.item(0).child(0)
         self.assertEqual(root._path, '/vals')
-        for i in range(0,5):
+        for i in range(0, 5):
             child = root.child(i)
             self.assertEqual(child._path, '/vals[%s]' % i)
             child = child.child(0)
             self.assertEqual(child._path, '/vals[%s]/floats' % i)
-            for j in range(0,5):
-                self.assertEqual(child.child(j)._path, '/vals[%s]/floats[%s]' % (i,j))
+            for j in range(0, 5):
+                self.assertEqual(child.child(j)._path, '/vals[%s]/floats[%s]' % (i, j))
 
 
 if __name__ == '__main__':

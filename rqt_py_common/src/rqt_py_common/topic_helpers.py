@@ -59,12 +59,13 @@ def get_field_type(topic_name):
     # get topic_type and message_evaluator
     topic_type, real_topic_name, _ = get_topic_type(topic_name)
     if topic_type is None:
-        #qDebug('topic_helpers.get_field_type(%s): get_topic_type failed' % (topic_name))
+        # qDebug('topic_helpers.get_field_type(%s): get_topic_type failed' % (topic_name))
         return None, False
 
     message_class = roslib.message.get_message_class(topic_type)
     if message_class is None:
-        qDebug('topic_helpers.get_field_type(%s): get_message_class(%s) failed' % (topic_name, topic_type))
+        qDebug('topic_helpers.get_field_type(%s): get_message_class(%s) failed' %
+               (topic_name, topic_type))
         return None, False
 
     slot_path = topic_name[len(real_topic_name):]
@@ -89,7 +90,8 @@ def get_slot_type(message_class, slot_path):
         except roslib.msgs.MsgSpecException:
             return None, False
         if field_name not in getattr(message_class, '__slots__', []):
-            #qDebug('topic_helpers.get_slot_type(%s, %s): field not found: %s' % (message_class, slot_path, field_name))
+            # qDebug('topic_helpers.get_slot_type(%s, %s): field not found: %s' %
+            # (message_class, slot_path, field_name))
             return None, False
         slot_type = message_class._slot_types[message_class.__slots__.index(field_name)]
         slot_type, slot_is_array, _ = roslib.msgs.parse_type(slot_type)
