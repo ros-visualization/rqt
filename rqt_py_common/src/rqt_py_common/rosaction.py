@@ -497,7 +497,7 @@ def get_yaml_for_msg(msg, prefix='', time_offset=None, current_time=None,
                 val = getattr(obj, key)
                 if type(val) == list and len(val) > MAX_DEFAULT_NON_FLOW_ITEMS:
                     dumper.default_flow_style = flow_style_
-                if time_offset is not None and isinstance(val, Time):
+                if time_offset is not None and isinstance(val, rospy.Time):
                     ndict[key] = val - time_offset
                 # create initial array element (e.g. for code completion)
                 elif fill_arrays_ == True and val == []:
