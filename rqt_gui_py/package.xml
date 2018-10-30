@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>rqt_gui_py</name>
   <version>0.5.0</version>
   <description>rqt_gui_py enables GUI plugins to use the Python client library for ROS.</description>
@@ -12,17 +12,16 @@
 
   <author>Dirk Thomas</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
   <build_depend version_gte="0.3.0">rqt_gui</build_depend>
-  <build_depend>rospy</build_depend>
 
-  <run_depend version_gte="0.3.0">qt_gui</run_depend>
-  <run_depend version_gte="0.3.0">rqt_gui</run_depend>
-  <run_depend>rospy</run_depend>
-  
+  <exec_depend version_gte="0.3.0">qt_gui</exec_depend>
+  <exec_depend version_gte="0.3.0">rqt_gui</exec_depend>
+
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

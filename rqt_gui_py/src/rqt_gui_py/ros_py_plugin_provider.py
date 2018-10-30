@@ -32,7 +32,7 @@ import os
 import threading
 import time
 
-import rospy
+import rclpy
 
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 from qt_gui.errors import PluginLoadError
@@ -52,54 +52,18 @@ class RosPyPluginProvider(CompositePluginProvider):
             [RospkgPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
-        self._wait_for_master_dialog = None
-        self._wait_for_master_thread = None
+        self._node = None
 
     def load(self, plugin_id, plugin_context):
-        self._check_for_master()
         self._init_node()
         return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)
-
-    def _check_for_master(self):
-        # check if master is available
-        try:
-            rospy.get_master().getSystemState()
-            return
-        except Exception:
-            pass
-        # spawn thread to detect when master becomes available
-        self._wait_for_master_thread = threading.Thread(target=self._wait_for_master)
-        self._wait_for_master_thread.start()
-        self._wait_for_master_dialog = QMessageBox(QMessageBox.Question,
-                                                   self.tr('Waiting for ROS master'),
-                                                   self.tr("Could not find ROS master. Either start a 'roscore' or "
-                                                           "abort loading the plugin."),
-                                                   QMessageBox.Abort)
-        self._master_found_signal.connect(self._wait_for_master_dialog.done, Qt.QueuedConnection)
-        button = self._wait_for_master_dialog.exec_()
-        # check if master existence was not detected by background thread
-        no_master = button != QMessageBox.Ok
-        self._wait_for_master_dialog.deleteLater()
-        self._wait_for_master_dialog = None
-        if no_master:
-            raise PluginLoadError('RosPyPluginProvider._init_node() could not find ROS master')
-
-    def _wait_for_master(self):
-        while True:
-            time.sleep(0.1)
-            if not self._wait_for_master_dialog:
-                break
-            try:
-                rospy.get_master().getSystemState()
-            except Exception:
-                continue
-            self._master_found_signal.emit(QMessageBox.Ok)
-            break
 
     def _init_node(self):
         # initialize node once
         if not self._node_initialized:
             name = 'rqt_gui_py_node_%d' % os.getpid()
             qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
-            rospy.init_node(name, disable_signals=True)
+            rclpy.init()
+            self._node = rclpy.create_node(name)
+            # rospy.init_node(name, disable_signals=True)
             self._node_initialized = True
