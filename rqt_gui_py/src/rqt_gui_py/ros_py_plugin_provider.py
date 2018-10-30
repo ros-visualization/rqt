@@ -29,23 +29,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import threading
-import time
+
+from python_qt_binding.QtCore import qDebug
+from qt_gui.composite_plugin_provider import CompositePluginProvider
 
 import rclpy
-
-from qt_gui.composite_plugin_provider import CompositePluginProvider
-from qt_gui.errors import PluginLoadError
-
-from python_qt_binding.QtCore import qDebug, Qt, qWarning, Signal
-from python_qt_binding.QtWidgets import QMessageBox
-
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
 
 
 class RosPyPluginProvider(CompositePluginProvider):
-
-    _master_found_signal = Signal(int)
 
     def __init__(self):
         super(RosPyPluginProvider, self).__init__(
