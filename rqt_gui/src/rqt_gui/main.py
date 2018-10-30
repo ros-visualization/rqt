@@ -57,7 +57,8 @@ class Main(Base):
         # argv = rclpy.parse_arguments(argv)
 
         return super(
-            Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider)
+            Main, self).main(argv, standalone=standalone,
+                             plugin_argument_provider=plugin_argument_provider)
 
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
