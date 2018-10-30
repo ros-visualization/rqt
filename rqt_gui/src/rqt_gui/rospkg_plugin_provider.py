@@ -30,9 +30,9 @@
 
 import os
 
+from ament_index_python.packages import get_packages_with_prefixes
 from catkin_pkg.package import InvalidPackage, PACKAGE_MANIFEST_FILENAME, parse_package
 from python_qt_binding.QtCore import qDebug, qWarning
-from ament_index_python.packages import get_packages_with_prefixes
 
 from .ros_plugin_provider import RosPluginProvider
 
