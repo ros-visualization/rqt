@@ -34,11 +34,11 @@ import time
 
 import rospy
 
+from python_qt_binding.QtCore import qDebug, Qt, Signal
+from python_qt_binding.QtWidgets import QMessageBox
+
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 from qt_gui.errors import PluginLoadError
-
-from python_qt_binding.QtCore import qDebug, Qt, qWarning, Signal
-from python_qt_binding.QtWidgets import QMessageBox
 
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
 
@@ -72,8 +72,9 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._wait_for_master_thread.start()
         self._wait_for_master_dialog = QMessageBox(QMessageBox.Question,
                                                    self.tr('Waiting for ROS master'),
-                                                   self.tr("Could not find ROS master. Either start a 'roscore' or "
-                                                           "abort loading the plugin."),
+                                                   self.tr("Could not find ROS master. Either "
+                                                           "start a 'roscore' or abort loading the"
+                                                           "plugin."),
                                                    QMessageBox.Abort)
         self._master_found_signal.connect(self._wait_for_master_dialog.done, Qt.QueuedConnection)
         button = self._wait_for_master_dialog.exec_()
