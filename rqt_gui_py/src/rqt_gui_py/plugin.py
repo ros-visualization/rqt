@@ -49,6 +49,7 @@ class Plugin(Base):
     def shutdown_plugin(self):
         """
         Shutdown and clean up the plugin before unloading.
+
         I.e. unregister subscribers and stop timers.
         """
         pass
