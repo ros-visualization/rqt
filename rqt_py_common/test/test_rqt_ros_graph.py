@@ -37,7 +37,7 @@
 import unittest
 
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-from rqt_reconfigure.rqt_ros_graph import RqtRosGraph
+from rqt_py_common.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):

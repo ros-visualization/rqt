@@ -45,4 +45,6 @@ class TreeModelCompleter(QCompleter):
         return path_list
 
     def pathFromIndex(self, index):
-        return self.model().itemFromIndex(index)._path
+        if self.model().itemFromIndex(index):
+            return self.model().itemFromIndex(index)._path
+        return None

@@ -125,7 +125,7 @@ class MessageTreeModel(QStandardItemModel):
 
         name_prev = ''
         stditem_prev = None
-        if not stditem_parent.child(row_index_parent) == None:
+        if stditem_parent.child(row_index_parent) is not None:
             stditem_prev = stditem_parent.child(row_index_parent)
             name_prev = stditem_prev.text()
 
@@ -138,6 +138,7 @@ class MessageTreeModel(QStandardItemModel):
 
         MessageTreeModel._logger.debug(
             'add_tree_node 1 name_curr={} \n\t\tname_prev={} row_index_parent={}'.format(
-                (name_curr, name_prev, row_index_parent))
+                (name_curr, name_prev, row_index_parent)))
+
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)

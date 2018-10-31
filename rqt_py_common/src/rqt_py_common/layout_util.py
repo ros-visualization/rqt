@@ -34,7 +34,6 @@
 
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtWidgets import QWidgetItem, QSpacerItem
-import roslib
 from rclpy import logging
 
 
