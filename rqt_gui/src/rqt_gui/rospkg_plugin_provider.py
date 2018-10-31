@@ -55,11 +55,14 @@ class RospkgPluginProvider(RosPluginProvider):
         if crawl:
             qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" %
                    export_tag)
+            not_plugins = []
             for package_name, package_path in get_packages_with_prefixes().items():
                 package_file_path = os.path.join(
                     package_path, 'share', package_name, PACKAGE_MANIFEST_FILENAME)
+                package_share_path = os.join(package_path, 'share')
                 if os.path.isfile(package_file_path):
                     # only try to import catkin if a PACKAGE_FILE is found
+                    not_plugins.append(package_name)
                     try:
                         package = parse_package(package_file_path)
                     except InvalidPackage as e:
@@ -69,9 +72,17 @@ class RospkgPluginProvider(RosPluginProvider):
                         if export.tagname != export_tag or 'plugin' not in export.attributes:
                             continue
                         plugin_xml_path = export.attributes['plugin']
-                        plugin_xml_path = plugin_xml_path.replace('${prefix}', package_path)
+                        plugin_xml_path = plugin_xml_path.replace('${prefix}', package_share_path)
                         plugins.append([package_name, plugin_xml_path])
                     continue
+            print("Packages not containing plugins")
+            for name in sorted(not_plugins):
+                print("\t{}".format(name))
+
+            print("Found plugins {}")
+            for package_name, plugin_path in plugins:
+                print("{}: {}".format(package_name, plugin_path))
+
 
             # write crawling information to cache
             if discovery_data:
