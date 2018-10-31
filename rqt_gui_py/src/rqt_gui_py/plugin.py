@@ -38,9 +38,9 @@ class Plugin(Base):
     Interface for Python plugins which use the ROS client library.
 
     User-defined plugins may either subclass `rqt_gui_py.plugin.Plugin` or according to duck typing
-    implement only the needed methods. A plugin must not call rospy.init_node() as this is
-    performed once by the framework. The name of the ROS node consists of the prefix
-    "rqt_gui_py_node_" and the process id.
+    implement only the needed methods.
+    A plugin must not call rospy.init_node() as this is performed once by the framework.
+    The name of the ROS node consists of the prefix "rqt_gui_py_node_" and the process id.
     """
 
     def __init__(self, context):
