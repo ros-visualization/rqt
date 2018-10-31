@@ -3,8 +3,8 @@ project(rqt_gui_cpp)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS qt_gui qt_gui_cpp roscpp nodelet)
 catkin_package(
-	INCLUDE_DIRS include 
-	LIBRARIES ${PROJECT_NAME} 
+	INCLUDE_DIRS include
+	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS qt_gui qt_gui_cpp roscpp nodelet
 )
 
@@ -26,7 +26,7 @@ qt5_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
 add_library(${PROJECT_NAME} ${rqt_gui_cpp_SRCS} ${rqt_gui_cpp_MOCS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} Qt5::Widgets)
 
-if(APPLE) 
+if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
