@@ -71,7 +71,9 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._wait_for_master_thread = threading.Thread(target=self._wait_for_master)
         self._wait_for_master_thread.start()
         self._wait_for_master_dialog = QMessageBox(
-            QMessageBox.Question, self.tr('Waiting for ROS master'), self.tr(
+            QMessageBox.Question, 
+            self.tr('Waiting for ROS master'), 
+            self.tr(
                 "Could not find ROS master. Either start a 'roscore' or abort loading the plugin."),
             QMessageBox.Abort)
 
