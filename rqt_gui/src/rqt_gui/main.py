@@ -35,10 +35,10 @@
 import os
 import sys
 
-import rospy
-from rospkg.rospack import RosPack
-
 from qt_gui.main import Main as Base
+
+from rospkg.rospack import RosPack
+import rospy
 
 
 class Main(Base):
@@ -59,8 +59,10 @@ class Main(Base):
         argv = rospy.myargv(argv)
 
         return super(
-            Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider,
-                             plugin_manager_settings_prefix=str(hash(os.environ['ROS_PACKAGE_PATH'])))
+            Main, self).main(argv, standalone=standalone,
+                             plugin_argument_provider=plugin_argument_provider,
+                             plugin_manager_settings_prefix=str(
+                                hash(os.environ['ROS_PACKAGE_PATH'])))
 
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
