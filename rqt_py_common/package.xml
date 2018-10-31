@@ -28,10 +28,10 @@
 
   <exec_depend>rosidl_default_runtime</exec_depend>
   <!-- <exec_depend>genpy</exec_depend> -->
-  <exec_depend version_gte="0.2.19">python_qt_binding</exec_depend>
+  <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>
   <exec_depend>qt_gui</exec_depend>
   <!-- <exec_depend>roslib</exec_depend> -->
-  <!-- <exec_depend>rospy</exec_depend> -->
+  <exec_depend>rclpy</exec_depend>
   <!-- <exec_depend>rostopic</exec_depend> -->
 
   <!-- 3/11/2013 depending on actionlib & rosbag is only temporary;

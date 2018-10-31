@@ -39,7 +39,8 @@ import os
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
 import rospkg
-import rospy
+import rclpy.logging
+
 
 
 class PluginContainerWidget(QWidget):
@@ -75,6 +76,8 @@ class PluginContainerWidget(QWidget):
         """
         super(PluginContainerWidget, self).__init__()
 
+        self._logger = rclpy.logging.get_logger("PluginContainerWidget")
+
         ui_file = os.path.join(rospkg.RosPack().get_path('rqt_py_common'),
                                'resource', 'plugin_container.ui')
         loadUi(ui_file, self)
@@ -104,7 +107,7 @@ class PluginContainerWidget(QWidget):
         Set system msg that's supposed to be shown in sys msg pane.
         @type sysmsg: str
         """
-        rospy.loginfo('PluginContainerWidget; {}'.format(sysmsg))
+        self._logger.info('{}'.format(sysmsg))
         # self._sysmsg_widget.setPlainText(sysmsg)
         self._sysmsg_widget.append(sysmsg)
 

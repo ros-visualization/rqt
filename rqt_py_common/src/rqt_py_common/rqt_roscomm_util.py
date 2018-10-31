@@ -38,12 +38,12 @@ import genmsg
 import roslaunch
 from roslaunch import RLException
 import rospkg
-import rospy
+from rclpy import logging
 import rostopic
 
 
 class RqtRoscommUtil(object):
-
+    _logger = logging.get_logger("RqtRoscommUtil")
     @staticmethod
     def load_parameters(config, caller_id):
         """
@@ -78,8 +78,9 @@ class RqtRoscommUtil(object):
         except RLException:
             raise
         except Exception as e:
-            rospy.logerr("load_parameters: unable to set params " +
-                         "(last param was [{}]): {}".format(param, e))
+            RqtRoscommUtil._logger.error(
+                "load_parameters: unable to set params (last param was [{}]): {}".format(
+                    param, e))
             raise  # re-raise as this is fatal
 
         try:
@@ -99,7 +100,7 @@ class RqtRoscommUtil(object):
             print("load_parameters: unable to set params (last param was " +
                   "[%s]): %s" % (param, e))
             raise  # re-raise as this is fatal
-        rospy.logdebug("... load_parameters complete")
+        RqtRoscommUtil._logger.debug("... load_parameters complete")
 
     @staticmethod
     def iterate_packages(subdir):
@@ -118,10 +119,10 @@ class RqtRoscommUtil(object):
         rospack = rospkg.RosPack()
 
         pkgs = rospack.list()
-        rospy.logdebug('pkgs={}'.format(pkgs))
+        RqtRoscommUtil._logger.debug('pkgs={}'.format(pkgs))
         for p in pkgs:
             d = os.path.join(rospack.get_path(p), subdir)
-            rospy.logdebug('rospack dir={}'.format(d))
+            RqtRoscommUtil._logger.debug('rospack dir={}'.format(d))
             if os.path.isdir(d):
                 yield p, d
 

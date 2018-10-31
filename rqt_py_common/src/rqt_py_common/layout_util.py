@@ -35,10 +35,11 @@
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtWidgets import QWidgetItem, QSpacerItem
 import roslib
-import rospy
+from rclpy import logging
 
 
 class LayoutUtil(object):
+    _logger = logging.get_logger("LayoutUtil")
 
     @staticmethod
     def alternate_color(list_widgets, colors_alter=[Qt.white, Qt.gray]):
@@ -65,9 +66,9 @@ class LayoutUtil(object):
             divisor = (i_widget + colors_num) % colors_num
             i_widget += 1
 
-            rospy.logdebug('LayoutUtil divisor={} i_widget={} colors_num={}'.format(divisor,
-                                                                                    i_widget,
-                                                                                    colors_num))
+            LayoutUtil._logger.debug(
+                'divisor={} i_widget={} colors_num={}'.format(
+                    divisor, i_widget, colors_num))
 
             p.setColor(w.backgroundRole(), colors_alter[divisor])
             w.setPalette(p)

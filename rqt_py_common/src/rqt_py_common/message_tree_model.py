@@ -28,12 +28,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
+from rclpy import logging
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
 from .data_items import ReadonlyItem
 
 
 class MessageTreeModel(QStandardItemModel):
+    _logger = logging.get_logger("MessageTreeModel")
 
     def __init__(self, parent=None):
         # FIXME: why is this not working? should be the same as the following line...
@@ -135,7 +136,8 @@ class MessageTreeModel(QStandardItemModel):
         else:
             stditem = stditem_prev
 
-        rospy.logdebug('add_tree_node 1 name_curr=%s ' +
-                       '\n\t\t\t\t\tname_prev=%s row_index_parent=%d', name_curr, name_prev, row_index_parent)
+        MessageTreeModel._logger.debug(
+            'add_tree_node 1 name_curr={} \n\t\tname_prev={} row_index_parent={}'.format(
+                (name_curr, name_prev, row_index_parent))
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)
