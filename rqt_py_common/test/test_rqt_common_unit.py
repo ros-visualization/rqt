@@ -50,7 +50,3 @@ class TestMessageTreeModel(unittest.TestCase):
             self.assertEqual(child._path, '/vals[%s]/floats' % i)
             for j in range(0, 5):
                 self.assertEqual(child.child(j)._path, '/vals[%s]/floats[%s]' % (i, j))
-
-
-if __name__ == '__main__':
-    unittest.main()

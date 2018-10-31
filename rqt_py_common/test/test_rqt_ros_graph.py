@@ -88,6 +88,3 @@ class TestRqtRosGraph(unittest.TestCase):
     #     self.assertEqual(RqtRosGraph.get_full_grn(self._node1_1_1.index()),
     #                      self._grn_node1_1_1)
 
-
-if __name__ == '__main__':
-    unittest.main()

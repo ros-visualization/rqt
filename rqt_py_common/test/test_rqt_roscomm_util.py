@@ -40,7 +40,6 @@ from rqt_py_common.rqt_roscomm_util import RqtRoscommUtil
 
 
 class TestRqtRoscommUtil(unittest.TestCase):
-
     """
     @author: Isaac Saito
     """
@@ -79,7 +78,3 @@ class TestRqtRoscommUtil(unittest.TestCase):
 
         print(file_num)
         self.assertNotEqual(file_num, 0)
-
-
-if __name__ == '__main__':
-    unittest.main()
