@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2012, Willow Garage, Inc.
+# Copyright (c) 2015, Robert Haschke
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,48 +31,21 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import unittest
 
-def pack(data):
-    """
-    Packs 'data' into a form that can be easily and readably written to an ini file
+class TestTopicHelpers(unittest.TestCase):
 
-    :param data:
-        A list of strings or a list of items with a 'text' method to be flattened into a
-        string ''list''
-    :return: A string suitable for output to ini files ''str''
-    """
-    if len(data) == 0:
-        return ''
+    def test_get_message_class(self):
+        from rqt_py_common.topic_helpers import get_message_class
+        # Check that we are able to import std_msgs/String
+        from std_msgs.msg import String
+        self.assertEqual(get_message_class("std_msgs/String"), String)
+        # If no package is provided then we assume std_msgs
+        self.assertEqual(get_message_class("String"), get_message_class("std_msgs/String"))
 
-    def _get_str(item):
-        try:
-            return item.text()
-        except:
-            return item
+        # We test that we are able to import msgs from outside of std_msgs
+        from rqt_py_common.msg import Val
+        self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
 
-    data = [_get_str(value) for value in data]
-    if len(data) == 1:
-        return data[0]
-    return data
-
-
-def unpack(data):
-    """
-    Unpacks the values read from an ini file
-
-    :param data: An entry taken from an ini file ''list or string''
-    :return: A list of strings ''list''
-    """
-    if data is None or data == '':
-        data = []
-    elif is_string(data):
-        data = [data]
-    return data
-
-
-def is_string(s):
-    """Check if the argument is a string which works for both Python 2 and 3."""
-    try:
-        return isinstance(s, basestring)
-    except NameError:
-        return isinstance(s, str)
+if __name__ == '__main__':
+    unittest.main()

@@ -55,7 +55,6 @@ class LayoutUtil(object):
 
         @author: Isaac Saito
         """
-
         colors_num = len(colors_alter)
         i_widget = 0
         for w in list_widgets:

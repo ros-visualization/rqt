@@ -38,13 +38,11 @@ import os
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
-import rospkg
+from ament_index_python.resources import get_resource
 import rclpy.logging
 
 
-
 class PluginContainerWidget(QWidget):
-
     """
     This widget accommodates a plugin widget that needs an area to show system
     message. A plugin widget is the pane that provides plugin's main
@@ -77,9 +75,10 @@ class PluginContainerWidget(QWidget):
         super(PluginContainerWidget, self).__init__()
 
         self._logger = rclpy.logging.get_logger("PluginContainerWidget")
+        _, package_path = get_resource('packages', 'rqt_py_common')
+        ui_file = os.path.join(
+            package_path, 'share', 'rqt_py_common', 'resource', 'plugin_container.ui')
 
-        ui_file = os.path.join(rospkg.RosPack().get_path('rqt_py_common'),
-                               'resource', 'plugin_container.ui')
         loadUi(ui_file, self)
 
         self._plugin_widget = plugin_widget

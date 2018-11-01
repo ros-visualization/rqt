@@ -34,16 +34,18 @@
 
 import os
 
-import genmsg
-import roslaunch
-from roslaunch import RLException
-import rospkg
+# import genmsg
+# import roslaunch
+# from roslaunch import RLException
+# import rospkg
 from rclpy import logging
-import rostopic
+# import rostopic
+# from ament_index_python.resources import get_resource
 
 
 class RqtRoscommUtil(object):
     _logger = logging.get_logger("RqtRoscommUtil")
+
     @staticmethod
     def load_parameters(config, caller_id):
         """
@@ -54,53 +56,54 @@ class RqtRoscommUtil(object):
         @type config: roslaunch.config.ROSLaunchConfig
         @raise RLException:
         """
-
         # XMLRPC proxy for communicating with master, 'xmlrpclib.ServerProxy'
-        param_server = config.master.get()
+        # param_server = config.master.get()
 
-        param = None
-        try:
-            # multi-call style xmlrpc
-            # According to API doc, get_multi() returns
-            # multicall XMLRPC proxy for communicating with master,
-            # "xmlrpclib.MultiCall"
-            param_server_multi = config.master.get_multi()
+        # param = None
+        # try:
+        #     # multi-call style xmlrpc
+        #     # According to API doc, get_multi() returns
+        #     # multicall XMLRPC proxy for communicating with master,
+        #     # "xmlrpclib.MultiCall"
+        #     param_server_multi = config.master.get_multi()
 
-            # clear specified parameter namespaces
-            # 2468 unify clear params to prevent error
-            for param in roslaunch.launch._unify_clear_params(config.clear_params):
-                if param_server.hasParam(caller_id, param)[2]:
-                    param_server_multi.deleteParam(caller_id, param)
-            r = param_server_multi()
-            for code, msg, _ in r:
-                if code != 1:
-                    raise RLException("Failed to clear parameter {}: ".format(msg))
-        except RLException:
-            raise
-        except Exception as e:
-            RqtRoscommUtil._logger.error(
-                "load_parameters: unable to set params (last param was [{}]): {}".format(
-                    param, e))
-            raise  # re-raise as this is fatal
+        #     # clear specified parameter namespaces
+        #     # 2468 unify clear params to prevent error
+        #     for param in roslaunch.launch._unify_clear_params(config.clear_params):
+        #         if param_server.hasParam(caller_id, param)[2]:
+        #             param_server_multi.deleteParam(caller_id, param)
+        #     r = param_server_multi()
+        #     for code, msg, _ in r:
+        #         if code != 1:
+        #             raise RLException("Failed to clear parameter {}: ".format(msg))
+        # except RLException:
+        #     raise
+        # except Exception as e:
+        #     RqtRoscommUtil._logger.error(
+        #         "load_parameters: unable to set params (last param was [{}]): {}".format(
+        #             param, e))
+        #     raise  # re-raise as this is fatal
 
-        try:
-            # multi-call objects are not reusable
-            param_server_multi = config.master.get_multi()
-            for param in config.params.values():
-                # suppressing this as it causes too much spam
-                # printlog("setting parameter [%s]"%param.key)
-                param_server_multi.setParam(caller_id, param.key, param.value)
-            r = param_server_multi()
-            for code, msg, _ in r:
-                if code != 1:
-                    raise RLException("Failed to set parameter: %s" % (msg))
-        except RLException:
-            raise
-        except Exception as e:
-            print("load_parameters: unable to set params (last param was " +
-                  "[%s]): %s" % (param, e))
-            raise  # re-raise as this is fatal
-        RqtRoscommUtil._logger.debug("... load_parameters complete")
+        # try:
+        #     # multi-call objects are not reusable
+        #     param_server_multi = config.master.get_multi()
+        #     for param in config.params.values():
+        #         # suppressing this as it causes too much spam
+        #         # printlog("setting parameter [%s]"%param.key)
+        #         param_server_multi.setParam(caller_id, param.key, param.value)
+        #     r = param_server_multi()
+        #     for code, msg, _ in r:
+        #         if code != 1:
+        #             raise RLException("Failed to set parameter: %s" % (msg))
+        # except RLException:
+        #     raise
+        # except Exception as e:
+        #     print(
+        #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
+        #     raise  # re-raise as this is fatal
+        # RqtRoscommUtil._logger.debug("... load_parameters complete")
+        RqtRoscommUtil._logger.error("load_parameters: not yet implemented))")
+        pass
 
     @staticmethod
     def iterate_packages(subdir):
@@ -113,18 +116,19 @@ class RqtRoscommUtil(object):
         @type subdir: str
         @raise ValueError:
         """
-        if subdir == None or subdir == '':
-            raise ValueError('Invalid package subdir = {}'.format(subdir))
+        # if subdir is None or subdir == '':
+        #     raise ValueError('Invalid package subdir = {}'.format(subdir))
 
-        rospack = rospkg.RosPack()
+        # rospack = rospkg.RosPack()
+        # pkgs = rospack.list()
 
-        pkgs = rospack.list()
-        RqtRoscommUtil._logger.debug('pkgs={}'.format(pkgs))
-        for p in pkgs:
-            d = os.path.join(rospack.get_path(p), subdir)
-            RqtRoscommUtil._logger.debug('rospack dir={}'.format(d))
-            if os.path.isdir(d):
-                yield p, d
+        # RqtRoscommUtil._logger.debug('pkgs={}'.format(pkgs))
+        # for p in pkgs:
+        #     d = os.path.join(rospack.get_path(p), subdir)
+        #     RqtRoscommUtil._logger.debug('rospack dir={}'.format(d))
+        #     if os.path.isdir(d):
+        #         yield p, d
+        RqtRoscommUtil._logger.error("iterate_packages: not yet implemented))")
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
@@ -138,14 +142,17 @@ class RqtRoscommUtil(object):
         @param file_extension: Defaults to '.launch', ``str``
         :returns: list of msgs/srv in package, ``[str]``
         """
-        if subdir == None or subdir == '':
-            raise ValueError('Invalid package subdir = {}'.format(subdir))
+        # if subdir is None or subdir == '':
+        #     raise ValueError('Invalid package subdir = {}'.format(subdir))
 
-        rospack = rospkg.RosPack()
+        # _, package_path = get_resource('packages', package)
 
-        path = os.path.join(rospack.get_path(package), subdir)
+        # path = os.path.join(package_path, subdir)
 
-        return [genmsg.resource_name(package, t) for t in RqtRoscommUtil._list_types(path, file_extension)]
+        # return [genmsg.resource_name(package, t) for t in
+        #         RqtRoscommUtil._list_types(path, file_extension)]
+        RqtRoscommUtil._logger.error("list_files: not yet implemented))")
+        pass
 
     @staticmethod
     def _list_types(path, ext):
@@ -187,9 +194,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _msg_filter(ext):
-        """
-        Taken from rosmsg._msg_filter
-        """
+        """Taken from rosmsg._msg_filter"""
         def mfilter(f):
             """
             Predicate for filtering directory list. matches message files
@@ -200,12 +205,12 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def is_roscore_running():
-        """
-        @rtype: bool
-        """
-        try:
-            # Checkif rosmaster is running or not.
-            rostopic.get_topic_class('/rosout')
-            return True
-        except rostopic.ROSTopicIOException as e:
-            return False
+        """@rtype: bool"""
+        # try:
+        #     # Checkif rosmaster is running or not.
+        #     rostopic.get_topic_class('/rosout')
+        #     return True
+        # except rostopic.ROSTopicIOException:
+        #     return False
+        RqtRoscommUtil._logger.error("is_roscore_running: not yet implemented))")
+        pass

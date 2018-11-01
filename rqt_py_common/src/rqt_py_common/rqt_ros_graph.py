@@ -62,7 +62,6 @@ class RqtRosGraph(object):
         :param str_grn: This could be an incomplete or a complete GRN format.
         :rtype: str
         """
-
         children_grn_list = RqtRosGraph.get_lower_grn_dfs(model_index)
         parent_data = model_index.data()
         RqtRosGraph._logger.debug('parent_data={}'.format(parent_data))

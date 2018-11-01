@@ -30,7 +30,7 @@
 
 from rclpy import logging
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-from .data_items import ReadonlyItem
+from rqt_py_common.data_items import ReadonlyItem
 
 
 class MessageTreeModel(QStandardItemModel):
@@ -66,8 +66,10 @@ class MessageTreeModel(QStandardItemModel):
             item._path = slot_path
             item._user_data = kwargs.get('user_data', None)
             row.append(item)
+            print(row)
 
         is_leaf_node = False
+        # TODO(mlautman): Work around missing _slot_types in new msg types
         if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
             for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
                 child_slot_path = slot_path + '/' + child_slot_name

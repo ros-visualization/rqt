@@ -51,9 +51,9 @@ class SpinBoxDelegate(QItemDelegate):
 
 
 class DelegateUtil(object):
-
     """
     Find out the hierarchy level of the selected item.
+
     see: http://stackoverflow.com/a/4208240/577001
 
     :type model_index: QModelIndex
@@ -61,6 +61,7 @@ class DelegateUtil(object):
 
     :author: Isaac Saito
     """
+
     @staticmethod
     def _get_hierarchy_level(model_index):
         hierarchyLevel = 1
