@@ -39,7 +39,7 @@ Changelog for package rqt_gui
 0.2.9 (2013-06-06)
 ------------------
 * make plugin resources relative to plugin.xml (`ros-visualization/qt_gui_core#16 <https://github.com/ros-visualization/qt_gui_core/issues/16>`_)
-* use standard rospy function to filter remapping arguments (`#76 <https://github.com/ros-visualization/rqt/issues/76>`_) 
+* use standard rospy function to filter remapping arguments (`#76 <https://github.com/ros-visualization/rqt/issues/76>`_)
 * fix help provider
 
 0.2.8 (2013-01-11)
