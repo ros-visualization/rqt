@@ -51,7 +51,8 @@ class Main(Base):
             argv = sys.argv
 
         # ignore ROS specific remapping arguments
-        # TODO port to ros2
+        # TODO(brawner) port to ros2. Waiting on a feature add and PR on rclpy
+	# to expose this functionality
         # argv = rclpy.parse_arguments(argv)
 
         return super(
