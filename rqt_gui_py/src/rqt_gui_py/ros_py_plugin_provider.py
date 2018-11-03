@@ -57,5 +57,4 @@ class RosPyPluginProvider(CompositePluginProvider):
             qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
             rclpy.init()
             self._node = rclpy.create_node(name)
-            # rospy.init_node(name, disable_signals=True)
             self._node_initialized = True
