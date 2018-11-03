@@ -83,6 +83,3 @@ class TestRqtRoscommUtil(unittest.TestCase):
         # print(file_num)
         # self.assertEqual(file_num, _totalnum_launches_pkg_contains)
         pass
-
-if __name__ == '__main__':
-    unittest.main()

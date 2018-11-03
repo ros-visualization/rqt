@@ -46,6 +46,3 @@ class TestTopicHelpers(unittest.TestCase):
         # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
         self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
-
-if __name__ == '__main__':
-    unittest.main()

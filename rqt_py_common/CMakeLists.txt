@@ -18,7 +18,6 @@ install(TARGETS ${_library_name}
 
 if(BUILD_TESTING)
   find_package(rosidl_default_generators REQUIRED)
-  # find_package(genmsg REQUIRED)
   find_package(std_msgs REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
