@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2015, Robert Haschke
@@ -42,11 +43,11 @@ class TestMessageTreeModel(unittest.TestCase):
         m = MessageTreeModel()
         m.add_message(ArrayVal())
         root = m.item(0).child(0)
-        self.assertEqual(root._path, '/vals')
+        self.assertEqual(root._path, '/_vals')
         for i in range(0, 5):
             child = root.child(i)
-            self.assertEqual(child._path, '/vals[%s]' % i)
+            self.assertEqual(child._path, '/_vals[%s]' % i)
             child = child.child(0)
-            self.assertEqual(child._path, '/vals[%s]/floats' % i)
+            self.assertEqual(child._path, '/_vals[%s]/_floats' % i)
             for j in range(0, 5):
-                self.assertEqual(child.child(j)._path, '/vals[%s]/floats[%s]' % (i, j))
+                self.assertEqual(child.child(j)._path, '/_vals[%s]/_floats[%s]' % (i, j))

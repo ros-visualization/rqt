@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Software License Agreement (BSD License)
 #
@@ -36,8 +36,6 @@
 
 import unittest
 
-from rqt_py_common.rqt_roscomm_util import RqtRoscommUtil
-
 
 class TestRqtRoscommUtil(unittest.TestCase):
     """@author: Isaac Saito"""
@@ -51,11 +49,15 @@ class TestRqtRoscommUtil(unittest.TestCase):
         unittest.TestCase.tearDown(self)
         # del self._model
 
-    # def test_iterate_packages(self):
+    # TODO(mlautman): Replace this test with an apropriate ROS2 test.
+    def test_iterate_packages(self):
         """
         Not a very good test because the right answer that is hardcoded varies
         depending on the system where this unittest runs.
         """
+        # Note: mlautman 11/2/18
+        #       This test has been removed since the iterate_package method in RqtRoscommUtil
+        #       is deprecated in ROS2
         # pkg_num_sum = 0
         # for pkg in RqtRoscommUtil.iterate_packages('launch'):
         #     pkg_num_sum += 1
@@ -70,6 +72,10 @@ class TestRqtRoscommUtil(unittest.TestCase):
         Not a very good test because the right answer that is hardcoded varies
         depending on the system where this unittest runs.
         """
+        # Note: mlautman 11/2/18
+        #       This test has been removed since the iterate_package method in RqtRoscommUtil
+        #       is deprecated in ROS2
+
         # file_num = 0
         # pkg_name = 'pr2_moveit_config'
         # _totalnum_launches_pkg_contains = 15

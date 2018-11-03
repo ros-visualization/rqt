@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.

@@ -27,17 +27,9 @@
   <depend>rclpy</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
-  <!-- <exec_depend>genpy</exec_depend> -->
   <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>
   <exec_depend>qt_gui</exec_depend>
-  <!-- <exec_depend>roslib</exec_depend> -->
-  <!-- <exec_depend>rostopic</exec_depend> -->
 
-  <!-- 3/11/2013 depending on actionlib & rosbag is only temporary;
-  rosaction.py needs it. In the future this exec_depend will be removed when
-  rosaction gets moved to actionlib. -->
-  <!-- <exec_depend>actionlib</exec_depend> -->
-  <!-- <exec_depend>rosbag</exec_depend> -->
   <member_of_group>rosidl_interface_packages</member_of_group>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

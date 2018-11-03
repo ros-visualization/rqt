@@ -34,13 +34,7 @@
 
 import os
 
-# import genmsg
-# import roslaunch
-# from roslaunch import RLException
-# import rospkg
 from rclpy import logging
-# import rostopic
-# from ament_index_python.resources import get_resource
 
 
 class RqtRoscommUtil(object):
@@ -49,6 +43,10 @@ class RqtRoscommUtil(object):
     @staticmethod
     def load_parameters(config, caller_id):
         """
+        NOTE: Mlautman 11/2/18
+              This function has been deprecated as ROS2 does not yet support setting
+              and getting of parameters in Python
+
         Load parameters onto the parameter server.
 
         Copied from ROSLaunchRunner.
@@ -102,12 +100,17 @@ class RqtRoscommUtil(object):
         #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
         #     raise  # re-raise as this is fatal
         # RqtRoscommUtil._logger.debug("... load_parameters complete")
-        RqtRoscommUtil._logger.error("load_parameters: not yet implemented))")
+        RqtRoscommUtil._logger.error("load_parameters: not implemented in ROS2))")
         pass
 
     @staticmethod
     def iterate_packages(subdir):
         """
+        Note: Mlautman 11/2/2018
+              This method is deprecated in ROS2
+              This functionality does not fit the ROS2 design paradigm
+              of explicitly exporting resources to a shared location.
+
         Iterator for packages that contain the given subdir.
 
         This method is generalizing rosmsg.iterate_packages.
@@ -128,11 +131,16 @@ class RqtRoscommUtil(object):
         #     RqtRoscommUtil._logger.debug('rospack dir={}'.format(d))
         #     if os.path.isdir(d):
         #         yield p, d
-        RqtRoscommUtil._logger.error("iterate_packages: not yet implemented))")
+        RqtRoscommUtil._logger.error("iterate_packages: not implemented in ROS2))")
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
         """
+        Note: Mlautman 11/2/2018
+              This method is deprecated in ROS2
+              This functionality does not fit the ROS2 design paradigm
+              of explicitly exporting resources to a shared location.
+
         #TODO: Come up with better name of the method.
 
         Taken from rosmsg.
@@ -151,7 +159,7 @@ class RqtRoscommUtil(object):
 
         # return [genmsg.resource_name(package, t) for t in
         #         RqtRoscommUtil._list_types(path, file_extension)]
-        RqtRoscommUtil._logger.error("list_files: not yet implemented))")
+        RqtRoscommUtil._logger.error("list_files: not implemented in ROS2))")
         pass
 
     @staticmethod
@@ -206,11 +214,13 @@ class RqtRoscommUtil(object):
     @staticmethod
     def is_roscore_running():
         """@rtype: bool"""
+        # Note: Mlautman 11/2/2018
+        #       This method is deprecated in ROS2
         # try:
         #     # Checkif rosmaster is running or not.
         #     rostopic.get_topic_class('/rosout')
         #     return True
         # except rostopic.ROSTopicIOException:
         #     return False
-        RqtRoscommUtil._logger.error("is_roscore_running: not yet implemented))")
+        RqtRoscommUtil._logger.error("is_roscore_running: not implemented in ROS2))")
         pass

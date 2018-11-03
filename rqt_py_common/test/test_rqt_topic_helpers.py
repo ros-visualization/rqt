@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2015, Robert Haschke
@@ -33,6 +34,7 @@
 
 import unittest
 
+
 class TestTopicHelpers(unittest.TestCase):
 
     def test_get_message_class(self):
@@ -42,7 +44,18 @@ class TestTopicHelpers(unittest.TestCase):
         self.assertEqual(get_message_class("std_msgs/String"), String)
         # If no package is provided then we assume std_msgs
         self.assertEqual(get_message_class("String"), get_message_class("std_msgs/String"))
-
+        self.assertEqual(get_message_class("string"), get_message_class("String"))
         # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
         self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
+
+    def test_get_slot_type(self):
+        from rqt_py_common.topic_helpers import get_slot_type
+        from rqt_py_common.topic_helpers import get_message_class
+        from rqt_py_common.msg import ArrayVal
+        # Check that we are able to import std_msgs/String
+        path = '_vals/_floats'
+        message_class = ArrayVal
+        message_type, is_array = get_slot_type(message_class, path)
+        self.assertTrue(is_array)
+        self.assertEqual(message_type, get_message_class("float64"))

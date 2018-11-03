@@ -66,7 +66,6 @@ class MessageTreeModel(QStandardItemModel):
             item._path = slot_path
             item._user_data = kwargs.get('user_data', None)
             row.append(item)
-            print(row)
 
         is_leaf_node = False
         # TODO(mlautman): Work around missing _slot_types in new msg types

@@ -29,6 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rclpy
+import math
 
 from rclpy import logging
 from ament_index_python import get_resource
@@ -84,7 +85,14 @@ def get_message_class(message_type):
         try:
             class_val = getattr(getattr(python_pkg, "msg"), base_type)
         except AttributeError:
-            _logger.error("Failed to get message class: {}".format(message_type))
+            if len(base_type):
+                base_type = "".join([base_type[0].upper(), base_type[1:]])
+
+        if not class_val:
+            try:
+                class_val = getattr(getattr(python_pkg, "msg"), base_type)
+            except AttributeError:
+                _logger.error("Failed to get message class: {}".format(message_type))
 
     if class_val:
         _message_class_cache[message_type] = class_val
@@ -93,14 +101,28 @@ def get_message_class(message_type):
 
 
 def get_type_class(type_name):
-    # if roslib.msgs.is_valid_constant_type(type_name):
-    #     if type_name == 'string':
-    #         return str
-    #     elif type_name == 'bool':
-    #         return bool
-    #     else:
-    #         return type(roslib.msgs._convert_val(type_name, 0))
-    pass
+
+    if type_name in ['float32', 'float64']:
+        return float
+
+    elif type_name in ['string']:
+        # string constants are always stripped
+        return str
+
+    elif type_name in [
+            'int8', 'uint8',
+            'int16', 'uint16',
+            'int32', 'uint32',
+            'int64', 'uint64',
+            'char', 'byte']:
+        return int
+
+    elif type_name in ["bool"]:
+        return bool
+
+    else:
+        return None
+
 
 def get_field_type(topic_name):
     """
@@ -113,6 +135,11 @@ def get_field_type(topic_name):
     :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
     :returns: field_type, is_array
     """
+    # Note: Mlautman 11/2/18
+    #       In ROS2 multiple msg types can be used with a single topic making this
+    #       funciton a bad candidate to port to ROS2
+
+    _logger.error("get_field_type is not implemented in ROS2")
     # get topic_type and message_evaluator
     # topic_type, real_topic_name, _ = get_topic_type(topic_name)
     # if topic_type is None:
@@ -129,6 +156,7 @@ def get_field_type(topic_name):
     # return get_slot_type(message_class, slot_path)
     pass
 
+
 def get_slot_type(message_class, slot_path):
     """
     Get the Python type of a specific slot in the given message class.
@@ -138,27 +166,17 @@ def get_slot_type(message_class, slot_path):
     arrays.
 
     :param message_class: message class type, ``type``, usually inherits from genpy.message.Message
-    :param slot_path: path to the slot inside the message class, ``str``, i.e. 'header/seq'
+    :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
     :returns: field_type, is_array
     """
-    # is_array = False
-    # fields = [f for f in slot_path.split('/') if f]
-    # for field_name in fields:
-    #     try:
-    #         field_name, _, field_index = roslib.msgs.parse_type(field_name)
-    #     except roslib.msgs.MsgSpecException:
-    #         return None, False
-    #     if field_name not in getattr(message_class, '__slots__', []):
-    #         # qDebug('topic_helpers.get_slot_type(%s, %s): field not found: %s' %
-    #         # (message_class, slot_path, field_name))
-    #         return None, False
-    #     slot_type = message_class._slot_types[message_class.__slots__.index(field_name)]
-    #     slot_type, slot_is_array, _ = roslib.msgs.parse_type(slot_type)
-    #     is_array = slot_is_array and field_index is None
+    is_array = False
+    fields = [f for f in slot_path.split('/') if f]
+    for field_name in fields:
+        slot_class_name = message_class._slot_types[message_class.__slots__.index(field_name)]
+        is_array = slot_class_name.find('[') >= 0
+        message_class = get_message_class(slot_class_name[:slot_class_name.find('[')])
 
-    #     message_class = get_type_class(slot_type)
-    # return message_class, is_array
-    pass
+    return message_class, is_array
 
 
 def is_slot_numeric(topic_name):
