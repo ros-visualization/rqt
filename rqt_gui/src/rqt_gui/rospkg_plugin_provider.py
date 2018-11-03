@@ -56,9 +56,9 @@ class RospkgPluginProvider(RosPluginProvider):
             qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" %
                    export_tag)
             for package_name, package_path in get_packages_with_prefixes().items():
+                package_share_path = os.path.join(package_path, 'share', package_name)
                 package_file_path = os.path.join(
-                    package_path, 'share', package_name, PACKAGE_MANIFEST_FILENAME)
-                package_share_path = os.path.join(package_path, 'share')
+                    package_share_path, PACKAGE_MANIFEST_FILENAME)
                 if os.path.isfile(package_file_path):
                     # only try to import catkin if a PACKAGE_FILE is found
                     try:
