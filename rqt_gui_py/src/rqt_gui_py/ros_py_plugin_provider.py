@@ -50,6 +50,10 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._init_node()
         return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)
 
+    def unload(self, plugin_instance):
+        self._destroy_node()
+        return super(RosPyPluginProvider, self).unload(plugin_instance)
+
     def _init_node(self):
         # initialize node once
         if not self._node_initialized:
@@ -58,3 +62,9 @@ class RosPyPluginProvider(CompositePluginProvider):
             rclpy.init()
             self._node = rclpy.create_node(name)
             self._node_initialized = True
+
+    def _destroy_node(self):
+        if self._node_initialized:
+            self._node.destroy_node()
+            rclpy.shutdown()
+            self._node_initialized = False
