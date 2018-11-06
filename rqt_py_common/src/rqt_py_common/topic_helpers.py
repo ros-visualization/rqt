@@ -115,6 +115,52 @@ def get_message_class(message_type):
     return class_val
 
 
+_service_class_cache = {}
+def get_service_class(service_type):
+    logger = logging.get_logger("get_service_class")
+    if service_type in _service_class_cache:
+        return _service_class_cache[service_type]
+
+    service_info = service_type.split("/")
+    if len(service_info) == 2:
+        package = service_info[0]
+        base_type = service_info[1]
+    elif len(service_info) == 1:
+        package = "std_srvs"
+        base_type = service_info[0]
+    else:
+        logger.error(
+            "Malformed service_type passed into get_service_class: {}".format(
+                service_type))
+        return None
+
+    _, resource_path = get_resource('rosidl_interfaces', package)
+    python_pkg = class_val = None
+    try:
+        # import the package
+        python_pkg = __import__('%s.%s' % (package, "srv"))
+    except ImportError:
+        logger.error("Failed to get service class: {}".format(service_type))
+
+    if python_pkg:
+        try:
+            class_val = getattr(getattr(python_pkg, "srv"), base_type)
+        except AttributeError:
+            if len(base_type):
+                base_type = "".join([base_type[0].upper(), base_type[1:]])
+
+        if not class_val:
+            try:
+                class_val = getattr(getattr(python_pkg, "srv"), base_type)
+            except AttributeError:
+                logger.error("Failed to get service class: {}".format(service_type))
+
+    if class_val:
+        _service_class_cache[service_type] = class_val
+
+    return class_val
+
+
 def get_type_class(type_name):
 
     if type_name in ['float32', 'float64']:

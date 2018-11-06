@@ -24,7 +24,9 @@ if(BUILD_TESTING)
   rosidl_generate_interfaces(${PROJECT_NAME}
     test/msg/Val.msg
     test/msg/ArrayVal.msg
+    test/srv/AddTwoInts.srv
     DEPENDENCIES std_msgs)
+
   ament_add_pytest_test(${PROJECT_NAME} test
     APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
     TIMEOUT 90)

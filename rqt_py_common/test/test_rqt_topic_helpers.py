@@ -15,7 +15,7 @@
 #    copyright notice, this list of conditions and the following
 #    disclaimer in the documentation and/or other materials provided
 #    with the distribution.
-#  * Neither the name of Willow Garage, Inc. nor the names of its
+#  * Neither the name of PickNik Robotics nor the names of its
 #    contributors may be used to endorse or promote products derived
 #    from this software without specific prior written permission.
 #
@@ -50,6 +50,15 @@ class TestTopicHelpers(unittest.TestCase):
         # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
         self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
+
+    def test_get_service_class(self):
+        from rqt_py_common.topic_helpers import get_service_class
+        # Check that we are able to import std_msgs/String
+        from rqt_py_common.srv import AddTwoInts
+        self.assertEqual(get_service_class("rqt_py_common/AddTwoInts"), AddTwoInts)
+        # If no package is provided then we assume std_msgs
+        self.assertEqual(get_service_class("Empty"), get_service_class("std_srvs/Empty"))
+        self.assertEqual(get_service_class("empty"), get_service_class("Empty"))
 
     def test_get_slot_type(self):
         from rqt_py_common.topic_helpers import get_slot_type
