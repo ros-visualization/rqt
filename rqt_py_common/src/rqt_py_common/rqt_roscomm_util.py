@@ -34,6 +34,8 @@
 
 import os
 
+from ament_index_python import get_resources
+
 from rclpy import logging
 
 
@@ -100,17 +102,12 @@ class RqtRoscommUtil(object):
         #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
         #     raise  # re-raise as this is fatal
         # RqtRoscommUtil._logger.debug("... load_parameters complete")
-        RqtRoscommUtil._logger.error("load_parameters: not implemented in ROS2))")
+        RqtRoscommUtil._logger.error("load_parameters: not yet implemented in ROS2))")
         pass
 
     @staticmethod
     def iterate_packages(subdir):
         """
-        Note: Mlautman 11/2/2018
-              This method is deprecated in ROS2
-              This functionality does not fit the ROS2 design paradigm
-              of explicitly exporting resources to a shared location.
-
         Iterator for packages that contain the given subdir.
 
         This method is generalizing rosmsg.iterate_packages.
@@ -119,19 +116,16 @@ class RqtRoscommUtil(object):
         @type subdir: str
         @raise ValueError:
         """
-        # if subdir is None or subdir == '':
-        #     raise ValueError('Invalid package subdir = {}'.format(subdir))
+        if subdir is None or subdir == '':
+            raise ValueError('Invalid package subdir = {}'.format(subdir))
 
-        # rospack = rospkg.RosPack()
-        # pkgs = rospack.list()
-
-        # RqtRoscommUtil._logger.debug('pkgs={}'.format(pkgs))
-        # for p in pkgs:
-        #     d = os.path.join(rospack.get_path(p), subdir)
-        #     RqtRoscommUtil._logger.debug('rospack dir={}'.format(d))
-        #     if os.path.isdir(d):
-        #         yield p, d
-        RqtRoscommUtil._logger.error("iterate_packages: not implemented in ROS2))")
+        packages_map = get_resources('packages')
+        for package_name, package_path in packages_map.items():
+            package_path = os.path.join(package_path, 'share', package_name, subdir)
+            RqtRoscommUtil._logger.debug(
+                'package:\t{} dir:\t{}'.format(package_name, package_path))
+            if os.path.isdir(package_path):
+                yield package_name, package_path
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
@@ -150,15 +144,6 @@ class RqtRoscommUtil(object):
         @param file_extension: Defaults to '.launch', ``str``
         :returns: list of msgs/srv in package, ``[str]``
         """
-        # if subdir is None or subdir == '':
-        #     raise ValueError('Invalid package subdir = {}'.format(subdir))
-
-        # _, package_path = get_resource('packages', package)
-
-        # path = os.path.join(package_path, subdir)
-
-        # return [genmsg.resource_name(package, t) for t in
-        #         RqtRoscommUtil._list_types(path, file_extension)]
         RqtRoscommUtil._logger.error("list_files: not implemented in ROS2))")
         pass
 
@@ -210,17 +195,3 @@ class RqtRoscommUtil(object):
             """
             return os.path.isfile(f) and f.endswith(ext)
         return mfilter
-
-    @staticmethod
-    def is_roscore_running():
-        """@rtype: bool"""
-        # Note: Mlautman 11/2/2018
-        #       This method is deprecated in ROS2
-        # try:
-        #     # Checkif rosmaster is running or not.
-        #     rostopic.get_topic_class('/rosout')
-        #     return True
-        # except rostopic.ROSTopicIOException:
-        #     return False
-        RqtRoscommUtil._logger.error("is_roscore_running: not implemented in ROS2))")
-        pass

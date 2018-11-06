@@ -33,8 +33,8 @@
 from python_qt_binding.QtCore import qWarning
 
 from rqt_py_common.message_tree_model import MessageTreeModel
-from rqt_py_common.tree_model_completer import TreeModelCompleter
 from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
+from rqt_py_common.tree_model_completer import TreeModelCompleter
 
 
 class TopicCompleter(TreeModelCompleter):
@@ -54,12 +54,8 @@ class TopicCompleter(TreeModelCompleter):
         self.model().clear()
 
         # If no node is passed in then we need to start rclpy and create a node
-        # topic_helpers provides a convenience function fro doing this
-        topic_list = []
-        if node is None:
-            topic_list = get_topic_names_and_types()
-        else:
-            topic_list = node.get_topic_names_and_types()
+        # topic_helpers provides a convenience function for doing this
+        topic_list = get_topic_names_and_types(node)
 
         for topic_path, topic_types in topic_list:
             for topic_type in topic_types:
@@ -76,7 +72,14 @@ class TopicCompleter(TreeModelCompleter):
 
 if __name__ == '__main__':
     import sys
-    from python_qt_binding.QtWidgets import QApplication, QComboBox, QLineEdit, QMainWindow, QTreeView, QVBoxLayout, QWidget
+    from python_qt_binding.QtWidgets import \
+        QApplication, QComboBox, QLineEdit, QMainWindow, \
+        QTreeView, QVBoxLayout, QWidget
+
+    import rclpy
+    rclpy.init()
+    topic_completer_node = rclpy.create_node()
+
     app = QApplication(sys.argv)
     mw = QMainWindow()
     widget = QWidget(mw)
@@ -84,14 +87,14 @@ if __name__ == '__main__':
 
     edit = QLineEdit()
     edit_completer = TopicCompleter(edit)
-    edit_completer.update_topics()
+    edit_completer.update_topics(topic_completer_node)
     # edit_completer.setCompletionMode(QCompleter.InlineCompletion)
     edit.setCompleter(edit_completer)
 
     combo = QComboBox()
     combo.setEditable(True)
     combo_completer = TopicCompleter(combo)
-    combo_completer.update_topics()
+    combo_completer.update_topics(topic_completer_node)
 
     # combo_completer.setCompletionMode(QCompleter.InlineCompletion)
     combo.lineEdit().setCompleter(combo_completer)
@@ -120,3 +123,6 @@ if __name__ == '__main__':
     mw.resize(800, 900)
     mw.show()
     app.exec_()
+
+    topic_completer_node.destroy_node()
+    rclpy.shutdown()

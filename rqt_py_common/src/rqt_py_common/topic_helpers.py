@@ -28,20 +28,35 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rclpy
-import math
+# Author: Michael Lautman
 
-from rclpy import logging
 from ament_index_python import get_resource
 
+from rclpy import logging
 
-def get_topic_names_and_types():
+
+def get_topic_names_and_types(node=None):
+    """
+    Get avaliable topic names and types.
+
+    Note: in ROS2, only nodes can query the topic information
+    @param node: a ROS node
+    @type node: rclpy.node.Node or None
+
+    If node is None, then this method will create a node, use it to get topic
+    information and then destroy the node.
+    """
+    if node is not None:
+        return node.get_topic_names_and_types()
+
+    import rclpy
     shutdown_rclpy = False
     if not rclpy.ok():
         shutdown_rclpy = True
         rclpy.init()
 
     node = rclpy.create_node("TopicHelpers__get_topic_names_and_types")
+
     # Give the node time to learn about the graph
     rclpy.spin_once(node, timeout_sec=0.05)
 
@@ -54,9 +69,9 @@ def get_topic_names_and_types():
     return topic_list
 
 
-_logger = logging.get_logger("topic_helpers")
 _message_class_cache = {}
 def get_message_class(message_type):
+    logger = logging.get_logger("get_message_class")
     if message_type in _message_class_cache:
         return _message_class_cache[message_type]
 
@@ -68,7 +83,7 @@ def get_message_class(message_type):
         package = "std_msgs"
         base_type = message_info[0]
     else:
-        _logger.error(
+        logger.error(
             "Malformed message_type passed into get_message_class: {}".format(
                 message_type))
         return None
@@ -79,7 +94,7 @@ def get_message_class(message_type):
         # import the package
         python_pkg = __import__('%s.%s' % (package, "msg"))
     except ImportError:
-        _logger.error("Failed to get message class: {}".format(message_type))
+        logger.error("Failed to get message class: {}".format(message_type))
 
     if python_pkg:
         try:
@@ -92,7 +107,7 @@ def get_message_class(message_type):
             try:
                 class_val = getattr(getattr(python_pkg, "msg"), base_type)
             except AttributeError:
-                _logger.error("Failed to get message class: {}".format(message_type))
+                logger.error("Failed to get message class: {}".format(message_type))
 
     if class_val:
         _message_class_cache[message_type] = class_val
@@ -124,7 +139,7 @@ def get_type_class(type_name):
         return None
 
 
-def get_field_type(topic_name):
+def get_field_types(topic_name):
     """
     Get the Python type of a specific field in the given registered topic.
 
@@ -138,8 +153,8 @@ def get_field_type(topic_name):
     # Note: Mlautman 11/2/18
     #       In ROS2 multiple msg types can be used with a single topic making this
     #       funciton a bad candidate to port to ROS2
-
-    _logger.error("get_field_type is not implemented in ROS2")
+    logger = logging.get_logger("topic_helpers")
+    logger.error("get_field_type is not implemented in ROS2")
     # get topic_type and message_evaluator
     # topic_type, real_topic_name, _ = get_topic_type(topic_name)
     # if topic_type is None:
@@ -177,94 +192,3 @@ def get_slot_type(message_class, slot_path):
         message_class = get_message_class(slot_class_name[:slot_class_name.find('[')])
 
     return message_class, is_array
-
-
-def is_slot_numeric(topic_name):
-    """
-    Check is a slot in the given topic is numeric, or an array of numeric values.
-
-    This is a static type check, so it works for unpublished topics and with empty arrays.
-
-    :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
-    :returns: is_numeric, is_array, description
-    """
-    # field_type, is_array = get_field_type(topic_name)
-    # if field_type in (int, float):
-    #     if is_array:
-    #         message = 'topic "%s" is numeric array: %s[]' % (topic_name, field_type)
-    #     else:
-    #         message = 'topic "%s" is numeric: %s' % (topic_name, field_type)
-    #     return True, is_array, message
-
-    # return False, is_array, 'topic "%s" is NOT numeric: %s' % (topic_name, field_type)
-    pass
-
-
-def find_slots_by_type_dfs(msg_class, slot_type):
-    """
-    Search inside msg_class for all slots of type slot_type and return their paths.
-
-    Uses a depth first search.
-
-    :param msg_class: The class to search in.
-    :param slot_type: The type name or class to search for (e.g. 'float64' or Quaternion).
-    :return: List of paths to slots of type slot_type inside msg_class (e.g. ['header/frame_id']).
-    """
-    # def _find_slots(msg_class, slot_type):
-    #     paths = []
-    #     if msg_class == slot_type:
-    #         paths.append([])
-    #         return paths
-
-    #     for slot_name, slot_type_name in zip(msg_class.__slots__, msg_class._slot_types):
-    #         slot_type_name, is_array, _ = roslib.msgs.parse_type(slot_type_name)
-    #         if is_array:
-    #             slot_name += '[]'
-    #         if roslib.msgs.is_valid_constant_type(slot_type_name):
-    #             if slot_type_name == slot_type:
-    #                 paths.append([slot_name])
-    #             continue
-
-    #         slot_class = roslib.message.get_message_class(slot_type_name)
-    #         if slot_class is not None:
-    #             inner_paths = _find_slots(slot_class, slot_type)
-    #             paths.extend([[slot_name] + path for path in inner_paths])
-
-    #     return paths
-
-    # return ['/'.join(path) for path in _find_slots(msg_class, slot_type)]
-    pass
-
-def find_slots_by_type_bfs(msg_class, slot_type):
-    """
-    Search inside msg_class for all slots of type slot_type and return their paths.
-
-    Uses a breadth first search, so it will find the most shallow matches first.
-
-    :param msg_class: The class to search in.
-    :param slot_type: The type name or class to search for (e.g. 'float64' or Quaternion).
-    :return: List of paths to slots of type slot_type inside msg_class (e.g. ['header/frame_id']).
-    """
-    # paths = []
-    # queue = [(msg_class, [])]
-    # while queue:
-    #     msg_class, path = queue.pop(0)
-    #     if msg_class == slot_type:
-    #         paths.append(path)
-    #         continue
-
-    #     for slot_name, slot_type_name in zip(msg_class.__slots__, msg_class._slot_types):
-    #         slot_type_name, is_array, _ = roslib.msgs.parse_type(slot_type_name)
-    #         if is_array:
-    #             slot_name += '[]'
-    #         if roslib.msgs.is_valid_constant_type(slot_type_name):
-    #             if slot_type_name == slot_type:
-    #                 paths.append(path + [slot_name])
-    #             continue
-
-    #         slot_class = roslib.message.get_message_class(slot_type_name)
-    #         if slot_class is not None:
-    #             queue.append((slot_class, path + [slot_name]))
-
-    # return ['/'.join(path) for path in paths]
-    pass

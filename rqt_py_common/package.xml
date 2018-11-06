@@ -22,21 +22,22 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-  <depend>std_msgs</depend>
   <depend>qtbase5-dev</depend>
   <depend>rclpy</depend>
+  <depend>std_msgs</depend>
 
-  <exec_depend>rosidl_default_runtime</exec_depend>
   <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>
   <exec_depend>qt_gui</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
 
-  <member_of_group>rosidl_interface_packages</member_of_group>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
     <build_type>ament_cmake</build_type>

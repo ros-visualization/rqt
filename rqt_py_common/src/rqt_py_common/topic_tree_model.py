@@ -28,19 +28,19 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
 from rqt_py_common.message_tree_model import MessageTreeModel
+from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
 
 
 class TopicTreeModel(MessageTreeModel):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, node=None):
         super(TopicTreeModel, self).__init__(parent)
-        self.refresh()
+        self.refresh(node)
 
-    def refresh(self):
+    def refresh(self, node=None):
         self.clear()
-        topic_list = get_topic_names_and_types()
+        topic_list = get_topic_names_and_types(node)
         for topic_path, topic_types in topic_list:
             topic_name = topic_path.strip('/')
             for topic_type in topic_types:

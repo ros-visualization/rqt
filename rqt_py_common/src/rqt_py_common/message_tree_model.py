@@ -28,8 +28,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from rclpy import logging
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
+
+from rclpy import logging
+
 from rqt_py_common.data_items import ReadonlyItem
 
 

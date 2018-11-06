@@ -29,12 +29,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rclpy
-from rqt_py_common.topic_helpers import get_message_class
+
+from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
 
 class TopicDict(object):
 
-    def __init__(self):
-        self.update_topics()
+    def __init__(self, node=None):
+        self.update_topics(node=node)
 
     def get_topics(self):
         return self.topic_dict
@@ -46,25 +47,8 @@ class TopicDict(object):
         # If no node is passed in then we need to start rclpy and create a node
         # These flags are used to track these changes so that we can restore
         # state on completion
-        shutdown_rclpy = False
-        destroy_node = False
-        if node is None:
-            if not rclpy.ok():
-                shutdown_rclpy = True
-                rclpy.init()
 
-            destroy_node = True
-            node = rclpy.create_node("TopicDict__update_topics")
-            # Give the node time to learn about the graph
-            rclpy.spin_once(node, timeout_sec=0.01)
-
-        topic_names_and_types = node.get_topic_names_and_types()
-
-        # Restore state
-        if destroy_node:
-            node.destroy_node()
-        if shutdown_rclpy:
-            rclpy.shutdown()
+        topic_names_and_types = get_topic_names_and_types(node=node)
 
         for topic_name, topic_types in topic_names_and_types:
             self.topic_dict[topic_name] = []
@@ -89,7 +73,9 @@ class TopicDict(object):
 
 
 if __name__ == '__main__':
-    rclpy.init()
     import pprint
-    pprint.pprint(TopicDict().get_topics())
+    rclpy.init()
+    topic_dict_node = rclpy.create_node("topic_dict")
+    pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
+    topic_dict_node.destroy_node()
     rclpy.shutdown()

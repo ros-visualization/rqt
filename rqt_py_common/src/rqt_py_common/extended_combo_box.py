@@ -89,7 +89,7 @@ class ExtendedComboBox(QComboBox):
 
 if __name__ == "__main__":
     import sys
-    from python_qt_binding.QtGui import QApplication
+    from python_qt_binding.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
 

@@ -36,9 +36,11 @@ from __future__ import division
 
 import os
 
+from ament_index_python.resources import get_resource
+
 from python_qt_binding import loadUi
 from python_qt_binding.QtWidgets import QWidget
-from ament_index_python.resources import get_resource
+
 import rclpy.logging
 
 
