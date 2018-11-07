@@ -37,6 +37,7 @@ import sys
 
 from qt_gui.main import Main as Base
 from qt_gui.ros_package_helper import get_package_path
+import rclpy
 
 
 class Main(Base):
@@ -51,8 +52,7 @@ class Main(Base):
             argv = sys.argv
 
         # ignore ROS specific remapping arguments
-        # TODO port to ros2
-        # argv = rclpy.parse_arguments(argv)
+        argv = rclpy.utilities.remove_ros_args(args=argv)
 
         return super(
             Main, self).main(argv, standalone=standalone,
@@ -62,7 +62,7 @@ class Main(Base):
         from python_qt_binding.QtGui import QIcon
         app = super(Main, self).create_application(argv)
         rqt_gui_path = get_package_path('rqt_gui')
-        logo = os.path.join(rqt_gui_path, 'share', 'resource', 'rqt.png')
+        logo = os.path.join(rqt_gui_path, 'share', 'rqt_gui', 'resource', 'rqt.png')
         icon = QIcon(logo)
         app.setWindowIcon(icon)
         return app

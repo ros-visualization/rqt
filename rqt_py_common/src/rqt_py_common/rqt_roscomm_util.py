@@ -40,14 +40,12 @@ from rclpy import logging
 
 
 class RqtRoscommUtil(object):
-    _logger = logging.get_logger("RqtRoscommUtil")
+    _logger = logging.get_logger('RqtRoscommUtil')
 
     @staticmethod
     def load_parameters(config, caller_id):
         """
-        NOTE: Mlautman 11/2/18
-              This function has been deprecated as ROS2 does not yet support setting
-              and getting of parameters in Python
+        TODO(mlautman) Load parameters from node graph
 
         Load parameters onto the parameter server.
 

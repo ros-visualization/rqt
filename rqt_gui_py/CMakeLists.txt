@@ -12,13 +12,12 @@ install(FILES plugin.xml
 )
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
 
-  ament_add_pytest_test(${PROJECT_NAME} test
-    APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
-    TIMEOUT 90)
+  # Disabling copyright test. The copyright used in this package does not conform to
+  # ament's copyright tests
+  set(ament_cmake_copyright_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_package()

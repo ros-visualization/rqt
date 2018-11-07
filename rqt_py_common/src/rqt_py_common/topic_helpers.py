@@ -153,7 +153,7 @@ def get_field_types(topic_name):
     # Note: Mlautman 11/2/18
     #       In ROS2 multiple msg types can be used with a single topic making this
     #       funciton a bad candidate to port to ROS2
-    logger = logging.get_logger("topic_helpers")
+    logger = logging.get_logger('topic_helpers')
     logger.error("get_field_type is not implemented in ROS2")
     # get topic_type and message_evaluator
     # topic_type, real_topic_name, _ = get_topic_type(topic_name)

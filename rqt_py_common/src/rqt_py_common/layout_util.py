@@ -39,7 +39,7 @@ from rclpy import logging
 
 
 class LayoutUtil(object):
-    _logger = logging.get_logger("LayoutUtil")
+    _logger = logging.get_logger('LayoutUtil')
 
     @staticmethod
     def alternate_color(list_widgets, colors_alter=[Qt.white, Qt.gray]):

@@ -36,7 +36,7 @@ from rqt_py_common.data_items import ReadonlyItem
 
 
 class MessageTreeModel(QStandardItemModel):
-    _logger = logging.get_logger("MessageTreeModel")
+    _logger = logging.get_logger('MessageTreeModel')
 
     def __init__(self, parent=None):
         # FIXME: why is this not working? should be the same as the following line...
