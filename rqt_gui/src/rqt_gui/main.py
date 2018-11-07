@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Software License Agreement (BSD License)
 #
@@ -36,6 +36,7 @@ import os
 import sys
 
 from qt_gui.main import Main as Base
+from qt_gui.ros_package_helper import get_package_path
 
 from rospkg.rospack import RosPack
 import rospy
@@ -43,31 +44,29 @@ import rospy
 
 class Main(Base):
 
-    def __init__(self, filename=None, ros_pack=None):
-        rp = ros_pack or RosPack()
-        qtgui_path = rp.get_path('qt_gui')
+    def __init__(self, filename=None):
+        qtgui_path = get_package_path('qt_gui')
         super(Main, self).__init__(
             qtgui_path, invoked_filename=filename, settings_filename='rqt_gui')
-        self._ros_pack = rp
 
     def main(self, argv=None, standalone=None, plugin_argument_provider=None):
         if argv is None:
             argv = sys.argv
 
-        # ignore ROS specific remapping arguments (see
-        # http://www.ros.org/wiki/Remapping%20Arguments)
-        argv = rospy.myargv(argv)
+        # ignore ROS specific remapping arguments
+        # TODO(brawner) port to ros2. Waiting on a feature add and PR on rclpy
+	# to expose this functionality
+        # argv = rclpy.parse_arguments(argv)
 
         return super(
             Main, self).main(argv, standalone=standalone,
-                             plugin_argument_provider=plugin_argument_provider,
-                             plugin_manager_settings_prefix=str(
-                                hash(os.environ['ROS_PACKAGE_PATH'])))
+                             plugin_argument_provider=plugin_argument_provider)
 
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
         app = super(Main, self).create_application(argv)
-        logo = os.path.join(self._ros_pack.get_path('rqt_gui'), 'resource', 'rqt.png')
+        rqt_gui_path = get_package_path('rqt_gui')
+        logo = os.path.join(rqt_gui_path, 'share', 'resource', 'rqt.png')
         icon = QIcon(logo)
         app.setWindowIcon(icon)
         return app
@@ -76,8 +75,7 @@ class Main(Base):
         # do not import earlier as it would import Qt stuff without the proper
         # initialization from qt_gui.main
         from qt_gui.recursive_plugin_provider import RecursivePluginProvider
-        from .rospkg_plugin_provider import RospkgPluginProvider
-        RospkgPluginProvider.rospack = self._ros_pack
+        from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
         self.plugin_providers.append(RospkgPluginProvider('qt_gui', 'qt_gui_py::Plugin'))
         self.plugin_providers.append(RecursivePluginProvider(
             RospkgPluginProvider('qt_gui', 'qt_gui_py::PluginProvider')))
