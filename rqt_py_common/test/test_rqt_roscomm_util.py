@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Software License Agreement (BSD License)
 #
@@ -32,59 +32,38 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# Author: Isaac Saito
+# Author: Isaac Saito, Michael Lautman
 
+import os
 import unittest
-
-from rqt_py_common.rqt_roscomm_util import RqtRoscommUtil
 
 
 class TestRqtRoscommUtil(unittest.TestCase):
-
-    """
-    @author: Isaac Saito
-    """
+    """@author: Isaac Saito"""
 
     def setUp(self):
         unittest.TestCase.setUp(self)
-
-        self._totalnum_pkg_contains_launch = 41  # Varies depending on system.
 
     def tearDown(self):
         unittest.TestCase.tearDown(self)
         # del self._model
 
+    # TODO(mlautman): Replace this test with an apropriate ROS2 test.
     def test_iterate_packages(self):
         """
-        Not a very good test because the right answer that is hardcoded varies
-        depending on the system where this unittest runs.
+        Not a very good test
         """
+        # Note: mlautman 11/2/18
+        #       This test has been removed since the iterate_package method in RqtRoscommUtil
+        #       is deprecated in ROS2
+        from rqt_py_common.rqt_roscomm_util import RqtRoscommUtil
+
         pkg_num_sum = 0
-        for pkg in RqtRoscommUtil.iterate_packages('launch'):
+        for pkg, msg_dir_path in RqtRoscommUtil.iterate_packages('msg'):
             pkg_num_sum += 1
-            print('pkg={}'.format(pkg))
+            print('pkg:\t{}\t msg dir path:\t{}'.format(pkg, msg_dir_path))
+            path_to_msg_dir, msg_dir = os.path.split(msg_dir_path)
+            self.assertEqual(msg_dir, 'msg')
 
-        print(pkg_num_sum)
-        self.assertEqual(pkg_num_sum, self._totalnum_pkg_contains_launch)
-
-    def test_list_files(self):
-        """
-        Not a very good test because the right answer that is hardcoded varies
-        depending on the system where this unittest runs.
-        """
-        file_num = 0
-        pkg_name = 'pr2_moveit_config'
-        _totalnum_launches_pkg_contains = 15
-        subdir = 'launch'
-        file_ext = '.launch'
-        files = RqtRoscommUtil.list_files(pkg_name, subdir, file_ext)
-        for file in files:
-            file_num += 1
-            print('file={}'.format(file))
-
-        print(file_num)
-        self.assertEqual(file_num, _totalnum_launches_pkg_contains)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        print("number of packages:\t{}".format(pkg_num_sum))
+        self.assertNotEqual(pkg_num_sum, 0)

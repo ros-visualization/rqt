@@ -34,7 +34,10 @@
 def pack(data):
     """
     Packs 'data' into a form that can be easily and readably written to an ini file
-    :param data: A list of strings or a list of items with a 'text' method to be flattened into a string ''list''
+
+    :param data:
+        A list of strings or a list of items with a 'text' method to be flattened into a
+        string ''list''
     :return: A string suitable for output to ini files ''str''
     """
     if len(data) == 0:
@@ -55,6 +58,7 @@ def pack(data):
 def unpack(data):
     """
     Unpacks the values read from an ini file
+
     :param data: An entry taken from an ini file ''list or string''
     :return: A list of strings ''list''
     """

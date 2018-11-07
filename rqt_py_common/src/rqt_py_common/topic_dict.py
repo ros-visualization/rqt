@@ -28,40 +28,54 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import roslib
-import rospy
+import rclpy
 
+from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
 
 class TopicDict(object):
 
-    def __init__(self):
-        self.update_topics()
+    def __init__(self, node=None):
+        self.update_topics(node=node)
 
     def get_topics(self):
         return self.topic_dict
 
-    def update_topics(self):
+    def update_topics(self, node=None):
+        # NOTE: This has changed from ROS1 to ROS2 since ROS2 seems to support
+        #       multiple msg types on a single topic
         self.topic_dict = {}
-        topic_list = rospy.get_published_topics()
-        for topic_name, topic_type in topic_list:
-            message = roslib.message.get_message_class(topic_type)()
-            self.topic_dict.update(self._recursive_create_field_dict(topic_name, message))
+        # If no node is passed in then we need to start rclpy and create a node
+        # These flags are used to track these changes so that we can restore
+        # state on completion
 
-    def _recursive_create_field_dict(self, topic_name, field):
+        topic_names_and_types = get_topic_names_and_types(node=node)
+
+        for topic_name, topic_types in topic_names_and_types:
+            self.topic_dict[topic_name] = []
+            for topic_type in topic_types:
+                message = get_message_class(topic_type)()
+                self.topic_dict[topic_name].append(
+                    self._recursive_create_field_dict(topic_type, message))
+
+    def _recursive_create_field_dict(self, slot_name, field):
         field_dict = {}
-        field_dict[topic_name] = {
+        field_dict[slot_name] = {
             'type': type(field),
             'children': {},
         }
 
         if hasattr(field, '__slots__'):
-            for slot_name in field.__slots__:
-                field_dict[topic_name]['children'].update(
-                    self._recursive_create_field_dict(slot_name, getattr(field, slot_name)))
-
+            for child_slot_name in field.__slots__:
+                field_dict[slot_name]['children'].update(
+                    self._recursive_create_field_dict(
+                        child_slot_name, getattr(field, child_slot_name)))
         return field_dict
 
 
 if __name__ == '__main__':
     import pprint
-    pprint.pprint(TopicDict().get_topics())
+    rclpy.init()
+    topic_dict_node = rclpy.create_node("topic_dict")
+    pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
+    topic_dict_node.destroy_node()
+    rclpy.shutdown()

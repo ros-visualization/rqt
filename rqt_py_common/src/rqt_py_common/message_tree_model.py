@@ -28,12 +28,15 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-from .data_items import ReadonlyItem
+
+from rclpy import logging
+
+from rqt_py_common.data_items import ReadonlyItem
 
 
 class MessageTreeModel(QStandardItemModel):
+    _logger = logging.get_logger("MessageTreeModel")
 
     def __init__(self, parent=None):
         # FIXME: why is this not working? should be the same as the following line...
@@ -67,6 +70,7 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
+        # TODO(mlautman): Work around missing _slot_types in new msg types
         if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
             for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
                 child_slot_path = slot_path + '/' + child_slot_name
@@ -124,7 +128,7 @@ class MessageTreeModel(QStandardItemModel):
 
         name_prev = ''
         stditem_prev = None
-        if not stditem_parent.child(row_index_parent) == None:
+        if stditem_parent.child(row_index_parent) is not None:
             stditem_prev = stditem_parent.child(row_index_parent)
             name_prev = stditem_prev.text()
 
@@ -135,7 +139,9 @@ class MessageTreeModel(QStandardItemModel):
         else:
             stditem = stditem_prev
 
-        rospy.logdebug('add_tree_node 1 name_curr=%s ' +
-                       '\n\t\t\t\t\tname_prev=%s row_index_parent=%d', name_curr, name_prev, row_index_parent)
+        MessageTreeModel._logger.debug(
+            'add_tree_node 1 name_curr={} \n\t\tname_prev={} row_index_parent={}'.format(
+                (name_curr, name_prev, row_index_parent)))
+
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)

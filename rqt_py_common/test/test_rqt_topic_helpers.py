@@ -2,7 +2,7 @@
 
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2015, Robert Haschke
+# Copyright (c) 2018, PickNik Robotics
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,32 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Author: Michael Lautman
+
 import unittest
 
 
-class TestMessageTreeModel(unittest.TestCase):
+class TestTopicHelpers(unittest.TestCase):
 
-    def test_path_names(self):
-        from rqt_py_common.message_tree_model import MessageTreeModel
-        from rqt_py_common.msg import Val, ArrayVal
-        m = MessageTreeModel()
-        m.add_message(ArrayVal())
-        root = m.item(0).child(0)
-        self.assertEqual(root._path, '/_vals')
-        for i in range(0, 5):
-            child = root.child(i)
-            self.assertEqual(child._path, '/_vals[%s]' % i)
-            child = child.child(0)
-            self.assertEqual(child._path, '/_vals[%s]/_floats' % i)
-            for j in range(0, 5):
-                self.assertEqual(child.child(j)._path, '/_vals[%s]/_floats[%s]' % (i, j))
+    def test_get_message_class(self):
+        from rqt_py_common.topic_helpers import get_message_class
+        # Check that we are able to import std_msgs/String
+        from std_msgs.msg import String
+        self.assertEqual(get_message_class("std_msgs/String"), String)
+        # If no package is provided then we assume std_msgs
+        self.assertEqual(get_message_class("String"), get_message_class("std_msgs/String"))
+        self.assertEqual(get_message_class("string"), get_message_class("String"))
+        # We test that we are able to import msgs from outside of std_msgs
+        from rqt_py_common.msg import Val
+        self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
+
+    def test_get_slot_type(self):
+        from rqt_py_common.topic_helpers import get_slot_type
+        from rqt_py_common.topic_helpers import get_message_class
+        from rqt_py_common.msg import ArrayVal
+        # Check that we are able to import std_msgs/String
+        path = '_vals/_floats'
+        message_class = ArrayVal
+        message_type, is_array = get_slot_type(message_class, path)
+        self.assertTrue(is_array)
+        self.assertEqual(message_type, get_message_class("float64"))

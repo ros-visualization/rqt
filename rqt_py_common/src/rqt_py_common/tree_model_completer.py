@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
@@ -45,4 +45,6 @@ class TreeModelCompleter(QCompleter):
         return path_list
 
     def pathFromIndex(self, index):
-        return self.model().itemFromIndex(index)._path
+        if self.model().itemFromIndex(index):
+            return self.model().itemFromIndex(index)._path
+        return None

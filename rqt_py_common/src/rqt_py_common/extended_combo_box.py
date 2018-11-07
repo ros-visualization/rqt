@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
@@ -89,7 +89,7 @@ class ExtendedComboBox(QComboBox):
 
 if __name__ == "__main__":
     import sys
-    from python_qt_binding.QtGui import QApplication
+    from python_qt_binding.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
 

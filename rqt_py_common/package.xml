@@ -1,4 +1,4 @@
-<package>
+<package format="3">
   <name>rqt_py_common</name>
   <version>0.5.0</version>
   <description>
@@ -19,25 +19,28 @@
   <author>Dorian Scholz</author>
   <author>Isaac Saito</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-  <build_depend>genmsg</build_depend>
-  <build_depend>std_msgs</build_depend>
+  <depend>qtbase5-dev</depend>
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
 
-  <run_depend>genpy</run_depend>
-  <run_depend version_gte="0.2.19">python_qt_binding</run_depend>
-  <run_depend>qt_gui</run_depend>
-  <run_depend>roslib</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>rostopic</run_depend>
+  <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>
+  <exec_depend>qt_gui</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
 
-  <!-- 3/11/2013 depending on actionlib & rosbag is only temporary;
-  rosaction.py needs it. In the future this run_depend will be removed when
-  rosaction gets moved to actionlib. -->
-  <run_depend>actionlib</run_depend>
-  <run_depend>rosbag</run_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <architecture_independent/>
   </export>
 </package>

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Software License Agreement (BSD License)
 #
@@ -37,11 +37,10 @@
 import unittest
 
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-from rqt_reconfigure.rqt_ros_graph import RqtRosGraph
+from rqt_py_common.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):
-
     """
     :author: Isaac Saito
     """
@@ -79,12 +78,10 @@ class TestRqtRosGraph(unittest.TestCase):
 
     def test_get_lower_grn_dfs(self):
         self.assertEqual(
-            len(RqtRosGraph.get_lower_grn_dfs(self._node1_1.index(), '')), self._len_lower_grn_node1_1)
+            len(RqtRosGraph.get_lower_grn_dfs(
+                self._node1_1.index(), '')),
+            self._len_lower_grn_node1_1)
 
-    def test_get_full_grn(self):
-        self.assertEqual(RqtRosGraph.get_full_grn(self._node1_1_1.index()),
-                         self._grn_node1_1_1)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    # def test_get_full_grn(self):
+    #     self.assertEqual(RqtRosGraph.get_full_grn(self._node1_1_1.index()),
+    #                      self._grn_node1_1_1)

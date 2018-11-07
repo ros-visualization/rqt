@@ -34,19 +34,21 @@
 
 import os
 
-import genmsg
-import roslaunch
-from roslaunch import RLException
-import rospkg
-import rospy
-import rostopic
+from ament_index_python import get_resources
+
+from rclpy import logging
 
 
 class RqtRoscommUtil(object):
+    _logger = logging.get_logger("RqtRoscommUtil")
 
     @staticmethod
     def load_parameters(config, caller_id):
         """
+        NOTE: Mlautman 11/2/18
+              This function has been deprecated as ROS2 does not yet support setting
+              and getting of parameters in Python
+
         Load parameters onto the parameter server.
 
         Copied from ROSLaunchRunner.
@@ -54,52 +56,54 @@ class RqtRoscommUtil(object):
         @type config: roslaunch.config.ROSLaunchConfig
         @raise RLException:
         """
-
         # XMLRPC proxy for communicating with master, 'xmlrpclib.ServerProxy'
-        param_server = config.master.get()
+        # param_server = config.master.get()
 
-        param = None
-        try:
-            # multi-call style xmlrpc
-            # According to API doc, get_multi() returns
-            # multicall XMLRPC proxy for communicating with master,
-            # "xmlrpclib.MultiCall"
-            param_server_multi = config.master.get_multi()
+        # param = None
+        # try:
+        #     # multi-call style xmlrpc
+        #     # According to API doc, get_multi() returns
+        #     # multicall XMLRPC proxy for communicating with master,
+        #     # "xmlrpclib.MultiCall"
+        #     param_server_multi = config.master.get_multi()
 
-            # clear specified parameter namespaces
-            # 2468 unify clear params to prevent error
-            for param in roslaunch.launch._unify_clear_params(config.clear_params):
-                if param_server.hasParam(caller_id, param)[2]:
-                    param_server_multi.deleteParam(caller_id, param)
-            r = param_server_multi()
-            for code, msg, _ in r:
-                if code != 1:
-                    raise RLException("Failed to clear parameter {}: ".format(msg))
-        except RLException:
-            raise
-        except Exception as e:
-            rospy.logerr("load_parameters: unable to set params " +
-                         "(last param was [{}]): {}".format(param, e))
-            raise  # re-raise as this is fatal
+        #     # clear specified parameter namespaces
+        #     # 2468 unify clear params to prevent error
+        #     for param in roslaunch.launch._unify_clear_params(config.clear_params):
+        #         if param_server.hasParam(caller_id, param)[2]:
+        #             param_server_multi.deleteParam(caller_id, param)
+        #     r = param_server_multi()
+        #     for code, msg, _ in r:
+        #         if code != 1:
+        #             raise RLException("Failed to clear parameter {}: ".format(msg))
+        # except RLException:
+        #     raise
+        # except Exception as e:
+        #     RqtRoscommUtil._logger.error(
+        #         "load_parameters: unable to set params (last param was [{}]): {}".format(
+        #             param, e))
+        #     raise  # re-raise as this is fatal
 
-        try:
-            # multi-call objects are not reusable
-            param_server_multi = config.master.get_multi()
-            for param in config.params.values():
-                # suppressing this as it causes too much spam
-                # printlog("setting parameter [%s]"%param.key)
-                param_server_multi.setParam(caller_id, param.key, param.value)
-            r = param_server_multi()
-            for code, msg, _ in r:
-                if code != 1:
-                    raise RLException("Failed to set parameter: %s" % (msg))
-        except RLException:
-            raise
-        except Exception as e:
-            print("load_parameters: unable to set params (last param was " +
-                  "[%s]): %s" % (param, e))
-            raise  # re-raise as this is fatal
-        rospy.logdebug("... load_parameters complete")
+        # try:
+        #     # multi-call objects are not reusable
+        #     param_server_multi = config.master.get_multi()
+        #     for param in config.params.values():
+        #         # suppressing this as it causes too much spam
+        #         # printlog("setting parameter [%s]"%param.key)
+        #         param_server_multi.setParam(caller_id, param.key, param.value)
+        #     r = param_server_multi()
+        #     for code, msg, _ in r:
+        #         if code != 1:
+        #             raise RLException("Failed to set parameter: %s" % (msg))
+        # except RLException:
+        #     raise
+        # except Exception as e:
+        #     print(
+        #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
+        #     raise  # re-raise as this is fatal
+        # RqtRoscommUtil._logger.debug("... load_parameters complete")
+        RqtRoscommUtil._logger.error("load_parameters: not yet implemented in ROS2))")
+        pass
 
     @staticmethod
     def iterate_packages(subdir):
@@ -112,22 +116,25 @@ class RqtRoscommUtil(object):
         @type subdir: str
         @raise ValueError:
         """
-        if subdir == None or subdir == '':
+        if subdir is None or subdir == '':
             raise ValueError('Invalid package subdir = {}'.format(subdir))
 
-        rospack = rospkg.RosPack()
-
-        pkgs = rospack.list()
-        rospy.logdebug('pkgs={}'.format(pkgs))
-        for p in pkgs:
-            d = os.path.join(rospack.get_path(p), subdir)
-            rospy.logdebug('rospack dir={}'.format(d))
-            if os.path.isdir(d):
-                yield p, d
+        packages_map = get_resources('packages')
+        for package_name, package_path in packages_map.items():
+            package_path = os.path.join(package_path, 'share', package_name, subdir)
+            RqtRoscommUtil._logger.debug(
+                'package:\t{} dir:\t{}'.format(package_name, package_path))
+            if os.path.isdir(package_path):
+                yield package_name, package_path
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
         """
+        Note: Mlautman 11/2/2018
+              This method is deprecated in ROS2
+              This functionality does not fit the ROS2 design paradigm
+              of explicitly exporting resources to a shared location.
+
         #TODO: Come up with better name of the method.
 
         Taken from rosmsg.
@@ -137,14 +144,8 @@ class RqtRoscommUtil(object):
         @param file_extension: Defaults to '.launch', ``str``
         :returns: list of msgs/srv in package, ``[str]``
         """
-        if subdir == None or subdir == '':
-            raise ValueError('Invalid package subdir = {}'.format(subdir))
-
-        rospack = rospkg.RosPack()
-
-        path = os.path.join(rospack.get_path(package), subdir)
-
-        return [genmsg.resource_name(package, t) for t in RqtRoscommUtil._list_types(path, file_extension)]
+        RqtRoscommUtil._logger.error("list_files: not implemented in ROS2))")
+        pass
 
     @staticmethod
     def _list_types(path, ext):
@@ -186,9 +187,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _msg_filter(ext):
-        """
-        Taken from rosmsg._msg_filter
-        """
+        """Taken from rosmsg._msg_filter"""
         def mfilter(f):
             """
             Predicate for filtering directory list. matches message files
@@ -196,15 +195,3 @@ class RqtRoscommUtil(object):
             """
             return os.path.isfile(f) and f.endswith(ext)
         return mfilter
-
-    @staticmethod
-    def is_roscore_running():
-        """
-        @rtype: bool
-        """
-        try:
-            # Checkif rosmaster is running or not.
-            rostopic.get_topic_class('/rosout')
-            return True
-        except rostopic.ROSTopicIOException as e:
-            return False
