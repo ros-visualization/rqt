@@ -38,9 +38,6 @@ import sys
 from qt_gui.main import Main as Base
 from qt_gui.ros_package_helper import get_package_path
 
-from rospkg.rospack import RosPack
-import rospy
-
 
 class Main(Base):
 
@@ -54,8 +51,7 @@ class Main(Base):
             argv = sys.argv
 
         # ignore ROS specific remapping arguments
-        # TODO(brawner) port to ros2. Waiting on a feature add and PR on rclpy
-	# to expose this functionality
+        # TODO port to ros2
         # argv = rclpy.parse_arguments(argv)
 
         return super(

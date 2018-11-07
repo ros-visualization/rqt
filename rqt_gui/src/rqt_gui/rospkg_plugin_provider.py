@@ -30,9 +30,9 @@
 
 import os
 
+from ament_index_python.packages import get_packages_with_prefixes
 from catkin_pkg.package import InvalidPackage, PACKAGE_MANIFEST_FILENAME, parse_package
 from python_qt_binding.QtCore import qDebug, qWarning
-from ament_index_python.packages import get_packages_with_prefixes
 
 from .ros_plugin_provider import RosPluginProvider
 
@@ -56,8 +56,9 @@ class RospkgPluginProvider(RosPluginProvider):
             qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" %
                    export_tag)
             for package_name, package_path in get_packages_with_prefixes().items():
+                package_share_path = os.path.join(package_path, 'share', package_name)
                 package_file_path = os.path.join(
-                    package_path, 'share', package_name, PACKAGE_MANIFEST_FILENAME)
+                    package_share_path, PACKAGE_MANIFEST_FILENAME)
                 if os.path.isfile(package_file_path):
                     # only try to import catkin if a PACKAGE_FILE is found
                     try:
@@ -69,10 +70,9 @@ class RospkgPluginProvider(RosPluginProvider):
                         if export.tagname != export_tag or 'plugin' not in export.attributes:
                             continue
                         plugin_xml_path = export.attributes['plugin']
-                        plugin_xml_path = plugin_xml_path.replace('${prefix}', package_path)
+                        plugin_xml_path = plugin_xml_path.replace('${prefix}', package_share_path)
                         plugins.append([package_name, plugin_xml_path])
                     continue
-
             # write crawling information to cache
             if discovery_data:
                 plugins_by_package = {}
