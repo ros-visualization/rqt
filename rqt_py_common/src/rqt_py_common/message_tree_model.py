@@ -62,6 +62,18 @@ class MessageTreeModel(QStandardItemModel):
     def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         return (QStandardItem(slot_name), QStandardItem(slot_type_name), QStandardItem(slot_path))
 
+    def _get_property_name(self, slot_name, message_instance):
+        # slots start with an underscore
+        property_name = slot_name[1:]
+
+        # In ROS2 the user friendly name is a property, check to make sure that field exists
+        if hasattr(message_instance.__class, property_name) and \
+                isinstance(getattr(message_instance.__class__, property_name), property):
+            return property_name
+
+        # Otherwise, we'll just use the slot name
+        return slot_name
+
     def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
         row = []
         for item in self._get_data_items_for_path(slot_name, slot_type_name, slot_path, **kwargs):
@@ -70,13 +82,14 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
-        # TODO(mlautman): Work around missing _slot_types in new msg types
-        if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
-            for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
-                child_slot_path = slot_path + '/' + child_slot_name
-                child_slot = getattr(slot, child_slot_name)
+        if hasattr(slot, '__slots__'):
+            for child_slot_name in slot.__slots__:
+                child_property_name = self._get_property_name(child_slot_name, slot)
+                child_slot_type = type(getattr(slot, child_property_name)).__name__
+                child_slot_path = slot_path + '/' + child_property_name
+                child_slot = getattr(slot, child_property_name)
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                    row[0], child_slot, child_property_name, child_slot_type, child_slot_path, **kwargs)
 
         elif type(slot) in (list, tuple) and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
