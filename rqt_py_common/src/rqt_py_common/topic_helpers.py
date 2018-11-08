@@ -58,7 +58,7 @@ def get_topic_names_and_types(node=None):
     node = rclpy.create_node("TopicHelpers__get_topic_names_and_types")
 
     # Give the node time to learn about the graph
-    rclpy.spin_once(node, timeout_sec=0.05)
+    rclpy.spin_once(node, timeout_sec=0.5)
 
     topic_list = node.get_topic_names_and_types()
 

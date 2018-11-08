@@ -12,10 +12,6 @@ install(DIRECTORY resource
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS ${_library_name}
-  DESTINATION "${PYTHON_INSTALL_DIR}/${PROJECT_NAME}"
-)
-
 if(BUILD_TESTING)
   find_package(rosidl_default_generators REQUIRED)
   find_package(std_msgs REQUIRED)
