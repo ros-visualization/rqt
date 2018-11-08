@@ -39,12 +39,12 @@ from ament_index_python import get_resources
 from rclpy import logging
 
 
-class RqtRoscommUtil(object):
-    _logger = logging.get_logger("RqtRoscommUtil")
+class RqtRoscommUtil(object):  # noqa
+    _logger = logging.get_logger('RqtRoscommUtil')
 
     @staticmethod
     def load_parameters(config, caller_id):
-        """
+        """  # noqa
         NOTE: Mlautman 11/2/18
               This function has been deprecated as ROS2 does not yet support setting
               and getting of parameters in Python
@@ -102,12 +102,12 @@ class RqtRoscommUtil(object):
         #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
         #     raise  # re-raise as this is fatal
         # RqtRoscommUtil._logger.debug("... load_parameters complete")
-        RqtRoscommUtil._logger.error("load_parameters: not yet implemented in ROS2))")
+        RqtRoscommUtil._logger.error('load_parameters: not yet implemented in ROS2))')
         pass
 
     @staticmethod
     def iterate_packages(subdir):
-        """
+        """  # noqa
         Iterator for packages that contain the given subdir.
 
         This method is generalizing rosmsg.iterate_packages.
@@ -129,7 +129,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
-        """
+        """  # noqa
         Note: Mlautman 11/2/2018
               This method is deprecated in ROS2
               This functionality does not fit the ROS2 design paradigm
@@ -144,12 +144,12 @@ class RqtRoscommUtil(object):
         @param file_extension: Defaults to '.launch', ``str``
         :returns: list of msgs/srv in package, ``[str]``
         """
-        RqtRoscommUtil._logger.error("list_files: not implemented in ROS2))")
+        RqtRoscommUtil._logger.error('list_files: not implemented in ROS2))')
         pass
 
     @staticmethod
     def _list_types(path, ext):
-        """
+        """  # noqa
         Taken from rosmsg
 
         List all messages in the specified package
@@ -169,7 +169,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _list_resources(path, rfilter=os.path.isfile):
-        """
+        """  # noqa
         Taken from rosmsg._list_resources
 
         List resources in a package directory within a particular
@@ -187,9 +187,9 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _msg_filter(ext):
-        """Taken from rosmsg._msg_filter"""
+        """Taken from rosmsg._msg_filter"""  # noqa
         def mfilter(f):
-            """
+            """  # noqa
             Predicate for filtering directory list. matches message files
             :param f: filename, ``str``
             """

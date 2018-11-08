@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
@@ -30,14 +30,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
+from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning   # noqa
 from python_qt_binding.QtGui import QDrag, QIcon
 from python_qt_binding.QtWidgets import QAction, QHeaderView, QMenu, QTreeView
 
 
-class MessageTreeWidget(QTreeView):
+class MessageTreeWidget(QTreeView):  # noqa
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None):  # noqa
         super(MessageTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
         self.sortByColumn(0, Qt.AscendingOrder)
@@ -53,11 +53,12 @@ class MessageTreeWidget(QTreeView):
 
         self._action_item_expand = QAction(QIcon.fromTheme('zoom-in'), 'Expand Selected', self)
         self._action_item_expand.triggered.connect(self._handle_action_item_expand)
-        self._action_item_collapse = QAction(QIcon.fromTheme('zoom-out'), 'Collapse Selected', self)
+        self._action_item_collapse = QAction(
+            QIcon.fromTheme('zoom-out'), 'Collapse Selected', self)
         self._action_item_collapse.triggered.connect(self._handle_action_item_collapse)
         self.customContextMenuRequested.connect(self.handle_customContextMenuRequested)
 
-    def startDrag(self, supportedActions):
+    def startDrag(self, supportedActions):  # noqa
         index = self.currentIndex()
         if not index.isValid():
             return
@@ -76,7 +77,7 @@ class MessageTreeWidget(QTreeView):
         drag.exec_()
 
     @Slot('QPoint')
-    def handle_customContextMenuRequested(self, pos):
+    def handle_customContextMenuRequested(self, pos):  # noqa
         # show context menu
         menu = QMenu(self)
         self._context_menu_add_actions(menu, pos)
@@ -102,7 +103,7 @@ class MessageTreeWidget(QTreeView):
             recursive_set_expanded(index)
 
     @Slot('QPoint')
-    def handle_header_view_customContextMenuRequested(self, pos):
+    def handle_header_view_customContextMenuRequested(self, pos):  # noqa
 
         # create context menu
         menu = QMenu(self)
