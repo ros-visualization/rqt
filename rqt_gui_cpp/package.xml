@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>rqt_gui_cpp</name>
   <version>0.5.0</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
@@ -12,20 +12,18 @@
 
   <author>Dirk Thomas</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
 
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
   <build_depend version_gte="0.3.0">qt_gui_cpp</build_depend>
   <build_depend>qtbase5-dev</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>nodelet</build_depend>
-  <run_depend version_gte="0.3.0">qt_gui</run_depend>
-  <run_depend version_gte="0.3.0">qt_gui_cpp</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>nodelet</run_depend>
+  <exec_depend version_gte="0.3.0">qt_gui</exec_depend>
+  <exec_depend version_gte="0.3.0">qt_gui_cpp</exec_depend>
 
   <export>
-    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrqt_gui_cpp"/>
+    <build_type>ament_cmake</build_type>
     <qt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>
