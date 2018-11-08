@@ -46,8 +46,15 @@ def get_topic_names_and_types(node=None):
     If node is None, then this method will create a node, use it to get topic
     information and then destroy the node.
     """
+    # TODO(mlautman): Replace this approach with the daemon approach used by ros2cli
+    logger = logging.get_logger('get_topic_names_and_types')
     if node is not None:
-        return node.get_topic_names_and_types()
+        try:
+            return node.get_topic_names_and_types()
+        except ValueError:
+            logger.warn('method called with an invalid node!')
+    else:
+        logger.warn('calling get_topic_names_and_types without passing in a node is really slow!')
 
     import rclpy
     shutdown_rclpy = False
