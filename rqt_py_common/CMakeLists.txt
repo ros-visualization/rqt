@@ -27,6 +27,9 @@ if(BUILD_TESTING)
     test/msg/Val.msg
     test/msg/ArrayVal.msg
     DEPENDENCIES std_msgs)
+  set(ament_cmake_copyright_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+
   ament_add_pytest_test(${PROJECT_NAME} test
     APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
     TIMEOUT 90)

@@ -55,7 +55,7 @@ def get_topic_names_and_types(node=None):
         shutdown_rclpy = True
         rclpy.init()
 
-    node = rclpy.create_node("TopicHelpers__get_topic_names_and_types")
+    node = rclpy.create_node('TopicHelpers__get_topic_names_and_types')
 
     # Give the node time to learn about the graph
     rclpy.spin_once(node, timeout_sec=0.5)
@@ -69,22 +69,28 @@ def get_topic_names_and_types(node=None):
     return topic_list
 
 
-_message_class_cache = {}
+_message_class_cache = {}  # noqa
 def get_message_class(message_type):
-    logger = logging.get_logger("get_message_class")
+    """
+    get_message_class: gets the message class from a string representation.
+
+    @param message_type: the type of message in the form `msg_pkg/Message`
+    @type message_type: str
+    """
+    logger = logging.get_logger('get_message_class')
     if message_type in _message_class_cache:
         return _message_class_cache[message_type]
 
-    message_info = message_type.split("/")
+    message_info = message_type.split('/')
     if len(message_info) == 2:
         package = message_info[0]
         base_type = message_info[1]
     elif len(message_info) == 1:
-        package = "std_msgs"
+        package = 'std_msgs'
         base_type = message_info[0]
     else:
         logger.error(
-            "Malformed message_type passed into get_message_class: {}".format(
+            'Malformed message_type passed into get_message_class: {}'.format(
                 message_type))
         return None
 
@@ -94,20 +100,20 @@ def get_message_class(message_type):
         # import the package
         python_pkg = __import__('%s.%s' % (package, "msg"))
     except ImportError:
-        logger.error("Failed to get message class: {}".format(message_type))
+        logger.error('Failed to get message class: {}'.format(message_type))
 
     if python_pkg:
         try:
-            class_val = getattr(getattr(python_pkg, "msg"), base_type)
+            class_val = getattr(getattr(python_pkg, 'msg'), base_type)
         except AttributeError:
             if len(base_type):
-                base_type = "".join([base_type[0].upper(), base_type[1:]])
+                base_type = ''.join([base_type[0].upper(), base_type[1:]])
 
         if not class_val:
             try:
-                class_val = getattr(getattr(python_pkg, "msg"), base_type)
+                class_val = getattr(getattr(python_pkg, 'msg'), base_type)
             except AttributeError:
-                logger.error("Failed to get message class: {}".format(message_type))
+                logger.error('Failed to get message class: {}'.format(message_type))
 
     if class_val:
         _message_class_cache[message_type] = class_val
@@ -116,7 +122,14 @@ def get_message_class(message_type):
 
 
 def get_type_class(type_name):
+    """
+    get_type_class: gets the python type from an idl string.
 
+    See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
+
+    @param type_name: the IDL type of field
+    @type message_type: str
+    """
     if type_name in ['float32', 'float64']:
         return float
 
@@ -132,7 +145,7 @@ def get_type_class(type_name):
             'char', 'byte']:
         return int
 
-    elif type_name in ["bool"]:
+    elif type_name in ['bool']:
         return bool
 
     else:
