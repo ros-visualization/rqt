@@ -130,22 +130,24 @@ def get_type_class(type_name):
     @param type_name: the IDL type of field
     @type message_type: str
     """
-    if type_name in ['float32', 'float64']:
+    if type_name in ['float', 'float32', 'float64',
+                     'double', 'long double']:
         return float
 
-    elif type_name in ['string']:
-        # string constants are always stripped
+    elif type_name in ['char', 'wchar', 'string', 'wstring']:
         return str
+
+    elif type_name in ['octet']:
+        return bytes
 
     elif type_name in [
             'int8', 'uint8',
             'int16', 'uint16',
             'int32', 'uint32',
-            'int64', 'uint64',
-            'char', 'byte']:
+            'int64', 'uint64']:
         return int
 
-    elif type_name in ['bool']:
+    elif type_name in ['bool', 'boolean']:
         return bool
 
     else:
