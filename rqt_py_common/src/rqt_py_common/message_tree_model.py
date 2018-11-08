@@ -1,4 +1,4 @@
-# Copyright (c) 2011, Dorian Scholz, TU Darmstadt
+# Copyright (c) 2011, Dorian Scholz, TU Darmstadt  # noqa
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,12 @@ from rqt_py_common.data_items import ReadonlyItem
 class MessageTreeModel(QStandardItemModel):
     _logger = logging.get_logger('MessageTreeModel')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None):  # noqa
         # FIXME: why is this not working? should be the same as the following line...
         # super(MessageTreeModel, self).__init__(parent)
         QStandardItemModel.__init__(self, parent)
 
-    def add_message(self, message_instance, message_name='', message_type='', message_path=''):
+    def add_message(self, message_instance, message_name='', message_type='', message_path=''):  # noqa
         if message_instance is None:
             return
         self._recursive_create_items(
@@ -62,7 +62,8 @@ class MessageTreeModel(QStandardItemModel):
     def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         return (QStandardItem(slot_name), QStandardItem(slot_type_name), QStandardItem(slot_path))
 
-    def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
+    def _recursive_create_items(
+            self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
         row = []
         for item in self._get_data_items_for_path(slot_name, slot_type_name, slot_path, **kwargs):
             item._path = slot_path
@@ -76,7 +77,8 @@ class MessageTreeModel(QStandardItemModel):
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                    row[0], child_slot, child_slot_name,
+                    child_slot_type, child_slot_path, **kwargs)
 
         elif type(slot) in (list, tuple) and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
@@ -84,7 +86,8 @@ class MessageTreeModel(QStandardItemModel):
                 child_slot_name = '[%d]' % index
                 child_slot_path = slot_path + child_slot_name
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                    row[0], child_slot, child_slot_name,
+                    child_slot_type, child_slot_path, **kwargs)
 
         else:
             is_leaf_node = True
@@ -96,7 +99,7 @@ class MessageTreeModel(QStandardItemModel):
 
         return (row, is_leaf_node)
 
-    '''
+    '''  # noqa
     NOTE: I (Isaac Saito) suspect that this function might have same/similar
           functionality with _recursive_create_items.
 

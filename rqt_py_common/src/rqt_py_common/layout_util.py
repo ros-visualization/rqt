@@ -1,4 +1,4 @@
-# Software License Agreement (BSD License)
+# Software License Agreement (BSD License)  # noqa
 #
 # Copyright (c) 2012, Willow Garage, Inc.
 # All rights reserved.
@@ -33,7 +33,7 @@
 # Author: Isaac Saito
 
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtWidgets import QWidgetItem, QSpacerItem
+from python_qt_binding.QtWidgets import QWidgetItem, QSpacerItem  # noqa
 
 from rclpy import logging
 
@@ -43,7 +43,7 @@ class LayoutUtil(object):
 
     @staticmethod
     def alternate_color(list_widgets, colors_alter=[Qt.white, Qt.gray]):
-        """
+        """  # noqa
         Alternate the background color of the widgets that are ordered
         linearly, by the given list of colors.
 
@@ -74,7 +74,7 @@ class LayoutUtil(object):
 
     @staticmethod
     def clear_layout(layout):
-        """
+        """  # noqa
         Clear all items in the given layout. Currently, only the instances of
         QWidgetItem get cleared (ie. QSpaceItem is ignored).
 

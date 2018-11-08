@@ -37,21 +37,21 @@
 import unittest
 
 
-class TestTopicHelpers(unittest.TestCase):
+class TestTopicHelpers(unittest.TestCase): # noqa
 
-    def test_get_message_class(self):
+    def test_get_message_class(self):  # noqa
         from rqt_py_common.topic_helpers import get_message_class
         # Check that we are able to import std_msgs/String
         from std_msgs.msg import String
-        self.assertEqual(get_message_class("std_msgs/String"), String)
+        self.assertEqual(get_message_class('std_msgs/String'), String)
         # If no package is provided then we assume std_msgs
-        self.assertEqual(get_message_class("String"), get_message_class("std_msgs/String"))
-        self.assertEqual(get_message_class("string"), get_message_class("String"))
+        self.assertEqual(get_message_class('String'), get_message_class('std_msgs/String'))
+        self.assertEqual(get_message_class('string'), get_message_class('String'))
         # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
-        self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
+        self.assertEqual(get_message_class('rqt_py_common/Val'), Val)
 
-    def test_get_slot_type(self):
+    def test_get_slot_type(self): # noqa
         from rqt_py_common.topic_helpers import get_slot_type
         from rqt_py_common.topic_helpers import get_message_class
         from rqt_py_common.msg import ArrayVal
@@ -60,4 +60,4 @@ class TestTopicHelpers(unittest.TestCase):
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
         self.assertTrue(is_array)
-        self.assertEqual(message_type, get_message_class("float64"))
+        self.assertEqual(message_type, get_message_class('float64'))
