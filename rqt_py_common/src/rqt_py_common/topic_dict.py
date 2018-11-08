@@ -32,15 +32,32 @@ import rclpy
 
 from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
 
+
 class TopicDict(object):
+    """TopicDict class."""
 
     def __init__(self, node=None):
+        """
+        TopicDict(node).
+
+        Create a Topic Dict with an option node passed in
+        """
         self.update_topics(node=node)
 
     def get_topics(self):
+        """
+        get_topics.
+
+        Get the topic dictionary
+        """
         return self.topic_dict
 
     def update_topics(self, node=None):
+        """
+        update_topics.
+
+        Update the topics contained in the dictionary with new information from a node
+        """
         # NOTE: This has changed from ROS1 to ROS2 since ROS2 seems to support
         #       multiple msg types on a single topic
         self.topic_dict = {}
@@ -75,7 +92,7 @@ class TopicDict(object):
 if __name__ == '__main__':
     import pprint
     rclpy.init()
-    topic_dict_node = rclpy.create_node("topic_dict")
+    topic_dict_node = rclpy.create_node('topic_dict')
     pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
     topic_dict_node.destroy_node()
     rclpy.shutdown()

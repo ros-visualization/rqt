@@ -70,7 +70,7 @@ def get_topic_names_and_types(node=None):
 
 
 _message_class_cache = {}  # noqa
-def get_message_class(message_type):
+def get_message_class(message_type):  # noqa
     """
     get_message_class: gets the message class from a string representation.
 
@@ -98,7 +98,7 @@ def get_message_class(message_type):
     python_pkg = class_val = None
     try:
         # import the package
-        python_pkg = __import__('%s.%s' % (package, "msg"))
+        python_pkg = __import__('%s.%s' % (package, 'msg'))
     except ImportError:
         logger.error('Failed to get message class: {}'.format(message_type))
 
@@ -169,7 +169,7 @@ def get_field_types(topic_name):
     #       In ROS2 multiple msg types can be used with a single topic making this
     #       funciton a bad candidate to port to ROS2
     logger = logging.get_logger('topic_helpers')
-    logger.error("get_field_type is not implemented in ROS2")
+    logger.error('get_field_type is not implemented in ROS2')
     # get topic_type and message_evaluator
     # topic_type, real_topic_name, _ = get_topic_type(topic_name)
     # if topic_type is None:
