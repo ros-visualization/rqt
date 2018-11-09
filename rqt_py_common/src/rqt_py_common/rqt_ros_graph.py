@@ -1,4 +1,4 @@
-# Software License Agreement (BSD License)  # noqa
+# Software License Agreement (BSD License)
 #
 # Copyright (c) 2012, Willow Garage, Inc.
 # All rights reserved.
@@ -39,7 +39,7 @@ from python_qt_binding.QtCore import Qt
 from rclpy import logging
 
 
-class RqtRosGraph(object):  # noqa
+class RqtRosGraph(object):
     _logger = logging.get_logger('RqtRosGraph')
     DELIM_GRN = '/'
 
@@ -66,7 +66,7 @@ class RqtRosGraph(object):  # noqa
         children_grn_list = RqtRosGraph.get_lower_grn_dfs(model_index)
         parent_data = model_index.data()
         RqtRosGraph._logger.debug('parent_data={}'.format(parent_data))
-        if parent_data == None:  # model_index is 1st-order node of a tree.  # noqa
+        if parent_data == None:  # model_index is 1st-order node of a tree.
             upper_grn = RqtRosGraph.get_upper_grn(model_index, '')
             grn_list = []
             for child_grn in children_grn_list:
@@ -87,7 +87,7 @@ class RqtRosGraph(object):  # noqa
 
     @staticmethod
     def get_lower_grn_dfs(model_index, grn_prev=''):
-        """  # noqa
+        """
         Traverse all children treenodes and returns a list of "partial"
         GRNs. Partial means that this method returns names under current level.
 
@@ -144,8 +144,8 @@ class RqtRosGraph(object):  # noqa
             list_grn_children = RqtRosGraph.get_lower_grn_dfs(child_qmindex,
                                                               grn_curr)
             for child_grn in list_grn_children:
-                child_grn = (grn_prev +  # noqa
-                             (RqtRosGraph.DELIM_GRN + grn_curr) +  # noqa
+                child_grn = (grn_prev +
+                             (RqtRosGraph.DELIM_GRN + grn_curr) +
                              (RqtRosGraph.DELIM_GRN + child_grn))
 
             list_grn_children_all = list_grn_children_all + list_grn_children
@@ -159,11 +159,11 @@ class RqtRosGraph(object):  # noqa
         return list_grn_children_all
 
     @staticmethod
-    def get_upper_grn(model_index, str_grn):  # noqa
-        if model_index.data(Qt.DisplayRole) == None:  # noqa
+    def get_upper_grn(model_index, str_grn):
+        if model_index.data(Qt.DisplayRole) == None:
             return str_grn
-        str_grn = (RqtRosGraph.DELIM_GRN +  # noqa
-                   str(model_index.data(Qt.DisplayRole)) +  # noqa
+        str_grn = (RqtRosGraph.DELIM_GRN +
+                   str(model_index.data(Qt.DisplayRole)) +
                    str_grn)
         RqtRosGraph._logger.debug(
             'get_full_grn_recur out str={}'.format(

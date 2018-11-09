@@ -1,4 +1,4 @@
-# Copyright (c) 2011, Dorian Scholz, TU Darmstadt  # noqa
+# Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,15 +35,15 @@ from rclpy import logging
 from rqt_py_common.data_items import ReadonlyItem
 
 
-class MessageTreeModel(QStandardItemModel):  # noqa
+class MessageTreeModel(QStandardItemModel):
     _logger = logging.get_logger('MessageTreeModel')
 
-    def __init__(self, parent=None):  # noqa
+    def __init__(self, parent=None):
         # FIXME: why is this not working? should be the same as the following line...
         # super(MessageTreeModel, self).__init__(parent)
         QStandardItemModel.__init__(self, parent)
 
-    def add_message(self, message_instance, message_name='', message_type='', message_path=''):  # noqa
+    def add_message(self, message_instance, message_name='', message_type='', message_path=''):
         if message_instance is None:
             return
         self._recursive_create_items(
@@ -99,7 +99,7 @@ class MessageTreeModel(QStandardItemModel):  # noqa
 
         return (row, is_leaf_node)
 
-    '''  # noqa
+    '''
     NOTE: I (Isaac Saito) suspect that this function might have same/similar
           functionality with _recursive_create_items.
 

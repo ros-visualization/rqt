@@ -1,4 +1,4 @@
-# Software License Agreement (BSD License)  # noqa
+# Software License Agreement (BSD License)
 #
 # Copyright (c) 2012, Willow Garage, Inc.
 # All rights reserved.
@@ -32,7 +32,7 @@
 
 
 def pack(data):
-    """  # noqa
+    """
     Packs 'data' into a form that can be easily and readably written to an ini file
 
     :param data:
@@ -46,7 +46,7 @@ def pack(data):
     def _get_str(item):
         try:
             return item.text()
-        except:  # noqa
+        except:
             return item
 
     data = [_get_str(value) for value in data]
@@ -56,7 +56,7 @@ def pack(data):
 
 
 def unpack(data):
-    """  # noqa
+    """
     Unpacks the values read from an ini file
 
     :param data: An entry taken from an ini file ''list or string''
