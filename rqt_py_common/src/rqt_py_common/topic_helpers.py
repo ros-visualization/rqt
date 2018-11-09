@@ -76,8 +76,8 @@ def get_topic_names_and_types(node=None):
     return topic_list
 
 
-_message_class_cache = {}  # noqa
-def get_message_class(message_type):  # noqa
+_message_class_cache = {}
+def get_message_class(message_type):  # noqa: C901 E302
     """
     get_message_class: gets the message class from a string representation.
 
@@ -128,6 +128,24 @@ def get_message_class(message_type):  # noqa
     return class_val
 
 
+def _is_primative_type(type_str):
+    # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
+    primitive_types = [
+        'int8', 'uint8',
+        'int16', 'uint16',
+        'int32', 'uint32',
+        'int64', 'uint64',
+        'float', 'float32', 'float64',
+        'double', 'long double',
+        'char', 'wchar',
+        'octet',
+        'string',
+        'bool', 'boolean',
+        # deprecated in ros1:
+        'char', 'byte']
+    return type_str in primitive_types
+
+
 def get_type_class(type_name):
     """
     get_type_class: gets the python type from an idl string.
@@ -137,61 +155,95 @@ def get_type_class(type_name):
     @param type_name: the IDL type of field
     @type message_type: str
     """
+    # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
+
+    if not _is_primative_type(type_name.lower()):
+        return get_message_class(type_name)
+
     if type_name in ['float', 'float32', 'float64',
                      'double', 'long double']:
         return float
 
-    elif type_name in ['char', 'wchar', 'string', 'wstring']:
+    # TODO(mlautman): char should be a string of lenght one. We do not currently suppor this
+    if type_name in ['char', 'wchar', 'string', 'wstring']:
         return str
 
-    elif type_name in ['octet']:
+    if type_name in ['octet']:
         return bytes
 
-    elif type_name in [
+    if type_name in [
             'int8', 'uint8',
             'int16', 'uint16',
             'int32', 'uint32',
             'int64', 'uint64']:
         return int
 
-    elif type_name in ['bool', 'boolean']:
+    if type_name in ['bool', 'boolean']:
         return bool
 
-    else:
-        return None
+    return None
 
 
-def get_field_types(topic_name):
+def get_field_type(target, node=None):
     """
     Get the Python type of a specific field in the given registered topic.
 
-    If the field is an array, the type of the array's values are returned and the is_array flag is
-    set to True. This is a static type check, so it works for unpublished topics and with empty
-    arrays.
+    If the field is an array, the type of the array's values are returned and the is_array flag
+    is set to True
 
-    :param topic_name: name of field of a registered topic, ``str``, i.e. '/rosout/file'
+    :param target: name of field of a registered topic, ``str``, i.e. '/rosout/file'
     :returns: field_type, is_array
     """
-    # Note: Mlautman 11/2/18
-    #       In ROS2 multiple msg types can be used with a single topic making this
-    #       funciton a bad candidate to port to ROS2
-    logger = logging.get_logger('topic_helpers')
-    logger.error('get_field_type is not implemented in ROS2')
-    # get topic_type and message_evaluator
-    # topic_type, real_topic_name, _ = get_topic_type(topic_name)
-    # if topic_type is None:
-    #     # qDebug('topic_helpers.get_field_type(%s): get_topic_type failed' % (topic_name))
-    #     return None, False
+    topic_names_and_types = get_topic_names_and_types(node=node)
+    return _get_field_type(topic_names_and_types, target)
 
-    # message_class = roslib.message.get_message_class(topic_type)
-    # if message_class is None:
-    #     qDebug('topic_helpers.get_field_type(%s): get_message_class(%s) failed' %
-    #            (topic_name, topic_type))
-    #     return None, False
 
-    # slot_path = topic_name[len(real_topic_name):]
-    # return get_slot_type(message_class, slot_path)
-    pass
+def _get_field_type(topic_names_and_types, target):  # noqa: C901
+    """Testable helper function for get_field_type."""
+    logger = logging.get_logger('topic_helpers._get_field_type')
+    for name, types in topic_names_and_types:
+        # If the topic is a substring of the target param, then we have found a match
+        if target.find(name) >= 0:
+            # If the target passed in was the topic address not the address of a field
+            if target == name:
+                # If there is more than one type of topic on target
+                if len(types) > 1:
+                    logger.warn(
+                        'Ambiguous request. Multiple topic types found on: {}'.format(target))
+                    return None, False
+                # If the types array is empty then something weird has happend
+                if len(types) == 0:
+                    logger.warn(
+                        'Ambiguous request. No topic types found on: {}'.format(target))
+                    return None, False
+
+                # If there is only one msg type
+                msg_type_str = types[0]
+                msg_class = get_type_class(msg_type_str)
+                return msg_class, False
+
+            else:
+                # The topic must be a substring of the target
+                # Get the address of the field in the messgage class
+                field_address_str = target[len(name):]
+
+                # Iterate through the message types on the given topic and see if any match the
+                # path that was provided
+                for msg_type_str in types:
+                    try:
+                        msg_class = get_message_class(msg_type_str)
+
+                        # If the message type is a simple type eg: float, then it can't be an array
+                        if _is_primative_type(msg_type_str):
+                            return msg_class, False
+
+                        field_type, is_array = get_slot_type(msg_class, field_address_str)
+                        return field_type, is_array
+                    except ValueError:
+                        pass
+
+    logger.debug('faild to find field type: {}'.format(target))
+    return None, False
 
 
 def get_slot_type(message_class, slot_path):
@@ -210,7 +262,13 @@ def get_slot_type(message_class, slot_path):
     fields = [f for f in slot_path.split('/') if f]
     for field_name in fields:
         slot_class_name = message_class._slot_types[message_class.__slots__.index(field_name)]
-        is_array = slot_class_name.find('[') >= 0
-        message_class = get_message_class(slot_class_name[:slot_class_name.find('[')])
+
+        array_index = slot_class_name.find('[')
+        if array_index >= 0:
+            is_array = True
+            message_class = get_type_class(slot_class_name[:array_index])
+        else:
+            is_array = False
+            message_class = get_type_class(slot_class_name)
 
     return message_class, is_array

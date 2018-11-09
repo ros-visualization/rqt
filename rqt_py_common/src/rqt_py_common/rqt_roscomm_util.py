@@ -106,7 +106,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def iterate_packages(subdir):
-        """  # noqa
+        """
         Iterator for packages that contain the given subdir.
 
         This method is generalizing rosmsg.iterate_packages.
@@ -128,7 +128,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
-        """  # noqa
+        """
         Note: Mlautman 11/2/2018
               This method is deprecated in ROS2
               This functionality does not fit the ROS2 design paradigm
@@ -148,7 +148,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _list_types(path, ext):
-        """  # noqa
+        """
         Taken from rosmsg
 
         List all messages in the specified package
@@ -168,7 +168,7 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _list_resources(path, rfilter=os.path.isfile):
-        """  # noqa
+        """
         Taken from rosmsg._list_resources
 
         List resources in a package directory within a particular
@@ -186,9 +186,9 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _msg_filter(ext):
-        """Taken from rosmsg._msg_filter"""  # noqa
+        """Taken from rosmsg._msg_filter"""
         def mfilter(f):
-            """  # noqa
+            """
             Predicate for filtering directory list. matches message files
             :param f: filename, ``str``
             """

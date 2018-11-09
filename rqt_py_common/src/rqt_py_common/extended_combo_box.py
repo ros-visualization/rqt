@@ -1,4 +1,4 @@
-#!/usr/bin/env python3  # noqa
+#!/usr/bin/env python3
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
@@ -38,10 +38,10 @@ from python_qt_binding.QtCore import Qt, Signal, Slot
 from python_qt_binding.QtWidgets import QComboBox, QCompleter
 
 
-class ExtendedComboBox(QComboBox):  # noqa
+class ExtendedComboBox(QComboBox):
     setItems = Signal(list)
 
-    def __init__(self, parent=None):  # noqa
+    def __init__(self, parent=None):
         super(ExtendedComboBox, self).__init__(parent)
 
         self.setFocusPolicy(Qt.StrongFocus)
@@ -64,25 +64,25 @@ class ExtendedComboBox(QComboBox):  # noqa
         self.setItems.connect(self.onSetItems)
 
     # on selection of an item from the completer, select the corresponding item from combobox
-    def on_completer_activated(self, text):  # noqa
+    def on_completer_activated(self, text):
         if text:
             index = self.findText(text)
             self.setCurrentIndex(index)
 
     # on model change, update the models of the filter and completer as well
-    def setModel(self, model):  # noqa
+    def setModel(self, model):
         super(ExtendedComboBox, self).setModel(model)
         self.filter_model.setSourceModel(model)
         self.completer.setModel(self.filter_model)
 
     # on model column change, update the model column of the filter and completer as well
-    def setModelColumn(self, column):  # noqa
+    def setModelColumn(self, column):
         self.completer.setCompletionColumn(column)
         self.filter_model.setFilterKeyColumn(column)
         super(ExtendedComboBox, self).setModelColumn(column)
 
     @Slot(list)
-    def onSetItems(self, items):  # noqa
+    def onSetItems(self, items):
         self.clear()
         self.addItems(items)
 
