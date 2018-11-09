@@ -1,4 +1,4 @@
-#!/usr/bin/env python3  # noqa
+#!/usr/bin/env python3
 
 # Copyright (c) 2011, Dorian Scholz, TU Darmstadt
 # All rights reserved.
@@ -30,14 +30,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning   # noqa
+from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
 from python_qt_binding.QtGui import QDrag, QIcon
 from python_qt_binding.QtWidgets import QAction, QHeaderView, QMenu, QTreeView
 
 
-class MessageTreeWidget(QTreeView):  # noqa
+class MessageTreeWidget(QTreeView):
 
-    def __init__(self, parent=None):  # noqa
+    def __init__(self, parent=None):
         super(MessageTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
         self.sortByColumn(0, Qt.AscendingOrder)
@@ -58,7 +58,7 @@ class MessageTreeWidget(QTreeView):  # noqa
         self._action_item_collapse.triggered.connect(self._handle_action_item_collapse)
         self.customContextMenuRequested.connect(self.handle_customContextMenuRequested)
 
-    def startDrag(self, supportedActions):  # noqa
+    def startDrag(self, supportedActions):
         index = self.currentIndex()
         if not index.isValid():
             return
@@ -77,7 +77,7 @@ class MessageTreeWidget(QTreeView):  # noqa
         drag.exec_()
 
     @Slot('QPoint')
-    def handle_customContextMenuRequested(self, pos):  # noqa
+    def handle_customContextMenuRequested(self, pos):
         # show context menu
         menu = QMenu(self)
         self._context_menu_add_actions(menu, pos)
@@ -103,7 +103,7 @@ class MessageTreeWidget(QTreeView):  # noqa
             recursive_set_expanded(index)
 
     @Slot('QPoint')
-    def handle_header_view_customContextMenuRequested(self, pos):  # noqa
+    def handle_header_view_customContextMenuRequested(self, pos):
 
         # create context menu
         menu = QMenu(self)

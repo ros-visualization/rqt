@@ -51,7 +51,7 @@ class TestTopicHelpers(unittest.TestCase): # noqa
         from rqt_py_common.msg import Val
         self.assertEqual(get_message_class('rqt_py_common/Val'), Val)
 
-    def test_get_slot_type(self): # noqa
+    def test_get_slot_type(self):  # noqa
         from rqt_py_common.topic_helpers import get_slot_type
         from rqt_py_common.topic_helpers import get_message_class
         from rqt_py_common.msg import ArrayVal
@@ -60,4 +60,30 @@ class TestTopicHelpers(unittest.TestCase): # noqa
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
         self.assertTrue(is_array)
-        self.assertEqual(message_type, get_message_class('float64'))
+        self.assertEqual(message_type, float)
+
+        path = '/_vals'
+        message_class = ArrayVal
+        message_type, is_array = get_slot_type(message_class, path)
+        self.assertTrue(is_array)
+        self.assertEqual(message_type, get_message_class('rqt_py_common/Val'))
+
+
+    def test_get_field_type(self):  # noqa
+        from rqt_py_common.topic_helpers import _get_field_type
+        from rqt_py_common.msg import ArrayVal, Val
+        target = '/example_topic/_vals/_floats'
+        topic_names_and_types = [('/example_topic', ['rqt_py_common/ArrayVal'])]
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertTrue(is_array)
+        self.assertEqual(target_class, float)
+
+        target = '/example_topic'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertFalse(is_array)
+        self.assertEqual(target_class, ArrayVal)
+
+        target = '/example_topic/_vals'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertTrue(is_array)
+        self.assertEqual(target_class, Val)
