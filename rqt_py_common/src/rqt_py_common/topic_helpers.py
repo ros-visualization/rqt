@@ -34,6 +34,9 @@ from ament_index_python import get_resource
 
 from rclpy import logging
 
+# TODO(mlautman): Move this functionality into a library package to remove the dependency
+from ros2cli.node.strategy import NodeStrategy
+
 
 def get_topic_names_and_types(node=None):
     """
@@ -53,27 +56,25 @@ def get_topic_names_and_types(node=None):
             return node.get_topic_names_and_types()
         except ValueError:
             logger.warn('method called with an invalid node!')
+
+    # If rclpy has not been initialized, we can use the daemon node from ros2cli
+    import rclpy
+    if not rclpy.ok():
+        with NodeStrategy([]) as n:
+            return n.get_topic_names_and_types()
+
     else:
         logger.warn('calling get_topic_names_and_types without passing in a node is really slow!')
+        node = rclpy.create_node('TopicHelpers__get_topic_names_and_types')
 
-    import rclpy
-    shutdown_rclpy = False
-    if not rclpy.ok():
-        shutdown_rclpy = True
-        rclpy.init()
+        # Give the node time to learn about the graph
+        rclpy.spin_once(node, timeout_sec=0.5)
 
-    node = rclpy.create_node('TopicHelpers__get_topic_names_and_types')
+        topic_list = node.get_topic_names_and_types()
 
-    # Give the node time to learn about the graph
-    rclpy.spin_once(node, timeout_sec=0.5)
+        node.destroy_node()
 
-    topic_list = node.get_topic_names_and_types()
-
-    node.destroy_node()
-    if shutdown_rclpy:
-        rclpy.shutdown()
-
-    return topic_list
+        return topic_list
 
 
 _message_class_cache = {}
