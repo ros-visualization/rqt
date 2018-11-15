@@ -48,11 +48,9 @@ class TestRqtRoscommUtil(unittest.TestCase):
         unittest.TestCase.tearDown(self)
         # del self._model
 
-    # TODO(mlautman): Replace this test with an apropriate ROS2 test.
+    # TODO(mlautman): Replace this test with an appropriate ROS2 test.
     def test_iterate_packages(self):
-        """
-        Not a very good test
-        """
+        """Not a very good test."""
         # Note: mlautman 11/2/18
         #       This test has been removed since the iterate_package method in RqtRoscommUtil
         #       is deprecated in ROS2
