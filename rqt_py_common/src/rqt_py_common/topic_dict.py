@@ -37,27 +37,15 @@ class TopicDict(object):
     """TopicDict class."""
 
     def __init__(self, node=None):
-        """
-        TopicDict(node).
-
-        Create a Topic Dict with an option node passed in
-        """
+        """Create a Topic Dict with an option node passed in."""
         self.update_topics(node=node)
 
     def get_topics(self):
-        """
-        get_topics.
-
-        Get the topic dictionary
-        """
+        """Get the topic dictionary."""
         return self.topic_dict
 
     def update_topics(self, node=None):
-        """
-        update_topics.
-
-        Update the topics contained in the dictionary with new information from a node
-        """
+        """Update the topics contained in the dictionary with new information from a node."""
         # NOTE: This has changed from ROS1 to ROS2 since ROS2 seems to support
         #       multiple msg types on a single topic
         self.topic_dict = {}

@@ -68,7 +68,7 @@ class PluginContainerWidget(QWidget):
     def __init__(self, plugin_widget,
                  on_sys_msg=True, on_sysprogress_bar=True):
         """
-        PluginContainerWidget().
+        PluginContainerWidget.
 
         @param plugin_widget: The main widget of an rqt plugin.
         @type plugin_widget: QWidget
@@ -104,7 +104,6 @@ class PluginContainerWidget(QWidget):
             self._sysprogress_bar.hide()
 
     def set_sysprogress(self, sysprogress):
-        """PluginContainerWidget.set_sysprogress."""
         # TODO: Pass progress value
         pass
 
@@ -119,13 +118,11 @@ class PluginContainerWidget(QWidget):
         self._sysmsg_widget.append(sysmsg)
 
     def shutdown(self):
-        """PluginContainerWidget.shutdown."""
         # TODO: Is shutdown step necessary for PluginContainerWidget?
 
         self._plugin_widget.shutdown()
 
     def save_settings(self, plugin_settings, instance_settings):
-        """PluginContainerWidget.save_settings."""
         # Save setting of PluginContainerWidget.
         instance_settings.set_value('_splitter', self._splitter.saveState())
 
@@ -133,7 +130,6 @@ class PluginContainerWidget(QWidget):
         self._plugin_widget.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-        """PluginContainerWidget.restore_settings."""
         # Restore the setting of PluginContainerWidget, separate from
         # ContainED widget.
         if instance_settings.contains('_splitter'):

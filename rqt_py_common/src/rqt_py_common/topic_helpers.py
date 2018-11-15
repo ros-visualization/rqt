@@ -77,9 +77,11 @@ def get_topic_names_and_types(node=None):
 
 
 _message_class_cache = {}
-def get_message_class(message_type):  # noqa: C901 E302
+
+
+def get_message_class(message_type):
     """
-    get_message_class: gets the message class from a string representation.
+    Gets the message class from a string representation.
 
     @param message_type: the type of message in the form `msg_pkg/Message`
     @type message_type: str
@@ -148,7 +150,7 @@ def _is_primative_type(type_str):
 
 def get_type_class(type_name):
     """
-    get_type_class: gets the python type from an idl string.
+    Gets the python type from an idl string.
 
     See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
 
@@ -164,7 +166,7 @@ def get_type_class(type_name):
                      'double', 'long double']:
         return float
 
-    # TODO(mlautman): char should be a string of lenght one. We do not currently suppor this
+    # TODO(mlautman): char should be a string of length one. We do not currently support this
     if type_name in ['char', 'wchar', 'string', 'wstring']:
         return str
 
