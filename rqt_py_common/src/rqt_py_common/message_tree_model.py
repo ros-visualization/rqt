@@ -33,6 +33,7 @@ from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
 from rclpy import logging
 
 from rqt_py_common.data_items import ReadonlyItem
+from rqt_py_common.topic_helpers import get_property_name
 
 
 class MessageTreeModel(QStandardItemModel):
@@ -71,13 +72,13 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
-        # TODO(mlautman): Work around missing _slot_types in new msg types
         if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
             for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
-                child_slot_path = slot_path + '/' + child_slot_name
-                child_slot = getattr(slot, child_slot_name)
+                child_property_name = get_property_name(child_slot_name, type(slot))
+                child_slot_path = slot_path + '/' + child_property_name
+                child_slot = getattr(slot, child_property_name)
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name,
+                    row[0], child_slot, child_property_name,
                     child_slot_type, child_slot_path, **kwargs)
 
         elif type(slot) in (list, tuple) and (len(slot) > 0):

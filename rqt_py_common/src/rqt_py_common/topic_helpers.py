@@ -244,8 +244,27 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
                     except ValueError:
                         pass
 
-    logger.debug('faild to find field type: {}'.format(target))
+    logger.debug('failed to find field type: {}'.format(target))
     return None, False
+
+
+def get_property_type(message_class, property_path):
+    """
+    Get the Python type of a specific property in the given message class.
+
+    If the property is an array, the type of the array's values are returned and the
+    is_array flag is set to True. This is a static type check, so it works for
+    unpublished topics and with empty arrays.
+
+    :param message_class: message class type, ``type``
+    :param property_path: path to the property inside the message class, ``str``,
+        i.e. 'header/seq'
+    :returns: property_type, is_array
+    """
+    is_array = False
+    properties = [f for f in property_path.split('/') if f]
+    slot_path = '/'.join(['_' + p for p in properties])
+    return get_slot_type(message_class, slot_path)
 
 
 def get_slot_type(message_class, slot_path):
@@ -256,21 +275,94 @@ def get_slot_type(message_class, slot_path):
     set to True. This is a static type check, so it works for unpublished topics and with empty
     arrays.
 
-    :param message_class: message class type, ``type``, usually inherits from genpy.message.Message
+    :param message_class: message class type, ``type``
     :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
     :returns: field_type, is_array
     """
     is_array = False
     fields = [f for f in slot_path.split('/') if f]
     for field_name in fields:
-        slot_class_name = message_class._slot_types[message_class.__slots__.index(field_name)]
 
+        # If the slot path points to a component of an array (_pose/_covariance[0])
+        # we want to return the type of the array without setting is_array to True
+        is_array_component = False
+        array_index = field_name.find('[')
+        if array_index >= 0:
+            field_name = field_name[:array_index]
+            is_array_component = True
+
+        # Get the slot type
+        slot_index = message_class.__slots__.index(field_name)
+        slot_class_name = message_class._slot_types[slot_index]
+
+        # If the slot_class_name is of type array, get its type and set is_array
         array_index = slot_class_name.find('[')
         if array_index >= 0:
-            is_array = True
+            is_array = not is_array_component
             message_class = get_type_class(slot_class_name[:array_index])
         else:
             is_array = False
             message_class = get_type_class(slot_class_name)
 
     return message_class, is_array
+
+
+def get_property_name(slot_name, message_class):
+    """
+    Translate a slot name into a property name.
+
+    Given a slot_name (pose._position) translate to the equivalent property
+    (pose.position). This is useful when you want to make use of the built-in
+    type and value checks when setting the property using setattr
+    """
+    if not isinstance(message_class, type):
+        raise TypeError('Invalid argument for parameter message_class. It must be a '
+                        '`type` not {}'.format(type(message_class)))
+    if '[' in slot_name:
+        raise ValueError('Invalid property name, use the property name without array indices')
+
+    if not hasattr(message_class, slot_name):
+        raise ValueError('Message class "{}" does not have a slot name "{}"'.format(
+            message_class, slot_name))
+
+    if isinstance(getattr(message_class, slot_name), property):
+        return slot_name
+
+    # slots start with an underscore
+    property_name = slot_name[1:]
+
+    # In ROS2 the user friendly name is a property, check to make sure that field exists
+    if isinstance(getattr(message_class, property_name), property):
+        return property_name
+
+    # Otherwise, we'll just use the slot name
+    return slot_name
+
+
+def get_slot_name(property_name, message_class):
+    """
+    Translate a property name into a slot name.
+
+    Given a property (pose.position) translate to the equivalent slot
+    (pose._position). This is useful when you want to find its associated slot type.
+    """
+    if not isinstance(message_class, type):
+        raise TypeError('Invalid argument for parameter message_class. It must be a '
+                        '`type` not {}'.format(type(message_class)))
+    if '[' in property_name:
+        raise ValueError('Invalid property name, use the property name without array indices')
+    if not hasattr(message_class, property_name):
+        raise ValueError('Message class "{}" does not have a property name "{}"'.format(
+            message_class, property_name))
+    if not isinstance(getattr(message_class, property_name), property):
+        raise ValueError('The field "{}" in message class "{}" is not a property'.format(
+            property_name, message_class))
+
+    # slots start with an underscore
+    slot_name = '_' + property_name
+
+    if hasattr(message_class, slot_name):
+        return slot_name
+
+    # If an underscore doesn't work, we'll just use the property
+    return property_name
