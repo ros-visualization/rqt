@@ -39,18 +39,18 @@ import unittest
 
 
 class TestRqtRoscommUtil(unittest.TestCase):
-    """@author: Isaac Saito"""  # noqa
+    """@author: Isaac Saito"""
 
-    def setUp(self):  # noqa
+    def setUp(self):
         unittest.TestCase.setUp(self)
 
-    def tearDown(self):  # noqa
+    def tearDown(self):
         unittest.TestCase.tearDown(self)
         # del self._model
 
     # TODO(mlautman): Replace this test with an apropriate ROS2 test.
     def test_iterate_packages(self):
-        """  # noqa
+        """
         Not a very good test
         """
         # Note: mlautman 11/2/18

@@ -42,11 +42,11 @@ from rqt_py_common.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):
-    """  # noqa
+    """
     :author: Isaac Saito
     """
 
-    def setUp(self):  # noqa
+    def setUp(self):
         unittest.TestCase.setUp(self)
 
         self._model = QStandardItemModel()
@@ -69,15 +69,15 @@ class TestRqtRosGraph(unittest.TestCase):
         self._grn_node1_1_1 = '/node1/node1_1/node1_1_1'
         self._len_lower_grn_node1_1 = 2
 
-    def tearDown(self):  # noqa
+    def tearDown(self):
         unittest.TestCase.tearDown(self)
         del self._model
 
-    def test_get_upper_grn(self):  # noqa
+    def test_get_upper_grn(self):
         self.assertEqual(RqtRosGraph.get_upper_grn(self._node1_1_1.index(), ''),
                          self._grn_node1_1_1)
 
-    def test_get_lower_grn_dfs(self):  # noqa
+    def test_get_lower_grn_dfs(self):
         self.assertEqual(
             len(RqtRosGraph.get_lower_grn_dfs(
                 self._node1_1.index(), '')),
