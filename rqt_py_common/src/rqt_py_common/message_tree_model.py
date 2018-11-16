@@ -71,9 +71,8 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
-        # TODO(mlautman): Work around missing _slot_types in new msg types
-        if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
-            for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
+        if hasattr(slot, '__slots__') and hasattr(slot, 'get_slot_types_dict'):
+            for child_slot_name, child_slot_type in slot.get_slot_types_dict().items():
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
                 self._recursive_create_items(

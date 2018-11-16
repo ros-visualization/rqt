@@ -263,7 +263,7 @@ def get_slot_type(message_class, slot_path):
     is_array = False
     fields = [f for f in slot_path.split('/') if f]
     for field_name in fields:
-        slot_class_name = message_class._slot_types[message_class.__slots__.index(field_name)]
+        slot_class_name = message_class.get_slot_types_dict()[field_name]
 
         array_index = slot_class_name.find('[')
         if array_index >= 0:
