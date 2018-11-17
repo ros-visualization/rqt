@@ -76,7 +76,7 @@ class PluginContainerWidget(QWidget):
         """
         super(PluginContainerWidget, self).__init__()
 
-        self._logger = rclpy.logging.get_logger("PluginContainerWidget")
+        self._logger = rclpy.logging.get_logger('PluginContainerWidget')
         _, package_path = get_resource('packages', 'rqt_py_common')
         ui_file = os.path.join(
             package_path, 'share', 'rqt_py_common', 'resource', 'plugin_container.ui')

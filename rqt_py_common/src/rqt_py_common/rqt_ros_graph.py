@@ -40,7 +40,7 @@ from rclpy import logging
 
 
 class RqtRosGraph(object):
-    _logger = logging.get_logger("RqtRosGraph")
+    _logger = logging.get_logger('RqtRosGraph')
     DELIM_GRN = '/'
 
     @staticmethod
