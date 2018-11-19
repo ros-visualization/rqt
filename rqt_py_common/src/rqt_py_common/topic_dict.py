@@ -34,7 +34,6 @@ from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_t
 
 
 class TopicDict(object):
-    """TopicDict class."""
 
     def __init__(self, node=None):
         """Create a Topic Dict with an option node passed in."""

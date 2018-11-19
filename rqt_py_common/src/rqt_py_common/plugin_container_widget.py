@@ -46,7 +46,7 @@ import rclpy.logging
 
 class PluginContainerWidget(QWidget):
     """
-    PluginContainerWidget.
+    PluginContainerWidget visually encapsulates a plugin.
 
     This widget accommodates a plugin widget that needs an area to show system
     message. A plugin widget is the pane that provides plugin's main
@@ -68,8 +68,6 @@ class PluginContainerWidget(QWidget):
     def __init__(self, plugin_widget,
                  on_sys_msg=True, on_sysprogress_bar=True):
         """
-        PluginContainerWidget.
-
         @param plugin_widget: The main widget of an rqt plugin.
         @type plugin_widget: QWidget
         @type on_sys_msg: bool

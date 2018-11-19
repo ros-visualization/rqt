@@ -71,7 +71,7 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
-        if hasattr(slot, '__slots__') and hasattr(slot, 'get_fields_and_field_types'):
+        if hasattr(slot, 'get_fields_and_field_types'):
             for child_slot_name, child_slot_type in slot.get_fields_and_field_types().items():
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
