@@ -35,47 +35,6 @@ from ament_index_python import get_resource
 from rclpy import logging
 
 
-def get_topic_names_and_types(node=None):
-    """
-    Get avaliable topic names and types.
-
-    Note: in ROS2, only nodes can query the topic information
-    @param node: a ROS node
-    @type node: rclpy.node.Node or None
-
-    If node is None, then this method will create a node, use it to get topic
-    information and then destroy the node.
-    """
-    # TODO(mlautman): Replace this approach with the daemon approach used by ros2cli
-    logger = logging.get_logger('get_topic_names_and_types')
-    if node is not None:
-        try:
-            return node.get_topic_names_and_types()
-        except ValueError:
-            logger.warn('method called with an invalid node!')
-    else:
-        logger.warn('calling get_topic_names_and_types without passing in a node is really slow!')
-
-    import rclpy
-    shutdown_rclpy = False
-    if not rclpy.ok():
-        shutdown_rclpy = True
-        rclpy.init()
-
-    node = rclpy.create_node('TopicHelpers__get_topic_names_and_types')
-
-    # Give the node time to learn about the graph
-    rclpy.spin_once(node, timeout_sec=0.5)
-
-    topic_list = node.get_topic_names_and_types()
-
-    node.destroy_node()
-    if shutdown_rclpy:
-        rclpy.shutdown()
-
-    return topic_list
-
-
 _message_class_cache = {}
 
 
@@ -186,7 +145,7 @@ def get_type_class(type_name):
     return None
 
 
-def get_field_type(target, node=None):
+def get_field_type(target, node):
     """
     Get the Python type of a specific field in the given registered topic.
 
@@ -196,7 +155,7 @@ def get_field_type(target, node=None):
     :param target: name of field of a registered topic, ``str``, i.e. '/rosout/file'
     :returns: field_type, is_array
     """
-    topic_names_and_types = get_topic_names_and_types(node=node)
+    topic_names_and_types = node.get_topic_names_and_types()
     return _get_field_type(topic_names_and_types, target)
 
 
@@ -205,7 +164,7 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
     logger = logging.get_logger('topic_helpers._get_field_type')
     for name, types in topic_names_and_types:
         # If the topic is a substring of the target param, then we have found a match
-        if target.find(name) >= 0:
+        if target.startswith(name):
             # If the target passed in was the topic address not the address of a field
             if target == name:
                 # If there is more than one type of topic on target
@@ -216,7 +175,7 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
                 # If the types array is empty then something weird has happend
                 if len(types) == 0:
                     logger.warn(
-                        'Ambiguous request. No topic types found on: {}'.format(target))
+                        'No msg types found on: {}'.format(target))
                     return None, False
 
                 # If there is only one msg type

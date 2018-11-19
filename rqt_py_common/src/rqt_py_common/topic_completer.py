@@ -33,7 +33,7 @@
 from python_qt_binding.QtCore import qWarning
 
 from rqt_py_common.message_tree_model import MessageTreeModel
-from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
+from rqt_py_common.topic_helpers import get_message_class
 from rqt_py_common.tree_model_completer import TreeModelCompleter
 
 
@@ -48,14 +48,14 @@ class TopicCompleter(TreeModelCompleter):
         # we need to separate array subscriptions by an additional /
         return super(TopicCompleter, self).splitPath(path.replace('[', '/['))
 
-    def update_topics(self, node=None):
+    def update_topics(self, node):
         # Note: This has changed from ROS1->2 as ROS2 only allows nodes to query
         #       information about the rosgraph such as topic names and node names
         self.model().clear()
 
         # If no node is passed in then we need to start rclpy and create a node
         # topic_helpers provides a convenience function for doing this
-        topic_list = get_topic_names_and_types(node)
+        topic_list = node.get_topic_names_and_types()
 
         for topic_path, topic_types in topic_list:
             for topic_type in topic_types:
