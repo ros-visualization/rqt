@@ -18,17 +18,10 @@ if(BUILD_TESTING)
   find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
 
-  # Disabling copyright test. The copyright used in this package does not conform to
-  # ament's copyright tests
-  set(ament_cmake_copyright_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-
   rosidl_generate_interfaces(${PROJECT_NAME}
     test/msg/Val.msg
     test/msg/ArrayVal.msg
     DEPENDENCIES std_msgs)
-  set(ament_cmake_copyright_FOUND TRUE)
-  # ament_lint_auto_find_test_dependencies()
 
   ament_add_pytest_test(${PROJECT_NAME} test
     APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}

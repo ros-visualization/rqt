@@ -46,7 +46,6 @@ class RqtRoscommUtil(object):
     def load_parameters(config, caller_id):
         """
         TODO(mlautman) Load parameters from node graph
-        """
 
         Load parameters onto the parameter server.
 
