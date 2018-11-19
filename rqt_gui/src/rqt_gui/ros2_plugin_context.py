@@ -35,9 +35,10 @@ class Ros2PluginContext(PluginContext):
     """
     Provides information to the plugin and exposes methods to interact with the framework.
 
-    PluginContext relays all methods to the corresponding `PluginHandler`.
+    Ros2PluginContext exposes the shared rclpy Node to rqt_gui plugins and relays all methods to the
+    correspending `PluginHandler`
     """
 
     def __init__(self, handler, node):
         super(Ros2PluginContext, self).__init__(handler)
-        self._node = node
+        self.node = node

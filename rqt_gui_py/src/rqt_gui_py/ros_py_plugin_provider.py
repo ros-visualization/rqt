@@ -47,9 +47,9 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node_initialized = False
         self._node = None
 
-    def __del__(self):
+    def shutdown(self):
         self._destroy_node()
-        super().__del__()
+        super().shutdown()
 
     def load(self, plugin_id, plugin_context):
         self._init_node()
