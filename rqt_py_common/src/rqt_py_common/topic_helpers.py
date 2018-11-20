@@ -96,6 +96,7 @@ def get_field_type(target, node):
     is set to True
 
     :param target: name of field of a registered topic, ``str``, i.e. '/rosout/file'
+    :param node: a rclpy.Node
     :returns: field_type, is_array
     """
     topic_names_and_types = node.get_topic_names_and_types()

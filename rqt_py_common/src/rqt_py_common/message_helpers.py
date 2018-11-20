@@ -40,8 +40,13 @@ MSG_MODE = 'msg'
 SRV_MODE = 'srv'
 ACTION_MODE = 'action'
 
-# Taken from https://github.com/ros2/ros2cli/blob/bouncy/ros2msg/ros2msg/api/__init__.py
+
 def get_all_service_types():
+    """
+    Uses the ament index to iterate through packages and calls get_service_types on each one.
+
+    :returns: a dictionary of the form {'package_name', ['srv1', 'srv2', ...]}
+    """
     all_service_types = {}
     for package_name in get_resources('rosidl_interfaces').keys():
         service_types = get_service_types(package_name)
@@ -51,6 +56,12 @@ def get_all_service_types():
 
 
 def get_service_types(package_name):
+    """
+    Uses the ament index gind all services avialable in the package.
+
+    :param package_name: a string eg 'std_srvs'
+    :returns: a dictionary of the form {'package_name', ['srv1', 'srv2', ...]}
+    """
     if not has_resource('packages', package_name):
         raise LookupError('Unknown package name')
     try:
@@ -68,6 +79,11 @@ def get_service_types(package_name):
 
 
 def get_all_message_types():
+    """
+    Uses the ament index to iterate through packages and calls get_message_types on each one.
+
+    :returns: a dictionary of the form {'package_name', ['msg1', 'msg2', ...]}
+    """
     all_message_types = {}
     for package_name in get_resources('rosidl_interfaces').keys():
         message_types = get_message_types(package_name)
@@ -77,6 +93,12 @@ def get_all_message_types():
 
 
 def get_message_types(package_name):
+    """
+    Uses the ament index gind all messages avialable in the package.
+
+    :param package_name: a string eg 'std_msgs'
+    :returns: a dictionary of the form {'std_msgs', ['Bool', 'String', ...]}
+    """
     if not has_resource('packages', package_name):
         raise LookupError('Unknown package name')
     try:
@@ -93,46 +115,52 @@ def get_message_types(package_name):
     return all_msgs
 
 
-def _get_message_service_class_helper(message_type, mode, logger):
+def _get_message_service_class_helper(message_type, mode, logger=None):  # noqa: C901
+    """
+    A helper function for common logic to be used by get_message_class and get_service_class.
+
+    :param message_type: name of the message or service class in the form 'package_name/msg_name'
+    :type message_type: str
+    :param mode: one of MSG_MODE or SRV_MODE
+    :type mode: str
+    :param logger: The logger to be used for warnings and info
+    :type logger: either rclpy.impl.rcutils_logger.RcutilsLogger or None
+
+    :returns: The message or service class or None
+    """
+    if logger is None:
+        logger = logging.get_logger('_get_message_service_class_helper')
+
     if not (mode == MSG_MODE or mode == SRV_MODE):
         logger.warn('invalid mode {}'.format(mode))
         return None
 
     message_info = message_type.split('/')
-    if len(message_info) == 2:
-        package = message_info[0]
-        base_type = message_info[1]
-    elif len(message_info) == 1:
-        package = 'std_' + mode + 's'
-        base_type = message_info[0]
-    else:
-        logger.error(
-            'Malformed message_type: {}'.format(message_type))
+    if len(message_info) != 2:
+        logger.error('Malformed message_type: {}'.format(message_type))
         return None
 
+    package = message_info[0]
+    base_type = message_info[1]
+
     _, resource_path = get_resource('rosidl_interfaces', package)
-    python_pkg = class_val = None
+    python_pkg = None
+    class_val = None
+
     try:
         # import the package
         python_pkg = __import__('%s.%s' % (package, mode))
     except ImportError:
-        logger.error('Failed to import class: {} as {}.{}'.format(message_type, package, mode))
+        logger.info('Failed to import class: {} as {}.{}'.format(message_type, package, mode))
+        return None
 
-    if python_pkg:
-        try:
-            class_val = getattr(getattr(python_pkg, mode), base_type)
-        except AttributeError:
-            if len(base_type):
-                # Try the same thing but with the first letter capitalized
-                base_type = ''.join([base_type[0].upper(), base_type[1:]])
+    try:
+        class_val = getattr(getattr(python_pkg, mode), base_type)
+        return class_val
 
-        if not class_val:
-            try:
-                class_val = getattr(getattr(python_pkg, mode), base_type)
-            except AttributeError:
-                logger.error('Failed to load class: {}'.format(message_type))
-
-    return class_val
+    except AttributeError:
+        logger.info('Failed to load class: {}'.format(message_type))
+        return None
 
 
 _srv_class_cache = {}
@@ -142,8 +170,10 @@ def get_service_class(srv_type):
     """
     Gets the service class from a string representation.
 
-    @param srv_type: the type of service in the form `srv_pkg/Service`
-    @type srv_type: str
+    :param srv_type: the type of service in the form `srv_pkg/Service`
+    :type srv_type: str
+
+    :returns: None or the Class
     """
     if srv_type in _srv_class_cache:
         return _srv_class_cache[srv_type]
@@ -164,8 +194,10 @@ def get_message_class(message_type):
     """
     Gets the message class from a string representation.
 
-    @param message_type: the type of message in the form `msg_pkg/Message`
-    @type message_type: str
+    :param message_type: the type of message in the form `msg_pkg/Message`
+    :type message_type: str
+
+    :returns: None or the Class
     """
     if message_type in _message_class_cache:
         return _message_class_cache[message_type]
@@ -181,6 +213,7 @@ def get_message_class(message_type):
 
 
 def get_message_text_from_class(msg_class):
+    """Get a string representation of the message class."""
     msg_slot_dict = msg_class.get_fields_and_field_types()
     return ''.join(
         ['{0:{width}}{1}\n'.format(slot_type, slot_name, width=30) for
@@ -188,6 +221,7 @@ def get_message_text_from_class(msg_class):
 
 
 def get_service_text_from_class(srv_class):
+    """Get a string representation of the message class."""
     srv_slot_dict_req = srv_class.Request.get_fields_and_field_types()
     srv_slot_dict_res = srv_class.Response.get_fields_and_field_types()
     srv_txt = [

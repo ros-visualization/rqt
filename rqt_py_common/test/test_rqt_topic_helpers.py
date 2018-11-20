@@ -37,13 +37,12 @@
 import unittest
 
 
-class TestTopicHelpers(unittest.TestCase):
+class TestTopicHelpers(unittest.TestCase):  # noqa: D101
 
-    def test_get_slot_type(self):
+    def test_get_slot_type(self):  # noqa: D102
         from rqt_py_common.topic_helpers import get_slot_type
         from rqt_py_common.message_helpers import get_message_class
         from rqt_py_common.msg import ArrayVal
-        # Check that we are able to import std_msgs/String
         path = 'vals/floats'
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
@@ -56,7 +55,7 @@ class TestTopicHelpers(unittest.TestCase):
         self.assertTrue(is_array)
         self.assertEqual(message_type, get_message_class('rqt_py_common/Val'))
 
-    def test_get_field_type(self):
+    def test_get_field_type(self):  # noqa: D102
         from rqt_py_common.topic_helpers import _get_field_type
         from rqt_py_common.msg import ArrayVal, Val
         topic_names_and_types = [

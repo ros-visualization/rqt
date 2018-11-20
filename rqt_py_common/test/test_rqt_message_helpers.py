@@ -37,40 +37,30 @@
 import unittest
 
 
-class TestMessageHelpers(unittest.TestCase):
+class TestMessageHelpers(unittest.TestCase):  # noqa: D101
 
-    def test_get_message_class(self):
+    def test_get_message_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_message_class
-        # Check that we are able to import std_msgs/String
-        from std_msgs.msg import String
-        self.assertEqual(get_message_class('std_msgs/String'), String)
-        # If no package is provided then we assume std_msgs
-        self.assertEqual(get_message_class('String'), get_message_class('std_msgs/String'))
-        self.assertEqual(get_message_class('string'), get_message_class('String'))
-        # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
         self.assertEqual(get_message_class('rqt_py_common/Val'), Val)
 
-    def test_get_service_class(self):
+    def test_get_service_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_class
-        # Check that we are able to import std_msgs/String
         from rqt_py_common.srv import AddTwoInts
-        # from std_srvs.srv import SetBool
         self.assertEqual(get_service_class('rqt_py_common/AddTwoInts'), AddTwoInts)
-        # If no package is provided then we assume std_msgs
-        self.assertEqual(get_service_class('Empty'), get_service_class('std_srvs/Empty'))
-        self.assertEqual(get_service_class('empty'), get_service_class('Empty'))
 
-    def test_get_message_text_from_class(self):
+    def test_get_message_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_message_text_from_class
-        from std_msgs.msg import MultiArrayDimension
-        text = get_message_text_from_class(MultiArrayDimension)
-        expected_text = 'string                        label\n' + \
-                        'uint32                        size\n' + \
-                        'uint32                        stride\n'
+        from rqt_py_common.msg import ArrayVal, Val
+        text = get_message_text_from_class(ArrayVal)
+        expected_text = 'rqt_py_common/Val[5]          vals\n'
         self.assertEqual(text, expected_text)
 
-    def test_get_service_text_from_class(self):
+        text = get_message_text_from_class(Val)
+        expected_text = 'float64[5]                    floats\n'
+        self.assertEqual(text, expected_text)
+
+    def test_get_service_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_text_from_class
         from std_srvs.srv import SetBool
         text = get_service_text_from_class(SetBool)
@@ -80,3 +70,15 @@ class TestMessageHelpers(unittest.TestCase):
             'bool                          success\n' + \
             'string                        message\n'
         self.assertEqual(text, expected_text)
+
+    def test_get_all_message_types(self):  # noqa: D102
+        from rqt_py_common.message_helpers import get_all_message_types
+        all_msgs = get_all_message_types()
+        self.assertTrue('rqt_py_common' in all_msgs.keys())
+        self.assertTrue('ArrayVal' in all_msgs['rqt_py_common'])
+
+    def test_get_all_service_types(self):  # noqa: D102
+        from rqt_py_common.message_helpers import get_all_service_types
+        all_srvs = get_all_service_types()
+        self.assertTrue('rqt_py_common' in all_srvs.keys())
+        self.assertTrue('AddTwoInts' in all_srvs['rqt_py_common'])
