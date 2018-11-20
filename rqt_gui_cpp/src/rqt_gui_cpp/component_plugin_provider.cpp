@@ -30,15 +30,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "nodelet_plugin_provider.h"
+#include "component_plugin_provider.hpp"
 
-#include "roscpp_plugin_provider.h"
+#include "roscpp_plugin_provider.hpp"
 
 #include <ros/callback_queue.h>
 #include <ros/ros.h>
 
 #include <stdexcept>
-#include <boost/bind.hpp>
 
 namespace rqt_gui_cpp {
 
@@ -97,7 +96,7 @@ void NodeletPluginProvider::init_loader()
   // initialize nodelet Loader once
   if (loader_ == 0)
   {
-    loader_ = new nodelet::Loader(boost::bind(&NodeletPluginProvider::create_instance, this, _1));
+    loader_ = new nodelet::Loader(std::bind(&NodeletPluginProvider::create_instance, this, _1));
   }
 
   // spawn ros spin thread
@@ -108,7 +107,7 @@ void NodeletPluginProvider::init_loader()
   }
 }
 
-boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context)
+std::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context)
 {
   init_loader();
 
@@ -123,12 +122,12 @@ boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string
     qDebug("NodeletPluginProvider::create_plugin() loaded");
     instances_[&*instance_] = nodelet_name.c_str();
   }
-  boost::shared_ptr<rqt_gui_cpp::Plugin> instance = instance_;
+  std::shared_ptr<rqt_gui_cpp::Plugin> instance = instance_;
   instance_.reset();
   return instance;
 }
 
-boost::shared_ptr<nodelet::Nodelet> NodeletPluginProvider::create_instance(const std::string& lookup_name)
+std::shared_ptr<nodelet::Nodelet> NodeletPluginProvider::create_instance(const std::string& lookup_name)
 {
   instance_ = qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::create_plugin(lookup_name);
   return instance_;

@@ -30,9 +30,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "roscpp_plugin_provider.h"
+#include "roscpp_plugin_provider.hpp"
 
-#include "nodelet_plugin_provider.h"
+#include "component_plugin_provider.hpp"
 #include <rqt_gui_cpp/plugin.h>
 
 #include <qt_gui_cpp/plugin_provider.h>

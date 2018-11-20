@@ -35,10 +35,9 @@
 
 #include <qt_gui_cpp/ros_pluginlib_plugin_provider.h>
 
-#include <rqt_gui_cpp/plugin.h>
+#include <rqt_gui_cpp/plugin.hpp>
 
 #include <nodelet/loader.h>
-#include <nodelet/nodelet.h>
 
 #include <QThread>
 
@@ -66,15 +65,15 @@ protected:
 
   void init_loader();
 
-  virtual boost::shared_ptr<Plugin> create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context);
+  virtual std::shared_ptr<Plugin> create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context);
 
-  boost::shared_ptr<nodelet::Nodelet> create_instance(const std::string& lookup_name);
+  std::shared_ptr<nodelet::Nodelet> create_instance(const std::string& lookup_name);
 
   virtual void init_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context, qt_gui_cpp::Plugin* plugin);
 
   nodelet::Loader* loader_;
 
-  boost::shared_ptr<rqt_gui_cpp::Plugin> instance_;
+  std::shared_ptr<rqt_gui_cpp::Plugin> instance_;
 
   QMap<void*, QString> instances_;
 

@@ -17,14 +17,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Widgets CONFIG REQUIRED)
-find_package(qt_gui REQUIRED)
+# find_package(qt_gui REQUIRED)
 find_package(qt_gui_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 
 
 include_directories(include
-  ${rclcpp_INCLUDE_DIRS}
-  ${qt_gui_INCLUDE_DIRS}
+  # ${rclcpp_INCLUDE_DIRS}
+  # ${qt_gui_INCLUDE_DIRS}
   ${qt_gui_cpp_INCLUDE_DIRS}
   ${Qt5Widgets_INCLUDE_DIRS}
 )
@@ -35,7 +35,7 @@ SET(rqt_gui_cpp_SRCS
 )
 
 set(rqt_gui_cpp_HDRS
-  src/rqt_gui_cpp/roscpp_plugin_provider.h
+  src/rqt_gui_cpp/roscpp_plugin_provider.hpp
 )
 
 qt5_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
@@ -56,7 +56,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(
   ${PROJECT_NAME}
   ${qt_gui_cpp_LIBRARIES}
-  ${ament_LIBRARIES}
+  # ${ament_LIBRARIES}
   Qt5::Widgets
 )
 
