@@ -53,7 +53,8 @@ class MessageTreeWidget(QTreeView):
 
         self._action_item_expand = QAction(QIcon.fromTheme('zoom-in'), 'Expand Selected', self)
         self._action_item_expand.triggered.connect(self._handle_action_item_expand)
-        self._action_item_collapse = QAction(QIcon.fromTheme('zoom-out'), 'Collapse Selected', self)
+        self._action_item_collapse = QAction(
+            QIcon.fromTheme('zoom-out'), 'Collapse Selected', self)
         self._action_item_collapse.triggered.connect(self._handle_action_item_collapse)
         self.customContextMenuRequested.connect(self.handle_customContextMenuRequested)
 

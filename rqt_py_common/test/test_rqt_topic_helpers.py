@@ -43,21 +43,57 @@ class TestTopicHelpers(unittest.TestCase):
         from rqt_py_common.topic_helpers import get_message_class
         # Check that we are able to import std_msgs/String
         from std_msgs.msg import String
-        self.assertEqual(get_message_class("std_msgs/String"), String)
+        self.assertEqual(get_message_class('std_msgs/String'), String)
         # If no package is provided then we assume std_msgs
-        self.assertEqual(get_message_class("String"), get_message_class("std_msgs/String"))
-        self.assertEqual(get_message_class("string"), get_message_class("String"))
+        self.assertEqual(get_message_class('String'), get_message_class('std_msgs/String'))
+        self.assertEqual(get_message_class('string'), get_message_class('String'))
         # We test that we are able to import msgs from outside of std_msgs
         from rqt_py_common.msg import Val
-        self.assertEqual(get_message_class("rqt_py_common/Val"), Val)
+        self.assertEqual(get_message_class('rqt_py_common/Val'), Val)
 
     def test_get_slot_type(self):
         from rqt_py_common.topic_helpers import get_slot_type
         from rqt_py_common.topic_helpers import get_message_class
         from rqt_py_common.msg import ArrayVal
         # Check that we are able to import std_msgs/String
-        path = '_vals/_floats'
+        path = 'vals/floats'
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
         self.assertTrue(is_array)
-        self.assertEqual(message_type, get_message_class("float64"))
+        self.assertEqual(message_type, float)
+
+        path = '/vals'
+        message_class = ArrayVal
+        message_type, is_array = get_slot_type(message_class, path)
+        self.assertTrue(is_array)
+        self.assertEqual(message_type, get_message_class('rqt_py_common/Val'))
+
+    def test_get_field_type(self):
+        from rqt_py_common.topic_helpers import _get_field_type
+        from rqt_py_common.msg import ArrayVal, Val
+        topic_names_and_types = [
+            ('/example', ['rqt_py_common/Val']),
+            ('/example/vals', ['rqt_py_common/Val']),
+            ('/example_topic', ['rqt_py_common/Val']),
+            ('/example/topic', ['rqt_py_common/ArrayVal']),
+        ]
+
+        target = '/example/topic/vals/floats'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertTrue(is_array)
+        self.assertEqual(target_class, float)
+
+        target = '/example/topic'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertFalse(is_array)
+        self.assertEqual(target_class, ArrayVal)
+
+        target = '/example/topic/vals'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertTrue(is_array)
+        self.assertEqual(target_class, Val)
+
+        target = '/example/topic/vals/bad_value'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertFalse(is_array)
+        self.assertEqual(target_class, None)

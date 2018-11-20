@@ -87,7 +87,7 @@ class ExtendedComboBox(QComboBox):
         self.addItems(items)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
     from python_qt_binding.QtWidgets import QApplication
 

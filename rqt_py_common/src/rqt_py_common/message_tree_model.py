@@ -62,7 +62,8 @@ class MessageTreeModel(QStandardItemModel):
     def _get_data_items_for_path(self, slot_name, slot_type_name, slot_path, **kwargs):
         return (QStandardItem(slot_name), QStandardItem(slot_type_name), QStandardItem(slot_path))
 
-    def _recursive_create_items(self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
+    def _recursive_create_items(
+            self, parent, slot, slot_name, slot_type_name, slot_path, **kwargs):
         row = []
         for item in self._get_data_items_for_path(slot_name, slot_type_name, slot_path, **kwargs):
             item._path = slot_path
@@ -70,13 +71,13 @@ class MessageTreeModel(QStandardItemModel):
             row.append(item)
 
         is_leaf_node = False
-        # TODO(mlautman): Work around missing _slot_types in new msg types
-        if hasattr(slot, '__slots__') and hasattr(slot, '_slot_types'):
-            for child_slot_name, child_slot_type in zip(slot.__slots__, slot._slot_types):
+        if hasattr(slot, 'get_fields_and_field_types'):
+            for child_slot_name, child_slot_type in slot.get_fields_and_field_types().items():
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                    row[0], child_slot, child_slot_name,
+                    child_slot_type, child_slot_path, **kwargs)
 
         elif type(slot) in (list, tuple) and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
@@ -84,7 +85,8 @@ class MessageTreeModel(QStandardItemModel):
                 child_slot_name = '[%d]' % index
                 child_slot_path = slot_path + child_slot_name
                 self._recursive_create_items(
-                    row[0], child_slot, child_slot_name, child_slot_type, child_slot_path, **kwargs)
+                    row[0], child_slot, child_slot_name,
+                    child_slot_type, child_slot_path, **kwargs)
 
         else:
             is_leaf_node = True

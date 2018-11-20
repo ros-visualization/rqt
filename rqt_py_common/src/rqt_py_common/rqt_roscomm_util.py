@@ -100,7 +100,7 @@ class RqtRoscommUtil(object):
         #         "load_parameters: unable to set params (last param was [%s]): %s" % (param, e))
         #     raise  # re-raise as this is fatal
         # RqtRoscommUtil._logger.debug("... load_parameters complete")
-        RqtRoscommUtil._logger.error("load_parameters: not yet implemented in ROS2))")
+        RqtRoscommUtil._logger.error('load_parameters: not yet implemented in ROS2))')
         pass
 
     @staticmethod
@@ -142,7 +142,7 @@ class RqtRoscommUtil(object):
         @param file_extension: Defaults to '.launch', ``str``
         :returns: list of msgs/srv in package, ``[str]``
         """
-        RqtRoscommUtil._logger.error("list_files: not implemented in ROS2))")
+        RqtRoscommUtil._logger.error('list_files: not implemented in ROS2))')
         pass
 
     @staticmethod

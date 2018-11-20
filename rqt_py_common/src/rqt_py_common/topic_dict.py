@@ -30,17 +30,21 @@
 
 import rclpy
 
-from rqt_py_common.topic_helpers import get_message_class, get_topic_names_and_types
+from rqt_py_common.topic_helpers import get_message_class
+
 
 class TopicDict(object):
 
-    def __init__(self, node=None):
+    def __init__(self, node):
+        """Create a Topic Dict with an option node passed in."""
         self.update_topics(node=node)
 
     def get_topics(self):
+        """Get the topic dictionary."""
         return self.topic_dict
 
-    def update_topics(self, node=None):
+    def update_topics(self, node):
+        """Update the topics contained in the dictionary with new information from a node."""
         # NOTE: This has changed from ROS1 to ROS2 since ROS2 seems to support
         #       multiple msg types on a single topic
         self.topic_dict = {}
@@ -48,7 +52,7 @@ class TopicDict(object):
         # These flags are used to track these changes so that we can restore
         # state on completion
 
-        topic_names_and_types = get_topic_names_and_types(node=node)
+        topic_names_and_types = node.get_topic_names_and_types()
 
         for topic_name, topic_types in topic_names_and_types:
             self.topic_dict[topic_name] = []
@@ -75,7 +79,7 @@ class TopicDict(object):
 if __name__ == '__main__':
     import pprint
     rclpy.init()
-    topic_dict_node = rclpy.create_node("topic_dict")
+    topic_dict_node = rclpy.create_node('topic_dict')
     pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
     topic_dict_node.destroy_node()
     rclpy.shutdown()

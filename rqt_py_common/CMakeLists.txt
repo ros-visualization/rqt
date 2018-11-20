@@ -12,25 +12,16 @@ install(DIRECTORY resource
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS ${_library_name}
-  DESTINATION "${PYTHON_INSTALL_DIR}/${PROJECT_NAME}"
-)
-
 if(BUILD_TESTING)
   find_package(rosidl_default_generators REQUIRED)
   find_package(std_msgs REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
-  find_package(ament_lint_auto REQUIRED)
-
-  # Disabling copyright test. The copyright used in this package does not conform to
-  # ament's copyright tests
-  set(ament_cmake_copyright_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
 
   rosidl_generate_interfaces(${PROJECT_NAME}
     test/msg/Val.msg
     test/msg/ArrayVal.msg
     DEPENDENCIES std_msgs)
+
   ament_add_pytest_test(${PROJECT_NAME} test
     APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
     TIMEOUT 90)

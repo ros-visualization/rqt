@@ -46,6 +46,8 @@ import rclpy.logging
 
 class PluginContainerWidget(QWidget):
     """
+    PluginContainerWidget visually encapsulates a plugin.
+
     This widget accommodates a plugin widget that needs an area to show system
     message. A plugin widget is the pane that provides plugin's main
     functionalities. PluginContainerWidget visually encapsulates a plugin
@@ -106,6 +108,7 @@ class PluginContainerWidget(QWidget):
     def set_sysmsg(self, sysmsg):
         """
         Set system msg that's supposed to be shown in sys msg pane.
+
         @type sysmsg: str
         """
         self._logger.info('{}'.format(sysmsg))
@@ -113,13 +116,11 @@ class PluginContainerWidget(QWidget):
         self._sysmsg_widget.append(sysmsg)
 
     def shutdown(self):
-
         # TODO: Is shutdown step necessary for PluginContainerWidget?
 
         self._plugin_widget.shutdown()
 
     def save_settings(self, plugin_settings, instance_settings):
-
         # Save setting of PluginContainerWidget.
         instance_settings.set_value('_splitter', self._splitter.saveState())
 
@@ -127,7 +128,6 @@ class PluginContainerWidget(QWidget):
         self._plugin_widget.save_settings(plugin_settings, instance_settings)
 
     def restore_settings(self, plugin_settings, instance_settings):
-
         # Restore the setting of PluginContainerWidget, separate from
         # ContainED widget.
         if instance_settings.contains('_splitter'):
