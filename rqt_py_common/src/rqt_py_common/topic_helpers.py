@@ -162,11 +162,15 @@ def get_field_type(target, node):
 def _get_field_type(topic_names_and_types, target):  # noqa: C901
     """Testable helper function for get_field_type."""
     logger = logging.get_logger('topic_helpers._get_field_type')
-    for name, types in topic_names_and_types:
-        # If the topic is a substring of the target param, then we have found a match
-        if target.startswith(name):
+    delim = '/'
+    tokenized_target = target.strip(delim).split(delim)
+
+    for topic_name, types in topic_names_and_types:
+        tokenized_topic_name = topic_name.strip(delim).split(delim)
+        # If the target starts with the topic we have found a potential match
+        if tokenized_target[:len(tokenized_topic_name)] == tokenized_topic_name:
             # If the target passed in was the topic address not the address of a field
-            if target == name:
+            if tokenized_target == tokenized_topic_name:
                 # If there is more than one type of topic on target
                 if len(types) > 1:
                     logger.warn(
@@ -179,28 +183,22 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
                     return None, False
 
                 # If there is only one msg type
-                msg_type_str = types[0]
-                msg_class = get_type_class(msg_type_str)
+                msg_class = get_message_class(types[0])
                 return msg_class, False
 
             else:
                 # The topic must be a substring of the target
                 # Get the address of the field in the messgage class
-                field_address_str = target[len(name):]
+                field_address = target[len(topic_name):]
 
                 # Iterate through the message types on the given topic and see if any match the
                 # path that was provided
                 for msg_type_str in types:
                     try:
                         msg_class = get_message_class(msg_type_str)
-
-                        # If the message type is a simple type eg: float, then it can't be an array
-                        if _is_primative_type(msg_type_str):
-                            return msg_class, False
-
-                        field_type, is_array = get_slot_type(msg_class, field_address_str)
+                        field_type, is_array = get_slot_type(msg_class, field_address)
                         return field_type, is_array
-                    except ValueError:
+                    except KeyError:
                         pass
 
     logger.debug('faild to find field type: {}'.format(target))

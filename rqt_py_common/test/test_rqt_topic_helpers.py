@@ -71,18 +71,29 @@ class TestTopicHelpers(unittest.TestCase):
     def test_get_field_type(self):
         from rqt_py_common.topic_helpers import _get_field_type
         from rqt_py_common.msg import ArrayVal, Val
-        target = '/example_topic/vals/floats'
-        topic_names_and_types = [('/example_topic', ['rqt_py_common/ArrayVal'])]
+        topic_names_and_types = [
+            ('/example', ['rqt_py_common/Val']),
+            ('/example/vals', ['rqt_py_common/Val']),
+            ('/example_topic', ['rqt_py_common/Val']),
+            ('/example/topic', ['rqt_py_common/ArrayVal']),
+        ]
+
+        target = '/example/topic/vals/floats'
         target_class, is_array = _get_field_type(topic_names_and_types, target)
         self.assertTrue(is_array)
         self.assertEqual(target_class, float)
 
-        target = '/example_topic'
+        target = '/example/topic'
         target_class, is_array = _get_field_type(topic_names_and_types, target)
         self.assertFalse(is_array)
         self.assertEqual(target_class, ArrayVal)
 
-        target = '/example_topic/vals'
+        target = '/example/topic/vals'
         target_class, is_array = _get_field_type(topic_names_and_types, target)
         self.assertTrue(is_array)
         self.assertEqual(target_class, Val)
+
+        target = '/example/topic/vals/bad_value'
+        target_class, is_array = _get_field_type(topic_names_and_types, target)
+        self.assertFalse(is_array)
+        self.assertEqual(target_class, None)
