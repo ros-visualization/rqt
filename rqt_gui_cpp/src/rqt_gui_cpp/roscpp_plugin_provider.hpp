@@ -30,10 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rqt_gui_cpp__RosCppPluginProvider_H
-#define rqt_gui_cpp__RosCppPluginProvider_H
+#ifndef RQT_GUI_CPP__ROSCPPPLUGINPROVIDER_H
+#define RQT_GUI_CPP__ROSCPPPLUGINPROVIDER_H
 
 #include <qt_gui_cpp/composite_plugin_provider.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <QMessageBox>
 #include <QThread>
@@ -58,30 +59,12 @@ public:
 
 protected:
 
-  void wait_for_master();
+  void init_rclcpp();
 
-  void init_node();
+  bool rclcpp_initialized_;
 
-  bool node_initialized_;
-
-  QMessageBox* wait_for_master_dialog_;
-
-  QThread* wait_for_master_thread_;
-
-};
-
-class WaitForMasterThread
-  : public QThread
-{
-  Q_OBJECT
-public:
-  WaitForMasterThread(QObject* parent = 0);
-  void run();
-  bool abort;
-signals:
-  void master_found_signal(int r);
 };
 
 }
 
-#endif // rqt_gui_cpp__RosCppPluginProvider_H
+#endif // RQT_GUI_CPP__ROSCPPPLUGINPROVIDER_H

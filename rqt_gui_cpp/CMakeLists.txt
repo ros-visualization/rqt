@@ -31,7 +31,7 @@ include_directories(include
 
 SET(rqt_gui_cpp_SRCS
   # src/rqt_gui_cpp/component_plugin_provider.cpp
-  # src/rqt_gui_cpp/roscpp_plugin_provider.cpp
+  src/rqt_gui_cpp/roscpp_plugin_provider.cpp
 )
 
 set(rqt_gui_cpp_HDRS

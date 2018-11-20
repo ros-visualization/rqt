@@ -47,12 +47,14 @@ namespace rqt_gui_cpp {
  */
 class Plugin
   : public qt_gui_cpp::Plugin
+  , public rclcpp::Node
 {
 
 public:
 
-  Plugin()
+  Plugin(std::string plugin_name)
     : qt_gui_cpp::Plugin()
+    , rclcpp::Node(plugin_name)
   {}
 
   /**
