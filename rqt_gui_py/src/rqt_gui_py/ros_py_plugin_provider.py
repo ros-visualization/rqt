@@ -32,6 +32,7 @@ import os
 
 from python_qt_binding.QtCore import qDebug
 from qt_gui.composite_plugin_provider import CompositePluginProvider
+from rqt_gui.ros2_plugin_context import Ros2PluginContext
 
 import rclpy
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
@@ -46,12 +47,17 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node_initialized = False
         self._node = None
 
+    def shutdown(self):
+        self._destroy_node()
+        super().shutdown()
+
     def load(self, plugin_id, plugin_context):
         self._init_node()
-        return super(RosPyPluginProvider, self).load(plugin_id, plugin_context)
+        ros_plugin_context = Ros2PluginContext(handler=plugin_context._handler, node=self._node)
+
+        return super(RosPyPluginProvider, self).load(plugin_id, ros_plugin_context)
 
     def unload(self, plugin_instance):
-        self._destroy_node()
         return super(RosPyPluginProvider, self).unload(plugin_instance)
 
     def _init_node(self):
