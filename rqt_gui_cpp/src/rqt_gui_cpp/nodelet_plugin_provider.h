@@ -37,12 +37,13 @@
 
 #include <rqt_gui_cpp/plugin.h>
 
-#include <nodelet/loader.h>
-#include <nodelet/nodelet.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <QThread>
 
 #include <string>
+#include <unistd.h>
+#include <iostream>
 
 namespace rqt_gui_cpp {
 
@@ -60,23 +61,23 @@ public:
 
   virtual void unload(void* instance);
 
-  virtual void shutdown();
-
 protected:
 
   void init_loader();
 
-  virtual boost::shared_ptr<Plugin> create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context);
-
-  boost::shared_ptr<nodelet::Nodelet> create_instance(const std::string& lookup_name);
+  virtual std::shared_ptr<Plugin> create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context);
 
   virtual void init_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context, qt_gui_cpp::Plugin* plugin);
 
-  nodelet::Loader* loader_;
-
-  boost::shared_ptr<rqt_gui_cpp::Plugin> instance_;
+  std::shared_ptr<rqt_gui_cpp::Plugin> instance_;
 
   QMap<void*, QString> instances_;
+
+  bool loader_initialized_;
+
+  // A shared node that is copied into each rqt_gui_cpp::PluginContext for use by rqt nodes
+  std::shared_ptr<rclcpp::Node> node_;
+
 
   class RosSpinThread
     : public QThread
@@ -86,6 +87,9 @@ protected:
     virtual ~RosSpinThread();
     void run();
     bool abort;
+    // Create an executor that will be responsible for execution of callbacks for a set of nodes.
+    // With this version, all callbacks will be called from within this thread (the main one).
+    rclcpp::executors::SingleThreadedExecutor exec_;
   };
 
   RosSpinThread* ros_spin_thread_;

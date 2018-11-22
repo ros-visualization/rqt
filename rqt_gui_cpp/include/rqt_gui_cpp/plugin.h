@@ -62,6 +62,15 @@ public:
   virtual void shutdownPlugin()
   {}
 
+  virtual void passInNode(std::shared_ptr<rclcpp::Node> node)
+  {
+    node_ = node;
+  }
+
+protected:
+
+  rclcpp::Node::SharedPtr node_;
+
 private:
 
   void onInit()

@@ -58,28 +58,10 @@ public:
 
 protected:
 
-  void wait_for_master();
+  void init_rclcpp();
 
-  void init_node();
+  bool rclcpp_initialized_;
 
-  bool node_initialized_;
-
-  QMessageBox* wait_for_master_dialog_;
-
-  QThread* wait_for_master_thread_;
-
-};
-
-class WaitForMasterThread
-  : public QThread
-{
-  Q_OBJECT
-public:
-  WaitForMasterThread(QObject* parent = 0);
-  void run();
-  bool abort;
-signals:
-  void master_found_signal(int r);
 };
 
 }
