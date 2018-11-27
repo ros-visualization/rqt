@@ -29,7 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from rqt_py_common.message_tree_model import MessageTreeModel
-from rqt_py_common.topic_helpers import get_message_class
+from rqt_py_common.message_helpers import get_message_class
 
 
 class TopicTreeModel(MessageTreeModel):

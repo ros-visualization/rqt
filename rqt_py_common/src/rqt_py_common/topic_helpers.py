@@ -30,66 +30,12 @@
 
 # Author: Michael Lautman
 
-from ament_index_python import get_resource
-
 from rclpy import logging
 
-
-_message_class_cache = {}
-
-
-def get_message_class(message_type):
-    """
-    Gets the message class from a string representation.
-
-    @param message_type: the type of message in the form `msg_pkg/Message`
-    @type message_type: str
-    """
-    logger = logging.get_logger('get_message_class')
-    if message_type in _message_class_cache:
-        return _message_class_cache[message_type]
-
-    message_info = message_type.split('/')
-    if len(message_info) == 2:
-        package = message_info[0]
-        base_type = message_info[1]
-    elif len(message_info) == 1:
-        package = 'std_msgs'
-        base_type = message_info[0]
-    else:
-        logger.error(
-            'Malformed message_type passed into get_message_class: {}'.format(
-                message_type))
-        return None
-
-    _, resource_path = get_resource('rosidl_interfaces', package)
-    python_pkg = class_val = None
-    try:
-        # import the package
-        python_pkg = __import__('%s.%s' % (package, 'msg'))
-    except ImportError:
-        logger.error('Failed to get message class: {}'.format(message_type))
-
-    if python_pkg:
-        try:
-            class_val = getattr(getattr(python_pkg, 'msg'), base_type)
-        except AttributeError:
-            if len(base_type):
-                base_type = ''.join([base_type[0].upper(), base_type[1:]])
-
-        if not class_val:
-            try:
-                class_val = getattr(getattr(python_pkg, 'msg'), base_type)
-            except AttributeError:
-                logger.error('Failed to get message class: {}'.format(message_type))
-
-    if class_val:
-        _message_class_cache[message_type] = class_val
-
-    return class_val
+from rqt_py_common.message_helpers import get_message_class
 
 
-def _is_primative_type(type_str):
+def is_primitive_type(type_str):
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
     primitive_types = [
         'int8', 'uint8',
@@ -117,9 +63,6 @@ def get_type_class(type_name):
     @type message_type: str
     """
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
-
-    if not _is_primative_type(type_name.lower()):
-        return get_message_class(type_name)
 
     if type_name in ['float', 'float32', 'float64',
                      'double', 'long double']:
@@ -153,6 +96,7 @@ def get_field_type(target, node):
     is set to True
 
     :param target: name of field of a registered topic, ``str``, i.e. '/rosout/file'
+    :param node: a rclpy.Node
     :returns: field_type, is_array
     """
     topic_names_and_types = node.get_topic_names_and_types()
@@ -225,9 +169,15 @@ def get_slot_type(message_class, slot_path):
         array_index = slot_class_name.find('[')
         if array_index >= 0:
             is_array = True
-            message_class = get_type_class(slot_class_name[:array_index])
+            if is_primitive_type(slot_class_name[:array_index]):
+                message_class = get_type_class(slot_class_name[:array_index])
+            else:
+                message_class = get_message_class(slot_class_name[:array_index])
         else:
             is_array = False
-            message_class = get_type_class(slot_class_name)
+            if is_primitive_type(slot_class_name):
+                message_class = get_type_class(slot_class_name)
+            else:
+                message_class = get_message_class(slot_class_name)
 
     return message_class, is_array

@@ -14,13 +14,13 @@ install(DIRECTORY resource
 
 if(BUILD_TESTING)
   find_package(rosidl_default_generators REQUIRED)
-  find_package(std_msgs REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
 
   rosidl_generate_interfaces(${PROJECT_NAME}
     test/msg/Val.msg
     test/msg/ArrayVal.msg
-    DEPENDENCIES std_msgs)
+    test/srv/AddTwoInts.srv
+    DEPENDENCIES)
 
   ament_add_pytest_test(${PROJECT_NAME} test
     APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}
