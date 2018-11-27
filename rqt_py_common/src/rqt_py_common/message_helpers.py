@@ -29,6 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Author: Michael Lautman
+import importlib
 
 from ament_index_python import get_resource
 from ament_index_python import get_resources
@@ -62,8 +63,6 @@ def get_service_types(package_name):
     :param package_name: a string eg 'std_srvs'
     :returns: a dictionary of the form {'package_name', ['srv1', 'srv2', ...]}
     """
-    if not has_resource('packages', package_name):
-        raise LookupError('Unknown package name')
     try:
         content, _ = get_resource('rosidl_interfaces', package_name)
     except LookupError:
@@ -94,13 +93,11 @@ def get_all_message_types():
 
 def get_message_types(package_name):
     """
-    Uses the ament index gind all messages avialable in the package.
+    Uses the ament index to find all messages avialable in the package.
 
     :param package_name: a string eg 'std_msgs'
     :returns: a dictionary of the form {'std_msgs', ['Bool', 'String', ...]}
     """
-    if not has_resource('packages', package_name):
-        raise LookupError('Unknown package name')
     try:
         content, _ = get_resource('rosidl_interfaces', package_name)
     except LookupError:
@@ -149,13 +146,13 @@ def _get_message_service_class_helper(message_type, mode, logger=None):  # noqa:
 
     try:
         # import the package
-        python_pkg = __import__('%s.%s' % (package, mode))
+        python_pkg = importlib.import_module('%s.%s' % (package, mode))
     except ImportError:
         logger.info('Failed to import class: {} as {}.{}'.format(message_type, package, mode))
         return None
 
     try:
-        class_val = getattr(getattr(python_pkg, mode), base_type)
+        class_val = getattr(python_pkg, base_type)
         return class_val
 
     except AttributeError:

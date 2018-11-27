@@ -35,7 +35,7 @@ from rclpy import logging
 from rqt_py_common.message_helpers import get_message_class
 
 
-def is_primative_type(type_str):
+def is_primitive_type(type_str):
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
     primitive_types = [
         'int8', 'uint8',
@@ -169,13 +169,13 @@ def get_slot_type(message_class, slot_path):
         array_index = slot_class_name.find('[')
         if array_index >= 0:
             is_array = True
-            if is_primative_type(slot_class_name[:array_index]):
+            if is_primitive_type(slot_class_name[:array_index]):
                 message_class = get_type_class(slot_class_name[:array_index])
             else:
                 message_class = get_message_class(slot_class_name[:array_index])
         else:
             is_array = False
-            if is_primative_type(slot_class_name):
+            if is_primitive_type(slot_class_name):
                 message_class = get_type_class(slot_class_name)
             else:
                 message_class = get_message_class(slot_class_name)
