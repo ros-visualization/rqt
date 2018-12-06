@@ -36,6 +36,7 @@ from rqt_gui.ros2_plugin_context import Ros2PluginContext
 
 import rclpy
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
+from rqt_gui_py.rclpy_spinner import RclpySpinner
 
 
 class RosPyPluginProvider(CompositePluginProvider):
@@ -48,6 +49,8 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node = None
 
     def shutdown(self):
+        qDebug('Shutting down RosPyPluginProvider')
+        self.spinner.quit()
         self._destroy_node()
         super().shutdown()
 
@@ -65,8 +68,11 @@ class RosPyPluginProvider(CompositePluginProvider):
         if not self._node_initialized:
             name = 'rqt_gui_py_node_%d' % os.getpid()
             qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
+
             rclpy.init()
             self._node = rclpy.create_node(name)
+            self.spinner = RclpySpinner(self._node)
+            self.spinner.start()
             self._node_initialized = True
 
     def _destroy_node(self):
