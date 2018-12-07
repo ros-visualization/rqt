@@ -12,8 +12,6 @@
 
   <author>Dirk Thomas</author>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
-
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
 
   <exec_depend>ament_index_python</exec_depend>
@@ -26,6 +24,6 @@
   <test_depend>ament_lint_common</test_depend>
 
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type>ament_python</build_type>
   </export>
 </package>

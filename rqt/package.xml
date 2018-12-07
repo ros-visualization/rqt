@@ -21,12 +21,12 @@
   <author>Dorian Scholz</author>
   <author>Aaron Blasdel</author>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
   <exec_depend version_gte="0.3.0">rqt_gui</exec_depend>
   <exec_depend version_gte="0.3.0">rqt_gui_cpp</exec_depend>
   <exec_depend version_gte="0.3.0">rqt_gui_py</exec_depend>
+  <exec_depend>rqt_py_common</exec_depend>
 
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type>ament_python</build_type>
   </export>
 </package>
