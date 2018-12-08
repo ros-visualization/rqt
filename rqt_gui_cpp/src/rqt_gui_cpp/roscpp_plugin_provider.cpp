@@ -62,7 +62,7 @@ RosCppPluginProvider::RosCppPluginProvider()
 
 RosCppPluginProvider::~RosCppPluginProvider()
 {
-  if (rclcpp::ok())
+  if (rclcpp::is_initialized(rclcpp::contexts::default_context::get_global_default_context()))
   {
     rclcpp::shutdown();
   }

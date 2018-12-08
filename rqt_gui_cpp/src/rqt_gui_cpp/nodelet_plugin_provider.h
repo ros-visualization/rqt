@@ -89,7 +89,7 @@ protected:
     bool abort;
     // Create an executor that will be responsible for execution of callbacks for a set of nodes.
     // With this version, all callbacks will be called from within this thread (the main one).
-    rclcpp::executors::SingleThreadedExecutor exec_;
+    rclcpp::executors::MultiThreadedExecutor exec_;
   };
 
   RosSpinThread* ros_spin_thread_;

@@ -52,10 +52,6 @@ add_library(${PROJECT_NAME} SHARED
   ${rqt_gui_cpp_SRCS}
   ${rqt_gui_cpp_MOCS})
 
-if(WIN32)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "URDF_BUILDING_DLL")
-endif()
-
 if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
