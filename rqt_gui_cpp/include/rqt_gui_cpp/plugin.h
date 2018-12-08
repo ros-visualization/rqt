@@ -37,18 +37,16 @@
 #include <qt_gui_cpp/plugin_context.h>
 #include <qt_gui_cpp/settings.h>
 
-#include <nodelet/nodelet.h>
+#include <rclcpp/rclcpp.hpp>
 
 namespace rqt_gui_cpp {
 
 /**
  * The base class for C++ plugins which use the ROS client library.
- * A plugin must not call ros::init() as this is performed once by the framework.
- * The name of the ROS node consists of the prefix "rqt_gui_cpp_node_" and the process id.
+ * A plugin must not call rclcpp::init() as this is performed once by the framework.
  */
 class Plugin
   : public qt_gui_cpp::Plugin
-  , public nodelet::Nodelet
 {
 
 public:
@@ -63,6 +61,15 @@ public:
    */
   virtual void shutdownPlugin()
   {}
+
+  virtual void passInNode(std::shared_ptr<rclcpp::Node> node)
+  {
+    node_ = node;
+  }
+
+protected:
+
+  rclcpp::Node::SharedPtr node_;
 
 private:
 

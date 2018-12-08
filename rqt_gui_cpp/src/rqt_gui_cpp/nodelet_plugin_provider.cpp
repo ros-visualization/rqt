@@ -34,114 +34,99 @@
 
 #include "roscpp_plugin_provider.h"
 
-#include <ros/callback_queue.h>
-#include <ros/ros.h>
-
 #include <stdexcept>
-#include <boost/bind.hpp>
 
 namespace rqt_gui_cpp {
 
 NodeletPluginProvider::NodeletPluginProvider(const QString& export_tag, const QString& base_class_type)
   : qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>(export_tag, base_class_type)
-  , loader_(0)
+  , loader_initialized_(false)
   , ros_spin_thread_(0)
 {}
 
 NodeletPluginProvider::~NodeletPluginProvider()
 {
-  if (loader_)
-  {
-    delete loader_;
-  }
-}
-
-void NodeletPluginProvider::unload(void* instance)
-{
-  qDebug("NodeletPluginProvider::unload()");
-  if (!instances_.contains(instance))
-  {
-    qCritical("NodeletPluginProvider::unload() instance not found");
-    return;
-  }
-
-  QString nodelet_name = instances_[instance];
-  bool unloaded = loader_->unload(nodelet_name.toStdString());
-  if (!unloaded)
-  {
-    qCritical("NodeletPluginProvider::unload() '%s' failed", nodelet_name.toStdString().c_str());
-  }
-
-  // stop and garbage ros spin thread if not needed anymore
-  if (loader_->listLoadedNodelets().empty())
-  {
-    shutdown();
-  }
-
-  qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::unload(instance);
-}
-
-void NodeletPluginProvider::shutdown()
-{
   if (ros_spin_thread_ != 0)
   {
     ros_spin_thread_->abort = true;
+    ros_spin_thread_->exec_.remove_node(node_);
     ros_spin_thread_->wait();
     ros_spin_thread_->deleteLater();
     ros_spin_thread_ = 0;
   }
 }
 
-void NodeletPluginProvider::init_loader()
+void NodeletPluginProvider::unload(void* instance)
 {
-  // initialize nodelet Loader once
-  if (loader_ == 0)
+  if (!instances_.contains(instance))
   {
-    loader_ = new nodelet::Loader(boost::bind(&NodeletPluginProvider::create_instance, this, _1));
+    qCritical("rqt_gui_cpp::NodeletPluginProvider::unload() instance not found");
+    return;
   }
 
-  // spawn ros spin thread
-  if (ros_spin_thread_ == 0)
-  {
-    ros_spin_thread_ = new RosSpinThread(this);
-    ros_spin_thread_->start();
-  }
+  QString nodelet_name = instances_[instance];
+
+  qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::unload(instance);
 }
 
-boost::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context)
+void NodeletPluginProvider::init_loader()
+{
+
+  if (!loader_initialized_)
+  {
+    loader_initialized_ = true;
+
+    // spawn ros spin thread
+    if (ros_spin_thread_ == 0)
+    {
+      ros_spin_thread_ = new RosSpinThread(this);
+      ros_spin_thread_->start();
+    }
+
+    std::stringstream name;
+    name << "rqt_gui_cpp_node_";
+    name << getpid();
+    // Initialize a node for execution to be shared by cpp plugins
+    node_ = rclcpp::Node::make_shared(name.str().c_str());
+    // Add our node to the executor for execution
+    if (ros_spin_thread_)
+    {
+      ros_spin_thread_->exec_.add_node(node_);
+    }
+    else
+    {
+      qWarning("rqt_gui_cpp::NodeletPluginProvider.init_loader: ros_spin_thread_ not initialized");
+    }
+  }
+
+}
+
+std::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(const std::string& lookup_name, qt_gui_cpp::PluginContext* plugin_context)
 {
   init_loader();
 
-  nodelet::M_string remappings;
-  nodelet::V_string my_argv;
   std::string nodelet_name = lookup_name + "_" + QString::number(plugin_context->serialNumber()).toStdString();
   instance_.reset();
-  qDebug("NodeletPluginProvider::create_plugin() load %s", lookup_name.c_str());
-  bool loaded = loader_->load(nodelet_name, lookup_name, remappings, my_argv);
-  if (loaded)
-  {
-    qDebug("NodeletPluginProvider::create_plugin() loaded");
-    instances_[&*instance_] = nodelet_name.c_str();
-  }
-  boost::shared_ptr<rqt_gui_cpp::Plugin> instance = instance_;
+
+  instance_ = qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::create_plugin(lookup_name);
+  instance_->passInNode(node_);
+  instances_[&*instance_] = nodelet_name.c_str();
+
+  std::shared_ptr<rqt_gui_cpp::Plugin> instance = instance_;
   instance_.reset();
   return instance;
 }
 
-boost::shared_ptr<nodelet::Nodelet> NodeletPluginProvider::create_instance(const std::string& lookup_name)
-{
-  instance_ = qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::create_plugin(lookup_name);
-  return instance_;
-}
 
 void NodeletPluginProvider::init_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context, qt_gui_cpp::Plugin* plugin)
 {
-  qDebug("NodeletPluginProvider::init_plugin()");
+  qDebug("rqt_gui_cpp::NodeletPluginProvider::init_plugin()");
+  init_loader();
 
-  rqt_gui_cpp::Plugin* nodelet = dynamic_cast<rqt_gui_cpp::Plugin*>(plugin);
-  if (!nodelet)
+  rqt_gui_cpp::Plugin* rqt_plugin = dynamic_cast<rqt_gui_cpp::Plugin*>(plugin);
+  if (!rqt_plugin)
   {
-    throw std::runtime_error("plugin is not a nodelet");
+    throw std::runtime_error("plugin is not a rqt_plugin::Plugin");
   }
 
   qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::init_plugin(plugin_id, plugin_context, plugin);
@@ -159,8 +144,10 @@ void NodeletPluginProvider::RosSpinThread::run()
 {
   while (!abort)
   {
-    ros::getGlobalCallbackQueue()->callOne(ros::WallDuration(0.1));
+    // Spin the executor
+    exec_.spin_once();
   }
 }
+
 
 }

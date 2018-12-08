@@ -37,7 +37,7 @@ import sys
 import traceback
 from xml.etree import ElementTree
 
-from python_qt_binding.QtCore import qCritical
+from python_qt_binding.QtCore import qCritical, qDebug
 
 from qt_gui.plugin_descriptor import PluginDescriptor
 from qt_gui.plugin_provider import PluginProvider
@@ -64,6 +64,7 @@ class RosPluginProvider(PluginProvider):
         plugin_descriptors = []
         plugin_file_list = self._find_plugins(self._export_tag, discovery_data)
         for package_name, plugin_xml in plugin_file_list:
+
             plugin_descriptors += self._parse_plugin_xml(package_name, plugin_xml)
         # add list of discovered plugins to dictionary of known descriptors index by the plugin id
         for plugin_descriptor in plugin_descriptors:
@@ -113,7 +114,6 @@ class RosPluginProvider(PluginProvider):
 
     def _parse_plugin_xml(self, package_name, plugin_xml):
         plugin_descriptors = []
-
         if not os.path.isfile(plugin_xml):
             qCritical('RosPluginProvider._parse_plugin_xml() plugin file "%s" in package "%s" '
                       'not found' % (plugin_xml, package_name))
@@ -135,7 +135,6 @@ class RosPluginProvider(PluginProvider):
                     'plugin_path': os.path.dirname(plugin_xml),
                     'library_path': library_path,
                 }
-
                 # add class attributes
                 for key, value in class_el.items():
                     attributes['class_' + key] = value

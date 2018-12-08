@@ -36,24 +36,25 @@
 #include <rqt_gui_cpp/plugin.h>
 
 #include <qt_gui_cpp/plugin_provider.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
 
 #include <stdexcept>
 #include <sys/types.h>
-#include <unistd.h>
-#include <iostream>
 
 namespace rqt_gui_cpp {
 
 RosCppPluginProvider::RosCppPluginProvider()
   : qt_gui_cpp::CompositePluginProvider()
-  , node_initialized_(false)
-  , wait_for_master_dialog_(0)
-  , wait_for_master_thread_(0)
+  , rclcpp_initialized_(false)
 {
+  if (rclcpp::is_initialized(rclcpp::contexts::default_context::get_global_default_context()))
+  {
+    rclcpp_initialized_ = true;
+  }
+
+  init_rclcpp();
   QList<PluginProvider*> plugin_providers;
   plugin_providers.append(new NodeletPluginProvider("rqt_gui", "rqt_gui_cpp::Plugin"));
   set_plugin_providers(plugin_providers);
@@ -61,95 +62,43 @@ RosCppPluginProvider::RosCppPluginProvider()
 
 RosCppPluginProvider::~RosCppPluginProvider()
 {
-  if (ros::isStarted())
+  if (rclcpp::is_initialized(rclcpp::contexts::default_context::get_global_default_context()))
   {
-    ros::shutdown();
+    rclcpp::shutdown();
   }
 }
 
 void* RosCppPluginProvider::load(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
-  init_node();
+  qDebug("RosCppPluginProvider::load(%s)", plugin_id.toStdString().c_str());
+  init_rclcpp();
   return qt_gui_cpp::CompositePluginProvider::load(plugin_id, plugin_context);
 }
 
 qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
 {
-  init_node();
+  qDebug("RosCppPluginProvider::load_plugin(%s)", plugin_id.toStdString().c_str());
+  init_rclcpp();
   return qt_gui_cpp::CompositePluginProvider::load_plugin(plugin_id, plugin_context);
 }
 
-void RosCppPluginProvider::wait_for_master()
-{
-  // check if master is available
-  if (ros::master::check())
-  {
-    return;
-  }
-  // spawn thread to detect when master becomes available
-  wait_for_master_dialog_ = new QMessageBox(QMessageBox::Question, QObject::tr("Waiting for ROS master"), QObject::tr("Could not find ROS master. Either start a 'roscore' or abort loading the plugin."), QMessageBox::Abort);
-  wait_for_master_thread_ = new WaitForMasterThread(wait_for_master_dialog_);
-  wait_for_master_thread_->start();
-  QObject::connect(wait_for_master_thread_, SIGNAL(master_found_signal(int)), wait_for_master_dialog_, SLOT(done(int)), Qt::QueuedConnection);
-  int button = wait_for_master_dialog_->exec();
-  // check if master existence was not detected by background thread
-  bool no_master = (button != QMessageBox::Ok);
-  if (no_master)
-  {
-    dynamic_cast<WaitForMasterThread*>(wait_for_master_thread_)->abort = true;
-    wait_for_master_thread_->wait();
-  }
-  wait_for_master_thread_->exit();
-  wait_for_master_thread_->deleteLater();
-  wait_for_master_dialog_->deleteLater();
-  wait_for_master_dialog_ = 0;
-  if (no_master)
-  {
-    throw std::runtime_error("RosCppPluginProvider::init_node() could not find ROS master");
-  }
-}
-
-void RosCppPluginProvider::init_node()
+void RosCppPluginProvider::init_rclcpp()
 {
   // initialize ROS node once
-  if (!node_initialized_)
+  if (!rclcpp_initialized_)
   {
     int argc = 0;
     char** argv = 0;
-    std::stringstream name;
-    name << "rqt_gui_cpp_node_";
-    name << getpid();
-    qDebug("RosCppPluginProvider::init_node() initialize ROS node '%s'", name.str().c_str());
-    ros::init(argc, argv, name.str().c_str(), ros::init_options::NoSigintHandler);
-    wait_for_master();
-    ros::start();
-    node_initialized_ = true;
-  }
-  else
-  {
-    wait_for_master();
-  }
-}
 
-WaitForMasterThread::WaitForMasterThread(QObject* parent)
-  : QThread(parent)
-  , abort(false)
-{}
+    // Initialize any global resources needed by the middleware and the client library.
+    // This will also parse command line arguments one day (as of Beta 1 they are not used).
+    // You must call this before using any other part of the ROS system.
+    // This should be called once per process.
+    rclcpp::init(argc, argv);
 
-void WaitForMasterThread::run()
-{
-  while (true)
-  {
-    usleep(100000);
-    if (abort)
-    {
-      break;
-    }
-    if (ros::master::check())
-    {
-      emit(master_found_signal(QMessageBox::Ok));
-      break;
-    }
+
+    // Don't do this again in this process
+    rclcpp_initialized_ = true;
   }
 }
 
