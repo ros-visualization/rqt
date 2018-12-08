@@ -83,6 +83,9 @@ class Main(Base):
         reload_importer.add_reload_path(os.path.join(os.path.dirname(__file__), *('..',) * 4))
 
 
+def main():
+    sys.exit(Main().main())
+
+
 if __name__ == '__main__':
-    main = Main()
-    sys.exit(main.main())
+    main()
