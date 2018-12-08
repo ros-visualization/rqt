@@ -47,11 +47,14 @@ class RosPyPluginProvider(CompositePluginProvider):
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
         self._node = None
+        self._spinner = None
 
     def shutdown(self):
         qDebug('Shutting down RosPyPluginProvider')
-        self.spinner.quit()
-        self._destroy_node()
+        if self._spinner:
+            self._spinner.quit()
+        if self._node:
+            self._destroy_node()
         super().shutdown()
 
     def load(self, plugin_id, plugin_context):
@@ -68,11 +71,11 @@ class RosPyPluginProvider(CompositePluginProvider):
         if not self._node_initialized:
             name = 'rqt_gui_py_node_%d' % os.getpid()
             qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
-
-            rclpy.init()
+            if not rclpy.ok():
+                rclpy.init()
             self._node = rclpy.create_node(name)
-            self.spinner = RclpySpinner(self._node)
-            self.spinner.start()
+            self._spinner = RclpySpinner(self._node)
+            self._spinner.start()
             self._node_initialized = True
 
     def _destroy_node(self):
