@@ -32,9 +32,9 @@ import os
 
 from python_qt_binding.QtCore import qDebug
 from qt_gui.composite_plugin_provider import CompositePluginProvider
-from rqt_gui.ros2_plugin_context import Ros2PluginContext
 
 import rclpy
+from rqt_gui.ros2_plugin_context import Ros2PluginContext
 from rqt_gui.rospkg_plugin_provider import RospkgPluginProvider
 from rqt_gui_py.rclpy_spinner import RclpySpinner
 
