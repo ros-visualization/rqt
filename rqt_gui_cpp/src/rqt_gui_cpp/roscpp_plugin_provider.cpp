@@ -38,7 +38,7 @@
 #include <qt_gui_cpp/plugin_provider.h>
 #include <rclcpp/rclcpp.hpp>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 
 #include <stdexcept>
 #include <sys/types.h>
