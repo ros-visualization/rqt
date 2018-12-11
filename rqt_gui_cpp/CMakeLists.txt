@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 project(rqt_gui_cpp)
 
+find_package(ament_cmake REQUIRED)
+
+if(WIN32)
+  message(STATUS "rqt_gui_cpp is not yet supported on Windows. Package will not be built.")
+  ament_package()
+  return()
+endif()
+
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -14,7 +22,6 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(Qt5Widgets CONFIG REQUIRED)
 find_package(rclcpp REQUIRED)
