@@ -213,7 +213,7 @@ def get_message_text_from_class(msg_class):
     """Get a string representation of the message class."""
     msg_slot_dict = msg_class.get_fields_and_field_types()
     return ''.join(
-        ['{0:{width}}{1}\n'.format(slot_type, slot_name, width=30) for
+        ['{0} {1}\n'.format(slot_type, slot_name) for
             slot_name, slot_type in msg_slot_dict.items()])
 
 
@@ -222,10 +222,10 @@ def get_service_text_from_class(srv_class):
     srv_slot_dict_req = srv_class.Request.get_fields_and_field_types()
     srv_slot_dict_res = srv_class.Response.get_fields_and_field_types()
     srv_txt = [
-        '{0:{width}}{1}\n'.format(slot_type, slot_name, width=30) for
+        '{0} {1}\n'.format(slot_type, slot_name) for
         slot_name, slot_type in srv_slot_dict_req.items()]
-    srv_txt.extend(['-----\n'])
+    srv_txt.extend(['---\n'])
     srv_txt.extend([
-        '{0:{width}}{1}\n'.format(slot_type, slot_name, width=30) for
+        '{0} {1}\n'.format(slot_type, slot_name) for
         slot_name, slot_type in srv_slot_dict_res.items()])
     return ''.join(srv_txt)
