@@ -53,11 +53,11 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
         from rqt_py_common.message_helpers import get_message_text_from_class
         from rqt_py_common.msg import ArrayVal, Val
         text = get_message_text_from_class(ArrayVal)
-        expected_text = 'rqt_py_common/Val[5]          vals\n'
+        expected_text = 'rqt_py_common/Val[5] vals\n'
         self.assertEqual(text, expected_text)
 
         text = get_message_text_from_class(Val)
-        expected_text = 'float64[5]                    floats\n'
+        expected_text = 'float64[5] floats\n'
         self.assertEqual(text, expected_text)
 
     def test_get_service_text_from_class(self):  # noqa: D102
@@ -65,10 +65,10 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
         from rqt_py_common.srv import AddTwoInts
         text = get_service_text_from_class(AddTwoInts)
         expected_text = \
-            'int64                         a\n' + \
-            'int64                         b\n' + \
-            '-----\n' + \
-            'int64                         sum\n'
+            'int64 a\n' + \
+            'int64 b\n' + \
+            '---\n' + \
+            'int64 sum\n'
         self.assertEqual(text, expected_text)
 
     def test_get_all_message_types(self):  # noqa: D102
