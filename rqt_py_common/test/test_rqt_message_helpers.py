@@ -62,13 +62,13 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
 
     def test_get_service_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_text_from_class
-        from std_srvs.srv import SetBool
-        text = get_service_text_from_class(SetBool)
+        from rqt_py_common.srv import AddTwoInts
+        text = get_service_text_from_class(AddTwoInts)
         expected_text = \
-            'bool                          data\n' + \
+            'int64                         a\n' + \
+            'int64                         b\n' + \
             '-----\n' + \
-            'bool                          success\n' + \
-            'string                        message\n'
+            'int64                         sum\n'
         self.assertEqual(text, expected_text)
 
     def test_get_all_message_types(self):  # noqa: D102
