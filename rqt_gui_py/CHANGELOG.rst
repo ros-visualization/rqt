@@ -2,6 +2,20 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix install destination of plugin.xml (`#179 <https://github.com/ros-visualization/rqt/issues/179>`_)
+* change to ament_python build type (`#169 <https://github.com/ros-visualization/rqt/issues/169>`_) (`#170 <https://github.com/ros-visualization/rqt/issues/170>`_)
+* fix style to pass lint tests (`#172 <https://github.com/ros-visualization/rqt/issues/172>`_)
+* fix ups (`#167 <https://github.com/ros-visualization/rqt/issues/167>`_, `#171 <https://github.com/ros-visualization/rqt/issues/171>`_)
+* port rqt_gui_cpp to ROS 2 (`#163 <https://github.com/ros-visualization/rqt/issues/163>`_)
+* spin executor in separate QThread (`#167 <https://github.com/ros-visualization/rqt/issues/167>`_)
+* add subclass of plugin_context to pass around the rqt node (`#161 <https://github.com/ros-visualization/rqt/issues/161>`_)
+* remove pytests in favor of ament_lint_auto, moving rqt_gui resource to package specific destination (`#153 <https://github.com/ros-visualization/rqt/issues/153>`_)
+* add tests to rqt_gui_py (`#150 <https://github.com/ros-visualization/rqt/issues/150>`_)
+* style changes (`#143 <https://github.com/ros-visualization/rqt/issues/143>`_)
+* autopep8 (`#137 <https://github.com/ros-visualization/rqt/issues/137>`_)
+
 0.5.0 (2017-04-24)
 ------------------
 * version bump to match version of migrated package `rqt_py_common`

@@ -2,6 +2,15 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* skip rqt_gui_cpp on Windows (`#177 <https://github.com/ros-visualization/rqt/issues/177>`_)
+* use non-deprecated header (`#173 <https://github.com/ros-visualization/rqt/issues/173>`_)
+* port rqt_gui_cpp to ROS 2 (`#163 <https://github.com/ros-visualization/rqt/issues/163>`_)
+* address feedback on the rqt_py_common port (`#155 <https://github.com/ros-visualization/rqt/issues/155>`_)
+* ignore unported packages (`#157 <https://github.com/ros-visualization/rqt/issues/157>`_)
+* style changes (`#143 <https://github.com/ros-visualization/rqt/issues/143>`_)
+
 0.5.0 (2017-04-24)
 ------------------
 * version bump to match version of migrated package `rqt_py_common`

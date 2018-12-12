@@ -2,6 +2,17 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use three dashed to separate request/reply, remove arbitrary alignment (`#176 <https://github.com/ros-visualization/rqt/issues/176>`_)
+* remove undeclared dependency on std_srvs (`#175 <https://github.com/ros-visualization/rqt/issues/175>`_)
+* add common message helpers (`#162 <https://github.com/ros-visualization/rqt/issues/162>`_)
+* address feedback on the rqt_py_common port (`#155 <https://github.com/ros-visualization/rqt/issues/155>`_)
+* remove pytests in favor of ament_lint_auto, moving rqt_gui resource to package specific destination (`#153 <https://github.com/ros-visualization/rqt/issues/153>`_)
+* port rqt_py_common to ROS 2 (`#148 <https://github.com/ros-visualization/rqt/issues/148>`_)
+* fixing missing import bugs (`#139 <https://github.com/ros-visualization/rqt/issues/139>`_)
+* autopep8 (`#137 <https://github.com/ros-visualization/rqt/issues/137>`_)
+
 0.5.0 (2017-04-24)
 ------------------
 * migrated from `rqt_common_plugins` repo
