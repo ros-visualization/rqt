@@ -2,8 +2,8 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2018-12-12)
+------------------
 * updating msg helpers to match the ament_index_python api (`#180 <https://github.com/ros-visualization/rqt/issues/180>`_)
 * Contributors: Mike Lautman
 
