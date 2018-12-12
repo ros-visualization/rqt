@@ -72,8 +72,6 @@ def get_service_types(package_name):
     # Only return services in srv folder
     all_srvs = [
         n[4:-4] for n in interface_names if n.startswith('srv/') and n.endswith('.srv')]
-    all_srvs.extend(
-        [n[:-4] for n in interface_names if not n.startswith('srv/') and n.endswith('.srv')])
     return all_srvs
 
 
@@ -107,8 +105,6 @@ def get_message_types(package_name):
     # Only return messages in msg folder
     all_msgs = [
         n[4:-4] for n in interface_names if n.startswith('msg/') and n.endswith('.msg')]
-    all_msgs.extend(
-        [n[:-4] for n in interface_names if not n.startswith('msg/') and n.endswith('.msg')])
     return all_msgs
 
 
