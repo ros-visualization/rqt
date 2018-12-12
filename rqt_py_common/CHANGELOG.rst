@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* updating msg helpers to match the ament_index_python api (`#180 <https://github.com/ros-visualization/rqt/issues/180>`_)
+* Contributors: Mike Lautman
+
 1.0.0 (2018-12-11)
 ------------------
 * use three dashed to separate request/reply, remove arbitrary alignment (`#176 <https://github.com/ros-visualization/rqt/issues/176>`_)

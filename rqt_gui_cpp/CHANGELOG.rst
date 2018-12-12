@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.0 (2018-12-11)
 ------------------
 * skip rqt_gui_cpp on Windows (`#177 <https://github.com/ros-visualization/rqt/issues/177>`_)
