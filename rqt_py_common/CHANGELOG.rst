@@ -2,8 +2,8 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2018-12-11)
+------------------
 * use three dashed to separate request/reply, remove arbitrary alignment (`#176 <https://github.com/ros-visualization/rqt/issues/176>`_)
 * remove undeclared dependency on std_srvs (`#175 <https://github.com/ros-visualization/rqt/issues/175>`_)
 * add common message helpers (`#162 <https://github.com/ros-visualization/rqt/issues/162>`_)

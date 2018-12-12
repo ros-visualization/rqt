@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2018-12-11)
+------------------
 * fix install destination of plugin.xml (`#179 <https://github.com/ros-visualization/rqt/issues/179>`_)
 * change to ament_python build type (`#169 <https://github.com/ros-visualization/rqt/issues/169>`_) (`#170 <https://github.com/ros-visualization/rqt/issues/170>`_)
 * fix style to pass lint tests (`#172 <https://github.com/ros-visualization/rqt/issues/172>`_)

@@ -1,8 +1,8 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2018-12-11)
+------------------
 * change to ament_python build type (`#169 <https://github.com/ros-visualization/rqt/issues/169>`_) (`#170 <https://github.com/ros-visualization/rqt/issues/170>`_)
 * fix style to pass lint tests (`#172 <https://github.com/ros-visualization/rqt/issues/172>`_)
 * port rqt_gui_cpp to ROS 2 (`#163 <https://github.com/ros-visualization/rqt/issues/163>`_)
