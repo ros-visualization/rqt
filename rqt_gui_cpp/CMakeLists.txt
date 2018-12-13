@@ -3,12 +3,6 @@ project(rqt_gui_cpp)
 
 find_package(ament_cmake REQUIRED)
 
-if(WIN32)
-  message(STATUS "rqt_gui_cpp is not yet supported on Windows. Package will not be built.")
-  ament_package()
-  return()
-endif()
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -76,7 +70,6 @@ target_link_libraries(
 
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -91,8 +84,5 @@ install(FILES plugin.xml
   DESTINATION share/${PROJECT_NAME}
 )
 pluginlib_export_plugin_description_file(qt_gui "plugin.xml")
-
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
 
 ament_package()

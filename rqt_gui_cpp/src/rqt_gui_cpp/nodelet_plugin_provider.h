@@ -42,7 +42,11 @@
 #include <QThread>
 
 #include <string>
+#ifdef WIN32
+#include <process.h> // for getpid()
+#else
 #include <unistd.h>
+#endif
 #include <iostream>
 
 namespace rqt_gui_cpp {
