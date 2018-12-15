@@ -39,6 +39,7 @@ class Ros2PluginContext(PluginContext):
     the corresponding `PluginHandler`
     """
 
-    def __init__(self, handler, node):
+    def __init__(self, handler, node, node_spinner):
         super(Ros2PluginContext, self).__init__(handler)
         self.node = node
+        self.spinner = node_spinner

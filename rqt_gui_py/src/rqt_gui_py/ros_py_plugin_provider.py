@@ -59,7 +59,8 @@ class RosPyPluginProvider(CompositePluginProvider):
 
     def load(self, plugin_id, plugin_context):
         self._init_node()
-        ros_plugin_context = Ros2PluginContext(handler=plugin_context._handler, node=self._node)
+        ros_plugin_context = Ros2PluginContext(handler=plugin_context._handler, node=self._node,
+                                               node_spinner=self._spinner)
 
         return super(RosPyPluginProvider, self).load(plugin_id, ros_plugin_context)
 
