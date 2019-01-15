@@ -30,11 +30,9 @@
 
 # Author: Michael Lautman
 import importlib
-from collections import defaultdict, namedtuple
 
 from ament_index_python import get_resource
 from ament_index_python import get_resources
-from ament_index_python import has_resource
 
 from rclpy import logging
 
@@ -45,17 +43,13 @@ ACTION_MODE = 'action'
 ROSIDL_FILTERS = {
     MSG_MODE: lambda n: n.endswith('.msg'),
     SRV_MODE: lambda n: n.endswith('.srv'),
-    ACTION_MODE: lambda n: n.endswith('.action')
+    ACTION_MODE: lambda n: n.startswith('action/') and n.endswith('.idl')
 }
-
-# Currently there is no high-level action class. This namedtuple will serve as a packed
-# representation of an Action
-ActionTuple = namedtuple('Action', ['Goal', 'Result', 'Feedback'])
 
 
 def _strip_type_name(type_name):
     prefixes = ['msg/', 'srv/', 'action/']
-    suffixes = ['.msg', '.srv', '.action']
+    suffixes = ['.msg', '.srv', '.idl']
     for prefix, suffix in zip(prefixes, suffixes):
         found_match = False
         if type_name.startswith(prefix):
@@ -328,16 +322,12 @@ def get_action_class(action_type):
         return _action_class_cache[action_type]
 
     logger = logging.get_logger('get_action_class')
+    class_val = _get_rosidl_class_helper(action_type, ACTION_MODE, logger)
 
-    # There is no high level action class. Import Goal, Result, Feedback separately
-    goal_val = _get_rosidl_class_helper(action_type + '_Goal', ACTION_MODE, logger)
-    result_val = _get_rosidl_class_helper(action_type + '_Result', ACTION_MODE, logger)
-    feedback_val = _get_rosidl_class_helper(action_type + '_Feedback', ACTION_MODE, logger)
-    action_val = ActionTuple(goal_val, result_val, feedback_val)
-    if goal_val is not None and result_val is not None and feedback_val is not None:
-        _action_class_cache[action_type] = action_val
+    if class_val is not None:
+        _action_class_cache[action_type] = class_val
 
-    return action_val
+    return class_val
 
 
 def get_message_text_from_class(msg_class):
