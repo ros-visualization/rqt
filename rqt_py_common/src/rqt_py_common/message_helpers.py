@@ -41,8 +41,8 @@ SRV_MODE = 'srv'
 ACTION_MODE = 'action'
 
 ROSIDL_FILTERS = {
-    MSG_MODE: lambda n: n.endswith('.msg'),
-    SRV_MODE: lambda n: n.endswith('.srv'),
+    MSG_MODE: lambda n: n.startswith('msg/') and n.endswith('.msg'),
+    SRV_MODE: lambda n: n.startswith('srv/') and n.endswith('.srv'),
     ACTION_MODE: lambda n: n.startswith('action/') and n.endswith('.idl')
 }
 
@@ -212,7 +212,7 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
 
     :param message_type: name of the message or service class in the form 'package_name/msg_name'
     :type message_type: str
-    :param mode: one of MSG_MODE or SRV_MODE
+    :param mode: one of MSG_MODE, SRV_MODE or ACTION_MODE
     :type mode: str
     :param logger: The logger to be used for warnings and info
     :type logger: either rclpy.impl.rcutils_logger.RcutilsLogger or None
