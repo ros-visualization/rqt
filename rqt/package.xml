@@ -1,6 +1,6 @@
 <package format="2">
   <name>rqt</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <description>rqt is a Qt-based framework for GUI development for ROS. It consists of three parts/metapackages<br />
     <ul>
      <li>rqt (you're here)</li>
