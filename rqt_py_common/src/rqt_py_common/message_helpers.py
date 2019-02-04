@@ -227,7 +227,7 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
         return None
 
     message_info = message_type.split('/')
-    if len(message_info) not in [2, 3]:
+    if len(message_info) != 2:
         logger.error('Malformed message_type: {}'.format(message_type))
         return None
 
