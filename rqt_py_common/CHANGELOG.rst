@@ -2,6 +2,14 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fixing srv and msg filters (`#188 <https://github.com/ros-visualization/rqt/issues/188>`_)
+* Adding logic for actions (`#186 <https://github.com/ros-visualization/rqt/issues/186>`_)
+  * Adding logic for actions
+  * Modifications for latest rosidl_interface action changes
+* Contributors: Mike Lautman, brawner
+
 1.0.1 (2018-12-12)
 ------------------
 * updating msg helpers to match the ament_index_python api (`#180 <https://github.com/ros-visualization/rqt/issues/180>`_)
