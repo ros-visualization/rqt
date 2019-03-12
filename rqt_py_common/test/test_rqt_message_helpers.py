@@ -57,8 +57,9 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
         self.assertEqual(text, expected_text)
 
         text = get_message_text_from_class(Val)
-        expected_text = 'float64[5] floats\n'
-        self.assertEqual(text, expected_text)
+        expected_text1 = 'float64[5] floats\n'  # .msg based type name
+        expected_text2 = 'double[5] floats\n'  # .idl based type name
+        self.assertTrue(text in (expected_text1, expected_text2))
 
     def test_get_service_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_text_from_class
