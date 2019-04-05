@@ -37,14 +37,11 @@
 import unittest
 
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-
 from rqt_py_common.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):
-    """
-    :author: Isaac Saito
-    """
+    """:author: Isaac Saito."""
 
     def setUp(self):
         unittest.TestCase.setUp(self)
@@ -63,9 +60,6 @@ class TestRqtRosGraph(unittest.TestCase):
 
         self._model.appendRow(node1)
 
-        # node_list = [node1, node1_1, self._node1_1_1, node1_1_2, node1_2]
-        # self._model.appendRow(node_list)
-
         self._grn_node1_1_1 = '/node1/node1_1/node1_1_1'
         self._len_lower_grn_node1_1 = 2
 
@@ -82,7 +76,3 @@ class TestRqtRosGraph(unittest.TestCase):
             len(RqtRosGraph.get_lower_grn_dfs(
                 self._node1_1.index(), '')),
             self._len_lower_grn_node1_1)
-
-    # def test_get_full_grn(self):
-    #     self.assertEqual(RqtRosGraph.get_full_grn(self._node1_1_1.index()),
-    #                      self._grn_node1_1_1)
