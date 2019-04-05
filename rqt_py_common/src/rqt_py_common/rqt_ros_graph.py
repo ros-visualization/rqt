@@ -62,7 +62,7 @@ class RqtRosGraph(object):
         """
         children_grn_list = RqtRosGraph.get_lower_grn_dfs(model_index)
         parent_data = model_index.data()
-        if parent_data == None:  # model_index is 1st-order node of a tree.
+        if parent_data is None:  # model_index is 1st-order node of a tree.
             upper_grn = RqtRosGraph.get_upper_grn(model_index, '')
             grn_list = []
             for child_grn in children_grn_list:
@@ -81,8 +81,9 @@ class RqtRosGraph(object):
     @staticmethod
     def get_lower_grn_dfs(model_index, grn_prev=''):
         """
-        Traverse all children treenodes and returns a list of "partial"
-        GRNs. Partial means that this method returns names under current level.
+        Traverse all children treenodes and returns a list of "partial" GRNs.
+
+        Partial means that this method returns names under current level.
 
         Ex. Consider a tree like this:
 
@@ -140,7 +141,7 @@ class RqtRosGraph(object):
 
     @staticmethod
     def get_upper_grn(model_index, str_grn):
-        if model_index.data(Qt.DisplayRole) == None:
+        if model_index.data(Qt.DisplayRole) is None:
             return str_grn
         str_grn = (RqtRosGraph.DELIM_GRN +
                    str(model_index.data(Qt.DisplayRole)) +

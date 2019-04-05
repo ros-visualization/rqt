@@ -37,14 +37,11 @@
 import unittest
 
 from python_qt_binding.QtGui import QStandardItem, QStandardItemModel
-
 from rqt_py_common.rqt_ros_graph import RqtRosGraph
 
 
 class TestRqtRosGraph(unittest.TestCase):
-    """
-    :author: Isaac Saito
-    """
+    """:author: Isaac Saito."""
 
     def setUp(self):
         unittest.TestCase.setUp(self)
