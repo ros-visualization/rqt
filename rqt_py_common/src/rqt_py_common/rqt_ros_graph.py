@@ -36,11 +36,8 @@ from __future__ import division
 
 from python_qt_binding.QtCore import Qt
 
-from rclpy import logging
-
 
 class RqtRosGraph(object):
-    _logger = logging.get_logger('RqtRosGraph')
     DELIM_GRN = '/'
 
     @staticmethod
@@ -65,15 +62,11 @@ class RqtRosGraph(object):
         """
         children_grn_list = RqtRosGraph.get_lower_grn_dfs(model_index)
         parent_data = model_index.data()
-        RqtRosGraph._logger.debug('parent_data={}'.format(parent_data))
         if parent_data == None:  # model_index is 1st-order node of a tree.
             upper_grn = RqtRosGraph.get_upper_grn(model_index, '')
             grn_list = []
             for child_grn in children_grn_list:
                 grn_full = upper_grn + child_grn
-                RqtRosGraph._logger.debug(
-                    'grn_full={} upper_grn={} child_grn={}'.format(
-                        grn_full, upper_grn, child_grn))
                 grn_list.append(grn_full)
         else:
             grn_list = children_grn_list
@@ -128,18 +121,11 @@ class RqtRosGraph(object):
             child_qmindex = model_index.child(i_child, 0)
 
             if (not child_qmindex.isValid()):
-                RqtRosGraph._logger.debug(
-                    '!! DEADEND i_child=#{} grn_curr={}'.format(
-                        i_child, grn_curr))
                 if i_child == 0:
                     # Only when the current node has no children, add current
                     # GRN to the returning list.
                     list_grn_children_all.append(grn_curr)
                 return list_grn_children_all
-
-            RqtRosGraph._logger.debug(
-                'Child#{} grn_curr={}'.format(
-                    i_child, grn_curr))
 
             list_grn_children = RqtRosGraph.get_lower_grn_dfs(child_qmindex,
                                                               grn_curr)
@@ -149,12 +135,6 @@ class RqtRosGraph(object):
                              (RqtRosGraph.DELIM_GRN + child_grn))
 
             list_grn_children_all = list_grn_children_all + list_grn_children
-            RqtRosGraph._logger.debug(
-                '111 lennodes={} list_grn_children={}'.format(
-                    len(list_grn_children_all), list_grn_children))
-            RqtRosGraph._logger.debug(
-                '122 list_grn_children_all={}'.format(
-                    list_grn_children_all))
             i_child += 1
         return list_grn_children_all
 
@@ -165,7 +145,4 @@ class RqtRosGraph(object):
         str_grn = (RqtRosGraph.DELIM_GRN +
                    str(model_index.data(Qt.DisplayRole)) +
                    str_grn)
-        RqtRosGraph._logger.debug(
-            'get_full_grn_recur out str={}'.format(
-                str_grn))
         return RqtRosGraph.get_upper_grn(model_index.parent(), str_grn)
