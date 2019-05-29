@@ -264,7 +264,7 @@ def get_service_class(srv_type):
     """
     Gets the service class from a string representation.
 
-    :param srv_type: the type of service in the form `srv_pkg/Service`
+    :param srv_type: the type of service in the form `srv_pkg/srv/Service`
     :type srv_type: str
 
     :returns: None or the Class
