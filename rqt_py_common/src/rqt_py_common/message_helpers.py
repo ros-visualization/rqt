@@ -227,12 +227,15 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
         return None
 
     message_info = message_type.split('/')
-    if len(message_info) != 3:
+    if len(message_info) not in (2, 3):
         logger.error('Malformed message_type: {}'.format(message_type))
+        return None
+    if len(message_info) == 3 and message_info[1] != mode:
+        logger.error('Malformed {} message_type: {}'.format(mode, message_type))
         return None
 
     package = message_info[0]
-    base_type = message_info[2]
+    base_type = message_info[-1]
 
     try:
         _, resource_path = get_resource('rosidl_interfaces', package)
