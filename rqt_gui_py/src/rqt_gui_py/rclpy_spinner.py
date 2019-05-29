@@ -29,10 +29,18 @@ class RclpySpinner(QThread):
         executor = MultiThreadedExecutor()
         executor.add_node(self._node)
         while rclpy.ok() and not self._abort:
+            # we have to put a try/except block around the executor
+            # because when ctrl-c there might be the case of waiting within the executor
+            # even though rcl shutdown() was triggered already.
+            # see ticket here: https://github.com/ros-visualization/rqt/issues/198
             try:
                 executor.spin_once(timeout_sec=1.0)
-            except RuntimeError:
-                if rclpy.ok():
+            except RuntimeError as re:
+                # right now there is no specific error thrown other than RuntimeError
+                # in order to narrow down the reason for the error we parse the error message
+                if not rclpy.ok() and 'Failed to initialize wait set' in str(re):
+                    pass
+                else:
                     raise
         if not self._abort:
             qWarning('rclpy.shutdown() was called before QThread.quit()')
