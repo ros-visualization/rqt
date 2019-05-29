@@ -210,7 +210,8 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
     """
     A helper function for common logic to be used by get_message_class and get_service_class.
 
-    :param message_type: name of the message or service class in the form 'package_name/msg_name'
+    :param message_type: name of the message or service class in the form
+      'package_name/MessageName' or 'package_name/msg/MessageName'
     :type message_type: str
     :param mode: one of MSG_MODE, SRV_MODE or ACTION_MODE
     :type mode: str
@@ -227,12 +228,15 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
         return None
 
     message_info = message_type.split('/')
-    if len(message_info) != 2:
+    if len(message_info) not in (2, 3):
         logger.error('Malformed message_type: {}'.format(message_type))
+        return None
+    if len(message_info) == 3 and message_info[1] != mode:
+        logger.error('Malformed {} message_type: {}'.format(mode, message_type))
         return None
 
     package = message_info[0]
-    base_type = message_info[1]
+    base_type = message_info[-1]
 
     try:
         _, resource_path = get_resource('rosidl_interfaces', package)
@@ -264,7 +268,8 @@ def get_service_class(srv_type):
     """
     Gets the service class from a string representation.
 
-    :param srv_type: the type of service in the form `srv_pkg/Service`
+    :param srv_type: the type of service in the form
+      `package_name/ServiceName` or `package_name/srv/ServiceName`
     :type srv_type: str
 
     :returns: None or the Class
