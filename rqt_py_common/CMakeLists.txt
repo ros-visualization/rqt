@@ -19,9 +19,10 @@ if(BUILD_TESTING)
   find_package(python_cmake_module REQUIRED)
   find_package(PythonExtra MODULE)
 
-  set(${PROJECT_NAME}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
   if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(${PROJECT_NAME}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE_DEBUG}")
+  else()
+    set(${PROJECT_NAME}_PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE}")
   endif()
 
   rosidl_generate_interfaces(${PROJECT_NAME}
