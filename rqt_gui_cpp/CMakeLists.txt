@@ -33,12 +33,6 @@ SET(rqt_gui_cpp_SRCS
   src/rqt_gui_cpp/roscpp_plugin_provider.cpp
 )
 
-set(rqt_gui_cpp_HDRS
-  src/rqt_gui_cpp/roscpp_plugin_provider.h
-)
-
-qt5_wrap_cpp(rqt_gui_cpp_MOCS ${rqt_gui_cpp_HDRS})
-
 ament_export_dependencies(
   Qt5Widgets
   pluginlib
@@ -57,7 +51,7 @@ include_directories(${PROJECT_NAME}
 
 add_library(${PROJECT_NAME} SHARED
   ${rqt_gui_cpp_SRCS}
-  ${rqt_gui_cpp_MOCS})
+)
 
 if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
