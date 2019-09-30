@@ -2,8 +2,8 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.5 (2019-09-30)
+------------------
 * use Python debug executable for Windows debug builds (`#196 <https://github.com/ros-visualization/rqt/issues/196>`_)
 
 1.0.2 (2019-02-04)
