@@ -2,6 +2,10 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use Python debug executable for Windows debug builds (`#196 <https://github.com/ros-visualization/rqt/issues/196>`_)
+
 1.0.2 (2019-02-04)
 ------------------
 * fixing srv and msg filters (`#188 <https://github.com/ros-visualization/rqt/issues/188>`_)

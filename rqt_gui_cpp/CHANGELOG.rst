@@ -2,6 +2,10 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* drop unnecessary MOC compilation (`#203 <https://github.com/ros-visualization/rqt/issues/203>`_)
+
 1.0.2 (2019-02-04)
 ------------------
 
