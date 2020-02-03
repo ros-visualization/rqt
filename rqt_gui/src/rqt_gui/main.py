@@ -42,10 +42,10 @@ import rclpy
 
 class Main(Base):
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, settings_filename='rqt_gui'):
         qtgui_path = get_package_path('qt_gui')
         super(Main, self).__init__(
-            qtgui_path, invoked_filename=filename, settings_filename='rqt_gui')
+            qtgui_path, invoked_filename=filename, settings_filename=settings_filename)
 
     def main(self, argv=None, standalone=None, plugin_argument_provider=None):
         if argv is None:
