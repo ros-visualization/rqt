@@ -43,11 +43,11 @@ import rospy
 
 class Main(Base):
 
-    def __init__(self, filename=None, ros_pack=None):
+    def __init__(self, filename=None, ros_pack=None, settings_filename='rqt_gui'):
         rp = ros_pack or RosPack()
         qtgui_path = rp.get_path('qt_gui')
         super(Main, self).__init__(
-            qtgui_path, invoked_filename=filename, settings_filename='rqt_gui')
+            qtgui_path, invoked_filename=filename, settings_filename=settings_filename)
         self._ros_pack = rp
 
     def main(self, argv=None, standalone=None, plugin_argument_provider=None):
