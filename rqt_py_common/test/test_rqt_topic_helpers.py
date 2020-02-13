@@ -42,7 +42,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
     def test_get_slot_type(self):  # noqa: D102
         from rqt_py_common.topic_helpers import get_slot_type
         from rqt_py_common.message_helpers import get_message_class
-        from rqt_py_common.msg import ArrayVal
+        from rqt_py_common_test_interfaces.msg import ArrayVal
         path = 'vals/floats'
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
@@ -53,16 +53,16 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         message_class = ArrayVal
         message_type, is_array = get_slot_type(message_class, path)
         self.assertTrue(is_array)
-        self.assertEqual(message_type, get_message_class('rqt_py_common/Val'))
+        self.assertEqual(message_type, get_message_class('rqt_py_common_test_interfaces/Val'))
 
     def test_get_field_type(self):  # noqa: D102
         from rqt_py_common.topic_helpers import _get_field_type
-        from rqt_py_common.msg import ArrayVal, Val
+        from rqt_py_common_test_interfaces.msg import ArrayVal, Val
         topic_names_and_types = [
-            ('/example', ['rqt_py_common/Val']),
-            ('/example/vals', ['rqt_py_common/Val']),
-            ('/example_topic', ['rqt_py_common/Val']),
-            ('/example/topic', ['rqt_py_common/ArrayVal']),
+            ('/example', ['rqt_py_common_test_interfaces/Val']),
+            ('/example/vals', ['rqt_py_common_test_interfaces/Val']),
+            ('/example_topic', ['rqt_py_common_test_interfaces/Val']),
+            ('/example/topic', ['rqt_py_common_test_interfaces/ArrayVal']),
         ]
 
         target = '/example/topic/vals/floats'
