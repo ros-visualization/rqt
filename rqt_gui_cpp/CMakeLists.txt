@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(rqt_gui_cpp)
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS qt_gui qt_gui_cpp roscpp nodelet)
