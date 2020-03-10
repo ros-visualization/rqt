@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bump CMake minimum version to avoid CMP0048 warning (`#219 <https://github.com/ros-visualization/rqt/issues/219>`_)
+* style changes (`#143 <https://github.com/ros-visualization/rqt/issues/143>`_)
+* autopep8 (`#137 <https://github.com/ros-visualization/rqt/issues/137>`_)
+
 0.5.0 (2017-04-24)
 ------------------
 * version bump to match version of migrated package `rqt_py_common`

@@ -2,6 +2,12 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bump CMake minimum version to avoid CMP0048 warning (`#219 <https://github.com/ros-visualization/rqt/issues/219>`_)
+* fix missing import bugs (`#139 <https://github.com/ros-visualization/rqt/issues/139>`_)
+* autopep8 (`#137 <https://github.com/ros-visualization/rqt/issues/137>`_)
+
 0.5.0 (2017-04-24)
 ------------------
 * migrated from `rqt_common_plugins` repo
