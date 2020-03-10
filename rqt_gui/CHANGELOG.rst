@@ -1,8 +1,8 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.1 (2020-03-10)
+------------------
 * bump CMake minimum version to avoid CMP0048 warning (`#219 <https://github.com/ros-visualization/rqt/issues/219>`_)
 * allow definition of settings file (`#216 <https://github.com/ros-visualization/rqt/issues/216>`_)
 * use catkin_install_python for Python script (`#206 <https://github.com/ros-visualization/rqt/issues/206>`_)
