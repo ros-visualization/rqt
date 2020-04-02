@@ -214,6 +214,72 @@ def strip_array_from_field_class_str(field_class_str):
 
     return field_class_str
 
+def remove_sequence_from_type_str(type_str):
+    if type_str.startswith(SEQUENCE_DELIM):
+        # Check for bound sequence
+        seq_start_ix = len(SEQUENCE_DELIM)
+        seq_end_ix = type_str.rfind(',')
+        # If not bound check for unbound sequence
+        if seq_end_ix < 0:
+            seq_end_ix = type_str.rfind('>')
+
+        # If we have found an end to the sequence, then we strip that
+        if seq_end_ix > 0:
+            type_str = type_str[seq_start_ix:seq_end_ix]
+        return type_str
+
+def get_array_information(type_str):
+    return {
+        "type_string": strip_array_from_field_class_str(type_str),
+        "is_array": slot_is_array(type_str),
+        "is_static_array": is_static_array(type_str),
+        "static_array_size": get_static_array_size(type_str),
+        "is_bounded_array": is_bounded_array(type_str),
+        "bounded_array_size": get_bounded_array_size(type_str),
+        "is_unbounded_array": is_unbounded_array(type_str),
+        "is_bounded_string": is_bounded_string(type_str),
+        "bounded_string_size": get_bounded_string_size(type_str)
+    }
+
+def is_bounded_array(type_str):
+    return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') >= 0
+
+def is_unbounded_array(type_str):
+    return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') < 0
+
+def is_static_array(type_str):
+    return type_str.find('[') >= 0
+
+def get_static_array_size(type_str):
+    start_ix = type_str.find('[')
+    end_ix = type_str.find(']')
+    try:
+        return int(type_str[start_ix+1:end_ix])
+    except ValueError:
+        return -1
+
+def get_bounded_array_size(type_str):
+    bounded_size_start_ix = type_str.find(', ')
+    try:
+        return int(type_str[bounded_size_start_ix + 2:-1])
+    except ValueError:
+        return -1
+
+def is_bounded_string(type_str):
+    bounded_string_delim = 'string<'
+    return type_str.find(bounded_string_delim) >= 0
+
+def get_bounded_string_size(type_str):
+    bounded_string_delim = 'string<'
+    type_str = remove_sequence_from_type_str(type_str)
+    start_ix = type_str.find(bounded_string_delim)
+    if start_ix >=0:
+        start_ix += len(bounded_string_delim)
+        end_ix = type_str.rfind('>')
+        try:
+            return int(type_str[start_ix:end_ix])
+        except ValueError:
+            return -1
 
 def get_slot_class(slot_class_string):
     if is_primitive_type(slot_class_string):
