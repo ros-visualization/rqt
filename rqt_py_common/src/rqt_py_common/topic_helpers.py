@@ -184,7 +184,7 @@ def strip_array_from_field_class_str(field_class_str):
         uint32          -> 'uint32'                   -> int
         uint64          -> 'uint64'                   -> int
         string          -> 'string'                   -> str
-        Custom          -> 'custom_msgs/Custom'       -> custom_msgs.msg.Custom
+        my_msgs/Custom  -> 'my_msgs/Custom'           -> my_msgs.msg.Custom
 
         # Arrays with normal values
         int8[3]         -> 'int8[3]'                  -> List[int]
@@ -230,8 +230,8 @@ def remove_sequence_from_type_str(type_str):
         # If we have found an end to the sequence, then we strip that
         if seq_end_ix > 0:
             type_str = type_str[seq_start_ix:seq_end_ix]
-        return type_str
 
+    return type_str
 
 def get_array_information(type_str):
     return {
@@ -267,14 +267,12 @@ def get_static_array_size(type_str):
     except ValueError:
         return -1
 
-
 def get_bounded_array_size(type_str):
     bounded_size_start_ix = type_str.find(', ')
     try:
         return int(type_str[bounded_size_start_ix + 2:-1])
     except ValueError:
         return -1
-
 
 def is_bounded_string(type_str):
     bounded_string_delim = 'string<'
@@ -292,7 +290,6 @@ def get_bounded_string_size(type_str):
             return int(type_str[start_ix:end_ix])
         except ValueError:
             return -1
-
 
 def get_slot_class(slot_class_string):
     if is_primitive_type(slot_class_string):
