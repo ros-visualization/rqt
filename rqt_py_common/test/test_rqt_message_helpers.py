@@ -53,13 +53,20 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
         from rqt_py_common.message_helpers import get_message_text_from_class
         from rqt_py_common.msg import ArrayVal, Val
         text = get_message_text_from_class(ArrayVal)
-        expected_text = 'rqt_py_common/Val[5] vals\n'
+        expected_text = \
+            'rqt_py_common/Val[5] vals\n' + \
+            'sequence<rqt_py_common/Val> unbounded_vals\n' + \
+            'sequence<rqt_py_common/Val, 5> bounded_vals\n' + \
+            'rqt_py_common/Val single_val\n'
         self.assertEqual(text, expected_text)
 
         text = get_message_text_from_class(Val)
-        expected_text1 = 'float64[5] floats\n'  # .msg based type name
-        expected_text2 = 'double[5] floats\n'  # .idl based type name
-        self.assertTrue(text in (expected_text1, expected_text2))
+        expected_text = \
+            'double[5] floats\n' + \
+            'sequence<double> unbounded_floats\n' + \
+            'sequence<double, 3> bounded_floats\n' + \
+            'double single_float\n'
+        self.assertEqual(text, expected_text)
 
     def test_get_service_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_text_from_class

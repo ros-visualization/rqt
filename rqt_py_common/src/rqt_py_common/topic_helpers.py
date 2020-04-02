@@ -34,23 +34,24 @@ from rclpy import logging
 
 from rqt_py_common.message_helpers import get_message_class
 
+SEQUENCE_DELIM = 'sequence<'
+PRIMITIVE_TYPES = [
+    'int8', 'uint8',
+    'int16', 'uint16',
+    'int32', 'uint32',
+    'int64', 'uint64',
+    'float', 'float32', 'float64',
+    'double', 'long double',
+    'char', 'wchar',
+    'octet',
+    'string',
+    'bool', 'boolean',
+    # deprecated in ros1:
+    'char', 'byte']
 
 def is_primitive_type(type_str):
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
-    primitive_types = [
-        'int8', 'uint8',
-        'int16', 'uint16',
-        'int32', 'uint32',
-        'int64', 'uint64',
-        'float', 'float32', 'float64',
-        'double', 'long double',
-        'char', 'wchar',
-        'octet',
-        'string',
-        'bool', 'boolean',
-        # deprecated in ros1:
-        'char', 'byte']
-    return type_str in primitive_types
+    return type_str in PRIMITIVE_TYPES
 
 
 def get_type_class(type_name):
@@ -108,7 +109,6 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
     logger = logging.get_logger('topic_helpers._get_field_type')
     delim = '/'
     tokenized_target = target.strip(delim).split(delim)
-
     for topic_name, types in topic_names_and_types:
         tokenized_topic_name = topic_name.strip(delim).split(delim)
         # If the target starts with the topic we have found a potential match
@@ -141,12 +141,102 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
                     try:
                         msg_class = get_message_class(msg_type_str)
                         field_type, is_array = get_slot_type(msg_class, field_address)
-                        return field_type, is_array
+                        if field_type:
+                            return field_type, is_array
                     except KeyError:
                         pass
-
     logger.debug('faild to find field type: {}'.format(target))
     return None, False
+
+def slot_is_array(field_type) -> bool:
+    """
+    Returns if the field type is an array.
+
+    :param field_type: Field type as produced by get_fields_and_field_types()
+    :type field_type: str
+
+    :rtype: bool
+    """
+    return field_type.startswith(SEQUENCE_DELIM) or \
+        field_type.find('[') >=0
+
+def strip_array_from_field_class_str(field_class_str):
+    """
+    Removes the array information leaving just the slot class str
+
+    Parse items such as (from rosidl_generator_py definitions):
+        .msg            field_type                    python
+        -----------------------------------------------------------
+        bool            -> 'boolean'                  -> bool
+        byte            -> 'octet'                    -> bytes
+        float32         -> 'float'                    -> float
+        float64         -> 'double'                   -> float
+        char            -> 'uint8'                    -> int
+        int8            -> 'int8'                     -> int
+        int16           -> 'int16'                    -> int
+        int32           -> 'int32'                    -> int
+        int64           -> 'int64'                    -> int
+        uint8           -> 'uint8'                    -> int
+        uint16          -> 'uint16'                   -> int
+        uint32          -> 'uint32'                   -> int
+        uint64          -> 'uint64'                   -> int
+        string          -> 'string'                   -> str
+        Custom          -> 'custom_msgs/Custom'       -> custom_msgs.msg.Custom
+
+        # Arrays with normal values
+        int8[3]         -> 'int8[3]'                  -> List[int]
+        int8[]          -> 'sequence<int8>'           -> List[int]
+        int8[<=3]       -> 'sequence<int8, 3>'        -> List[int]
+
+        # String weirdness
+        string[3]       -> 'string[3]'                -> List[str]
+        string[]        -> 'sequence<string>'         -> List[str]
+        string<=5[3]    -> 'string<5>[3]'             -> List[str]
+        string<=5[<=10] -> 'sequence<string<5>, 10>'  -> List[str]
+        string<=5[]     -> 'sequence<string<5>>'      -> List[str]
+        string[<=10]    -> 'sequence<string, 10>'     -> List[str]
+
+    :param field_class_str: The field_class_str such as one as created by
+        get_fields_and_field_types()
+    :type field_class_str: str
+
+    :returns: the field_type of with the list component stripped out
+    :rtype str: str
+    """
+    if field_class_str.startswith(SEQUENCE_DELIM):
+        field_class_str = field_class_str[len(SEQUENCE_DELIM):]
+
+    end_of_base_type_delim = ['<', '[', ',', '>']
+    for delim in end_of_base_type_delim:
+        delim_ix = field_class_str.find(delim)
+        if delim_ix >=0:
+            field_class_str = field_class_str[:delim_ix]
+
+    return field_class_str
+
+
+def get_slot_class(slot_class_string):
+    if is_primitive_type(slot_class_string):
+        return get_type_class(slot_class_string)
+    else:
+        return get_message_class(slot_class_string)
+
+def get_slot_type_str(message_class, slot_path):
+    """
+    Get the Python type as a string of a slot in the given message class.
+
+    If the field is an array, the type of the array's values are returned and the is_array rval is
+    set to True. This is a static type check, so it works for unpublished topics and with empty
+    arrays.
+
+    :param message_class: message class type as str
+    :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
+
+    :returns: field_type as str, is_array
+    :rtype: str, bool
+    """
+    _, slot_class_str, is_array = get_slot_class_and_str(message_class, slot_path)
+    return slot_class_str, is_array
 
 
 def get_slot_type(message_class, slot_path):
@@ -157,27 +247,45 @@ def get_slot_type(message_class, slot_path):
     set to True. This is a static type check, so it works for unpublished topics and with empty
     arrays.
 
-    :param message_class: message class type, ``type``, usually inherits from genpy.message.Message
+    :param message_class: message class type as a class
     :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
+
     :returns: field_type, is_array
+    :rtype: str, bool
     """
+    slot_class, _, is_array = get_slot_class_and_str(message_class, slot_path)
+    return slot_class, is_array
+
+def get_slot_class_and_str(message_class, slot_path):
+    """
+    Get the Python type of a specific slot in the given message class.
+
+    If the field is an array, the type of the array's values are returned and the is_array flag is
+    set to True. This is a static type check, so it works for unpublished topics and with empty
+    arrays.
+
+    :param message_class: message class type as a class
+    :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
+
+    :returns: slot class, slot string rep, is_array
+    :rtype: class, str, bool
+    """
+    slot_class_str = None
     is_array = False
+
     fields = [f for f in slot_path.split('/') if f]
     for field_name in fields:
-        slot_class_name = message_class.get_fields_and_field_types()[field_name]
+        is_array = False
+        slot_class_str = None
+        message_class_slots = message_class.get_fields_and_field_types()
+        if not field_name in message_class_slots:
+            return None, None, is_array
 
-        array_index = slot_class_name.find('[')
-        if array_index >= 0:
+        slot_class_str = message_class_slots[field_name]
+        if slot_is_array(slot_class_str):
+            slot_class_str = strip_array_from_field_class_str(slot_class_str)
             is_array = True
-            if is_primitive_type(slot_class_name[:array_index]):
-                message_class = get_type_class(slot_class_name[:array_index])
-            else:
-                message_class = get_message_class(slot_class_name[:array_index])
-        else:
-            is_array = False
-            if is_primitive_type(slot_class_name):
-                message_class = get_type_class(slot_class_name)
-            else:
-                message_class = get_message_class(slot_class_name)
 
-    return message_class, is_array
+        message_class = get_slot_class(slot_class_str)
+
+    return message_class, slot_class_str, is_array
