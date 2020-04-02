@@ -49,6 +49,7 @@ PRIMITIVE_TYPES = [
     # deprecated in ros1:
     'char', 'byte']
 
+
 def is_primitive_type(type_str):
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
     return type_str in PRIMITIVE_TYPES
@@ -148,6 +149,7 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
     logger.debug('faild to find field type: {}'.format(target))
     return None, False
 
+
 def slot_is_array(field_type) -> bool:
     """
     Returns if the field type is an array.
@@ -158,7 +160,8 @@ def slot_is_array(field_type) -> bool:
     :rtype: bool
     """
     return field_type.startswith(SEQUENCE_DELIM) or \
-        field_type.find('[') >=0
+        field_type.find('[') >= 0
+
 
 def strip_array_from_field_class_str(field_class_str):
     """
@@ -209,10 +212,11 @@ def strip_array_from_field_class_str(field_class_str):
     end_of_base_type_delim = ['<', '[', ',', '>']
     for delim in end_of_base_type_delim:
         delim_ix = field_class_str.find(delim)
-        if delim_ix >=0:
+        if delim_ix >= 0:
             field_class_str = field_class_str[:delim_ix]
 
     return field_class_str
+
 
 def remove_sequence_from_type_str(type_str):
     if type_str.startswith(SEQUENCE_DELIM):
@@ -228,6 +232,7 @@ def remove_sequence_from_type_str(type_str):
             type_str = type_str[seq_start_ix:seq_end_ix]
         return type_str
 
+
 def get_array_information(type_str):
     return {
         "type_string": strip_array_from_field_class_str(type_str),
@@ -241,22 +246,27 @@ def get_array_information(type_str):
         "bounded_string_size": get_bounded_string_size(type_str)
     }
 
+
 def is_bounded_array(type_str):
     return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') >= 0
+
 
 def is_unbounded_array(type_str):
     return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') < 0
 
+
 def is_static_array(type_str):
     return type_str.find('[') >= 0
+
 
 def get_static_array_size(type_str):
     start_ix = type_str.find('[')
     end_ix = type_str.find(']')
     try:
-        return int(type_str[start_ix+1:end_ix])
+        return int(type_str[start_ix + 1:end_ix])
     except ValueError:
         return -1
+
 
 def get_bounded_array_size(type_str):
     bounded_size_start_ix = type_str.find(', ')
@@ -265,15 +275,17 @@ def get_bounded_array_size(type_str):
     except ValueError:
         return -1
 
+
 def is_bounded_string(type_str):
     bounded_string_delim = 'string<'
     return type_str.find(bounded_string_delim) >= 0
+
 
 def get_bounded_string_size(type_str):
     bounded_string_delim = 'string<'
     type_str = remove_sequence_from_type_str(type_str)
     start_ix = type_str.find(bounded_string_delim)
-    if start_ix >=0:
+    if start_ix >= 0:
         start_ix += len(bounded_string_delim)
         end_ix = type_str.rfind('>')
         try:
@@ -281,11 +293,13 @@ def get_bounded_string_size(type_str):
         except ValueError:
             return -1
 
+
 def get_slot_class(slot_class_string):
     if is_primitive_type(slot_class_string):
         return get_type_class(slot_class_string)
     else:
         return get_message_class(slot_class_string)
+
 
 def get_slot_type_str(message_class, slot_path):
     """
@@ -321,6 +335,7 @@ def get_slot_type(message_class, slot_path):
     """
     slot_class, _, is_array = get_slot_class_and_str(message_class, slot_path)
     return slot_class, is_array
+
 
 def get_slot_class_and_str(message_class, slot_path):
     """
