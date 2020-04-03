@@ -149,7 +149,6 @@ def _get_field_type(topic_names_and_types, target):  # noqa: C901
     logger.debug('faild to find field type: {}'.format(target))
     return None, False
 
-
 def slot_is_array(field_type) -> bool:
     """
     Returns if the field type is an array.
@@ -163,7 +162,7 @@ def slot_is_array(field_type) -> bool:
         field_type.find('[') >= 0
 
 
-def strip_array_from_field_class_str(field_class_str):
+def get_base_type_str_from_field_type(field_class_str):
     """
     Removes the array information leaving just the slot class str
 
@@ -217,8 +216,8 @@ def strip_array_from_field_class_str(field_class_str):
 
     return field_class_str
 
-
 def remove_sequence_from_type_str(type_str):
+    """Remove leading ''sequence<' and trailing '>' as well as bounding limit"""
     if type_str.startswith(SEQUENCE_DELIM):
         # Check for bound sequence
         seq_start_ix = len(SEQUENCE_DELIM)
@@ -233,9 +232,11 @@ def remove_sequence_from_type_str(type_str):
 
     return type_str
 
-def get_array_information(type_str):
+def get_field_type_array_information(type_str):
+    """Get array info from a field_type_str"""
+    #TODO(mlautman): use regex for all of these instead
     return {
-        "type_string": strip_array_from_field_class_str(type_str),
+        "base_type_string": get_base_type_str_from_field_type(type_str),
         "is_array": slot_is_array(type_str),
         "is_static_array": is_static_array(type_str),
         "static_array_size": get_static_array_size(type_str),
@@ -246,20 +247,18 @@ def get_array_information(type_str):
         "bounded_string_size": get_bounded_string_size(type_str)
     }
 
-
-def is_bounded_array(type_str):
+def is_bounded_array(type_str) -> bool:
+    """Checks if string matches this pattern "^sequence<.*,.*>"""
     return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') >= 0
 
-
-def is_unbounded_array(type_str):
+def is_unbounded_array(type_str) -> bool:
+    """Checks if string matches this pattern "^sequence<[^,]*>" without a bound"""
     return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') < 0
 
-
-def is_static_array(type_str):
+def is_static_array(type_str) -> bool:
     return type_str.find('[') >= 0
 
-
-def get_static_array_size(type_str):
+def get_static_array_size(type_str) -> int:
     start_ix = type_str.find('[')
     end_ix = type_str.find(']')
     try:
@@ -267,19 +266,25 @@ def get_static_array_size(type_str):
     except ValueError:
         return -1
 
-def get_bounded_array_size(type_str):
+def get_bounded_array_size(type_str) -> int:
     bounded_size_start_ix = type_str.find(', ')
     try:
         return int(type_str[bounded_size_start_ix + 2:-1])
     except ValueError:
         return -1
 
-def is_bounded_string(type_str):
+def is_bounded_string(type_str) -> bool:
+    """If the type_str has string<some_val> return true"""
     bounded_string_delim = 'string<'
     return type_str.find(bounded_string_delim) >= 0
 
 
-def get_bounded_string_size(type_str):
+def get_bounded_string_size(type_str) -> int:
+    """
+    If the type_str has string<some_val> return some_val as int
+
+    If not a bounded string, return -1
+    """
     bounded_string_delim = 'string<'
     type_str = remove_sequence_from_type_str(type_str)
     start_ix = type_str.find(bounded_string_delim)
@@ -289,14 +294,15 @@ def get_bounded_string_size(type_str):
         try:
             return int(type_str[start_ix:end_ix])
         except ValueError:
-            return -1
+            pass
+    return -1
 
-def get_slot_class(slot_class_string):
+def get_slot_class(slot_class_string) -> object:
+    slot_class_string = get_base_type_str_from_field_type(slot_class_string)
     if is_primitive_type(slot_class_string):
         return get_type_class(slot_class_string)
     else:
         return get_message_class(slot_class_string)
-
 
 def get_slot_type_str(message_class, slot_path):
     """
@@ -312,9 +318,8 @@ def get_slot_type_str(message_class, slot_path):
     :returns: field_type as str, is_array
     :rtype: str, bool
     """
-    _, slot_class_str, is_array = get_slot_class_and_str(message_class, slot_path)
-    return slot_class_str, is_array
-
+    _, field_information = get_slot_class_and_field_information(message_class, slot_path)
+    return field_info['base_type_string'], field_info['is_array']
 
 def get_slot_type(message_class, slot_path):
     """
@@ -330,13 +335,12 @@ def get_slot_type(message_class, slot_path):
     :returns: field_type, is_array
     :rtype: str, bool
     """
-    slot_class, _, is_array = get_slot_class_and_str(message_class, slot_path)
-    return slot_class, is_array
+    slot_class, field_info = get_slot_class_and_field_information(message_class, slot_path)
+    return slot_class, field_info['is_array']
 
-
-def get_slot_class_and_str(message_class, slot_path):
+def get_slot_class_and_field_information(message_class, slot_path):
     """
-    Get the Python type of a specific slot in the given message class.
+    Get the Python class of slot in the given message class and its field info
 
     If the field is an array, the type of the array's values are returned and the is_array flag is
     set to True. This is a static type check, so it works for unpublished topics and with empty
@@ -345,25 +349,38 @@ def get_slot_class_and_str(message_class, slot_path):
     :param message_class: message class type as a class
     :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
 
-    :returns: slot class, slot string rep, is_array
-    :rtype: class, str, bool
+    :returns: slot class, array_info where array_info is a map
+    :rtype: class, map
     """
-    slot_class_str = None
+    array_info = None
     is_array = False
 
     fields = [f for f in slot_path.split('/') if f]
-    for field_name in fields:
-        is_array = False
-        slot_class_str = None
-        message_class_slots = message_class.get_fields_and_field_types()
-        if not field_name in message_class_slots:
-            return None, None, is_array
+    if not len(fields):
+        message_instance = message_class()
+        # message_instance should be of form something like:
+        #   'rqt_py_common.msg.Val(floats=array([ 0.,...
+        # We isolate 'rqt_py_common.msg.Val' and replace '.msg.' with '/'
+        slot_class_str = \
+            "/".join(
+                message_instance.__repr__().split("(", 1)[0].split(".msg.", 1)
+            )
+        array_info = \
+            get_field_type_array_information(slot_class_str)
+    else:
+        for field_name in fields:
+            is_array = False
+            array_info = None
+            message_class_slots = message_class.get_fields_and_field_types()
+            if not field_name in message_class_slots:
+                qWarning(
+                    "field: '%s' not in slots %s" % (field_name, message_class_slots))
+                return None, None
 
-        slot_class_str = message_class_slots[field_name]
-        if slot_is_array(slot_class_str):
-            slot_class_str = strip_array_from_field_class_str(slot_class_str)
-            is_array = True
+            slot_class_str = message_class_slots[field_name]
+            array_info = \
+                get_field_type_array_information(slot_class_str)
 
-        message_class = get_slot_class(slot_class_str)
+            message_class = get_slot_class(slot_class_str)
 
-    return message_class, slot_class_str, is_array
+    return message_class, array_info

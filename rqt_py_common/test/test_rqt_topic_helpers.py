@@ -103,13 +103,304 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                     TestTopicHelpers.example_topic_names_and_types, target
                 )
 
-                if target_class != slot_class[i]:
-                    error
                 if slot_is_arr[i]:
                     self.assertTrue(is_array)
                 else:
                     self.assertFalse(is_array)
                 self.assertEqual(target_class, slot_class[i])
+
+    def test_get_slot_class_and_field_information(self):
+        from rqt_py_common.topic_helpers import get_slot_class_and_field_information
+        from rqt_py_common.msg import ArrayVal, Val
+
+        val_slots = ["", "floats", "unbounded_floats", "bounded_floats", "single_float"]
+        val_slot_class = [Val, float, float, float, float]
+        val_slot_array_info = [
+            {   # field = None   and field_type rqt_py_common/Val
+                'base_type_string': 'rqt_py_common/Val', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1,
+            },{ # field = "floats" and field_type = double[5]
+                'base_type_string': 'double', 'is_array': True,
+                'is_static_array': True, 'static_array_size': 5,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # field = "unbounded_floats" and field_type = sequence<double>
+                'base_type_string': 'double', 'is_array': True,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': True,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # field = "bounded_floats" and field_type = sequence<double, 3>
+                'base_type_string': 'double', 'is_array': True,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': True, 'bounded_array_size': 3,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # field = "single_float" and field_type = double
+                'base_type_string': 'double', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            }]
+
+        array_val_slots = ["", "vals", "unbounded_vals", "bounded_vals", "single_val"]
+        array_val_slot_array_info = [
+            {   # Field Name "" and field_type = rqt_py_common/ArrayVal
+                'base_type_string': 'rqt_py_common/ArrayVal', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1,
+            },{ # Field Name "vals" and field_type = rqt_py_common/Val[5]
+                'base_type_string': 'rqt_py_common/Val', 'is_array': True,
+                'is_static_array': True, 'static_array_size': 5,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # Field Name "unbounded_vals" and field_type = sequence<rqt_py_common/Val>
+                'base_type_string': 'rqt_py_common/Val', 'is_array': True,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': True,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # Field Name "bounded_vals" and field_type = sequence<rqt_py_common/Val, 5>
+                'base_type_string': 'rqt_py_common/Val', 'is_array': True,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': True, 'bounded_array_size': 5,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+            },{ # Field Name "single_val" and field_type = rqt_py_common/Val
+                'base_type_string': 'rqt_py_common/Val', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1
+                }]
+        array_val_slot_class = [ArrayVal, Val, Val, Val, Val]
+
+        array_val_slots_len = len(array_val_slots)
+        for i in [i for i in range(array_val_slots_len) if array_val_slots[i]]:
+            for j, val_value in [(j, v) for (j, v) in enumerate(val_slots) if v]:
+                if val_value:
+                    array_val_slots.append(array_val_slots[i] + "/" + val_value)
+                    array_val_slot_array_info.append(val_slot_array_info[j])
+                    array_val_slot_class.append(val_slot_class[j])
+
+        for msg_type in ['rqt_py_common/Val', 'rqt_py_common/ArrayVal']:
+            top_level_class = None
+            slot_values = []
+            slot_array_info = []
+            slot_class = []
+            if msg_type == 'rqt_py_common/Val':
+                top_level_class = Val
+                slot_values = val_slots
+                slot_array_info = val_slot_array_info
+                slot_class = val_slot_class
+            elif msg_type == 'rqt_py_common/ArrayVal':
+                top_level_class = ArrayVal
+                slot_values = array_val_slots
+                slot_array_info = array_val_slot_array_info
+                slot_class = array_val_slot_class
+
+            for i, slot_value in enumerate(slot_values):
+                target = "/" + slot_value
+                target_class, field_info = get_slot_class_and_field_information(
+                    top_level_class, slot_value
+                )
+
+                self.assertEqual(target_class, slot_class[i])
+                for info_k, info_v in slot_array_info[i].items():
+                    self.assertTrue(info_k in field_info)
+                    self.assertEqual(info_v, field_info[info_k])
+
+    def test_get_field_type_array_information(self):
+        from rqt_py_common.topic_helpers import get_field_type_array_information
+        slot_type_to_info = {
+            'boolean' : {
+                "base_type_string": "boolean", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'octet' : {
+                "base_type_string": "octet", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'float' : {
+                "base_type_string": "float", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'double' : {
+                "base_type_string": "double", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'uint8' : {
+                "base_type_string": "uint8", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'int8' : {
+                "base_type_string": "int8", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'int16' : {
+                "base_type_string": "int16", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'int32' : {
+                "base_type_string": "int32", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'int64' : {
+                "base_type_string": "int64", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'uint8' : {
+                "base_type_string": "uint8", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'uint16' : {
+                "base_type_string": "uint16", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'uint32' : {
+                "base_type_string": "uint32", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'uint64' : {
+                "base_type_string": "uint64", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'string' : {
+                "base_type_string": "string", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'int8[5]' : {
+                "base_type_string": "int8", "is_array": True,
+                "is_static_array": True, "static_array_size": 5,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'my_msgs/Wstring' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'my_msgs/Wstring[1]' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": True,
+                "is_static_array": True, "static_array_size": 1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<my_msgs/Wstring>' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": True,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<my_msgs/Wstring, 10>' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": 10,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<my_msgs/Wstring, 10>' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": 10,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<my_msgs/Wstring>' : {
+                "base_type_string": "my_msgs/Wstring", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": True,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<int8>' : {
+                "base_type_string": "int8", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": True,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<int8, 9>' : {
+                "base_type_string": "int8", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": 9,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'string[100]' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": True, "static_array_size": 100,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'sequence<string>' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": True,
+                "is_bounded_string": False, "bounded_string_size": -1},
+            'string<999>[34]' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": True, "static_array_size": 34,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": True, "bounded_string_size": 999},
+            'sequence<string<1>, 10>' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": 10,
+                "is_unbounded_array": False,
+                "is_bounded_string": True, "bounded_string_size": 1},
+            'sequence<string<40>>' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": False, "bounded_array_size": -1,
+                "is_unbounded_array": True,
+                "is_bounded_string": True, "bounded_string_size": 40},
+            'sequence<string, 200>' : {
+                "base_type_string": "string", "is_array": True,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": 200,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": -1},
+        }
+        for slot, array_info in slot_type_to_info.items():
+            generated_array_info = get_field_type_array_information(slot)
+            for info_k, info_v in array_info.items():
+                self.assertTrue(info_k in generated_array_info)
+                self.assertEqual(info_v, generated_array_info[info_k])
 
     def test_autogenerated_get_field_type(self):
         '''
