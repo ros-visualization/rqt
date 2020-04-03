@@ -116,7 +116,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         val_slots = ["", "floats", "unbounded_floats", "bounded_floats", "single_float"]
         val_slot_class = [Val, float, float, float, float]
         val_slot_array_info = [
-            {   # field = None   and field_type rqt_py_common/Val
+            {   # field = None   and field_type = rqt_py_common/Val
                 'base_type_string': 'rqt_py_common/Val', 'is_array': False,
                 'is_static_array': False, 'static_array_size': -1,
                 'is_bounded_array': False, 'bounded_array_size': -1,
@@ -212,7 +212,16 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 target_class, field_info = get_slot_class_and_field_information(
                     top_level_class, slot_value
                 )
+                # if target_class != slot_class[i]:
+                #     error
+                # for info_k, info_v in slot_array_info[i].items():
+                #     if not info_k in field_info:
+                #         error
+                #     if not info_v == field_info[info_k]:
+                #         error
 
+                self.assertTrue(target_class is not None)
+                self.assertTrue(field_info is not None)
                 self.assertEqual(target_class, slot_class[i])
                 for info_k, info_v in slot_array_info[i].items():
                     self.assertTrue(info_k in field_info)
@@ -395,6 +404,12 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 "is_bounded_array": True, "bounded_array_size": 200,
                 "is_unbounded_array": False,
                 "is_bounded_string": False, "bounded_string_size": -1},
+            'string<2000>' : {
+                "base_type_string": "string", "is_array": False,
+                "is_static_array": False, "static_array_size": -1,
+                "is_bounded_array": True, "bounded_array_size": -1,
+                "is_unbounded_array": False,
+                "is_bounded_string": False, "bounded_string_size": 2000},
         }
         for slot, array_info in slot_type_to_info.items():
             generated_array_info = get_field_type_array_information(slot)

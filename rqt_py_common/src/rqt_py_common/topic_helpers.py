@@ -32,28 +32,25 @@
 
 from rclpy import logging
 
+from typing import Mapping
+
 from rqt_py_common.message_helpers import get_message_class
+from python_qt_binding.QtCore import qWarning
 
-SEQUENCE_DELIM = 'sequence<'
-PRIMITIVE_TYPES = [
-    'int8', 'uint8',
-    'int16', 'uint16',
-    'int32', 'uint32',
-    'int64', 'uint64',
-    'float', 'float32', 'float64',
-    'double', 'long double',
-    'char', 'wchar',
-    'octet',
-    'string',
-    'bool', 'boolean',
-    # deprecated in ros1:
-    'char', 'byte']
+from rosidl_adapter.parser import PRIMITIVE_TYPES
+
+SEQUENCE_PREFIX = 'sequence<'
 
 
-def is_primitive_type(type_str):
+def is_primitive_type(field_type):
+    """Can be either str or an instance of the field type"""
     # Note: this list a combination of primitive types from ROS1 and the new IDL definitions
-    return type_str in PRIMITIVE_TYPES
-
+    if isinstance(field_type, str):
+        # Remove any unused information about sequences etc..
+        field_type = get_base_type_str_from_field_type(field_type)
+        return field_type in PRIMITIVE_TYPES
+    else:
+        return not hasattr(field_type, "get_fields_and_field_types" )
 
 def get_type_class(type_name):
     """
@@ -158,55 +155,28 @@ def slot_is_array(field_type) -> bool:
 
     :rtype: bool
     """
-    return field_type.startswith(SEQUENCE_DELIM) or \
+    return field_type.startswith(SEQUENCE_PREFIX) or \
         field_type.find('[') >= 0
 
 
 def get_base_type_str_from_field_type(field_class_str):
     """
-    Removes the array information leaving just the slot class str
+    Removes the array information leaving just the slot class str.
 
-    Parse items such as (from rosidl_generator_py definitions):
-        .msg            field_type                    python
-        -----------------------------------------------------------
-        bool            -> 'boolean'                  -> bool
-        byte            -> 'octet'                    -> bytes
-        float32         -> 'float'                    -> float
-        float64         -> 'double'                   -> float
-        char            -> 'uint8'                    -> int
-        int8            -> 'int8'                     -> int
-        int16           -> 'int16'                    -> int
-        int32           -> 'int32'                    -> int
-        int64           -> 'int64'                    -> int
-        uint8           -> 'uint8'                    -> int
-        uint16          -> 'uint16'                   -> int
-        uint32          -> 'uint32'                   -> int
-        uint64          -> 'uint64'                   -> int
-        string          -> 'string'                   -> str
-        my_msgs/Custom  -> 'my_msgs/Custom'           -> my_msgs.msg.Custom
-
-        # Arrays with normal values
-        int8[3]         -> 'int8[3]'                  -> List[int]
-        int8[]          -> 'sequence<int8>'           -> List[int]
-        int8[<=3]       -> 'sequence<int8, 3>'        -> List[int]
-
-        # String weirdness
-        string[3]       -> 'string[3]'                -> List[str]
-        string[]        -> 'sequence<string>'         -> List[str]
-        string<=5[3]    -> 'string<5>[3]'             -> List[str]
-        string<=5[<=10] -> 'sequence<string<5>, 10>'  -> List[str]
-        string<=5[]     -> 'sequence<string<5>>'      -> List[str]
-        string[<=10]    -> 'sequence<string, 10>'     -> List[str]
 
     :param field_class_str: The field_class_str such as one as created by
         get_fields_and_field_types()
+
+        See ``get_field_type_array_information`` for more documentation on
+        input format
+
     :type field_class_str: str
 
     :returns: the field_type of with the list component stripped out
     :rtype str: str
     """
-    if field_class_str.startswith(SEQUENCE_DELIM):
-        field_class_str = field_class_str[len(SEQUENCE_DELIM):]
+    if field_class_str.startswith(SEQUENCE_PREFIX):
+        field_class_str = field_class_str[len(SEQUENCE_PREFIX):]
 
     end_of_base_type_delim = ['<', '[', ',', '>']
     for delim in end_of_base_type_delim:
@@ -218,9 +188,9 @@ def get_base_type_str_from_field_type(field_class_str):
 
 def remove_sequence_from_type_str(type_str):
     """Remove leading ''sequence<' and trailing '>' as well as bounding limit"""
-    if type_str.startswith(SEQUENCE_DELIM):
+    if type_str.startswith(SEQUENCE_PREFIX):
         # Check for bound sequence
-        seq_start_ix = len(SEQUENCE_DELIM)
+        seq_start_ix = len(SEQUENCE_PREFIX)
         seq_end_ix = type_str.rfind(',')
         # If not bound check for unbound sequence
         if seq_end_ix < 0:
@@ -232,8 +202,46 @@ def remove_sequence_from_type_str(type_str):
 
     return type_str
 
-def get_field_type_array_information(type_str):
-    """Get array info from a field_type_str"""
+def get_field_type_array_information(type_str) -> Mapping:
+    """
+    Get array info from a field_type_str
+
+    Parse items such as: (from rosidl_generator_py definitions)
+      .msg            field_type                    python
+      -----------------------------------------------------------
+      bool            -> 'boolean'                  -> bool
+      byte            -> 'octet'                    -> bytes
+      float32         -> 'float'                    -> float
+      float64         -> 'double'                   -> float
+      char            -> 'uint8'                    -> int
+      int8            -> 'int8'                     -> int
+      int16           -> 'int16'                    -> int
+      int32           -> 'int32'                    -> int
+      int64           -> 'int64'                    -> int
+      uint8           -> 'uint8'                    -> int
+      uint16          -> 'uint16'                   -> int
+      uint32          -> 'uint32'                   -> int
+      uint64          -> 'uint64'                   -> int
+      string          -> 'string'                   -> str
+      my_msgs/Custom  -> 'my_msgs/Custom'           -> my_msgs.msg.Custom
+
+      # Arrays with normal values
+      int8[3]         -> 'int8[3]'                  -> List[int]
+      int8[]          -> 'sequence<int8>'           -> List[int]
+      int8[<=3]       -> 'sequence<int8, 3>'        -> List[int]
+
+      # String weirdness
+      string<=5       -> 'string<5>'                -> str
+      string[3]       -> 'string[3]'                -> List[str]
+      string[]        -> 'sequence<string>'         -> List[str]
+      string<=5[3]    -> 'string<5>[3]'             -> List[str]
+      string<=5[<=10] -> 'sequence<string<5>, 10>'  -> List[str]
+      string<=5[]     -> 'sequence<string<5>>'      -> List[str]
+      string[<=10]    -> 'sequence<string, 10>'     -> List[str]
+
+    :param:
+    :return: a dict with field type array info
+    """
     #TODO(mlautman): use regex for all of these instead
     return {
         "base_type_string": get_base_type_str_from_field_type(type_str),
@@ -247,18 +255,16 @@ def get_field_type_array_information(type_str):
         "bounded_string_size": get_bounded_string_size(type_str)
     }
 
-def is_bounded_array(type_str) -> bool:
-    """Checks if string matches this pattern "^sequence<.*,.*>"""
-    return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') >= 0
-
 def is_unbounded_array(type_str) -> bool:
     """Checks if string matches this pattern "^sequence<[^,]*>" without a bound"""
-    return type_str.startswith(SEQUENCE_DELIM) and type_str.find(',') < 0
+    return type_str.startswith(SEQUENCE_PREFIX) and type_str.find(',') < 0
 
 def is_static_array(type_str) -> bool:
     return type_str.find('[') >= 0
 
 def get_static_array_size(type_str) -> int:
+    if not is_static_array(type_str):
+        return -1
     start_ix = type_str.find('[')
     end_ix = type_str.find(']')
     try:
@@ -266,35 +272,46 @@ def get_static_array_size(type_str) -> int:
     except ValueError:
         return -1
 
+def is_bounded_array(type_str) -> bool:
+    """Checks if string matches this pattern "^sequence<.*,.*>"""
+    return type_str.startswith(SEQUENCE_PREFIX) and type_str.find(',') >= 0
+
 def get_bounded_array_size(type_str) -> int:
-    bounded_size_start_ix = type_str.find(', ')
-    try:
-        return int(type_str[bounded_size_start_ix + 2:-1])
-    except ValueError:
-        return -1
-
-def is_bounded_string(type_str) -> bool:
-    """If the type_str has string<some_val> return true"""
-    bounded_string_delim = 'string<'
-    return type_str.find(bounded_string_delim) >= 0
-
-
-def get_bounded_string_size(type_str) -> int:
     """
-    If the type_str has string<some_val> return some_val as int
+    If the type_str is sequence<some_val, some_val> return some_val as int
 
     If not a bounded string, return -1
     """
-    bounded_string_delim = 'string<'
-    type_str = remove_sequence_from_type_str(type_str)
-    start_ix = type_str.find(bounded_string_delim)
-    if start_ix >= 0:
-        start_ix += len(bounded_string_delim)
-        end_ix = type_str.rfind('>')
+    if is_bounded_array(type_str):
+        bounded_size_start_ix = type_str.find(', ')
         try:
-            return int(type_str[start_ix:end_ix])
+            return int(type_str[bounded_size_start_ix + 2:-1])
         except ValueError:
             pass
+    return -1
+
+def is_bounded_string(type_str) -> bool:
+    """If the type_str has string<.* return true"""
+    bounded_string_delim = 'string<'
+    return type_str.find(bounded_string_delim) >= 0
+
+def get_bounded_string_size(type_str) -> int:
+    """
+    If the string represents a bounded string, return the bound
+
+    If not a bounded string, return -1
+    """
+    if is_bounded_string(type_str):
+        bounded_string_delim = 'string<'
+        type_str = remove_sequence_from_type_str(type_str)
+        start_ix = type_str.find(bounded_string_delim)
+        if start_ix >= 0:
+            start_ix += len(bounded_string_delim)
+            end_ix = type_str.rfind('>')
+            try:
+                return int(type_str[start_ix:end_ix])
+            except ValueError:
+                pass
     return -1
 
 def get_slot_class(slot_class_string) -> object:
@@ -319,6 +336,11 @@ def get_slot_type_str(message_class, slot_path):
     :rtype: str, bool
     """
     _, field_information = get_slot_class_and_field_information(message_class, slot_path)
+    if field_information is None:
+        qWarning("get_slot_type_str could not parse slot_path for msg class ")
+        qWarning("\t slot_path", slot_path)
+        qWarning("\t message_class", message_class)
+        return None, None
     return field_info['base_type_string'], field_info['is_array']
 
 def get_slot_type(message_class, slot_path):
@@ -336,6 +358,12 @@ def get_slot_type(message_class, slot_path):
     :rtype: str, bool
     """
     slot_class, field_info = get_slot_class_and_field_information(message_class, slot_path)
+    if field_info is None:
+        qWarning("get_slot_type could not parse slot_path for msg class")
+        qWarning("\t slot_path", slot_path)
+        qWarning("\t message_class", message_class)
+        return None, None
+
     return slot_class, field_info['is_array']
 
 def get_slot_class_and_field_information(message_class, slot_path):
@@ -346,14 +374,21 @@ def get_slot_class_and_field_information(message_class, slot_path):
     set to True. This is a static type check, so it works for unpublished topics and with empty
     arrays.
 
-    :param message_class: message class type as a class
-    :param slot_path: path to the slot inside the message class, ``str``, i.e. '_header/_seq'
+    we check if the message_class is primitive and if it is we return None, None
+
+    :param message_class: message class type as a class.
+    :param slot_path: path to the slot inside the message class, ``str``, i.e.
+        'header/seq[1]' or '/header/seq/a'
 
     :returns: slot class, array_info where array_info is a map
     :rtype: class, map
     """
+
+    if is_primitive_type(message_class):
+        qWarning("message_class: %s is primitive af" % message_class)
+        return None, None
+
     array_info = None
-    is_array = False
 
     fields = [f for f in slot_path.split('/') if f]
     if not len(fields):
@@ -368,10 +403,8 @@ def get_slot_class_and_field_information(message_class, slot_path):
         array_info = \
             get_field_type_array_information(slot_class_str)
     else:
+        message_class_slots = message_class.get_fields_and_field_types()
         for field_name in fields:
-            is_array = False
-            array_info = None
-            message_class_slots = message_class.get_fields_and_field_types()
             if not field_name in message_class_slots:
                 qWarning(
                     "field: '%s' not in slots %s" % (field_name, message_class_slots))
