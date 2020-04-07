@@ -375,21 +375,51 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                     self.assertTrue(info_k in field_info_dict)
                     self.assertEqual(info_v, field_info_dict[info_k])
 
-    # def test_get_slot_type(self):  # noqa: D102
-    #     from rqt_py_common.message_field_type_helpers import get_slot_class_and_field_information
-    #     from rqt_py_common.topic_helpers import get_slot_type
-    #     from rqt_py_common.message_helpers import get_message_class
-    #     from rqt_py_common.msg import ArrayVal
-    #     path = 'vals/floats'
-    #     message_class = ArrayVal
-    #     message_type, field_info = \
-    #         get_slot_class_and_field_information(message_class, path)
-    #     self.assertTrue(field_info is not None and field_info.is_array)
-    #     self.assertEqual(message_type, float)
+    def test_get_base_python_type(self):  # noqa: D102
+        from rqt_py_common.message_field_type_helpers import get_base_python_type
+        from rqt_py_common.message_helpers import get_message_class
+        from rqt_py_common.msg import ArrayVal, Val
 
-    #     path = '/vals'
-    #     message_class = ArrayVal
-    #     message_type, field_info = \
-    #         get_slot_class_and_field_information(message_class, path)
-    #     self.assertTrue(field_info is not None and field_info.is_array)
-    #     self.assertEqual(message_type, get_message_class('rqt_py_common/Val'))
+        field_type_to_python_type_map = {
+            'boolean'                 : bool,
+            'octet'                   : bytes,
+            'float'                   : float,
+            'double'                  : float,
+            'uint8'                   : int,
+            'int8'                    : int,
+            'int16'                   : int,
+            'int32'                   : int,
+            'int64'                   : int,
+            'uint8'                   : int,
+            'uint16'                  : int,
+            'uint32'                  : int,
+            'uint64'                  : int,
+            'string'                  : str,
+            'rqt_py_common/ArrayVal'  : ArrayVal,
+            'rqt_py_common/Val'       : Val,
+            'int8[3]'                 : int,
+            'sequence<int8>'          : int,
+            'sequence<int8, 3>'       : int,
+            'string<5>'               : str,
+            'string[3]'               : str,
+            'sequence<string>'        : str,
+            'string<5>[3]'            : str,
+            'sequence<string<5>, 10>' : str,
+            'sequence<string<5>>'     : str,
+            'sequence<string, 10>'    : str,
+        }
+
+        for k, v in field_type_to_python_type_map.items():
+            self.assertEqual(
+                get_base_python_type(k),
+                v,
+                msg='get_base_python_type(\'%s\') != \'%s\'' % (k, v))
+
+        message_type_str = 'float[]'
+        python_type = get_base_python_type(message_type_str)
+        self.assertEqual(
+            python_type, float,
+            msg='python_type (\'%s\') != \'%s\'' % (python_type, str(float)))
+
+        python_type_str = 'rqt_py_common/ArrayVal'
+        python_type = get_base_python_type(python_type_str)

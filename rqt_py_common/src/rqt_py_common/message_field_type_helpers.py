@@ -376,7 +376,7 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
                 return None, None
 
             slot_class_str = message_class_slots[field_name]
-            message_class = get_python_type(slot_class_str)
+            message_class = get_base_python_type(slot_class_str)
             if not message_class:
                 logger.warn("could not find python class for: [%s]" % slot_class_str)
                 return None, None
