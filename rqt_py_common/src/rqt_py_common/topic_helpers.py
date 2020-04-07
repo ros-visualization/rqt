@@ -62,9 +62,9 @@ def is_primitive_type(field_type):
         "[[DEPRECATED]] Please use message_field_type_helpers.is_primitive_type")
     return message_field_type_helpers.is_primitive_type(field_type)
 
-def get_type_class(type_name):
-    __LOGGER.get_child("get_type_class").warn(
-        "[[DEPRECATED]] Please use message_field_type_helpers.get_type_class")
+def get_type_class(field_type):
+    __LOGGER.get_child('get_type_class').warn(
+        '[[DEPRECATED]] Please use message_field_type_helpers.get_type_class')
     return message_field_type_helpers.get_type_class(field_type)
 
 def get_field_type(path_to_target, node):
