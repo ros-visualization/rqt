@@ -2,7 +2,7 @@
 
 # Software License Agreement (BSD License)
 #
-# Copyright (c) 2018, PickNik Robotics
+# Copyright (c) 2020, Michael Lautman, PickNik Robotics
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

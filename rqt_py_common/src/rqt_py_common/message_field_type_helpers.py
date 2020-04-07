@@ -226,7 +226,7 @@ def bounded_array_size(field_type: str) -> int:
     return -1
 
 def is_unbounded_array(field_type: str) -> bool:
-    """Check if the field_type is an unbouded array"""
+    """Check if the field_type is an unbounded array"""
     return field_type.startswith(SEQUENCE_PREFIX) and field_type.find(',') < 0
 
 __BOUNDED_STRING_DELIM = 'string<'
@@ -272,7 +272,7 @@ def strip_array_from_field_type(field_type: str) -> str:
     return field_type
 
 def bounded_string_size(field_type: str) -> int:
-    """Maximum lenght of a string in the field, (-1 if not string)"""
+    """Maximum length of a string in the field, (-1 if not string)"""
     if is_bounded_string(field_type):
         field_type = strip_array_from_field_type(field_type)
         start_ix = field_type.find(__BOUNDED_STRING_DELIM)
@@ -295,7 +295,7 @@ def is_base_type_primitive_type(field_type: str) -> bool:
     field_type = base_type_str(field_type)
     return is_primitive_type(field_type)
 
-def get_python_type(field_type: str) -> Any:
+def get_base_python_type(field_type: str) -> Any:
     """
     Get the python class of the base field type
     eg:
