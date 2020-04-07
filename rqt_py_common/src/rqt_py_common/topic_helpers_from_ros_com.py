@@ -1,4 +1,4 @@
-# Copyright (c) 2011, Dorian Scholz, TU Darmstadt
+# Copyright (c) 2020, Michael Lautman, PickNik Robotics
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,8 @@
 
 # Author: Michael Lautman
 
+
+# Most everything here was copied
 import sys
 
 from operator import itemgetter

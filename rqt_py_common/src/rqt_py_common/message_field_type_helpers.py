@@ -1,4 +1,4 @@
-# Copyright (c) 2011, Michael Lautman, PickNik Robotics
+# Copyright (c) 2020, Michael Lautman PickNik Robotics
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Author: Michael Lautman
-
-# TODO(mlautman April-2020): Replace all usages of "slot" with "field" or "field_type"
-#   slot is a lot more confusing that refering to the field_type within a message
+# This functionality was ported from ROS1. For the original soure code:
+#   https://github.com/ros/ros_comm/blob/noetic-devel/tools/rostopic/src/rostopic/__init__.py
 
 from rclpy import logging
 
@@ -142,17 +141,16 @@ class MessageFieldTypeInfo(object):
 __END_OF_BASE_TYPE_DELIM = ['<', '[', ',', '>']
 def base_type_str(field_type: str) -> str:
     """
-    The base type of the field_type (eg, uint8, my_msgs/Custom, ...)
+    Get the base type of field_type by removing the array information
 
-    (Removes the array information leaving just the slot class str.)
+    eg:
+        uint8[5] -> uint8
+        sequence<my_msgs/Custom> -> my_msgs/Custom
 
     :param field_type: The field_type such as one as created by
         get_fields_and_field_types()
 
-    :type field_type: str
-
     :returns: the field_type of with the list component stripped out
-    :rtype str: str
     """
     if field_type.startswith(SEQUENCE_PREFIX):
         field_type = field_type[SEQUENCE_PREFIX_LEN:]
@@ -166,22 +164,36 @@ def base_type_str(field_type: str) -> str:
 
 def is_array(field_type: str) -> bool:
     """
-    If the field_type is a static, bounded or unbounded array
+    returns true if the field_type is a static, bounded or unbounded array
 
     :param field_type: Field type as produced by get_fields_and_field_types()
-    :type field_type: str
 
-    :rtype: bool
+    :returns: If the field type is one of static, bounded or unbounded array
     """
     return (field_type.startswith(SEQUENCE_PREFIX) or \
             field_type.find('[') >= 0)
 
 def is_static_array(field_type: str) -> bool:
-    """If the field_type is a static sized array (eg. uint8[4])"""
+    """
+    Check if field_Type is a static array
+
+    eg:
+        uint8[4] -> True
+        sequence<uint8, 5> -> False
+
+    :param field_type: Field type as produced by get_fields_and_field_types()
+
+    :returns: True if the field_type is a static sized array
+    """
     return field_type.find('[') >= 0
 
 def static_array_size(field_type) -> int:
-    """If `is_static_array == True` then `len(msg.field_type)`"""
+    """
+    If the field_type is a static array get the static array size
+
+    ie: If `is_static_array == True` then `len(msg.field_type)`
+        If not a static array, return -1
+    """
     if not is_static_array(field_type):
         return -1
     start_ix = field_type.find('[')
@@ -192,7 +204,11 @@ def static_array_size(field_type) -> int:
         return -1
 
 def is_bounded_array(field_type: str) -> bool:
-    """Checks if string matches this pattern "^sequence<.*,.*>"""
+    """
+    Is the field_type a bounded array
+
+    Checks if string matches this pattern "^sequence<.*,.*>
+    """
     return field_type.startswith(SEQUENCE_PREFIX) and field_type.find(',') >= 0
 
 def bounded_array_size(field_type: str) -> int:
@@ -210,12 +226,12 @@ def bounded_array_size(field_type: str) -> int:
     return -1
 
 def is_unbounded_array(field_type: str) -> bool:
-    """If the field_type is an unbouded array"""
+    """Check if the field_type is an unbouded array"""
     return field_type.startswith(SEQUENCE_PREFIX) and field_type.find(',') < 0
 
 __BOUNDED_STRING_DELIM = 'string<'
 def is_bounded_string(field_type: str) -> bool:
-    """If the field_type has string<.* return true"""
+    """Check if the field_type has string<.* return true"""
     return field_type.find(__BOUNDED_STRING_DELIM) >= 0
 
 def strip_array_from_field_type(field_type: str) -> str:
@@ -270,17 +286,12 @@ def bounded_string_size(field_type: str) -> int:
     return -1
 
 def is_primitive_type(field_type: str) -> bool:
-    """
-    Checks if the field type is in PRIMITIVE_TYPES
-    """
+    """Checks if the field type is in PRIMITIVE_TYPES"""
     return field_type in PRIMITIVE_TYPES
 
 def is_base_type_primitive_type(field_type: str) -> bool:
-    """
-    Checks if the base field type is a primitive type
-
-    """
-    # Remove any unused information about sequences etc..
+    """Checks if the base field type is a primitive type"""
+    # First remove any unused information about sequences etc..
     field_type = base_type_str(field_type)
     return is_primitive_type(field_type)
 
@@ -304,8 +315,6 @@ def get_type_class(field_type: str):
     Gets the python type from an idl string.
 
     See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
-
-    TODO(mlautman April-2020): Move to message_helpers.py
 
     @param field_type: the IDL type of field
     @type message_type: str

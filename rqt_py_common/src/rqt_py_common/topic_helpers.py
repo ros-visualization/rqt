@@ -29,20 +29,17 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Author: Michael Lautman
-# TODO(mlautman April-2020): Replace all usages of "slot" with "field" or "field_type"
-#   slot is a lot more confusing that refering to the field_type within a message
-
-from rclpy import logging
 
 from typing import Mapping
+
+from rclpy import logging
 
 from python_qt_binding.QtCore import qWarning
 
 from rqt_py_common.message_helpers import get_message_class
 
 from rqt_py_common import message_field_type_helpers
-from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
-from rqt_py_common.message_field_type_helpers import PRIMITIVE_TYPES, SEQUENCE_PREFIX
+
 
 __LOGGER = logging.get_logger('topic_helpers')
 
@@ -56,7 +53,6 @@ def is_primitive_type(field_type):
     If the field type is a class, then we check if it is generated msg type
         or not.
 
-    TODO(mlautman April-2020): Move to message_helpers.py
     """
     __LOGGER.get_child("is_primitive_type").warn(
         "[[DEPRECATED]] Please use message_field_type_helpers.is_primitive_type")
@@ -73,8 +69,6 @@ def get_field_type(path_to_target, node):
 
     If the field is an array, the type of the array's values are returned and the is_array flag
     is set to True
-
-    TODO(mlautman April-2020): Move to message_helpers.py
 
     :param path_to_target: name of field of a registered topic,
         eg. '/ns/node/topic/field_a' or '/ns/node/topic'
@@ -137,15 +131,14 @@ def slot_is_array(field_type) -> bool:
     """
     Returns if the field type is an array.
 
-    TODO(mlautman April-2020): Move to message_helpers.py
-
     :param field_type: Field type as produced by get_fields_and_field_types()
     :type field_type: str
 
     :rtype: bool
     """
-    return field_type.startswith(SEQUENCE_PREFIX) or \
-        field_type.find('[') >= 0
+    __LOGGER.get_child('slot_is_array').warn(
+        '[[DEPRECATED]] Please use message_field_type_helpers.is_array')
+    return message_field_type_helpers.is_array
 
 def get_slot_type(message_class, slot_path):
     """
@@ -165,15 +158,12 @@ def get_slot_type(message_class, slot_path):
     logger.warn(
         '[get_slot_type] deprecated. Please use: get_slot_class_and_field_information')
 
-    logger.warn("got (%s, %s)" % (message_class, slot_path))
-
     slot_class, field_info = \
         message_field_type_helpers.get_slot_class_and_field_information(message_class, slot_path)
     if field_info is None:
-        logger.warn("get_slot_type could not parse slot_path for msg class")
-        logger.warn("\t slot_path: %s" % slot_path)
-        logger.warn("\t message_class: %s" % message_class)
-        return None, None
+        logger.warn('get_slot_type could not parse slot_path for msg class')
+        logger.warn('\t slot_path: %s' % slot_path)
+        logger.warn('\t message_class: %s' % message_class)
+        return None, False
 
-    logger.warn("returning (%s, %s)" % (slot_class, field_info.is_array))
     return slot_class, field_info.is_array
