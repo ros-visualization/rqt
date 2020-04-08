@@ -34,7 +34,7 @@
 
 import re
 
-from typing import Dict, TypeVar, Tuple, Any
+from typing import Dict, TypeVar, Tuple, Any, Optional
 
 from rclpy import logging
 
@@ -100,6 +100,7 @@ COMPILED_VALID_MSG_RE = re.compile(VALID_MSG_RE)
 COMPILED_BOUNDED_STRING_RE = re.compile(BOUNDED_STRING_RE)
 
 class MessageFieldTypeInfo(object):
+    logger = logging.get_logger('MessageFieldTypeInfo')
 
     __slots__ = (
         'is_valid',
@@ -160,12 +161,12 @@ class MessageFieldTypeInfo(object):
         self.base_type_str = ""
         self.is_array = False
         self.is_static_array = False
-        self.static_array_size = -1
+        self.static_array_size = None
         self.is_bounded_array = False
-        self.bounded_array_size = -1
+        self.bounded_array_size = None
         self.is_unbounded_array = False
         self.is_bounded_string = False
-        self.bounded_string_size = -1
+        self.bounded_string_size = None
 
         self.is_valid = is_valid(field_type)
         if self.is_valid:
@@ -191,7 +192,7 @@ class MessageFieldTypeInfo(object):
             if self.is_bounded_string:
                 self.bounded_string_size = bounded_string_size(field_type, check_valid=False)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         """Returns the type info as a dictionary"""
         info_as_dict = {}
         for slot in MessageFieldTypeInfo.__slots__:
@@ -253,22 +254,22 @@ def is_static_array(field_type: str) -> bool:
     """
     return COMPILED_STATIC_ARRAY_RE.fullmatch(field_type) is not None
 
-def static_array_size(field_type, check_valid: bool = True) -> int:
+def static_array_size(field_type, check_valid: bool = True) -> Optional[int]:
     """
     If the field_type is a static array get the static array size
 
     ie: If `is_static_array == True` then `len(msg.field_type)`
-        If not a static array, return -1
+        If not a static array, return None
     """
     if check_valid and not is_static_array(field_type):
-        return -1
+        return None
 
     start_ix = field_type.find('[')
     end_ix = field_type.find(']')
     try:
         return int(field_type[start_ix + 1:end_ix])
     except ValueError:
-        return -1
+        return None
 
 def is_bounded_array(field_type: str) -> bool:
     """
@@ -276,20 +277,20 @@ def is_bounded_array(field_type: str) -> bool:
     """
     return COMPILED_BOUNDED_ARRAY_RE.fullmatch(field_type) is not None
 
-def bounded_array_size(field_type: str, check_valid: bool = True) -> int:
+def bounded_array_size(field_type: str, check_valid: bool = True) -> Optional[int]:
     """
     If the field_type is sequence<some_val, some_val> return some_val as int
 
-    If not a bounded string, return -1
+    If not a bounded string, return None
     """
     if check_valid and not is_bounded_array(field_type):
-        return -1
+        return None
 
     bounded_size_start_ix = field_type.find(', ')
     try:
         return int(field_type[bounded_size_start_ix + 2:-1])
     except ValueError:
-        return -1
+        return None
 
 def is_unbounded_array(field_type: str) -> bool:
     """Check if the field_type is an unbounded array"""
@@ -339,10 +340,10 @@ def strip_array_from_field_type(field_type: str) -> str:
     return field_type
 
 __BOUNDED_STRING_DELIM = 'string<'
-def bounded_string_size(field_type: str, check_valid: bool = True) -> int:
+def bounded_string_size(field_type: str, check_valid: bool = True) -> Optional[int]:
     """Maximum length of a string in the field, (-1 if not string)"""
     if check_valid and not is_bounded_string(field_type):
-        return -1
+        return None
 
     field_type = strip_array_from_field_type(field_type)
     start_ix = field_type.find(__BOUNDED_STRING_DELIM)
@@ -353,7 +354,7 @@ def bounded_string_size(field_type: str, check_valid: bool = True) -> int:
             return int(field_type[start_ix:end_ix])
         except ValueError:
                 pass
-    return -1
+    return None
 
 def is_primitive_type(field_type: str) -> bool:
     """Checks if the field type is in PRIMITIVE_TYPES"""
@@ -408,34 +409,32 @@ def get_type_class(field_type: str):
     else:
         return None
 
-def separate_field_from_array_information(field_name: str) -> Tuple[str, bool, int]:
+def separate_field_from_array_information(field_name: str) -> Tuple[str, bool, Optional[int]]:
     """
     Separates the mesage slot name from the index information
 
     eg:
         /positions[0]       -> /positions, True, 0
-        /positions[0]/pos   -> /positions[0]/pos, False, -1
-        /positions          -> /positions, False, -1
+        /positions[0]/pos   -> /positions[0]/pos, False, None
+        /positions          -> /positions, False, None
 
-    If the input is malformed, (eg. `/positions[[0]`, we return '', False, -1 )
+    If the input is malformed, (eg. `/positions[[0]`, we return '', False, None )
     :returns: the slot name, is_array, index
     """
-    logger = __LOGGER.get_child(__name__)
+    is_indexed = False
+    index = None
 
     # Check for array index information
     if field_name[-1] != ']':
-        return field_name, False, -1
+        return field_name, is_indexed, index
 
     field_name_tokens = field_name.rsplit('[', 1)
-    is_indexed = False
-    index = -1
     if len(field_name_tokens) > 1:
         is_indexed = True
         try:
             index = int(field_name_tokens[1].rstrip(']'))
         except ValueError:
-            logger.warn('Invalid field name: [%s]' % field_name)
-            return "", False, -1
+            return "", False, None
 
     return field_name_tokens[0], is_indexed, index
 
@@ -456,7 +455,7 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
     :returns: slot class, array_info where array_info is a map
     :rtype: class, map
     """
-    logger = __LOGGER.get_child(__name__)
+    logger = __LOGGER.get_child("get_slot_class_and_field_information")
 
     if is_primitive_type(message_class):
         logger.info("message_class: %s is primitive. Cannot get field information" % message_class)
@@ -465,8 +464,6 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
     array_info = None
     slot_class_str = ""
     is_indexed = False
-    index = -1
-
 
     fields = [f for f in slot_path.split('/') if f]
     if not len(fields):
@@ -483,7 +480,7 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
     else:
         # len(fields)> 0 indicates that we should traverse msg fields
         for field_name in fields:
-            field_name, is_indexed, index = \
+            field_name, is_indexed, _ = \
                 separate_field_from_array_information(field_name)
 
             message_class_slots = message_class.get_fields_and_field_types()
