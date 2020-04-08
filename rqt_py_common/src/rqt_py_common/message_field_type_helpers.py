@@ -32,9 +32,11 @@
 # This functionality was ported from ROS1. For the original soure code:
 #   https://github.com/ros/ros_comm/blob/noetic-devel/tools/rostopic/src/rostopic/__init__.py
 
-from rclpy import logging
+import re
 
 from typing import Dict, TypeVar, Tuple, Any
+
+from rclpy import logging
 
 from rqt_py_common.message_helpers import get_message_class
 from python_qt_binding.QtCore import qWarning
@@ -65,8 +67,42 @@ SEQUENCE_PREFIX_LEN = len(SEQUENCE_PREFIX)
 
 __LOGGER = logging.get_logger('message_field_type_helpers')
 
+# leters, integers, and underscore  a slash then more leters, integers, and underscore
+GENERATED_MSG_RE = '[a-zA-Z0-9_]+/[a-zA-Z0-9_]+'
+# letters followed by integers
+BASIC_TYPE_RE = '[a-zA-Z]+[0-9]*'
+# String followed by a number in <>
+BOUNDED_STRING_RE = 'string<[0-9]+>'
+
+# Any of the above three
+VALID_BASE_MSG_RE = \
+    '(' + GENERATED_MSG_RE + ')|(' + BASIC_TYPE_RE + \
+    ')|(' + BOUNDED_STRING_RE + ')'
+
+# A valid msg followed by some number in brackets
+STATIC_ARRAY_RE = "(" + VALID_BASE_MSG_RE + ")" + "\[[0-9]+\]"
+
+# A valid msg with a prefix of 'sequence<' and a suffix of '>'
+UNBOUNDED_ARRAY_RE = 'sequence<' + "(" + VALID_BASE_MSG_RE + ")" + '>'
+
+# A valid msg with a prefix of 'sequence<' and a suffix of ', [0-9]+>'
+BOUNDED_ARRAY_RE = 'sequence<' + "(" + VALID_BASE_MSG_RE + ")" + ', [0-9]+>'
+
+# Any of VALID_BASE_MSG_RE, STATIC_ARRAY_RE, UNBOUNDED_ARRAY_RE, or BOUNDED_ARRAY_RE
+VALID_MSG_RE = \
+    VALID_BASE_MSG_RE + '|(' + STATIC_ARRAY_RE + ')|(' + \
+    UNBOUNDED_ARRAY_RE + ')|(' + BOUNDED_ARRAY_RE + ')'
+
+COMPILED_STATIC_ARRAY_RE = re.compile(STATIC_ARRAY_RE)
+COMPILED_UNBOUNDED_ARRAY_RE = re.compile(UNBOUNDED_ARRAY_RE)
+COMPILED_BOUNDED_ARRAY_RE = re.compile(BOUNDED_ARRAY_RE)
+COMPILED_VALID_MSG_RE = re.compile(VALID_MSG_RE)
+COMPILED_BOUNDED_STRING_RE = re.compile(BOUNDED_STRING_RE)
+
 class MessageFieldTypeInfo(object):
+
     __slots__ = (
+        'is_valid',
         'base_type_str',
         'is_array',
         'is_static_array',
@@ -120,15 +156,40 @@ class MessageFieldTypeInfo(object):
     def __init__(self, field_type: str):
         super(MessageFieldTypeInfo, self).__init__()
 
-        self.base_type_str = base_type_str(field_type)
-        self.is_array = is_array(field_type)
-        self.is_static_array = is_static_array(field_type)
-        self.static_array_size = static_array_size(field_type)
-        self.is_bounded_array = is_bounded_array(field_type)
-        self.bounded_array_size = bounded_array_size(field_type)
-        self.is_unbounded_array = is_unbounded_array(field_type)
-        self.is_bounded_string = is_bounded_string(field_type)
-        self.bounded_string_size = bounded_string_size(field_type)
+        self.is_valid = False
+        self.base_type_str = ""
+        self.is_array = False
+        self.is_static_array = False
+        self.static_array_size = -1
+        self.is_bounded_array = False
+        self.bounded_array_size = -1
+        self.is_unbounded_array = False
+        self.is_bounded_string = False
+        self.bounded_string_size = -1
+
+        self.is_valid = is_valid(field_type)
+        if self.is_valid:
+
+            self.base_type_str = base_type_str(field_type)
+
+            self.is_static_array = is_static_array(field_type)
+            if self.is_static_array:
+                self.static_array_size = static_array_size(field_type, check_valid=False)
+
+            self.is_bounded_array = is_bounded_array(field_type)
+            if self.is_bounded_array:
+                self.bounded_array_size = bounded_array_size(field_type, check_valid=False)
+
+            self.is_unbounded_array = is_unbounded_array(field_type)
+
+            self.is_array = \
+                self.is_static_array or \
+                self.is_bounded_array or \
+                self.is_unbounded_array
+
+            self.is_bounded_string = is_bounded_string(field_type)
+            if self.is_bounded_string:
+                self.bounded_string_size = bounded_string_size(field_type, check_valid=False)
 
     def as_dict(self) -> Dict[str, Any]:
         """Returns the type info as a dictionary"""
@@ -137,6 +198,9 @@ class MessageFieldTypeInfo(object):
             info_as_dict[slot] = getattr(self, slot)
         return info_as_dict
 
+def is_valid(field_type: str) -> bool:
+    """Check if the field type is valid"""
+    return COMPILED_VALID_MSG_RE.fullmatch(field_type) is not None
 
 __END_OF_BASE_TYPE_DELIM = ['<', '[', ',', '>']
 def base_type_str(field_type: str) -> str:
@@ -170,8 +234,10 @@ def is_array(field_type: str) -> bool:
 
     :returns: If the field type is one of static, bounded or unbounded array
     """
-    return (field_type.startswith(SEQUENCE_PREFIX) or \
-            field_type.find('[') >= 0)
+    return \
+        is_static_array(field_type) or \
+        is_bounded_array(field_type) or \
+        is_unbounded_array(field_type)
 
 def is_static_array(field_type: str) -> bool:
     """
@@ -185,17 +251,18 @@ def is_static_array(field_type: str) -> bool:
 
     :returns: True if the field_type is a static sized array
     """
-    return field_type.find('[') >= 0
+    return COMPILED_STATIC_ARRAY_RE.fullmatch(field_type) is not None
 
-def static_array_size(field_type) -> int:
+def static_array_size(field_type, check_valid: bool = True) -> int:
     """
     If the field_type is a static array get the static array size
 
     ie: If `is_static_array == True` then `len(msg.field_type)`
         If not a static array, return -1
     """
-    if not is_static_array(field_type):
+    if check_valid and not is_static_array(field_type):
         return -1
+
     start_ix = field_type.find('[')
     end_ix = field_type.find(']')
     try:
@@ -206,33 +273,33 @@ def static_array_size(field_type) -> int:
 def is_bounded_array(field_type: str) -> bool:
     """
     Is the field_type a bounded array
-
-    Checks if string matches this pattern "^sequence<.*,.*>
     """
-    return field_type.startswith(SEQUENCE_PREFIX) and field_type.find(',') >= 0
+    return COMPILED_BOUNDED_ARRAY_RE.fullmatch(field_type) is not None
 
-def bounded_array_size(field_type: str) -> int:
+def bounded_array_size(field_type: str, check_valid: bool = True) -> int:
     """
     If the field_type is sequence<some_val, some_val> return some_val as int
 
     If not a bounded string, return -1
     """
-    if is_bounded_array(field_type):
-        bounded_size_start_ix = field_type.find(', ')
-        try:
-            return int(field_type[bounded_size_start_ix + 2:-1])
-        except ValueError:
-            pass
-    return -1
+    if check_valid and not is_bounded_array(field_type):
+        return -1
+
+    bounded_size_start_ix = field_type.find(', ')
+    try:
+        return int(field_type[bounded_size_start_ix + 2:-1])
+    except ValueError:
+        return -1
 
 def is_unbounded_array(field_type: str) -> bool:
     """Check if the field_type is an unbounded array"""
-    return field_type.startswith(SEQUENCE_PREFIX) and field_type.find(',') < 0
+    return COMPILED_UNBOUNDED_ARRAY_RE.fullmatch(field_type) is not None
 
-__BOUNDED_STRING_DELIM = 'string<'
 def is_bounded_string(field_type: str) -> bool:
     """Check if the field_type has string<.* return true"""
-    return field_type.find(__BOUNDED_STRING_DELIM) >= 0
+    return \
+        is_valid(field_type) and \
+        COMPILED_BOUNDED_STRING_RE.search(field_type) is not None
 
 def strip_array_from_field_type(field_type: str) -> str:
     """
@@ -271,17 +338,20 @@ def strip_array_from_field_type(field_type: str) -> str:
 
     return field_type
 
-def bounded_string_size(field_type: str) -> int:
+__BOUNDED_STRING_DELIM = 'string<'
+def bounded_string_size(field_type: str, check_valid: bool = True) -> int:
     """Maximum length of a string in the field, (-1 if not string)"""
-    if is_bounded_string(field_type):
-        field_type = strip_array_from_field_type(field_type)
-        start_ix = field_type.find(__BOUNDED_STRING_DELIM)
-        if start_ix >= 0:
-            start_ix += len(__BOUNDED_STRING_DELIM)
-            end_ix = field_type.rfind('>')
-            try:
-                return int(field_type[start_ix:end_ix])
-            except ValueError:
+    if check_valid and not is_bounded_string(field_type):
+        return -1
+
+    field_type = strip_array_from_field_type(field_type)
+    start_ix = field_type.find(__BOUNDED_STRING_DELIM)
+    if start_ix >= 0:
+        start_ix += len(__BOUNDED_STRING_DELIM)
+        end_ix = field_type.rfind('>')
+        try:
+            return int(field_type[start_ix:end_ix])
+        except ValueError:
                 pass
     return -1
 
