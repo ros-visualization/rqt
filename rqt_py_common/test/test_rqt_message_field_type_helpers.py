@@ -258,7 +258,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
 
         for slot, array_info in slot_type_to_info.items():
             generated_array_info = MessageFieldTypeInfo(slot)
-            array_info_dict = generated_array_info.get_field_type_info_as_dict()
+            array_info_dict = generated_array_info.as_dict()
             for info_k, info_v in array_info.items():
 
                 msg = "error on slot: [%s]" % slot
@@ -410,7 +410,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 if target_class != slot_class[i]:
                     error
 
-                field_info_dict = field_info.get_field_type_info_as_dict()
+                field_info_dict = field_info.as_dict()
 
                 base_msg = '[top_level_class = "%s", slot_value = "%s"]\t' % (top_level_class, slot_value)
 

@@ -130,7 +130,7 @@ class MessageFieldTypeInfo(object):
         self.is_bounded_string = is_bounded_string(field_type)
         self.bounded_string_size = bounded_string_size(field_type)
 
-    def get_field_type_info_as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         """Returns the type info as a dictionary"""
         info_as_dict = {}
         for slot in MessageFieldTypeInfo.__slots__:
