@@ -338,6 +338,37 @@ def get_type_class(field_type: str):
     else:
         return None
 
+def separate_field_from_array_information(field_name: str) -> Tuple[str, bool, int]:
+    """
+    Separates the mesage slot name from the index information
+
+    eg:
+        /positions[0]       -> /positions, True, 0
+        /positions[0]/pos   -> /positions[0]/pos, False, -1
+        /positions          -> /positions, False, -1
+
+    If the input is malformed, (eg. `/positions[[0]`, we return '', False, -1 )
+    :returns: the slot name, is_array, index
+    """
+    logger = __LOGGER.get_child(__name__)
+
+    # Check for array index information
+    if field_name[-1] != ']':
+        return field_name, False, -1
+
+    field_name_tokens = field_name.rsplit('[', 1)
+    is_indexed = False
+    index = -1
+    if len(field_name_tokens) > 1:
+        is_indexed = True
+        try:
+            index = int(field_name_tokens[1].rstrip(']'))
+        except ValueError:
+            logger.warn('Invalid field name: [%s]' % field_name)
+            return "", False, -1
+
+    return field_name_tokens[0], is_indexed, index
+
 def get_slot_class_and_field_information(message_class: MsgType, slot_path: str) -> Tuple[Any, MessageFieldTypeInfo]:
     """
     Get the Python class of slot in the given message class and its field info
@@ -363,6 +394,9 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
 
     array_info = None
     slot_class_str = ""
+    is_indexed = False
+    index = -1
+
 
     fields = [f for f in slot_path.split('/') if f]
     if not len(fields):
@@ -374,10 +408,14 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
             "/".join(
                 message_instance.__repr__().split("(", 1)[0].split(".msg.", 1)
             )
-        logger.info("no len to slot_path. returning message_class info")
+        logger.info("slot_path is empty, returning message_class info")
+
     else:
         # len(fields)> 0 indicates that we should traverse msg fields
         for field_name in fields:
+            field_name, is_indexed, index = \
+                separate_field_from_array_information(field_name)
+
             message_class_slots = message_class.get_fields_and_field_types()
             if not field_name in message_class_slots:
                 logger.warn(
@@ -389,9 +427,12 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
             if not message_class:
                 logger.warn("could not find python class for: [%s]" % slot_class_str)
                 return None, None
+
+    if is_indexed:
+        slot_class_str = strip_array_from_field_type(slot_class_str)
+
     if (slot_class_str):
         array_info = \
             MessageFieldTypeInfo(slot_class_str)
 
-    logger.warn("returning (%s, %s)" % (message_class, array_info))
     return message_class, array_info

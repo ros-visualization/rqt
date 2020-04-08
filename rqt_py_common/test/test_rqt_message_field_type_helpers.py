@@ -43,6 +43,34 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         ('/example/topic', ['rqt_py_common/ArrayVal']),
     ]
 
+    def test_separate_field_from_array_information(self):
+        from rqt_py_common.message_field_type_helpers import \
+            separate_field_from_array_information
+
+        test_values = [
+            ("/example[0]/field", ("/example[0]/field", False, -1)),
+            ("/example/topic[]", ("", False, -1)),
+            ("/example/topic[1]", ("/example/topic", True, 1)),
+            ("/example[1]/topic[1]", ("/example[1]/topic", True, 1)),
+            # We don't handle this case yet
+            # ("/example[]/topic[1]", ("/example[]/topic", False, -1)),
+        ]
+
+        for test_input, expected_test_output in test_values:
+            test_output = separate_field_from_array_information(test_input)
+
+            msg = "error on test_input: [%s]\t" % test_input
+            self.assertEqual(
+                len(test_output), 3,
+                msg=msg + "len(%s) != 3" % len(test_output))
+            for i, v in enumerate(test_output):
+                self.assertEqual(
+                    v, expected_test_output[i],
+                    msg=msg + 'test_output[%d]: "%s" != "%s"' % (
+                        i, v, expected_test_output
+                    )
+                )
+
     def test_get_field_type_array_information(self):
         from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
         slot_type_to_info = {
@@ -245,7 +273,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         from rqt_py_common.message_field_type_helpers import get_slot_class_and_field_information
         from rqt_py_common.msg import ArrayVal, Val
 
-        val_slot_class = [Val, float, float, float, float]
+        val_slot_class = [Val, float, float, float, float, float, float, float]
         val_slot_array_info = {
              '' : {   # field_type = rqt_py_common/Val
                 'base_type_str': 'rqt_py_common/Val', 'is_array': False,
@@ -259,16 +287,34 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
+            'floats[1]' : { # field_type = double[5]
+                'base_type_str': 'double', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
             'unbounded_floats' : { # field_type = sequence<double>
                 'base_type_str': 'double', 'is_array': True,
                 'is_static_array': False, 'static_array_size': -1,
                 'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': True,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
+            'unbounded_floats[0]' : { # field_type = sequence<double>
+                'base_type_str': 'double', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
             'bounded_floats' : { # field_type = sequence<double, 3>
                 'base_type_str': 'double', 'is_array': True,
                 'is_static_array': False, 'static_array_size': -1,
                 'is_bounded_array': True, 'bounded_array_size': 3,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
+            'bounded_floats[0]' : { # field_type = sequence<double, 3>
+                'base_type_str': 'double', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
             'single_float' : { # field_type = double
@@ -278,7 +324,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': -1 }}
 
-        array_val_slot_class = [ArrayVal, Val, Val, Val, Val]
+        array_val_slot_class = [ArrayVal, Val, Val, Val, Val, Val, Val, Val]
         array_val_slot_array_info = {
             '' : {   # ield_type = rqt_py_common/ArrayVal
                 'base_type_str': 'rqt_py_common/ArrayVal', 'is_array': False,
@@ -292,16 +338,34 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
+            'vals[3]' : { # field_type = rqt_py_common/Val[5]
+                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
             'unbounded_vals' : { # field_type = sequence<rqt_py_common/Val>
                 'base_type_str': 'rqt_py_common/Val', 'is_array': True,
                 'is_static_array': False, 'static_array_size': -1,
                 'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': True,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
+            'unbounded_vals[0]' : { # field_type = sequence<rqt_py_common/Val>
+                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
             'bounded_vals' : { # field_type = sequence<rqt_py_common/Val, 5>
                 'base_type_str': 'rqt_py_common/Val', 'is_array': True,
                 'is_static_array': False, 'static_array_size': -1,
                 'is_bounded_array': True, 'bounded_array_size': 5,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': -1 },
+            'bounded_vals[2]' : { # field_type = sequence<rqt_py_common/Val, 5>
+                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+                'is_static_array': False, 'static_array_size': -1,
+                'is_bounded_array': False, 'bounded_array_size': -1,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': -1 },
             'single_val' : { # field_type = rqt_py_common/Val
@@ -348,12 +412,27 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
 
                 field_info_dict = field_info.get_field_type_info_as_dict()
 
-                self.assertTrue(target_class is not None)
-                self.assertTrue(field_info is not None)
+                base_msg = '[top_level_class = "%s", slot_value = "%s"]\t' % (top_level_class, slot_value)
+
+                self.assertTrue(target_class is not None, msg=base_msg + '"%s" is None' % target_class)
+                self.assertTrue(field_info is not None, msg=base_msg + '"%s" is None' % field_info)
                 self.assertEqual(target_class, slot_class[i])
                 for info_k, info_v in slot_array_info[slot_value].items():
-                    self.assertTrue(info_k in field_info_dict)
-                    self.assertEqual(info_v, field_info_dict[info_k])
+                    self.assertTrue(
+                        info_k in field_info_dict,
+                        msg=base_msg + '"%s" not in "%s"' % (
+                            info_k, field_info_dict
+                        )
+                    )
+                    self.assertEqual(
+                        info_v, field_info_dict[info_k],
+                        msg=base_msg + \
+                            '"%s" != field_info_dict[%s] ie: "%s"' % (
+                                info_v,
+                                info_k,
+                                field_info_dict[info_k]
+                            )
+                    )
 
     def test_get_base_python_type(self):  # noqa: D102
         from rqt_py_common.message_field_type_helpers import get_base_python_type
