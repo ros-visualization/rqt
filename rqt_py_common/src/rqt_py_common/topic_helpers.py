@@ -119,9 +119,12 @@ def _get_field_type(topic_names_and_types, path_to_target):  # noqa: C901
                 for msg_type_str in types:
                     try:
                         msg_class = get_message_class(msg_type_str)
-                        field_type, is_array = get_slot_type(msg_class, field_address)
+                        field_type, field_info = \
+                            message_field_type_helpers.get_slot_class_and_field_information(
+                                msg_class, field_address
+                            )
                         if field_type:
-                            return field_type, is_array
+                            return field_type, field_info.is_array
                     except KeyError:
                         pass
     logger.debug('faild to find field type: {}'.format(path_to_target))
