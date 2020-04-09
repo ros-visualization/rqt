@@ -33,15 +33,139 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import unittest
+from copy import deepcopy
+from rqt_py_common.msg import ArrayVal, Val
 
 
 class TestTopicHelpers(unittest.TestCase):  # noqa: D101
-    example_topic_names_and_types = [
-        ('/example', ['rqt_py_common/Val']),
-        ('/example/vals', ['rqt_py_common/Val']),
-        ('/example_topic', ['rqt_py_common/Val']),
-        ('/example/topic', ['rqt_py_common/ArrayVal']),
-    ]
+    non_bounded_string_types = [
+        'boolean', 'octet', 'float', 'double', 'uint8', 'int8', 'int16',
+        'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
+        'my_msgs/Wstring', 'my_msgs/String', 'my_msgs/MyString',
+        'string', 'wstring']
+
+    string_types = ['string', 'wstring']
+
+
+
+    val_slot_class = [Val, float, float, float, float, float, float, float]
+    val_slot_array_info = {
+         '' : {   # field_type = rqt_py_common/Val
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None, },
+        'floats' : { # field_type = double[5]
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': True,
+            'is_static_array': True, 'static_array_size': 5,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'floats[1]' : { # field_type = double[5]
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'unbounded_floats' : { # field_type = sequence<double>
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': True,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': True,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'unbounded_floats[0]' : { # field_type = sequence<double>
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'bounded_floats' : { # field_type = sequence<double, 3>
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': True,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': True, 'bounded_array_size': 3,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'bounded_floats[0]' : { # field_type = sequence<double, 3>
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'single_float' : { # field_type = double
+            'is_valid' : True,
+            'base_type_str': 'double', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None }}
+
+    array_val_slot_class = [ArrayVal, Val, Val, Val, Val, Val, Val, Val]
+    array_val_slot_array_info = {
+        '' : {   # ield_type = rqt_py_common/ArrayVal
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/ArrayVal', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None, },
+        'vals' : { # field_type = rqt_py_common/Val[5]
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': True,
+            'is_static_array': True, 'static_array_size': 5,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'vals[3]' : { # field_type = rqt_py_common/Val[5]
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'unbounded_vals' : { # field_type = sequence<rqt_py_common/Val>
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': True,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': True,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'unbounded_vals[0]' : { # field_type = sequence<rqt_py_common/Val>
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'bounded_vals' : { # field_type = sequence<rqt_py_common/Val, 5>
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': True,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': True, 'bounded_array_size': 5,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'bounded_vals[2]' : { # field_type = sequence<rqt_py_common/Val, 5>
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None },
+        'single_val' : { # field_type = rqt_py_common/Val
+            'is_valid' : True,
+            'base_type_str': 'rqt_py_common/Val', 'is_array': False,
+            'is_static_array': False, 'static_array_size': None,
+            'is_bounded_array': False, 'bounded_array_size': None,
+            'is_unbounded_array': False,
+            'is_bounded_string': False, 'bounded_string_size': None }}
+
 
     def test_separate_field_from_array_information(self):
         from rqt_py_common.message_field_type_helpers import \
@@ -73,432 +197,348 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
 
     def test_get_field_type_array_information(self):
         from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
-        slot_type_to_info = {
-            'boolean' : {
+
+        non_string_slot_type_info = {
+            '%s' : {
                 'is_valid': True,
-                'base_type_str': 'boolean', 'is_array': False,
+                'base_type_str': '%s', 'is_array': False,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'octet' : {
+            '%s[5]' : {
                 'is_valid': True,
-                'base_type_str': 'octet', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'float' : {
-                'is_valid': True,
-                'base_type_str': 'float', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'double' : {
-                'is_valid': True,
-                'base_type_str': 'double', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'uint8' : {
-                'is_valid': True,
-                'base_type_str': 'uint8', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'int8' : {
-                'is_valid': True,
-                'base_type_str': 'int8', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'int16' : {
-                'is_valid': True,
-                'base_type_str': 'int16', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'int32' : {
-                'is_valid': True,
-                'base_type_str': 'int32', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'int64' : {
-                'is_valid': True,
-                'base_type_str': 'int64', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'uint8' : {
-                'is_valid': True,
-                'base_type_str': 'uint8', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'uint16' : {
-                'is_valid': True,
-                'base_type_str': 'uint16', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'uint32' : {
-                'is_valid': True,
-                'base_type_str': 'uint32', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'uint64' : {
-                'is_valid': True,
-                'base_type_str': 'uint64', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string' : {
-                'is_valid': True,
-                'base_type_str': 'string', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'int8[5]' : {
-                'is_valid': True,
-                'base_type_str': 'int8', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': True, 'static_array_size': 5,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'my_msgs/Wstring' : {
+            'sequence<%s>' : {
                 'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'my_msgs/Wstring[1]' : {
-                'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': True,
-                'is_static_array': True, 'static_array_size': 1,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<my_msgs/Wstring>' : {
-                'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': True,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<my_msgs/Wstring, 10>' : {
+            'sequence<%s, 10>' : {
                 'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<my_msgs/Wstring, 10>' : {
+            'sequence<%s, 100>' : {
                 'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<my_msgs/Wstring>' : {
+            'sequence<%s, 1>' : {
                 'is_valid': True,
-                'base_type_str': 'my_msgs/Wstring', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': True,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<int8>' : {
-                'is_valid': True,
-                'base_type_str': 'int8', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': True,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<int8, 9>' : {
-                'is_valid': True,
-                'base_type_str': 'int8', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': True, 'bounded_array_size': 9,
+                'is_bounded_array': True, 'bounded_array_size': 10,
                 'is_unbounded_array': False,
                 'is_bounded_string': False, 'bounded_string_size': None},
-            'string[100]' : {
+        }
+
+        slot_types = TestTopicHelpers.non_bounded_string_types
+        slot_type_infos = non_string_slot_type_info
+        for slot_type in slot_types:
+            for slot_pattern, array_info_pattern in slot_type_infos.items():
+                # Make copies
+                slot = slot_pattern
+                array_info = deepcopy(array_info_pattern)
+
+                # String Substitution
+                slot = slot_pattern % slot_type
+                array_info['base_type_str'] = array_info['base_type_str'] % slot_type
+
+                gen_arr_info = MessageFieldTypeInfo(slot)
+                gen_arr_info_dict = gen_arr_info.to_dict()
+                for info_k, info_v in array_info.items():
+                    msg = "Error on slot: [%s]" % slot
+
+                    self.assertTrue(
+                        info_k in gen_arr_info_dict.keys(),
+                        msg=msg + "attribute: [%s] not in 'gen_arr_info_dict.keys()':\n%s" % (
+                            info_k, gen_arr_info_dict.keys()))
+                    self.assertEqual(
+                        info_v, gen_arr_info_dict[info_k],
+                        msg=msg + "gen_arr_info_dict[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info_dict[info_k], info_v))
+
+                    self.assertTrue(
+                        hasattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info of type [%s] does not have attribute: %s" % (
+                            type(gen_arr_info), info_k))
+                    self.assertEqual(
+                        info_v,
+                        getattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info[info_k], info_v))
+
+    def test_get_field_type_array_information(self):
+        from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
+
+        bounded_string_slot_type_info = {
+            '%s<999>[34]' : {
                 'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
-                'is_static_array': True, 'static_array_size': 100,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<string>' : {
-                'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': True,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<999>[34]' : {
-                'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': True, 'static_array_size': 34,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': False,
                 'is_bounded_string': True, 'bounded_string_size': 999},
-            'sequence<string<1>, 10>' : {
+            'sequence<%s<1>, 10>' : {
                 'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
                 'is_unbounded_array': False,
                 'is_bounded_string': True, 'bounded_string_size': 1},
-            'sequence<string<40>>' : {
+            'sequence<%s<40>>' : {
                 'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
+                'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': True,
                 'is_bounded_string': True, 'bounded_string_size': 40},
-            'sequence<string, 200>' : {
+            '%s<2000>' : {
                 'is_valid': True,
-                'base_type_str': 'string', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': True, 'bounded_array_size': 200,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<2000>' : {
-                'is_valid': True,
-                'base_type_str': 'string', 'is_array': False,
+                'base_type_str': '%s', 'is_array': False,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
                 'is_unbounded_array': False,
-                'is_bounded_string': True, 'bounded_string_size': 2000}
+                'is_bounded_string': True, 'bounded_string_size': 2000},
         }
 
+        for slot_type in TestTopicHelpers.string_types:
+            for slot_pattern, array_info_pattern in bounded_string_slot_type_info.items():
+                # Make copies
+                slot = slot_pattern
+                array_info = deepcopy(array_info_pattern)
+                # String Substitution
+                slot = slot_pattern % slot_type
+                array_info['base_type_str'] = array_info['base_type_str'] % slot_type
 
-        for slot, array_info in slot_type_to_info.items():
-            generated_array_info = MessageFieldTypeInfo(slot)
-            array_info_dict = generated_array_info.to_dict()
-            for info_k, info_v in array_info.items():
+                gen_arr_info = MessageFieldTypeInfo(slot)
+                gen_arr_info_dict = gen_arr_info.to_dict()
+                for info_k, info_v in array_info.items():
 
-                msg = "error on slot: [%s]" % slot
-                self.assertTrue(info_k in array_info_dict.keys(), msg=msg + "array_info_dict does not have attribute: %s" % (info_k))
-                self.assertTrue(hasattr(generated_array_info, info_k), msg=msg + "generated_array_info of type [%s] does not have attribute: %s" % (type(generated_array_info), info_k))
+                    msg = "Error on slot: [%s]" % slot
+                    self.assertTrue(
+                        info_k in gen_arr_info_dict.keys(),
+                        msg=msg + "attribute: [%s] not in 'gen_arr_info_dict.keys()':\n%s" % (
+                            info_k, gen_arr_info_dict.keys()))
+                    self.assertEqual(
+                        info_v, gen_arr_info_dict[info_k],
+                        msg=msg + "gen_arr_info_dict[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info_dict[info_k], info_v))
 
-                self.assertEqual(info_v, array_info_dict[info_k], msg=msg + "array_info_dict[%s] != %s" % (info_k, info_v))
-                self.assertEqual(info_v, getattr(generated_array_info, info_k), msg=msg + "generated_array_info[%s] != %s" % (info_k, info_v))
+                    self.assertTrue(
+                        hasattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info of type [%s] does not have attribute: %s" % (
+                            type(gen_arr_info), info_k))
+                    self.assertEqual(
+                        info_v,
+                        getattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info, info_v))
+
+    def generate_invalid_format_list_and_arr_info_dict(self, bounded_string = False):
+        # Some degenerates
+        arr_info_dict_for_invalid = {
+                'is_valid': False,
+                'base_type_str': '', 'is_array': False,
+                'is_static_array': False, 'static_array_size': None,
+                'is_bounded_array': False, 'bounded_array_size': None,
+                'is_unbounded_array': False,
+                'is_bounded_string': False, 'bounded_string_size': None}
+        invalid_sequence_formats = [
+            'sequence<%s>[1]',
+            'sequence<%s, 1>[1]',
+            'sequence<<%s>>',
+            'sequence<<%s>',
+            'sequence<%s>>',
+            'sequence%s>',
+            'sequence<%s',
+            'sequence<%s >',
+            'sequence< %s>',
+            'sequence<%s>a',
+            'ssequence<%s>',
+            'sequence<<%s, 3>>',
+            'sequence<<%s, 3>',
+            'sequence<%s, 3>>',
+            'sequence%s, 3>',
+            'sequence<%s, 3',
+            'sequence%s, 3',
+            'sequence<%s, 3 >',
+            'sequence< %s, 3>',
+            'sequence<%s, 3>a',
+            'ssequence<%s, 3>',
+            'sequence<%s, >',
+            'sequence<%s 3>',
+            'sequence<%s, 3.>',
+            'sequence<%s, 3.1>',
+            'sequence<%s, .1>',
+            'sequence<<%s, 0>',
+            'sequence<<%s, 3>>',
+            'sequence<%s, 3>>',
+            'sequence%s, 3>',
+            'sequence<%s, 3',
+            'sequence%s, 3',
+            'sequence<%s , 3>',
+            'sequence<%s,  3>',
+            'sequencee<%s, 3>',
+            'sequence<%s, 3>a',
+            'sequence<%s, 3.a>',
+        ]
+
+        patterns = [
+            '', '{0}1{1}', '10', # valid on their own
+            '{0}{1}', '10{1}', '{0}10', # invalid
+            '{0}{0}10{1}', '{0}10{1}{1}', '{0}{0}10{1}{1}',
+            '{0}0{1}', '{0}0.{1}', '{0}1.1{1}', '{0}1.{1}{1}', '{0}{0}0.0{1}{1}',
+            '{0}a{1}', '{0}a.{1}', '{0}1.a{1}', '{0}a.{1}{1}', '{0}{0}a.a{1}{1}',
+            '{0}1a{1}', '{0}1 {1}', '{0} 1{1}']
+
+        static_array_err = []
+        bounded_string_err = []
+        for pattern in patterns:
+            static_array_err.append(pattern.format('[', ']'))
+            bounded_string_err.append(pattern.format('<', '>'))
+
+        invalid_sequence_formats.extend(['%s' + sae for sae in static_array_err[3:]])
+
+        invalid_format_list = []
+        if bounded_string:
+            for i, bse in enumerate(bounded_string_err):
+                for j, sae in enumerate(static_array_err):
+                    if not (i < 3 and j < 3):
+                        invalid_format_list.append('%s' + bse + sae)
+        else:
+            for j, sae in enumerate(static_array_err):
+                if j > 3:
+                    invalid_format_list.append('%s' + sae)
+
+        return arr_info_dict_for_invalid, invalid_format_list
+
 
     def test_get_field_type_array_information_not_valid(self):
         from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
 
-        # Some degenerates
-        slot_type_to_info_degenerates = {
-            'string<999>[[34]' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<999>[[34]' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<999>[34]]' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<999>[a]' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<string<1>, 10>[1]' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<string<40, 1>>' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'sequence<string, 200>>' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None},
-            'string<string<2000>, 0>' : {
-                'is_valid': False,
-                'base_type_str': '', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None
-            },
-        }
+        arr_info_dict_for_invalid, invalid_format_list = \
+            self.generate_invalid_format_list_and_arr_info_dict(bounded_string=True)
 
-        for slot, array_info in slot_type_to_info_degenerates.items():
-            generated_array_info = MessageFieldTypeInfo(slot)
-            array_info_dict = generated_array_info.to_dict()
-            for info_k, info_v in array_info.items():
+        for i, bad_slot in enumerate(invalid_format_list):
+            for base_type in TestTopicHelpers.non_bounded_string_types:
+                bad_slot_tmp = bad_slot % base_type
 
-                msg = "error on slot: [%s]" % slot
-                self.assertTrue(info_k in array_info_dict.keys(), msg=msg + "array_info_dict does not have attribute: %s" % (info_k))
-                self.assertTrue(hasattr(generated_array_info, info_k), msg=msg + "generated_array_info of type [%s] does not have attribute: %s" % (type(generated_array_info), info_k))
+                gen_arr_info = MessageFieldTypeInfo(bad_slot_tmp)
+                gen_arr_info_dic = gen_arr_info.to_dict()
 
-                self.assertEqual(info_v, array_info_dict[info_k], msg=msg + "array_info_dict[%s] != %s" % (info_k, info_v))
-                self.assertEqual(info_v, getattr(generated_array_info, info_k), msg=msg + "generated_array_info[%s] != %s" % (info_k, info_v))
+                for info_k, info_v in arr_info_dict_for_invalid.items():
+                    msg = "error on bad_slot[%s]: '%s' -> " % (i, bad_slot)
+                    self.assertTrue(
+                        info_k in gen_arr_info_dic.keys(),
+                        msg=msg + "attribute: [%s] not in gen_arr_info_dic.keys():\n%s" % (
+                            info_k, repr(gen_arr_info_dic.keys())))
+                    self.assertEqual(
+                        info_v, gen_arr_info_dic[info_k],
+                        msg=msg + "gen_arr_info_dic[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info_dic[info_k], info_v))
 
 
+                    self.assertTrue(
+                        hasattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info of type [%s] does not have attribute: [%s]" % (
+                            type(gen_arr_info), info_k))
+                    self.assertEqual(
+                        info_v, getattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info[%s]: '%s' != '%s'" % (
+                            info_k, getattr(gen_arr_info, info_k), info_v))
 
-    def test_get_slot_class_and_field_information(self):
+    def test_get_field_type_array_information_not_valid_strings(self):
+        from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
+
+
+        arr_info_dict_for_invalid, invalid_format_list = self.generate_invalid_format_list_and_arr_info_dict()
+
+        for bad_slot in invalid_format_list:
+            for base_type in TestTopicHelpers.string_types:
+                bad_slot_tmp = bad_slot % base_type
+
+                gen_arr_info = MessageFieldTypeInfo(bad_slot_tmp)
+                gen_arr_info_dic = gen_arr_info.to_dict()
+
+                for info_k, info_v in arr_info_dict_for_invalid.items():
+                    msg = "error on bad_slot: '%s' -> " % bad_slot_tmp
+                    self.assertTrue(
+                        info_k in gen_arr_info_dic.keys(),
+                        msg=msg + "attribute: [%s] not in gen_arr_info_dic.keys():\n%s" % (
+                            info_k, repr(gen_arr_info_dic.keys())))
+                    self.assertEqual(
+                        info_v, gen_arr_info_dic[info_k],
+                        msg=msg + "gen_arr_info_dic[%s]: '%s' != '%s'" % (
+                            info_k, gen_arr_info_dic[info_k], info_v))
+
+
+                    self.assertTrue(
+                        hasattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info of type [%s] does not have attribute: [%s]" % (
+                            type(gen_arr_info), info_k))
+                    self.assertEqual(
+                        info_v, getattr(gen_arr_info, info_k),
+                        msg=msg + "gen_arr_info[%s]: '%s' != '%s'" % (
+                            info_k, getattr(gen_arr_info, info_k), info_v))
+
+
+    def test_get_slot_class_and_field_information_single_level(self):
         from rqt_py_common.message_field_type_helpers import get_slot_class_and_field_information
-        from rqt_py_common.msg import ArrayVal, Val
 
-        val_slot_class = [Val, float, float, float, float, float, float, float]
-        val_slot_array_info = {
-             '' : {   # field_type = rqt_py_common/Val
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None, },
-            'floats' : { # field_type = double[5]
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': True,
-                'is_static_array': True, 'static_array_size': 5,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'floats[1]' : { # field_type = double[5]
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'unbounded_floats' : { # field_type = sequence<double>
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': True,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'unbounded_floats[0]' : { # field_type = sequence<double>
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'bounded_floats' : { # field_type = sequence<double, 3>
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': True, 'bounded_array_size': 3,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'bounded_floats[0]' : { # field_type = sequence<double, 3>
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'single_float' : { # field_type = double
-                'is_valid' : True,
-                'base_type_str': 'double', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None }}
+        slot_class = self.val_slot_class
+        slot_array_info = self.val_slot_array_info
 
-        array_val_slot_class = [ArrayVal, Val, Val, Val, Val, Val, Val, Val]
-        array_val_slot_array_info = {
-            '' : {   # ield_type = rqt_py_common/ArrayVal
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/ArrayVal', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None, },
-            'vals' : { # field_type = rqt_py_common/Val[5]
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': True,
-                'is_static_array': True, 'static_array_size': 5,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'vals[3]' : { # field_type = rqt_py_common/Val[5]
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'unbounded_vals' : { # field_type = sequence<rqt_py_common/Val>
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': True,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'unbounded_vals[0]' : { # field_type = sequence<rqt_py_common/Val>
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'bounded_vals' : { # field_type = sequence<rqt_py_common/Val, 5>
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': True,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': True, 'bounded_array_size': 5,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'bounded_vals[2]' : { # field_type = sequence<rqt_py_common/Val, 5>
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None },
-            'single_val' : { # field_type = rqt_py_common/Val
-                'is_valid' : True,
-                'base_type_str': 'rqt_py_common/Val', 'is_array': False,
-                'is_static_array': False, 'static_array_size': None,
-                'is_bounded_array': False, 'bounded_array_size': None,
-                'is_unbounded_array': False,
-                'is_bounded_string': False, 'bounded_string_size': None }}
+        top_level_class = Val
+        slot_values = list(slot_array_info.keys())
 
+        for i, slot_value in enumerate(slot_values):
+            target = "/" + slot_value
+            target_class, field_info = get_slot_class_and_field_information(
+                top_level_class, slot_value
+            )
+
+            field_info_dict = field_info.to_dict()
+
+            base_msg = '[msg_class = Val, slot_value = "%s"]\t' % (slot_value)
+            self.assertTrue(target_class is not None, msg=base_msg + '"%s" is None' % target_class)
+            self.assertTrue(field_info is not None, msg=base_msg + '"%s" is None' % field_info)
+            self.assertEqual(target_class, slot_class[i])
+            for info_k, info_v in slot_array_info[slot_value].items():
+                self.assertTrue(
+                    info_k in field_info_dict,
+                    msg=base_msg + '"%s" not in "%s"' % (
+                        info_k, field_info_dict
+                    )
+                )
+                self.assertEqual(
+                    info_v, field_info_dict[info_k],
+                    msg=base_msg + \
+                        '"%s" != field_info_dict[%s] ie: "%s"' % (
+                            info_v,
+                            info_k,
+                            field_info_dict[info_k]
+                        )
+                )
+
+    def test_get_slot_class_and_field_information_multi_level(self):
+        from rqt_py_common.message_field_type_helpers import get_slot_class_and_field_information
+
+        val_slot_class = self.val_slot_class
+        val_slot_array_info = self.val_slot_array_info
+        array_val_slot_class = self.array_val_slot_class
+        array_val_slot_array_info = self.array_val_slot_array_info
 
         array_val_slots = list(array_val_slot_array_info.keys())
         array_val_slots_len = len(array_val_slots)
@@ -509,59 +549,39 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                     array_val_slot_array_info[key] = val_slot_array_info[val_value]
                     array_val_slot_class.append(val_slot_class[j])
 
-        for msg_type in ['rqt_py_common/Val', 'rqt_py_common/ArrayVal']:
-            top_level_class = None
-            slot_values = []
-            slot_array_info = {}
-            slot_class = []
-            if msg_type == 'rqt_py_common/Val':
-                top_level_class = Val
-                slot_values = list(val_slot_array_info.keys())
-                slot_array_info = val_slot_array_info
-                slot_class = val_slot_class
-            elif msg_type == 'rqt_py_common/ArrayVal':
-                top_level_class = ArrayVal
-                slot_values = list(array_val_slot_array_info.keys())
-                slot_array_info = array_val_slot_array_info
-                slot_class = array_val_slot_class
+        for i, slot_value in enumerate(array_val_slot_array_info.keys()):
+            target = "/" + slot_value
+            target_class, field_info = get_slot_class_and_field_information(
+                ArrayVal, slot_value
+            )
 
-            for i, slot_value in enumerate(slot_values):
-                target = "/" + slot_value
-                target_class, field_info = get_slot_class_and_field_information(
-                    top_level_class, slot_value
+            field_info_dict = field_info.to_dict()
+
+            base_msg = '[class = "ArrayVal", slot_value = "%s"]\t' % (slot_value)
+
+            self.assertTrue(target_class is not None, msg=base_msg + '"%s" is None' % target_class)
+            self.assertTrue(field_info is not None, msg=base_msg + '"%s" is None' % field_info)
+            self.assertEqual(target_class, array_val_slot_class[i])
+            for info_k, info_v in array_val_slot_array_info[slot_value].items():
+                self.assertTrue(
+                    info_k in field_info_dict,
+                    msg=base_msg + '"%s" not in "%s"' % (
+                        info_k, field_info_dict
+                    )
                 )
-
-                if target_class != slot_class[i]:
-                    error
-
-                field_info_dict = field_info.to_dict()
-
-                base_msg = '[top_level_class = "%s", slot_value = "%s"]\t' % (top_level_class, slot_value)
-
-                self.assertTrue(target_class is not None, msg=base_msg + '"%s" is None' % target_class)
-                self.assertTrue(field_info is not None, msg=base_msg + '"%s" is None' % field_info)
-                self.assertEqual(target_class, slot_class[i])
-                for info_k, info_v in slot_array_info[slot_value].items():
-                    self.assertTrue(
-                        info_k in field_info_dict,
-                        msg=base_msg + '"%s" not in "%s"' % (
-                            info_k, field_info_dict
+                self.assertEqual(
+                    info_v, field_info_dict[info_k],
+                    msg=base_msg + \
+                        '"%s" != field_info_dict[%s] ie: "%s"' % (
+                            info_v,
+                            info_k,
+                            field_info_dict[info_k]
                         )
-                    )
-                    self.assertEqual(
-                        info_v, field_info_dict[info_k],
-                        msg=base_msg + \
-                            '"%s" != field_info_dict[%s] ie: "%s"' % (
-                                info_v,
-                                info_k,
-                                field_info_dict[info_k]
-                            )
-                    )
+                )
 
     def test_get_base_python_type(self):  # noqa: D102
         from rqt_py_common.message_field_type_helpers import get_base_python_type
         from rqt_py_common.message_helpers import get_message_class
-        from rqt_py_common.msg import ArrayVal, Val
 
         field_type_to_python_type_map = {
             'boolean'                 : bool,
