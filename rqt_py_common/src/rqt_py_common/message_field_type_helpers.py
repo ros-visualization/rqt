@@ -47,6 +47,28 @@ from rosidl_parser.definition import BASIC_TYPES, INTEGER_TYPES, \
 
 MsgType = TypeVar('MsgType')
 
+# Make sure all types are tuples
+if type(BASIC_TYPES) is str:
+    BASIC_TYPES = (BASIC_TYPES,)
+
+if type(INTEGER_TYPES) is str:
+    INTEGER_TYPES = (INTEGER_TYPES,)
+
+if type(FLOATING_POINT_TYPES) is str:
+    FLOATING_POINT_TYPES = (FLOATING_POINT_TYPES,)
+
+if type(CHARACTER_TYPES) is str:
+    CHARACTER_TYPES = (CHARACTER_TYPES,)
+
+if type(BOOLEAN_TYPE) is str:
+    BOOLEAN_TYPE = (BOOLEAN_TYPE,)
+
+if type(OCTET_TYPE) is str:
+    OCTET_TYPE = (OCTET_TYPE,)
+
+if type(BOOLEAN_TYPE) is str:
+    BOOLEAN_TYPE = (BOOLEAN_TYPE,)
+
 # Create our own Types
 BASIC_STRING_TYPES = (
     'string',
