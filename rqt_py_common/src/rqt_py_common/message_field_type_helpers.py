@@ -90,11 +90,6 @@ SEQUENCE_PREFIX_LEN = len(SEQUENCE_PREFIX)
 
 __LOGGER = logging.get_logger('message_field_type_helpers')
 
-# leters, integers, and underscore  a slash then more leters, integers, and underscore
-# valid_package_name_re = VALID_PACKAGE_NAME_RE.pattern
-# if valid_package_name_re == '^[a-z]([a-z0-9_]?[a-z0-9]+)*$'
-
-
 # Get valid generated msg regex from parser.py
 VALID_PACKAGE_NAME_PATTERN = '[a-z]([a-z0-9_]?[a-z0-9]+)*'
 VALID_MESSAGE_NAME_PATTERN = '[A-Z][A-Za-z0-9]*'
@@ -321,7 +316,7 @@ class MessageFieldTypeInfo(object):
         """Returns the type info as a dictionary"""
         info_as_dict = {}
         # We must call self.is_valid first to populate the dict for an invalid
-        # self.__type_name
+        #   self.__type_name
         is_valid = self.is_valid
         for slot in MessageFieldTypeInfo.SLOTS:
             info_as_dict[slot] = getattr(self, slot)
@@ -332,6 +327,7 @@ class MessageFieldTypeInfo(object):
 def is_valid(field_type: str) -> bool:
     """Check if the field type is valid"""
     return COMPILED_VALID_FIELD_TYPE_RE.fullmatch(field_type) is not None
+
 
 def base_type_str(field_type: str) -> str:
     """
@@ -371,6 +367,7 @@ def base_type_str(field_type: str) -> str:
 
     return field_type
 
+
 def is_array(field_type: str) -> bool:
     """
     returns true if the field_type is a static, bounded or unbounded array
@@ -383,6 +380,7 @@ def is_array(field_type: str) -> bool:
         is_static_array(field_type) or \
         is_bounded_array(field_type) or \
         is_unbounded_array(field_type)
+
 
 def is_static_array(field_type: str) -> bool:
     """
@@ -397,6 +395,7 @@ def is_static_array(field_type: str) -> bool:
     :returns: True if the field_type is a static sized array
     """
     return COMPILED_STATIC_ARRAY_RE.fullmatch(field_type) is not None
+
 
 def static_array_size(field_type, check_valid: bool = True) -> Optional[int]:
     """
@@ -424,6 +423,7 @@ def is_bounded_array(field_type: str) -> bool:
     """Is the field_type a bounded array"""
     return COMPILED_BOUNDED_ARRAY_RE.fullmatch(field_type) is not None
 
+
 def bounded_array_size(field_type: str, check_valid: bool = True) -> Optional[int]:
     """
     If the field_type is sequence<some_val, some_val> return some_val as int
@@ -439,15 +439,18 @@ def bounded_array_size(field_type: str, check_valid: bool = True) -> Optional[in
     except ValueError:
         return None
 
+
 def is_unbounded_array(field_type: str) -> bool:
     """Check if the field_type is an unbounded array"""
     return COMPILED_UNBOUNDED_ARRAY_RE.fullmatch(field_type) is not None
+
 
 def is_bounded_string(field_type: str) -> bool:
     """Check if the field_type has string<.* return true"""
     return \
         is_valid(field_type) and \
         COMPILED_BOUNDED_STRING_RE.search(field_type) is not None
+
 
 def strip_array_from_field_type(field_type: str) -> str:
     """
@@ -515,13 +518,66 @@ def is_primitive_type(field_type: str) -> bool:
     """Checks if the field type is in PRIMITIVE_TYPES"""
     return field_type in PRIMITIVE_TYPES
 
-def is_base_type_primitive_type(field_type: str) -> bool:
-    """Checks if the base field type is a primitive type"""
-    # First remove any unused information about sequences etc..
-    field_type = base_type_str(field_type)
-    return is_primitive_type(field_type)
+def class_is_primitive_type(field_class: Any) -> bool:
+    """Checks if the field_class is a generated msg or not"""
+    return not hasattr(field_class, 'get_fields_and_field_types')
 
-def get_base_python_type(field_type: str) -> Any:
+
+_primitive_python_class_cache = {}
+def get_primitive_python_class(field_type: str) -> Any:
+    """
+    Gets the python type from an idl string.
+
+    See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
+
+    @param field_type: the IDL type of field
+    @type field_type: str
+    """
+
+    # Construct this cache the first time this method is called
+    if not _primitive_python_class_cache:
+        for t in FLOATING_POINT_TYPES:
+            _primitive_python_class_cache[t] = float
+        for t in STRING_TYPES:
+            _primitive_python_class_cache[t] = str
+        for t in OCTET_TYPE:
+            _primitive_python_class_cache[t] = bytes
+        for t in INTEGER_TYPES:
+            _primitive_python_class_cache[t] = int
+        for t in BOOLEAN_TYPE:
+            _primitive_python_class_cache[t] = bool
+
+    try:
+        return _primitive_python_class_cache[field_type]
+    except KeyError:
+        if not is_valid(field_type):
+            return None
+
+        if is_array(field_type):
+            return list
+
+        if is_bounded_string(field_type):
+            return str
+
+        return None
+
+def get_field_python_class(field_type: str) -> Any:
+    """
+    Get the python class of the field type
+    eg:
+        `sequence<my_msgs/Custom, 5>`   --> my_msgs.msg.Custom
+        `sequence<uint8, 5>`            --> int
+        `sequence<string<4>, 5>`        --> str
+
+    :returns: The class of the base python type or None if field_type is invalid
+    """
+    class_type = get_primitive_python_class(field_type)
+    if class_type is None:
+        class_type = get_message_class(field_type)
+
+    return class_type
+
+def get_field_base_python_class(field_type: str) -> Any:
     """
     Get the python class of the base field type
     eg:
@@ -531,40 +587,8 @@ def get_base_python_type(field_type: str) -> Any:
 
     :returns: The class of the base python type or None if field_type is invalid
     """
-    field_type = base_type_str(field_type)
-    class_type = get_type_class(field_type)
-    if class_type is None:
-        class_type = get_message_class(field_type)
+    return get_field_python_class(base_type_str(field_type))
 
-    return class_type
-
-def get_type_class(field_type: str):
-    """
-    Gets the python type from an idl string.
-
-    See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
-
-    @param field_type: the IDL type of field
-    @type message_type: str
-    """
-
-    if field_type in FLOATING_POINT_TYPES:
-        return float
-
-    elif field_type in STRING_TYPES:
-        return str
-
-    elif field_type in OCTET_TYPE:
-        return bytes
-
-    elif field_type in INTEGER_TYPES:
-        return int
-
-    elif field_type in BOOLEAN_TYPE:
-        return bool
-
-    else:
-        return None
 
 def separate_field_from_array_information(field_name: str) -> Tuple[str, bool, Optional[int]]:
     """
@@ -615,7 +639,7 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
     """
     logger = __LOGGER.get_child("get_slot_class_and_field_information")
 
-    if is_primitive_type(message_class):
+    if class_is_primitive_type(message_class):
         logger.info("message_class: %s is primitive. Cannot get field information" % message_class)
         return None, None
 
@@ -648,7 +672,7 @@ def get_slot_class_and_field_information(message_class: MsgType, slot_path: str)
                 return None, None
 
             slot_class_str = message_class_slots[field_name]
-            message_class = get_base_python_type(slot_class_str)
+            message_class = get_field_python_class(base_type_str(slot_class_str))
             if not message_class:
                 logger.warn("could not find python class for: [%s]" % slot_class_str)
                 return None, None

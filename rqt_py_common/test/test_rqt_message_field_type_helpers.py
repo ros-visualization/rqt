@@ -579,8 +579,8 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                         )
                 )
 
-    def test_get_base_python_type(self):  # noqa: D102
-        from rqt_py_common.message_field_type_helpers import get_base_python_type
+    def test_get_field_python_class(self):  # noqa: D102
+        from rqt_py_common.message_field_type_helpers import get_field_python_class
         from rqt_py_common.message_helpers import get_message_class
 
         field_type_to_python_type = {
@@ -600,16 +600,17 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
             'string'                    : str,
             'rqt_py_common/ArrayVal'    : ArrayVal,
             'rqt_py_common/Val'         : Val,
-            'int8[3]'                   : int,
-            'sequence<int8>'            : int,
-            'sequence<int8, 3>'         : int,
             'string<5>'                 : str,
-            'string[3]'                 : str,
-            'sequence<string>'          : str,
-            'string<5>[3]'              : str,
-            'sequence<string<5>, 10>'   : str,
-            'sequence<string<5>>'       : str,
-            'sequence<string, 10>'      : str,
+            'wstring<1>'                 : str,
+            'int8[3]'                   : list,
+            'sequence<int8>'            : list,
+            'sequence<int8, 3>'         : list,
+            'string[3]'                 : list,
+            'sequence<string>'          : list,
+            'string<5>[3]'              : list,
+            'sequence<string<5>, 10>'   : list,
+            'sequence<string<5>>'       : list,
+            'sequence<string, 10>'      : list,
             # Some invalid
             'float[]'                   : None,
             'rqt_py_common/ArrayVal[]'  : None,
@@ -618,8 +619,8 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
 
         for field_type, expected_python_type in field_type_to_python_type.items():
             self.assertEqual(
-                get_base_python_type(field_type),
+                get_field_python_class(field_type),
                 expected_python_type,
-                msg='get_base_python_type(\'%s\') != \'%s\'' % (
+                msg='get_field_python_class(\'%s\') != \'%s\'' % (
                     field_type, expected_python_type)
                 )
