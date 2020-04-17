@@ -516,7 +516,7 @@ def bounded_string_size(field_type: str, check_valid: bool = True) -> Optional[i
 
 def is_primitive_type(field_type: str) -> bool:
     """Checks if the field type is in PRIMITIVE_TYPES"""
-    return field_type in PRIMITIVE_TYPES
+    return get_primitive_python_class(field_type) is not None
 
 def class_is_primitive_type(field_class: Any) -> bool:
     """Checks if the field_class is a generated msg or not"""
