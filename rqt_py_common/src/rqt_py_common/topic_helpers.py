@@ -30,7 +30,7 @@
 
 # Author: Michael Lautman
 
-from typing import Mapping
+from typing import Mapping, Tuple, Optional
 
 from rclpy import logging
 
@@ -174,3 +174,33 @@ def get_slot_type(message_class, slot_path):
         return None, False
 
     return slot_class, field_info.is_array
+
+def separate_field_from_array_information(slot_path: str) -> Tuple[str, bool, Optional[int]]:
+    """
+    Separates the mesage slot name from the index information
+
+    eg:
+        /positions[0]       -> /positions, True, 0
+        /positions[0]/pos   -> /positions[0]/pos, False, None
+        /positions          -> /positions, False, None
+
+    If the input is malformed, (eg. `/positions[[0]`, we return '', False, None )
+    :returns: the slot name, is_array, index
+    """
+    is_indexed = False
+    index = None
+
+    # Check for array index information
+    if slot_path[-1] != ']':
+        return slot_path, is_indexed, index
+
+    slot_path_tokens = slot_path.rsplit('[', 1)
+    if len(slot_path_tokens) > 1:
+        is_indexed = True
+        try:
+            index = int(slot_path_tokens[1].rstrip(']'))
+        except ValueError:
+            return "", False, None
+
+    return slot_path_tokens[0], is_indexed, index
+

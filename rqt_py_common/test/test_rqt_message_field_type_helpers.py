@@ -167,34 +167,6 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
             'is_bounded_string': False, 'bounded_string_size': None }}
 
 
-    def test_separate_field_from_array_information(self):
-        from rqt_py_common.message_field_type_helpers import \
-            separate_field_from_array_information
-
-        test_values = [
-            ("/example[0]/field", ("/example[0]/field", False, None)),
-            ("/example/topic[]", ("", False, None)),
-            ("/example/topic[1]", ("/example/topic", True, 1)),
-            ("/example[1]/topic[1]", ("/example[1]/topic", True, 1)),
-            # We don't handle this case yet
-            # ("/example[]/topic[1]", ("/example[]/topic", False, None)),
-        ]
-
-        for test_input, expected_test_output in test_values:
-            test_output = separate_field_from_array_information(test_input)
-
-            msg = "error on test_input: [%s]\t" % test_input
-            self.assertEqual(
-                len(test_output), 3,
-                msg=msg + "len(%s) != 3" % len(test_output))
-            for i, v in enumerate(test_output):
-                self.assertEqual(
-                    v, expected_test_output[i],
-                    msg=msg + 'test_output[%d]: "%s" != "%s"' % (
-                        i, v, expected_test_output
-                    )
-                )
-
     def test_get_field_type_array_information(self):
         from rqt_py_common.message_field_type_helpers import MessageFieldTypeInfo
 
