@@ -347,12 +347,12 @@ class MessageFieldTypeInfo(object):
             self._static_array_size = None
 
         elif not hasattr(self, "_static_array_size"):
-            start_ix = self._field_type.rfind('[')
+            start_ix = self._field_type.rfind('[') + 1
             # Should always be the last index
             end_ix = self._field_type.rfind(']')
             try:
                 self._static_array_size = \
-                    int(self._field_type[start_ix + 1:end_ix])
+                    int(self._field_type[start_ix:end_ix])
 
             except ValueError:
                 self.__logger.get_child('static_array_size').warn(
@@ -388,10 +388,10 @@ class MessageFieldTypeInfo(object):
             self._bounded_array_size = None
 
         elif not hasattr(self, "_bounded_array_size"):
-            bounded_size_start_ix = self._field_type.find(', ')
+            bounded_size_start_ix = self._field_type.rfind(', ') + 2
             try:
                 self._bounded_array_size = \
-                    int(self._field_type[bounded_size_start_ix + 2:-1])
+                    int(self._field_type[bounded_size_start_ix:-1])
             except ValueError:
                 self.__logger.get_child('static_array_size').warn(
                     'ValueError when parsing [%s]' % self._field_type

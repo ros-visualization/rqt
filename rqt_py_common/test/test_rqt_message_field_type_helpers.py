@@ -173,6 +173,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         non_string_slot_type_info = {
             '%s' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': False,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -180,6 +181,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': False, 'bounded_string_size': None},
             '%s[5]' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': True, 'static_array_size': 5,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -187,6 +189,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': False, 'bounded_string_size': None},
             'sequence<%s>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -194,6 +197,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': False, 'bounded_string_size': None},
             'sequence<%s, 10>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
@@ -201,6 +205,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': False, 'bounded_string_size': None},
             'sequence<%s, 100>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
@@ -208,6 +213,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': False, 'bounded_string_size': None},
             'sequence<%s, 1>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
@@ -226,6 +232,8 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 # String Substitution
                 slot = slot_pattern % slot_type
                 array_info['base_type_str'] = array_info['base_type_str'] % slot_type
+                array_info['field_type_without_array_info'] = \
+                    array_info['field_type_without_array_info'] % slot_type
 
                 gen_arr_info = MessageFieldTypeInfo(slot)
                 gen_arr_info_dict = gen_arr_info.to_dict()
@@ -257,6 +265,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
         bounded_string_slot_type_info = {
             '%s<999>[34]' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s<999>',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': True, 'static_array_size': 34,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -264,6 +273,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': True, 'bounded_string_size': 999},
             'sequence<%s<1>, 10>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s<1>',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': True, 'bounded_array_size': 10,
@@ -271,6 +281,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': True, 'bounded_string_size': 1},
             'sequence<%s<40>>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s<40>',
                 'base_type_str': '%s', 'is_array': True,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -278,6 +289,7 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 'is_bounded_string': True, 'bounded_string_size': 40},
             '%s<2000>' : {
                 'is_valid': True,
+                'field_type_without_array_info': '%s<2000>',
                 'base_type_str': '%s', 'is_array': False,
                 'is_static_array': False, 'static_array_size': None,
                 'is_bounded_array': False, 'bounded_array_size': None,
@@ -293,6 +305,8 @@ class TestTopicHelpers(unittest.TestCase):  # noqa: D101
                 # String Substitution
                 slot = slot_pattern % slot_type
                 array_info['base_type_str'] = array_info['base_type_str'] % slot_type
+                array_info['field_type_without_array_info'] = \
+                    array_info['field_type_without_array_info'] % slot_type
 
                 gen_arr_info = MessageFieldTypeInfo(slot)
                 gen_arr_info_dict = gen_arr_info.to_dict()
