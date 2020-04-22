@@ -49,7 +49,7 @@ RosCppPluginProvider::RosCppPluginProvider()
   : qt_gui_cpp::CompositePluginProvider()
   , rclcpp_initialized_(false)
 {
-  if (rclcpp::ok(rclcpp::contexts::default_context::get_global_default_context()))
+  if (rclcpp::ok())
   {
     rclcpp_initialized_ = true;
   }
@@ -62,7 +62,7 @@ RosCppPluginProvider::RosCppPluginProvider()
 
 RosCppPluginProvider::~RosCppPluginProvider()
 {
-  if (rclcpp::ok(rclcpp::contexts::default_context::get_global_default_context()))
+  if (rclcpp::ok())
   {
     rclcpp::shutdown();
   }
