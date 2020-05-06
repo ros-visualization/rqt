@@ -1,6 +1,11 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.6 (2020-05-05)
+------------------
+* allow definition of settings file (`#216 <https://github.com/ros-visualization/rqt/issues/216>`_)
+* Contributors: Alexander Gutenkunst
+
 1.0.5 (2019-09-30)
 ------------------
 

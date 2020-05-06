@@ -1,6 +1,6 @@
 <package format="2">
   <name>rqt_gui</name>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <description>rqt_gui provides the main to start an instance of the ROS integrated graphical user interface provided by qt_gui.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
 

@@ -1,6 +1,6 @@
 <package format="2">
   <name>rqt_gui_py</name>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <description>rqt_gui_py enables GUI plugins to use the Python client library for ROS.</description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
 

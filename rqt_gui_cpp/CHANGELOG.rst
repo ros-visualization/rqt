@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.6 (2020-05-05)
+------------------
+* avoid new deprecations (`#225 <https://github.com/ros-visualization/rqt/issues/225>`_)
+* replace deprecated usage of rclcpp::is_initialized() (`#215 <https://github.com/ros-visualization/rqt/issues/215>`_)
+* Contributors: Jacob Perron, William Woodall
+
 1.0.5 (2019-09-30)
 ------------------
 * drop unnecessary MOC compilation (`#203 <https://github.com/ros-visualization/rqt/issues/203>`_)
