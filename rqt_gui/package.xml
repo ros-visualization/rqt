@@ -1,4 +1,6 @@
-<package>
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>rqt_gui</name>
   <version>0.5.1</version>
   <description>rqt_gui provides the main to start an instance of the ROS integrated graphical user interface provided by qt_gui.</description>
@@ -15,6 +17,10 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
-  <run_depend>catkin</run_depend>
-  <run_depend version_gte="0.3.0">qt_gui</run_depend>
+
+  <exec_depend>python_qt_binding</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-rospkg-modules</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-rospkg-modules</exec_depend>
+  <exec_depend version_gte="0.3.0">qt_gui</exec_depend>
+  <exec_depend>rospy</exec_depend>
 </package>
