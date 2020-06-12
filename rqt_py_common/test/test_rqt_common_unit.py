@@ -39,7 +39,7 @@ class TestMessageTreeModel(unittest.TestCase):
 
     def test_path_names(self):
         from rqt_py_common.message_tree_model import MessageTreeModel
-        from rqt_py_common.msg import Val, ArrayVal
+        from rqt_py_common_test_interfaces.msg import Val, ArrayVal
         m = MessageTreeModel()
         m.add_message(ArrayVal())
         root = m.item(0).child(0)

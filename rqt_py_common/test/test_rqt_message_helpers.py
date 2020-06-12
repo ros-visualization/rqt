@@ -41,19 +41,19 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
 
     def test_get_message_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_message_class
-        from rqt_py_common.msg import Val
-        self.assertEqual(get_message_class('rqt_py_common/Val'), Val)
+        from rqt_py_common_test_interfaces.msg import Val
+        self.assertEqual(get_message_class('rqt_py_common_test_interfaces/Val'), Val)
 
     def test_get_service_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_class
-        from rqt_py_common.srv import AddTwoInts
-        self.assertEqual(get_service_class('rqt_py_common/AddTwoInts'), AddTwoInts)
+        from rqt_py_common_test_interfaces.srv import AddTwoInts
+        self.assertEqual(get_service_class('rqt_py_common_test_interfaces/AddTwoInts'), AddTwoInts)
 
     def test_get_message_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_message_text_from_class
-        from rqt_py_common.msg import ArrayVal, Val
+        from rqt_py_common_test_interfaces.msg import ArrayVal, Val
         text = get_message_text_from_class(ArrayVal)
-        expected_text = 'rqt_py_common/Val[5] vals\n'
+        expected_text = 'rqt_py_common_test_interfaces/Val[5] vals\n'
         self.assertEqual(text, expected_text)
 
         text = get_message_text_from_class(Val)
@@ -63,7 +63,7 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
 
     def test_get_service_text_from_class(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_service_text_from_class
-        from rqt_py_common.srv import AddTwoInts
+        from rqt_py_common_test_interfaces.srv import AddTwoInts
         text = get_service_text_from_class(AddTwoInts)
         expected_text = \
             'int64 a\n' + \
@@ -75,11 +75,11 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
     def test_get_all_message_types(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_all_message_types
         all_msgs = get_all_message_types()
-        self.assertTrue('rqt_py_common' in all_msgs.keys())
-        self.assertTrue('ArrayVal' in all_msgs['rqt_py_common'])
+        self.assertTrue('rqt_py_common_test_interfaces' in all_msgs.keys())
+        self.assertTrue('ArrayVal' in all_msgs['rqt_py_common_test_interfaces'])
 
     def test_get_all_service_types(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_all_service_types
         all_srvs = get_all_service_types()
-        self.assertTrue('rqt_py_common' in all_srvs.keys())
-        self.assertTrue('AddTwoInts' in all_srvs['rqt_py_common'])
+        self.assertTrue('rqt_py_common_test_interfaces' in all_srvs.keys())
+        self.assertTrue('AddTwoInts' in all_srvs['rqt_py_common_test_interfaces'])
