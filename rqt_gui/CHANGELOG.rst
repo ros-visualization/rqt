@@ -1,8 +1,8 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.2 (2020-06-12)
+------------------
 * add missing dependencies: rospkg-modules, python_qt_binding, rospy (`#227 <https://github.com/ros-visualization/rqt/issues/227>`_)
 
 0.5.1 (2020-03-10)
