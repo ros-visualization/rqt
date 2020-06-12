@@ -1,6 +1,10 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add missing dependencies: rospkg-modules, python_qt_binding, rospy (`#227 <https://github.com/ros-visualization/rqt/issues/227>`_)
+
 0.5.1 (2020-03-10)
 ------------------
 * bump CMake minimum version to avoid CMP0048 warning (`#219 <https://github.com/ros-visualization/rqt/issues/219>`_)
