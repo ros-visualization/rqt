@@ -48,8 +48,8 @@ NodeletPluginProvider::~NodeletPluginProvider()
 {
   if (ros_spin_thread_ != 0)
   {
-    ros_spin_thread_->abort = true;
     ros_spin_thread_->exec_.remove_node(node_);
+    ros_spin_thread_->exec_.cancel();
     ros_spin_thread_->wait();
     ros_spin_thread_->deleteLater();
     ros_spin_thread_ = 0;
@@ -134,7 +134,6 @@ void NodeletPluginProvider::init_plugin(const QString& plugin_id, qt_gui_cpp::Pl
 
 NodeletPluginProvider::RosSpinThread::RosSpinThread(QObject* parent)
   : QThread(parent)
-  , abort(false)
 {}
 
 NodeletPluginProvider::RosSpinThread::~RosSpinThread()
@@ -142,11 +141,8 @@ NodeletPluginProvider::RosSpinThread::~RosSpinThread()
 
 void NodeletPluginProvider::RosSpinThread::run()
 {
-  while (!abort)
-  {
-    // Spin the executor
-    exec_.spin_once();
-  }
+  // Spin the executor
+  exec_.spin();
 }
 
 
