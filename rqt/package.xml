@@ -10,18 +10,17 @@
    rqt metapackage provides a widget <a href = "http://ros.org/wiki/rqt_gui">rqt_gui</a> that enables multiple `rqt` widgets to be docked in a single window.
   </description>
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
-
+  <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
   <license>BSD</license>
-
   <url type="website">http://ros.org/wiki/rqt</url>
   <url type="repository">https://github.com/ros-visualization/rqt</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
-
   <author>Dirk Thomas</author>
   <author>Dorian Scholz</author>
   <author>Aaron Blasdel</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
   <run_depend version_gte="0.3.0">rqt_gui</run_depend>
   <run_depend version_gte="0.3.0">rqt_gui_cpp</run_depend>
   <run_depend version_gte="0.3.0">rqt_gui_py</run_depend>
