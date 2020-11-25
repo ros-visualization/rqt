@@ -2,15 +2,11 @@
   <name>rqt_gui_cpp</name>
   <version>1.0.6</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
-  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <maintainer email="michael.jeronimo@openrobotics.org">Michael Jeronimo</maintainer>
-
   <license>BSD</license>
-
   <url type="website">http://ros.org/wiki/rqt_gui_cpp</url>
   <url type="repository">https://github.com/ros-visualization/rqt</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
-
   <author>Dirk Thomas</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
