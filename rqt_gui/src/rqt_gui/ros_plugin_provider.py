@@ -125,10 +125,10 @@ class RosPluginProvider(PluginProvider):
             qCritical('RosPluginProvider._parse_plugin_xml() could not parse "%s" in package "%s"'
                       % (plugin_xml, package_name))
             return plugin_descriptors
-        for library_el in root.getiterator('library'):
+        for library_el in root.iter('library'):
             library_path = library_el.attrib['path']
 
-            for class_el in library_el.getiterator('class'):
+            for class_el in library_el.iter('class'):
                 # collect common attributes
                 attributes = {
                     'package_name': package_name,
@@ -192,7 +192,7 @@ class RosPluginProvider(PluginProvider):
         guiplugin_el = class_el.find('qtgui')
         if guiplugin_el is not None:
             plugin_attributes.update(self._parse_action_group(guiplugin_el))
-            for group_el in guiplugin_el.getiterator('group'):
+            for group_el in guiplugin_el.iter('group'):
                 groups.append(self._parse_action_group(group_el))
 
         return plugin_attributes, groups
