@@ -3,7 +3,7 @@ from setuptools import setup
 package_name = 'rqt_gui_py'
 setup(
     name=package_name,
-    version='1.0.6',
+    version='1.0.7',
     package_dir={'': 'src'},
     packages=['rqt_gui_py'],
     data_files=[
