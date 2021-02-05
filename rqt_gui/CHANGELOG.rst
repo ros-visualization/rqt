@@ -1,6 +1,11 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.7 (2021-02-05)
+------------------
+* getiterator() renamed to iter() in Python 3.9 (`#239 <https://github.com/ros-visualization/rqt/issues/239>`_)
+* Contributors: goekce
+
 1.0.6 (2020-05-05)
 ------------------
 * allow definition of settings file (`#216 <https://github.com/ros-visualization/rqt/issues/216>`_)

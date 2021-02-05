@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.7 (2021-02-05)
+------------------
+
 1.0.6 (2020-05-05)
 ------------------
 * avoid new deprecations (`#225 <https://github.com/ros-visualization/rqt/issues/225>`_)
