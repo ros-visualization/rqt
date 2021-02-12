@@ -72,27 +72,11 @@ class MessageTreeModel(QStandardItemModel):
             item._user_data = kwargs.get('user_data', None)
             row.append(item)
 
-        list_types = [list, tuple, array.array]
-        try:
-            import numpy
-            list_types.append(numpy.ndarray)
-        except ImportError:
-            pass
-
         is_leaf_node = False
         if hasattr(slot, 'get_fields_and_field_types'):
             for child_slot_name, child_slot_type in slot.get_fields_and_field_types().items():
                 child_slot_path = slot_path + '/' + child_slot_name
                 child_slot = getattr(slot, child_slot_name)
-                self._recursive_create_items(
-                    row[0], child_slot, child_slot_name,
-                    child_slot_type, child_slot_path, **kwargs)
-
-        elif type(slot) in list_types and (len(slot) > 0):
-            child_slot_type = slot_type_name[:slot_type_name.find('[')]
-            for index, child_slot in enumerate(slot):
-                child_slot_name = '[%d]' % index
-                child_slot_path = slot_path + child_slot_name
                 self._recursive_create_items(
                     row[0], child_slot, child_slot_name,
                     child_slot_type, child_slot_path, **kwargs)
