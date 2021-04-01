@@ -60,7 +60,7 @@ endif()
 target_link_libraries(
   ${PROJECT_NAME}
   ${qt_gui_cpp_LIBRARIES}
-  ${rclcpp_LIBRARIES}
+  rclcpp::rclcpp
   Qt5::Widgets
   ${QT_LIBRARIES}
   ${QT_QTCORE_LIBRARY}
