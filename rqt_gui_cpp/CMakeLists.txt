@@ -42,11 +42,6 @@ ament_export_dependencies(
 
 include_directories(${PROJECT_NAME}
   include
-  ${rclcpp_INCLUDE_DIRS}
-  ${qt_gui_INCLUDE_DIRS}
-  ${qt_gui_cpp_INCLUDE_DIRS}
-  ${Qt5Widgets_INCLUDE_DIRS}
-  ${pluginlib_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -57,16 +52,13 @@ if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
-target_link_libraries(
-  ${PROJECT_NAME}
-  ${qt_gui_cpp_LIBRARIES}
-  ${rclcpp_LIBRARIES}
-  Qt5::Widgets
-  ${QT_LIBRARIES}
-  ${QT_QTCORE_LIBRARY}
-  ${QT_QTGUI_LIBRARY}
-  ${pluginlib_LIBRARY}
-)
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  Qt5Widgets
+  pluginlib
+  rclcpp
+  qt_gui_cpp
+  qt_gui)
 
 install(
   TARGETS ${PROJECT_NAME}
