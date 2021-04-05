@@ -48,11 +48,13 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node_initialized = False
         self._node = None
         self._spinner = None
+        self._shutdown_timeout = 2000
 
     def shutdown(self):
         qDebug('Shutting down RosPyPluginProvider')
         if self._spinner:
             self._spinner.quit()
+            self._spinner.wait(msecs=self._shutdown_timeout)
         if self._node:
             self._destroy_node()
         super().shutdown()
