@@ -30,7 +30,7 @@
 
 import os
 
-from python_qt_binding.QtCore import qDebug
+from python_qt_binding.QtCore import qDebug, qWarning
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 
 import rclpy
@@ -48,11 +48,16 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node_initialized = False
         self._node = None
         self._spinner = None
+        self._shutdown_timeout = 2000
 
     def shutdown(self):
         qDebug('Shutting down RosPyPluginProvider')
         if self._spinner:
             self._spinner.quit()
+            joined = self._spinner.wait(msecs=self._shutdown_timeout)
+            if not joined:
+                qWarning('Timed out attempting to join the RclpySpinner thread')
+                return
         if self._node:
             self._destroy_node()
         super().shutdown()
