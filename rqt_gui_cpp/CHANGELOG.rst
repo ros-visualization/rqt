@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2021-04-07)
+------------------
 * use tgt compile features (`#247 <https://github.com/ros-visualization/rqt/issues/247>`_)
 * Contributors: Audrow Nash
 
