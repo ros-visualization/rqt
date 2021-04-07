@@ -2,6 +2,9 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.7 (2021-02-05)
 ------------------
 * Avoid installing test interfaces  (`#228 <https://github.com/ros-visualization/rqt/issues/228>`_)
