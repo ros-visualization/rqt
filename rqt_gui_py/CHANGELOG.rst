@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix a crash at shutdown (`#248 <https://github.com/ros-visualization/rqt/issues/248>`_)
+* Contributors: Michael Jeronimo
+
 1.1.0 (2021-04-07)
 ------------------
 
