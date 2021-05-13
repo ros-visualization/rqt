@@ -11,6 +11,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>pluginlib</depend>
   <depend>rclcpp</depend>
 
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
