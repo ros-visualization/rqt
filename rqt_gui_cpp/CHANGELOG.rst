@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2021-08-31)
+------------------
+* Declare dependency to pluginlib (`#251 <https://github.com/ros-visualization/rqt/issues/251>`_)
+* Contributors: Chris Lalancette
+
 1.1.1 (2021-04-12)
 ------------------
 

@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2021-08-31)
+------------------
+* Use underscores instead of dashes in `setup.cfg` (`#254 <https://github.com/ros-visualization/rqt/issues/254>`_)
+* Contributors: Abrar Rahman Protyasha
+
 1.1.1 (2021-04-12)
 ------------------
 * Fix a crash at shutdown (`#248 <https://github.com/ros-visualization/rqt/issues/248>`_)
