@@ -28,11 +28,6 @@ find_package(rclcpp REQUIRED)
 find_package(qt_gui REQUIRED)
 find_package(qt_gui_cpp REQUIRED)
 
-SET(rqt_gui_cpp_SRCS
-  src/rqt_gui_cpp/nodelet_plugin_provider.cpp
-  src/rqt_gui_cpp/roscpp_plugin_provider.cpp
-)
-
 ament_export_dependencies(
   Qt5Widgets
   pluginlib
@@ -40,13 +35,13 @@ ament_export_dependencies(
   qt_gui_cpp
   qt_gui)
 
-include_directories(${PROJECT_NAME}
-  include
-)
-
 add_library(${PROJECT_NAME} SHARED
-  ${rqt_gui_cpp_SRCS}
+  src/rqt_gui_cpp/nodelet_plugin_provider.cpp
+  src/rqt_gui_cpp/roscpp_plugin_provider.cpp
 )
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
@@ -62,15 +57,14 @@ ament_target_dependencies(${PROJECT_NAME}
 
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include)
+  RUNTIME DESTINATION bin)
 
 install(
   DIRECTORY include/
-  DESTINATION include
+  DESTINATION include/${PROJECT_NAME}
 )
 
 install(FILES plugin.xml
@@ -78,7 +72,11 @@ install(FILES plugin.xml
 )
 pluginlib_export_plugin_description_file(qt_gui "plugin.xml")
 
+# Export old-style CMake variables
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
+
+# Export modern CMake targets
+ament_export_targets(export_${PROJECT_NAME})
 
 ament_package()
