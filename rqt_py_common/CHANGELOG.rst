@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.3 (2022-03-25)
+------------------
+* Update maintainers (`#233 <https://github.com/ros-visualization/rqt/issues/233>`_) (`#237 <https://github.com/ros-visualization/rqt/issues/237>`_)
+* Contributors: Michael Jeronimo
+
 0.5.2 (2020-06-12)
 ------------------
 

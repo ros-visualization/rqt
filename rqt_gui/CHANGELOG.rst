@@ -1,6 +1,12 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.3 (2022-03-25)
+------------------
+* Changed getiter to iter (`#1 <https://github.com/ros-visualization/rqt/issues/1>`_) (`#241 <https://github.com/ros-visualization/rqt/issues/241>`_)
+* Update maintainers (`#233 <https://github.com/ros-visualization/rqt/issues/233>`_) (`#237 <https://github.com/ros-visualization/rqt/issues/237>`_)
+* Contributors: Michael Jeronimo, sven-herrmann
+
 0.5.2 (2020-06-12)
 ------------------
 * add missing dependencies: rospkg-modules, python_qt_binding, rospy (`#227 <https://github.com/ros-visualization/rqt/issues/227>`_)
