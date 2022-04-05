@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (2022-04-05)
+------------------
+* Install includes to include\${PROJECT_NAME} (`#258 <https://github.com/ros-visualization/rqt/issues/258>`_)
+* Contributors: Shane Loretz
+
 1.1.2 (2021-08-31)
 ------------------
 * Declare dependency to pluginlib (`#251 <https://github.com/ros-visualization/rqt/issues/251>`_)

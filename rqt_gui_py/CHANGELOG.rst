@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (2022-04-05)
+------------------
+
 1.1.2 (2021-08-31)
 ------------------
 * Use underscores instead of dashes in `setup.cfg` (`#254 <https://github.com/ros-visualization/rqt/issues/254>`_)
