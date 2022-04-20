@@ -53,10 +53,17 @@ class Main(Base):
 
         # ignore ROS specific remapping arguments
         argv = rclpy.utilities.remove_ros_args(args=argv)
-
-        return super(
-            Main, self).main(argv, standalone=standalone,
-                             plugin_argument_provider=plugin_argument_provider)
+        help_text = """<p><b>rqt</b> is a GUI framework that is able to load various plug-in tools
+as dockable windows. There are currently no plug-ins selected. To add plug-ins, select items from
+the <b>Plugins</b> menu.</p>
+<p>You may also save a particular arrangement of plug-ins as a <i>perspective</i> using the
+<b>Perspectives</b> menu.
+"""
+        return super(Main, self).main(
+            argv,
+            standalone=standalone,
+            plugin_argument_provider=plugin_argument_provider,
+            help_text=help_text)
 
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
