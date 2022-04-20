@@ -58,7 +58,6 @@ as dockable windows. There are currently no plug-ins selected. To add plug-ins, 
 the <b>Plugins</b> menu.</p>
 <p>You may also save a particular arrangement of plug-ins as a <i>perspective</i> using the
 <b>Perspectives</b> menu.
-<p>See <a href="http://wiki.ros.org/rqt/">the rqt Wiki page</a> for more information</p>
 """
         return super(Main, self).main(
             argv,
