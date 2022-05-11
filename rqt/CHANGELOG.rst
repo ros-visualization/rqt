@@ -2,6 +2,11 @@
 Changelog for package rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2022-05-10)
+------------------
+* Fix up the package description. (`#250 <https://github.com/ros-visualization/rqt/issues/250>`_)
+* Contributors: Chris Lalancette
+
 1.1.3 (2022-04-05)
 ------------------
 
