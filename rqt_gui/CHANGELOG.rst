@@ -1,6 +1,11 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2022-05-10)
+------------------
+* Display basic help information when no plugins are loaded (`#268 <https://github.com/ros-visualization/rqt/issues/268>`_)
+* Contributors: Michael Jeronimo
+
 1.1.3 (2022-04-05)
 ------------------
 

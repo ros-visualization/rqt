@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2022-05-10)
+------------------
+
 1.1.3 (2022-04-05)
 ------------------
 * Install includes to include\${PROJECT_NAME} (`#258 <https://github.com/ros-visualization/rqt/issues/258>`_)
