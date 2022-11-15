@@ -10,14 +10,17 @@
     Functionality included in this package should cover generic ROS concepts and
     should not introduce any special dependencies beside "ros_base".
   </description>
+
   <maintainer email="dharini@openrobotics.org">Dharini Dutia</maintainer>
+
   <license>BSD</license>
   <url type="website">http://ros.org/wiki/rqt_py_common</url>
   <url type="repository">https://github.com/ros-visualization/rqt_common_plugins</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt_common_plugins/issues</url>
+
+  <author>Dirk Thomas</author>
   <author email="scholz@sim.tu-darmstadt.de">Dorian Scholz</author>
   <author>Isaac Saito</author>
-  <author>Dirk Thomas</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

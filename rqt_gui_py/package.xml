@@ -2,11 +2,14 @@
   <name>rqt_gui_py</name>
   <version>1.2.0</version>
   <description>rqt_gui_py enables GUI plugins to use the Python client library for ROS.</description>
+
   <maintainer email="dharini@openrobotics.org">Dharini Dutia</maintainer>
+
   <license>BSD</license>
   <url type="website">http://ros.org/wiki/rqt_gui_py</url>
   <url type="repository">https://github.com/ros-visualization/rqt</url>
   <url type="bugtracker">https://github.com/ros-visualization/rqt/issues</url>
+
   <author>Dirk Thomas</author>
   <author email="michael.jeronimo@openrobotics.org">Michael Jeronimo</author>
 
