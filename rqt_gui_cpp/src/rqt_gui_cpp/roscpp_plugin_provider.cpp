@@ -38,7 +38,7 @@
 #include <qt_gui_cpp/plugin_provider.h>
 
 #include <nodelet/nodelet.h>
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <ros/ros.h>
 
 #include <stdexcept>
