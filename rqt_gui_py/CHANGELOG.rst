@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [rolling] Update maintainers - 2022-11-07 (`#283 <https://github.com/ros-visualization/rqt/issues/283>`_)
+* Contributors: Audrow Nash, Dharini Dutia, quarkytale
+
 1.2.0 (2022-05-10)
 ------------------
 

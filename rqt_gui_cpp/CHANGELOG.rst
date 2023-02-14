@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update rqt to C++17. (`#285 <https://github.com/ros-visualization/rqt/issues/285>`_)
+* [rolling] Update maintainers - 2022-11-07 (`#283 <https://github.com/ros-visualization/rqt/issues/283>`_)
+* Contributors: Audrow Nash, Chris Lalancette, Dharini Dutia, quarkytale
+
 1.2.0 (2022-05-10)
 ------------------
 
