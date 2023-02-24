@@ -28,5 +28,6 @@ setup(
         'rqt_robot_plugins - Tools for interacting with robots during their runtime. ' +
         'rqt_gui - that enables multiple `rqt` widgets to be docked in a single window.'
     ),
+    packages=[],
     license='BSD',
 )
