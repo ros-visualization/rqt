@@ -2,6 +2,9 @@
 Changelog for package rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.1 (2023-02-24)
 ------------------
 * fix build of `rqt` with `setuptools>=v61.0.0` (`#271 <https://github.com/ros-visualization/rqt/issues/271>`_)

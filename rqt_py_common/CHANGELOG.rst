@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changes the use of __slots_\_ for the field and field type getter (`#289 <https://github.com/ros-visualization/rqt/issues/289>`_)
+* Contributors: Eloy Briceno
+
 1.3.1 (2023-02-24)
 ------------------
 
