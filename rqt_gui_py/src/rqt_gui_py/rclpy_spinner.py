@@ -30,8 +30,6 @@ class RclpySpinner(QThread):
         executor.add_node(self._node)
         while rclpy.ok() and not self._abort:
             executor.spin_once(timeout_sec=1.0)
-        if not self._abort:
-            qWarning('rclpy.shutdown() was called before QThread.quit()')
 
     def quit(self):  # noqa: A003
         qDebug('Quit called on RclpySpinner')
