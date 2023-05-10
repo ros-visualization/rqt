@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from python_qt_binding.QtCore import qDebug, QThread, qWarning
+from python_qt_binding.QtCore import qDebug, QThread
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 
