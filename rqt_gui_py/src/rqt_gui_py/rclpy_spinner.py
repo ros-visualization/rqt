@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from python_qt_binding.QtCore import qDebug, QThread, qWarning
+from python_qt_binding.QtCore import qDebug, QThread
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 
@@ -30,8 +30,6 @@ class RclpySpinner(QThread):
         executor.add_node(self._node)
         while rclpy.ok() and not self._abort:
             executor.spin_once(timeout_sec=1.0)
-        if not self._abort:
-            qWarning('rclpy.shutdown() was called before QThread.quit()')
 
     def quit(self):  # noqa: A003
         qDebug('Quit called on RclpySpinner')
