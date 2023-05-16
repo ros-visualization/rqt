@@ -86,5 +86,5 @@ class RosPyPluginProvider(CompositePluginProvider):
     def _destroy_node(self):
         if self._node_initialized:
             self._node.destroy_node()
-            rclpy.shutdown()
+            rclpy.try_shutdown()
             self._node_initialized = False
