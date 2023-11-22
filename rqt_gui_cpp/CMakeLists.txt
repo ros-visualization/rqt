@@ -24,17 +24,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(pluginlib REQUIRED)
-find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(rclcpp REQUIRED)
-find_package(qt_gui REQUIRED)
 find_package(qt_gui_cpp REQUIRED)
 
 ament_export_dependencies(
-  Qt5Widgets
-  pluginlib
   rclcpp
   qt_gui_cpp
-  qt_gui)
+)
 
 add_library(${PROJECT_NAME} SHARED
   src/rqt_gui_cpp/nodelet_plugin_provider.cpp
@@ -48,13 +45,15 @@ if(APPLE)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
-ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  Qt5Widgets
-  pluginlib
-  rclcpp
-  qt_gui_cpp
-  qt_gui)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  qt_gui_cpp::qt_gui_cpp
+  rclcpp::rclcpp
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  pluginlib::pluginlib
+  Qt5::Widgets
+)
 
 install(
   TARGETS ${PROJECT_NAME}

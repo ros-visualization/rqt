@@ -34,7 +34,9 @@
 
 #include "roscpp_plugin_provider.h"
 
+#include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace rqt_gui_cpp {
 
