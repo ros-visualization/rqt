@@ -46,6 +46,24 @@ class TopicCompleter(TreeModelCompleter):
     def splitPath(self, path):
         # to handle array subscriptions, e.g. /topic/field[1]/subfield[2]
         # we need to separate array subscriptions by an additional /
+
+        topic_name = path
+
+        if self.topic_list:
+            # Remove backslash at the end of the topic name
+            if (topic_name[-1] == '/'):
+                topic_name = topic_name[:-1]
+
+            for topic, type in self.topic_list:
+                if topic in topic_name:
+                    subfield_topic = path.replace(topic, '')
+                    # Remove backslash at the end of the topic name
+                    result = [topic[1:]]
+                    result2 = super(TopicCompleter, self).splitPath(
+                        subfield_topic.replace('[', '/['))
+                    result = result + result2
+                    return result
+
         return super(TopicCompleter, self).splitPath(path.replace('[', '/['))
 
     def update_topics(self, node):
@@ -55,9 +73,9 @@ class TopicCompleter(TreeModelCompleter):
 
         # If no node is passed in then we need to start rclpy and create a node
         # topic_helpers provides a convenience function for doing this
-        topic_list = node.get_topic_names_and_types()
+        self.topic_list = node.get_topic_names_and_types()
 
-        for topic_path, topic_types in topic_list:
+        for topic_path, topic_types in self.topic_list:
             for topic_type in topic_types:
                 topic_name = topic_path.strip('/')
                 message_class = get_message_class(topic_type)
