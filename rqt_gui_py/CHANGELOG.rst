@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.6 (2024-01-24)
+------------------
+* Merge pull request `#296 <https://github.com/ros-visualization/rqt/issues/296>`_ from daisukes/humble-backport-291
+* fix an exception raised while press ctrl+c to exit (`#291 <https://github.com/ros-visualization/rqt/issues/291>`_)
+* Contributors: Chen Lihui, Dharini Dutia
+
 1.1.5 (2023-04-25)
 ------------------
 
