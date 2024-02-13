@@ -54,7 +54,7 @@ class TopicCompleter(TreeModelCompleter):
             if (topic_name[-1] == '/'):
                 topic_name = topic_name[:-1]
 
-            for topic, type in self.topic_list:
+            for topic, _ in self.topic_list:
                 if topic in topic_name:
                     subfield_topic = path.replace(topic, '')
                     # Remove backslash at the end of the topic name
