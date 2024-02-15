@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.3 (2023-05-19)
 ------------------
 * Fix an exception raised when terminating with Ctrl+c (`#292 <https://github.com/ros-visualization/rqt/issues/292>`_)
