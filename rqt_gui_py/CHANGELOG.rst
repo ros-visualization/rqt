@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.7 (2024-02-16)
+------------------
+
 1.1.6 (2024-01-24)
 ------------------
 * Merge pull request `#296 <https://github.com/ros-visualization/rqt/issues/296>`_ from daisukes/humble-backport-291

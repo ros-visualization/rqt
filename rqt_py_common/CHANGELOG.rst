@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.7 (2024-02-16)
+------------------
+* Allow to autocomplete namespaced topics (`#299 <https://github.com/ros-visualization/rqt/issues/299>`_) (`#302 <https://github.com/ros-visualization/rqt/issues/302>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.1.6 (2024-01-24)
 ------------------
 
