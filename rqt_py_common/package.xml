@@ -23,6 +23,7 @@
   <author>Isaac Saito</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <depend>qtbase5-dev</depend>
   <depend>rclpy</depend>
