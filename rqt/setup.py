@@ -30,4 +30,5 @@ setup(
     ),
     packages=[],
     license='BSD',
+    tests_require=['pytest'],
 )
