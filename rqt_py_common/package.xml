@@ -23,6 +23,7 @@
   <author>Isaac Saito</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <depend>qtbase5-dev</depend>
   <depend>rclpy</depend>
@@ -31,7 +32,6 @@
   <exec_depend>qt_gui</exec_depend>
 
   <test_depend>ament_cmake_pytest</test_depend>
-  <test_depend>python_cmake_module</test_depend>
   <test_depend>rosidl_default_generators</test_depend>
   <test_depend>rosidl_default_runtime</test_depend>
 
