@@ -28,8 +28,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from rqt_py_common.message_tree_model import MessageTreeModel
 from rqt_py_common.message_helpers import get_message_class
+from rqt_py_common.message_tree_model import MessageTreeModel
 
 
 class TopicTreeModel(MessageTreeModel):

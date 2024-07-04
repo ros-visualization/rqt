@@ -55,7 +55,7 @@ def is_primitive_type(type_str):
 
 def get_type_class(type_name):
     """
-    Gets the python type from an idl string.
+    Get the python type from an idl string.
 
     See: https://github.com/ros2/design/blob/gh-pages/articles/142_idl.md
 

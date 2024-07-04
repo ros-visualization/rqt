@@ -32,8 +32,8 @@
 
 from python_qt_binding.QtCore import qWarning
 
-from rqt_py_common.message_tree_model import MessageTreeModel
 from rqt_py_common.message_helpers import get_message_class
+from rqt_py_common.message_tree_model import MessageTreeModel
 from rqt_py_common.tree_model_completer import TreeModelCompleter
 
 

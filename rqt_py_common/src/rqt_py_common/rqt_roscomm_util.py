@@ -4,30 +4,29 @@
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
+# modification, are permitted provided that the following conditions are met:
 #
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of Willow Garage, Inc. nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#    * Neither the name of the copyright holder nor the names of its
+#      contributors may be used to endorse or promote products derived from
+#      this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # Author: Isaac Saito
@@ -45,7 +44,7 @@ class RqtRoscommUtil(object):
     @staticmethod
     def load_parameters(config, caller_id):
         """
-        TODO(mlautman) Load parameters from node graph
+        TODO(mlautman) Load parameters from node graph.
 
         Load parameters onto the parameter server.
 
@@ -106,7 +105,7 @@ class RqtRoscommUtil(object):
     @staticmethod
     def iterate_packages(subdir):
         """
-        Iterator for packages that contain the given subdir.
+        Iterate packages that contain the given subdir.
 
         This method is generalizing rosmsg.iterate_packages.
 
@@ -128,6 +127,8 @@ class RqtRoscommUtil(object):
     @staticmethod
     def list_files(package, subdir, file_extension='.launch'):
         """
+        List files contained in the specified package.
+
         Note: Mlautman 11/2/2018
               This method is deprecated in ROS2
               This functionality does not fit the ROS2 design paradigm
@@ -136,7 +137,6 @@ class RqtRoscommUtil(object):
         #TODO: Come up with better name of the method.
 
         Taken from rosmsg.
-        Lists files contained in the specified package
 
         @param package: package name, ``str``
         @param file_extension: Defaults to '.launch', ``str``
@@ -148,9 +148,10 @@ class RqtRoscommUtil(object):
     @staticmethod
     def _list_types(path, ext):
         """
-        Taken from rosmsg
+        List all messages in the specified package.
 
-        List all messages in the specified package
+        Taken from rosmsg.
+
         :param package str: name of package to search
         :param include_depends bool: if True, will also list messages in
                                      package dependencies.
@@ -159,7 +160,7 @@ class RqtRoscommUtil(object):
         types = RqtRoscommUtil._list_resources(path,
                                                RqtRoscommUtil._msg_filter(ext))
 
-        result = [x for x in types]
+        result = list(types)
         # result = [x[:-len(ext)] for x in types]  # Remove extension
 
         result.sort()
@@ -168,9 +169,10 @@ class RqtRoscommUtil(object):
     @staticmethod
     def _list_resources(path, rfilter=os.path.isfile):
         """
-        Taken from rosmsg._list_resources
+        List resources in a package directory within a particular.
 
-        List resources in a package directory within a particular
+        Taken from rosmsg._list_resources.
+
         subdirectory. This is useful for listing messages, services, etc...
         :param rfilter: resource filter function that returns true if filename
                         is the desired resource type, ``fn(filename)->bool``
@@ -185,10 +187,11 @@ class RqtRoscommUtil(object):
 
     @staticmethod
     def _msg_filter(ext):
-        """Taken from rosmsg._msg_filter"""
+        """Taken from rosmsg._msg_filter."""
         def mfilter(f):
             """
-            Predicate for filtering directory list. matches message files
+            Predicate for filtering directory list. matches message files.
+
             :param f: filename, ``str``
             """
             return os.path.isfile(f) and f.endswith(ext)

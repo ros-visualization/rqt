@@ -13,6 +13,9 @@ install(DIRECTORY resource
 )
 
 if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
   find_package(rosidl_default_generators REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
   # Provides PYTHON_EXECUTABLE_DEBUG

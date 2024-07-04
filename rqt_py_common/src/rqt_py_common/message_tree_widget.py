@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from python_qt_binding.QtCore import Slot, QMimeData, QModelIndex, Qt, qWarning
+from python_qt_binding.QtCore import QMimeData, QModelIndex, Qt, qWarning, Slot
 from python_qt_binding.QtGui import QDrag, QIcon
 from python_qt_binding.QtWidgets import QAction, QHeaderView, QMenu, QTreeView
 

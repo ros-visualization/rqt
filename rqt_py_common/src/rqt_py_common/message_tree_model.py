@@ -107,7 +107,7 @@ class MessageTreeModel(QStandardItemModel):
 
         return (row, is_leaf_node)
 
-    '''
+    """
     NOTE: I (Isaac Saito) suspect that this function might have same/similar
           functionality with _recursive_create_items.
 
@@ -128,7 +128,7 @@ class MessageTreeModel(QStandardItemModel):
 
                                  [ top_node, sub_node, subsub_node ]
     @author: Isaac Saito
-    '''
+    """
     @staticmethod
     def _build_tree_recursive(stditem_parent, names_on_branch):
         name_curr = names_on_branch.pop(0)
@@ -152,7 +152,7 @@ class MessageTreeModel(QStandardItemModel):
 
         MessageTreeModel._logger.debug(
             'add_tree_node 1 name_curr={} \n\t\tname_prev={} row_index_parent={}'.format(
-                (name_curr, name_prev, row_index_parent)))
+                name_curr, name_prev, row_index_parent))
 
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)

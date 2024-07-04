@@ -139,8 +139,8 @@ def get_all_rosidl_types_of_type(rosidl_type):
     :returns: a dictionary mapping packages to the rosidl interfaces of a specific type
     """
     if rosidl_type not in ROSIDL_FILTERS:
-        raise ValueError('Invalid rosidl_type type "{}". Needs to be one of {}'.format(
-            filter_type, ROSIDL_FILTERS.keys()))
+        raise ValueError('Invalid rosidl_type type. Needs to be one of {}'.format(
+            ROSIDL_FILTERS.keys()))
 
     all_rosidl_types = get_all_rosidl_types()
     return {
@@ -151,7 +151,7 @@ def get_all_rosidl_types_of_type(rosidl_type):
 
 def get_all_service_types():
     """
-    Uses the ament index to iterate through packages and calls get_service_types on each one.
+    Use the ament index to iterate through packages and calls get_service_types on each one.
 
     :returns: a dictionary of the form {'package_name', ['srv1', 'srv2', ...]}
     """
@@ -160,7 +160,7 @@ def get_all_service_types():
 
 def get_service_types(package_name):
     """
-    Uses the ament index gind all services avialable in the package.
+    Use the ament index gind all services avialable in the package.
 
     :param package_name: a string eg 'std_srvs'
     :returns: a dictionary of the form {'package_name', ['srv1', 'srv2', ...]}
@@ -170,7 +170,7 @@ def get_service_types(package_name):
 
 def get_all_message_types():
     """
-    Uses the ament index to iterate through packages and calls get_message_types on each one.
+    Use the ament index to iterate through packages and calls get_message_types on each one.
 
     :returns: a dictionary of the form {'package_name', ['msg1', 'msg2', ...]}
     """
@@ -179,7 +179,7 @@ def get_all_message_types():
 
 def get_message_types(package_name):
     """
-    Uses the ament index to find all messages avialable in the package.
+    Use the ament index to find all messages avialable in the package.
 
     :param package_name: a string eg 'std_msgs'
     :returns: a dictionary of the form {'std_msgs', ['Bool', 'String', ...]}
@@ -208,7 +208,7 @@ def get_action_types(package_name):
 
 def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
     """
-    A helper function for common logic to be used by get_message_class and get_service_class.
+    Logic to be used by get_message_class and get_service_class.
 
     :param message_type: name of the message or service class in the form
       'package_name/MessageName' or 'package_name/msg/MessageName'
@@ -266,7 +266,7 @@ _srv_class_cache = {}
 
 def get_service_class(srv_type):
     """
-    Gets the service class from a string representation.
+    Get the service class from a string representation.
 
     :param srv_type: the type of service in the form
       `package_name/ServiceName` or `package_name/srv/ServiceName`
@@ -291,7 +291,7 @@ _message_class_cache = {}
 
 def get_message_class(message_type):
     """
-    Gets the message class from a string representation.
+    Get the message class from a string representation.
 
     :param message_type: the type of message in the form `msg_pkg/Message`
     :type message_type: str
@@ -316,7 +316,7 @@ _action_class_cache = {}
 
 def get_action_class(action_type):
     """
-    Gets the action class from a string representation.
+    Get the action class from a string representation.
 
     :param action_type: the type of action in the form `action_pkg/Action`
     :type action_type: str
