@@ -139,8 +139,8 @@ def get_all_rosidl_types_of_type(rosidl_type):
     :returns: a dictionary mapping packages to the rosidl interfaces of a specific type
     """
     if rosidl_type not in ROSIDL_FILTERS:
-        raise ValueError('Invalid rosidl_type type. Needs to be one of {}'.format(
-            ROSIDL_FILTERS.keys()))
+        raise ValueError('Invalid rosidl_type type {}. Needs to be one of {}'.format(
+            rosidl_type, ROSIDL_FILTERS.keys()))
 
     all_rosidl_types = get_all_rosidl_types()
     return {
