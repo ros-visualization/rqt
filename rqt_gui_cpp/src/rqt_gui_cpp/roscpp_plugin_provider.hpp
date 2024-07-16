@@ -30,14 +30,37 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RQT_GUI_CPP__PLUGIN_H_
-#define RQT_GUI_CPP__PLUGIN_H_
+#ifndef RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_
+#define RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_
 
-// *INDENT-OFF* (prevent uncrustify from adding indention below)
-#warning Including header <rqt_gui_cpp/plugin.h> is deprecated, \
-include <rqt_gui_cpp/plugin.hpp> instead.
+#include <QMessageBox>
+#include <QThread>
 
-// *INDENT-ON*
-#include "./plugin.hpp"
+#include <string>
 
-#endif  // RQT_GUI_CPP__PLUGIN_H_
+#include <qt_gui_cpp/composite_plugin_provider.hpp>
+
+namespace rqt_gui_cpp
+{
+
+class RosCppPluginProvider
+  : public qt_gui_cpp::CompositePluginProvider
+{
+public:
+  RosCppPluginProvider();
+
+  virtual ~RosCppPluginProvider();
+
+  virtual void * load(const QString & plugin_id, qt_gui_cpp::PluginContext * plugin_context);
+
+  virtual qt_gui_cpp::Plugin * load_plugin(
+    const QString & plugin_id,
+    qt_gui_cpp::PluginContext * plugin_context);
+
+protected:
+  void init_rclcpp();
+
+  bool rclcpp_initialized_;
+};
+}  // namespace rqt_gui_cpp
+#endif  // RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_

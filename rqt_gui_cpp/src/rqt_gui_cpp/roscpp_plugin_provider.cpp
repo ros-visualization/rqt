@@ -30,52 +30,56 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "roscpp_plugin_provider.h"
+#include "roscpp_plugin_provider.hpp"
 
-#include "nodelet_plugin_provider.h"
-#include <rqt_gui_cpp/plugin.h>
+#include <sys/types.h>
+
+#include <stdexcept>
+
+#include "nodelet_plugin_provider.hpp"
+#include <rqt_gui_cpp/plugin.hpp>
 
 #include <qt_gui_cpp/plugin_provider.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 
-#include <stdexcept>
-#include <sys/types.h>
-
-namespace rqt_gui_cpp {
+namespace rqt_gui_cpp
+{
 
 RosCppPluginProvider::RosCppPluginProvider()
-  : qt_gui_cpp::CompositePluginProvider()
+: qt_gui_cpp::CompositePluginProvider()
   , rclcpp_initialized_(false)
 {
-  if (rclcpp::ok())
-  {
+  if (rclcpp::ok()) {
     rclcpp_initialized_ = true;
   }
 
   init_rclcpp();
-  QList<PluginProvider*> plugin_providers;
+  QList<PluginProvider *> plugin_providers;
   plugin_providers.append(new NodeletPluginProvider("rqt_gui", "rqt_gui_cpp::Plugin"));
   set_plugin_providers(plugin_providers);
 }
 
 RosCppPluginProvider::~RosCppPluginProvider()
 {
-  if (rclcpp::ok())
-  {
+  if (rclcpp::ok()) {
     rclcpp::shutdown();
   }
 }
 
-void* RosCppPluginProvider::load(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
+void * RosCppPluginProvider::load(
+  const QString & plugin_id,
+  qt_gui_cpp::PluginContext * plugin_context)
 {
   qDebug("RosCppPluginProvider::load(%s)", plugin_id.toStdString().c_str());
   init_rclcpp();
   return qt_gui_cpp::CompositePluginProvider::load(plugin_id, plugin_context);
 }
 
-qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, qt_gui_cpp::PluginContext* plugin_context)
+qt_gui_cpp::Plugin * RosCppPluginProvider::load_plugin(
+  const QString & plugin_id,
+  qt_gui_cpp::PluginContext * plugin_context)
 {
   qDebug("RosCppPluginProvider::load_plugin(%s)", plugin_id.toStdString().c_str());
   init_rclcpp();
@@ -85,10 +89,9 @@ qt_gui_cpp::Plugin* RosCppPluginProvider::load_plugin(const QString& plugin_id, 
 void RosCppPluginProvider::init_rclcpp()
 {
   // initialize ROS node once
-  if (!rclcpp_initialized_)
-  {
+  if (!rclcpp_initialized_) {
     int argc = 0;
-    char** argv = 0;
+    char ** argv = 0;
 
     // Initialize any global resources needed by the middleware and the client library.
     // This will also parse command line arguments one day (as of Beta 1 they are not used).
@@ -101,7 +104,5 @@ void RosCppPluginProvider::init_rclcpp()
     rclcpp_initialized_ = true;
   }
 }
-
-}
-
+}  // namespace rqt_gui_cpp
 PLUGINLIB_EXPORT_CLASS(rqt_gui_cpp::RosCppPluginProvider, qt_gui_cpp::PluginProvider)
