@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "nodelet_plugin_provider.hpp"  // NOLINT
+#include "nodelet_plugin_provider.hpp"
 
 #include <memory>
 #include <stdexcept>

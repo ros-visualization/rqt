@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "roscpp_plugin_provider.hpp"  // NOLINT
+#include "roscpp_plugin_provider.hpp"
 
 #include <sys/types.h>
 
