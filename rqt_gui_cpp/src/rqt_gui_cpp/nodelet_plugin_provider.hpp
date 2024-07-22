@@ -33,13 +33,11 @@
 #ifndef RQT_GUI_CPP__NODELET_PLUGIN_PROVIDER_HPP_
 #define RQT_GUI_CPP__NODELET_PLUGIN_PROVIDER_HPP_
 
-#include <unistd.h>
-
 #include <QThread>
-#include <iostream>
 #include <memory>
 #include <string>
 
+#include <qt_gui_cpp/plugin_context.hpp>
 #include <qt_gui_cpp/ros_pluginlib_plugin_provider.hpp>
 
 #include <rqt_gui_cpp/plugin.hpp>
@@ -48,8 +46,6 @@
 
 namespace rqt_gui_cpp
 {
-
-class RosCppPluginProvider;
 
 class NodeletPluginProvider
   : public qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>
