@@ -28,8 +28,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rclpy
-
 from rqt_py_common.message_helpers import get_message_class
 
 
@@ -78,8 +76,12 @@ class TopicDict(object):
 
 if __name__ == '__main__':
     import pprint
-    rclpy.init()
-    topic_dict_node = rclpy.create_node('topic_dict')
-    pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
-    topic_dict_node.destroy_node()
-    rclpy.shutdown()
+    import rclpy
+    from rclpy.executors import ExternalShutdownException
+
+    try:
+        with rclpy.init():
+            topic_dict_node = rclpy.create_node('topic_dict')
+            pprint.pprint(TopicDict(node=topic_dict_node).get_topics())
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
