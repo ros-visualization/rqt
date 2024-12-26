@@ -21,8 +21,10 @@
   <exec_depend version_gte="0.3.0">qt_gui</exec_depend>
   <exec_depend>rclpy</exec_depend>
 
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>ament_xmllint</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
