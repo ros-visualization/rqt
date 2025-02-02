@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.9.0 (2025-02-02)
+------------------
 * Add in standard tests for rqt_gui and rqt_gui_py (`#318 <https://github.com/ros-visualization/rqt/issues/318>`_)
 * Contributors: Chris Lalancette
 
