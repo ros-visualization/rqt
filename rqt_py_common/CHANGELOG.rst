@@ -2,6 +2,9 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.8.0 (2024-11-20)
 ------------------
 * Stop using python_cmake_module. (`#304 <https://github.com/ros-visualization/rqt/issues/304>`_)
