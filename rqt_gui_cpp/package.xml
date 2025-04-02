@@ -1,4 +1,4 @@
-<package>
+<package format="3">
   <name>rqt_gui_cpp</name>
   <version>0.5.3</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
@@ -11,6 +11,8 @@
   <author email="michael.jeronimo@openrobotics.org">Michael Jeronimo</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
 
   <build_depend version_gte="0.3.0">qt_gui</build_depend>
   <build_depend version_gte="0.3.0">qt_gui_cpp</build_depend>
@@ -18,10 +20,10 @@
   <build_depend>roscpp</build_depend>
   <build_depend>nodelet</build_depend>
 
-  <run_depend version_gte="0.3.0">qt_gui</run_depend>
-  <run_depend version_gte="0.3.0">qt_gui_cpp</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>nodelet</run_depend>
+  <exec_depend version_gte="0.3.0">qt_gui</exec_depend>
+  <exec_depend version_gte="0.3.0">qt_gui_cpp</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>nodelet</exec_depend>
 
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -Wl,-rpath,${prefix}/lib -lrqt_gui_cpp"/>

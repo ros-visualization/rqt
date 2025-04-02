@@ -1,4 +1,4 @@
-<package>
+<package format="3">
   <name>rqt_py_common</name>
   <version>0.5.3</version>
   <description>
@@ -20,22 +20,24 @@
   <author>Dirk Thomas</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
 
   <build_depend>genmsg</build_depend>
   <build_depend>std_msgs</build_depend>
 
-  <run_depend>genpy</run_depend>
-  <run_depend version_gte="0.2.19">python_qt_binding</run_depend>
-  <run_depend>qt_gui</run_depend>
-  <run_depend>roslib</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>rostopic</run_depend>
+  <exec_depend>genpy</exec_depend>
+  <exec_depend version_gte="0.2.19">python_qt_binding</exec_depend>
+  <exec_depend>qt_gui</exec_depend>
+  <exec_depend>roslib</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>rostopic</exec_depend>
 
   <!-- 3/11/2013 depending on actionlib & rosbag is only temporary;
   rosaction.py needs it. In the future this run_depend will be removed when
   rosaction gets moved to actionlib. -->
-  <run_depend>actionlib</run_depend>
-  <run_depend>rosbag</run_depend>
+  <exec_depend>actionlib</exec_depend>
+  <exec_depend>rosbag</exec_depend>
 
   <export>
     <architecture_independent/>
