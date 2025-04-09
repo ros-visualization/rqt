@@ -1,6 +1,12 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Import setup from setuptools instead of distutils.core (`#287 <https://github.com/ros-visualization/rqt/issues/287>`_)
+* Update maintainer (`#269 <https://github.com/ros-visualization/rqt/issues/269>`_)
+* Contributors: Arne Hitzmann, Dharini Dutia, quarkytale
+
 0.5.3 (2022-03-25)
 ------------------
 * Changed getiter to iter (`#1 <https://github.com/ros-visualization/rqt/issues/1>`_) (`#241 <https://github.com/ros-visualization/rqt/issues/241>`_)

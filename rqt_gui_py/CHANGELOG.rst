@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Import setup from setuptools instead of distutils.core (`#287 <https://github.com/ros-visualization/rqt/issues/287>`_)
+* Update maintainer (`#269 <https://github.com/ros-visualization/rqt/issues/269>`_)
+* Contributors: Arne Hitzmann, Dharini Dutia, quarkytale
+
 0.5.3 (2022-03-25)
 ------------------
 * Update maintainers (`#233 <https://github.com/ros-visualization/rqt/issues/233>`_) (`#237 <https://github.com/ros-visualization/rqt/issues/237>`_)
