@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.4 (2025-04-09)
+------------------
 * Use non deprecated pluginlib header (`#284 <https://github.com/ros-visualization/rqt/issues/284>`_)
 * Import setup from setuptools instead of distutils.core (`#287 <https://github.com/ros-visualization/rqt/issues/287>`_)
 * Update maintainer (`#269 <https://github.com/ros-visualization/rqt/issues/269>`_)
