@@ -2,6 +2,16 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump cmake_minimum_required to avoid deprecation (`#320 <https://github.com/ros-visualization/rqt/issues/320>`_)
+  * Update CMakeLists.txt
+  * Update CMakeLists.txt
+  * Update CMakeLists.txt
+  * Update CMakeLists.txt
+  * Update CMakeLists.txt
+* Contributors: Arne Hitzmann
+
 0.5.4 (2025-04-09)
 ------------------
 * Import setup from setuptools instead of distutils.core (`#287 <https://github.com/ros-visualization/rqt/issues/287>`_)

@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump cmake_minimum_required to avoid deprecation (`#320 <https://github.com/ros-visualization/rqt/issues/320>`_)
+* Contributors: Arne Hitzmann
+
 0.5.4 (2025-04-09)
 ------------------
 * Use non deprecated pluginlib header (`#284 <https://github.com/ros-visualization/rqt/issues/284>`_)
