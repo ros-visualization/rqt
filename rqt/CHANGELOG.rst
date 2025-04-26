@@ -2,8 +2,8 @@
 Changelog for package rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.5 (2025-04-26)
+------------------
 * Bump cmake_minimum_required to avoid deprecation (`#320 <https://github.com/ros-visualization/rqt/issues/320>`_)
 * Contributors: Arne Hitzmann
 

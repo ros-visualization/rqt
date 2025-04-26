@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rqt_gui</name>
-  <version>0.5.4</version>
+  <version>0.5.5</version>
   <description>rqt_gui provides the main to start an instance of the ROS integrated graphical user interface provided by qt_gui.</description>
   <maintainer email="dharini@openrobotics.org">Dharini Dutia</maintainer>
   <license>BSD</license>
