@@ -36,8 +36,8 @@ setup(
     license='BSD',
     extras_require={
         'test': [
-            'pytest'
-        ]
+            'pytest',
+        ],
     },
     entry_points={
         'console_scripts': [
