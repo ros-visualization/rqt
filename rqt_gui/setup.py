@@ -26,7 +26,6 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
@@ -35,7 +34,11 @@ setup(
         'interface provided by qt_gui.'
     ),
     license='BSD',
-    tests_require=['pytest'],
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'rqt = rqt_gui.main:main',
