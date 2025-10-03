@@ -21,10 +21,6 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
-<<<<<<< HEAD
-        'License :: OSI Approved :: Apache Software License',
-=======
->>>>>>> 5f77cab (Fix setupTools deprecations (#322))
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
