@@ -26,7 +26,10 @@ setup(
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
+<<<<<<< HEAD
         'License :: OSI Approved :: Apache Software License',
+=======
+>>>>>>> 5f77cab (Fix setupTools deprecations (#322))
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
@@ -35,7 +38,11 @@ setup(
         'interface provided by qt_gui.'
     ),
     license='BSD',
-    tests_require=['pytest'],
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'rqt = rqt_gui.main:main',
