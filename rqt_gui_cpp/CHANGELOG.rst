@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.2 (2025-10-17)
+-------------------
+
 1.10.1 (2025-10-09)
 -------------------
 * fix compile with qt6 (`#321 <https://github.com/ros-visualization/rqt/issues/321>`_)
