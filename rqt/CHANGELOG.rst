@@ -2,6 +2,11 @@
 Changelog for package rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.9 (2025-10-17)
+------------------
+* fix setuptools deprecations (`#329 <https://github.com/ros-visualization/rqt/issues/329>`_) (`#332 <https://github.com/ros-visualization/rqt/issues/332>`_)
+* Contributors: mergify[bot]
+
 1.1.8 (2025-10-09)
 ------------------
 
