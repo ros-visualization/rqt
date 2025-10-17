@@ -1,6 +1,9 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.9.2 (2025-10-17)
+------------------
+
 1.9.1 (2025-10-09)
 ------------------
 * Fix setupTools deprecations (`#322 <https://github.com/ros-visualization/rqt/issues/322>`_) (`#326 <https://github.com/ros-visualization/rqt/issues/326>`_)
