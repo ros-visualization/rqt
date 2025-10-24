@@ -29,5 +29,8 @@ setup(
     ),
     packages=[],
     license='BSD',
-    tests_require=['pytest'],
-)
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },)
