@@ -142,9 +142,9 @@ class RqtRosGraph(object):
 
     @staticmethod
     def get_upper_grn(model_index, str_grn):
-        if model_index.data(Qt.DisplayRole) is None:
+        if model_index.data(Qt.ItemDataRole.DisplayRole) is None:
             return str_grn
         str_grn = (RqtRosGraph.DELIM_GRN +
-                   str(model_index.data(Qt.DisplayRole)) +
+                   str(model_index.data(Qt.ItemDataRole.DisplayRole)) +
                    str_grn)
         return RqtRosGraph.get_upper_grn(model_index.parent(), str_grn)
