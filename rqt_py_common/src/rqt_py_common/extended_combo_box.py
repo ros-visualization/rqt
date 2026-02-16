@@ -106,4 +106,4 @@ if __name__ == '__main__':
     combo.resize(300, 40)
     combo.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
