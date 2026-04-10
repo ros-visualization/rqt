@@ -120,7 +120,7 @@ class RqtRosGraph(object):
         while True:  # Loop per child.
             grn_curr = grn_prev + RqtRosGraph.DELIM_GRN + \
                 str(model_index.data())
-            child_qmindex = model_index.child(i_child, 0)
+            child_qmindex = model_index.model().index(i_child, 0, model_index)
 
             if (not child_qmindex.isValid()):
                 if i_child == 0:
