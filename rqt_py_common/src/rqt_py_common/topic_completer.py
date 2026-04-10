@@ -91,7 +91,7 @@ class TopicCompleter(TreeModelCompleter):
 if __name__ == '__main__':
     import sys
     from python_qt_binding.QtWidgets import \
-        QApplication, QComboBox, QLineEdit, QMainWindow, \
+        QApplication, QComboBox, QCompleter, QLineEdit, QMainWindow, \
         QTreeView, QVBoxLayout, QWidget
 
     import rclpy

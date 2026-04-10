@@ -117,8 +117,8 @@ class MessageTreeWidget(QTreeView):
 
         action_toggle_auto_resize = menu.addAction('Auto-Resize')
         action_toggle_auto_resize.setCheckable(True)
-        auto_resize_flag = (self.header().ResizeMode(0) == \
-            QHeaderView.ResizeMode.ResizeToContents)
+        auto_resize_flag = (self.header().ResizeMode(0) ==
+                            QHeaderView.ResizeMode.ResizeToContents)
         action_toggle_auto_resize.setChecked(auto_resize_flag)
 
         action_toggle_sorting = menu.addAction('Sorting')
