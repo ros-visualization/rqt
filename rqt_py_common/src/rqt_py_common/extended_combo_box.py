@@ -44,18 +44,18 @@ class ExtendedComboBox(QComboBox):
     def __init__(self, parent=None):
         super(ExtendedComboBox, self).__init__(parent)
 
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setEditable(True)
 
         # add a filter model to filter matching items
         self.filter_model = QSortFilterProxyModel(self)
-        self.filter_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.filter_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter_model.setSourceModel(self.model())
 
         # add a completer, which uses the filter model
         self.completer = QCompleter(self.filter_model, self)
         # always show all (filtered) completions
-        self.completer.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
+        self.completer.setCompletionMode(QCompleter.CompletionMode.UnfilteredPopupCompletion)
         self.setCompleter(self.completer)
 
         # connect signals
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     combo.resize(300, 40)
     combo.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

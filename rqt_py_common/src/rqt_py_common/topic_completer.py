@@ -91,7 +91,7 @@ class TopicCompleter(TreeModelCompleter):
 if __name__ == '__main__':
     import sys
     from python_qt_binding.QtWidgets import \
-        QApplication, QComboBox, QLineEdit, QMainWindow, \
+        QApplication, QComboBox, QCompleter, QLineEdit, QMainWindow, \
         QTreeView, QVBoxLayout, QWidget
 
     import rclpy
@@ -109,7 +109,7 @@ if __name__ == '__main__':
             edit = QLineEdit()
             edit_completer = TopicCompleter(edit)
             edit_completer.update_topics(topic_completer_node)
-            # edit_completer.setCompletionMode(QCompleter.InlineCompletion)
+            edit_completer.setCompletionMode(QCompleter.CompletionMode.InlineCompletion)
             edit.setCompleter(edit_completer)
 
             combo = QComboBox()
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             combo_completer = TopicCompleter(combo)
             combo_completer.update_topics(topic_completer_node)
 
-            # combo_completer.setCompletionMode(QCompleter.InlineCompletion)
+            combo_completer.setCompletionMode(QCompleter.CompletionMode.InlineCompletion)
             combo.lineEdit().setCompleter(combo_completer)
 
             model_tree = QTreeView()

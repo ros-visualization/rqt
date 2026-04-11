@@ -30,9 +30,16 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from packaging.version import Version
+from python_qt_binding import QT_BINDING_VERSION
+
 from python_qt_binding.QtCore import QMimeData, QModelIndex, Qt, qWarning, Slot
 from python_qt_binding.QtGui import QDrag, QIcon
-from python_qt_binding.QtWidgets import QAction, QHeaderView, QMenu, QTreeView
+if Version(QT_BINDING_VERSION) > Version('6.0.0'):
+    from python_qt_binding.QtGui import QAction
+else:
+    from python_qt_binding.QtWidgets import QAction
+from python_qt_binding.QtWidgets import QHeaderView, QMenu, QTreeView
 
 
 class MessageTreeWidget(QTreeView):
@@ -40,14 +47,14 @@ class MessageTreeWidget(QTreeView):
     def __init__(self, parent=None):
         super(MessageTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
-        self.sortByColumn(0, Qt.AscendingOrder)
+        self.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
         try:
             setSectionResizeMode = self.header().setSectionResizeMode  # Qt5
         except AttributeError:
             setSectionResizeMode = self.header().setResizeMode  # Qt4
-        setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.header().setContextMenuPolicy(Qt.CustomContextMenu)
+        setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.header().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.header().customContextMenuRequested.connect(
             self.handle_header_view_customContextMenuRequested)
 
@@ -74,14 +81,14 @@ class MessageTreeWidget(QTreeView):
 
         drag = QDrag(self)
         drag.setMimeData(data)
-        drag.exec_()
+        drag.exec()
 
     @Slot('QPoint')
     def handle_customContextMenuRequested(self, pos):
         # show context menu
         menu = QMenu(self)
         self._context_menu_add_actions(menu, pos)
-        menu.exec_(self.mapToGlobal(pos))
+        menu.exec(self.mapToGlobal(pos))
 
     def _context_menu_add_actions(self, menu, pos):
         if self.selectionModel().hasSelection():
@@ -110,7 +117,8 @@ class MessageTreeWidget(QTreeView):
 
         action_toggle_auto_resize = menu.addAction('Auto-Resize')
         action_toggle_auto_resize.setCheckable(True)
-        auto_resize_flag = (self.header().resizeMode(0) == QHeaderView.ResizeToContents)
+        auto_resize_flag = (self.header().ResizeMode(0) ==
+                            QHeaderView.ResizeMode.ResizeToContents)
         action_toggle_auto_resize.setChecked(auto_resize_flag)
 
         action_toggle_sorting = menu.addAction('Sorting')
@@ -118,14 +126,14 @@ class MessageTreeWidget(QTreeView):
         action_toggle_sorting.setChecked(self.isSortingEnabled())
 
         # show menu
-        action = menu.exec_(self.header().mapToGlobal(pos))
+        action = menu.exec(self.header().mapToGlobal(pos))
 
         # evaluate user action
         if action is action_toggle_auto_resize:
             if auto_resize_flag:
                 self.header().setResizeMode(QHeaderView.Interactive)
             else:
-                self.header().setResizeMode(QHeaderView.ResizeToContents)
+                self.header().setResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
         elif action is action_toggle_sorting:
             self.setSortingEnabled(not self.isSortingEnabled())

@@ -54,7 +54,7 @@ class RosPyPluginProvider(CompositePluginProvider):
         qDebug('Shutting down RosPyPluginProvider')
         if self._spinner:
             self._spinner.quit()
-            joined = self._spinner.wait(msecs=self._shutdown_timeout)
+            joined = self._spinner.wait(self._shutdown_timeout)
             if not joined:
                 qWarning('Timed out attempting to join the RclpySpinner thread')
                 return
