@@ -32,6 +32,7 @@
 
 #include "nodelet_plugin_provider.hpp"
 
+#include <unistd.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
