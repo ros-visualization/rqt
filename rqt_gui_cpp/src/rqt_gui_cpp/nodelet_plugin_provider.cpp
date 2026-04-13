@@ -34,6 +34,7 @@
 
 #include "roscpp_plugin_provider.h"
 
+#include <unistd.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
