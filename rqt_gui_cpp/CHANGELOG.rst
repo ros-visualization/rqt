@@ -2,6 +2,13 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.3 (2026-04-13)
+-------------------
+* Support Qt6 (`#339 <https://github.com/ros-visualization/rqt/issues/339>`_)
+* Removed deprecated header (`#340 <https://github.com/ros-visualization/rqt/issues/340>`_)
+* Use qt6 as the default dependency from rosdep (`#337 <https://github.com/ros-visualization/rqt/issues/337>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.10.2 (2025-10-17)
 -------------------
 

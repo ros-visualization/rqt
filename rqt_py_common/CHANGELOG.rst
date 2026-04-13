@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.3 (2026-04-13)
+-------------------
+* Support Qt6 (`#339 <https://github.com/ros-visualization/rqt/issues/339>`_)
+* Contributors: Alejandro Hernández Cordero
+
 1.10.2 (2025-10-17)
 -------------------
 
