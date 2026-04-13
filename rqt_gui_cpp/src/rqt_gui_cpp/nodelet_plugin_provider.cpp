@@ -34,11 +34,8 @@
 
 #include "roscpp_plugin_provider.h"
 
-<<<<<<< HEAD
-=======
 #include <unistd.h>
 #include <memory>
->>>>>>> 2b896cb (fix: include unistd.h for getpid (#341))
 #include <stdexcept>
 
 namespace rqt_gui_cpp {
