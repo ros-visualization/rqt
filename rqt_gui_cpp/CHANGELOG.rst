@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.10.4 (2026-04-24)
+-------------------
 * Use qt-base-dev / libqtwidgets (`#345 <https://github.com/ros-visualization/rqt/issues/345>`_)
 * fix: include unistd.h for getpid (`#341 <https://github.com/ros-visualization/rqt/issues/341>`_)
 * Contributors: Daisuke Nishimatsu, Shane Loretz
