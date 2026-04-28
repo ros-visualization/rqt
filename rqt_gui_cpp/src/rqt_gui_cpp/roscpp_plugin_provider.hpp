@@ -33,9 +33,6 @@
 #ifndef RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_
 #define RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_
 
-#include <QMessageBox>
-#include <QThread>
-
 #include <string>
 
 #include <qt_gui_cpp/composite_plugin_provider.hpp>

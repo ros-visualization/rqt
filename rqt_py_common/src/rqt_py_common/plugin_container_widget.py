@@ -31,8 +31,6 @@
 #
 # Author: Isaac Saito
 
-from __future__ import division
-
 import os
 
 from ament_index_python.resources import get_resource

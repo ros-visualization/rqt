@@ -32,12 +32,7 @@
 
 #include "roscpp_plugin_provider.hpp"
 
-#include <sys/types.h>
-
-#include <stdexcept>
-
 #include "nodelet_plugin_provider.hpp"
-#include <rqt_gui_cpp/plugin.hpp>
 
 #include <qt_gui_cpp/plugin_provider.hpp>
 #include <rclcpp/rclcpp.hpp>
