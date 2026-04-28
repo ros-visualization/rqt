@@ -29,6 +29,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import sys
 
 from python_qt_binding.QtCore import qDebug, qWarning
 from qt_gui.composite_plugin_provider import CompositePluginProvider
@@ -49,6 +50,7 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._node = None
         self._spinner = None
         self._shutdown_timeout = 2000
+        self._init_node(args=sys.argv)
 
     def shutdown(self):
         qDebug('Shutting down RosPyPluginProvider')
@@ -63,7 +65,7 @@ class RosPyPluginProvider(CompositePluginProvider):
         super().shutdown()
 
     def load(self, plugin_id, plugin_context):
-        self._init_node()
+        self._init_node(args=plugin_context.argv())
         ros_plugin_context = Ros2PluginContext(handler=plugin_context._handler, node=self._node)
 
         return super(RosPyPluginProvider, self).load(plugin_id, ros_plugin_context)
@@ -71,13 +73,13 @@ class RosPyPluginProvider(CompositePluginProvider):
     def unload(self, plugin_instance):
         return super(RosPyPluginProvider, self).unload(plugin_instance)
 
-    def _init_node(self):
+    def _init_node(self, args=None):
         # initialize node once
         if not self._node_initialized:
             name = 'rqt_gui_py_node_%d' % os.getpid()
             qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
             if not rclpy.ok():
-                rclpy.init()
+                rclpy.init(args=args)
             self._node = rclpy.create_node(name)
             self._spinner = RclpySpinner(self._node)
             self._spinner.start()

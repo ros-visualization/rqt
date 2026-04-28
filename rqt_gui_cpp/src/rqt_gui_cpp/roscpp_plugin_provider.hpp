@@ -34,6 +34,7 @@
 #define RQT_GUI_CPP__ROSCPP_PLUGIN_PROVIDER_HPP_
 
 #include <QMessageBox>
+#include <QStringList>
 #include <QThread>
 
 #include <string>
@@ -58,7 +59,8 @@ public:
     qt_gui_cpp::PluginContext * plugin_context);
 
 protected:
-  void init_rclcpp();
+  void init_rclcpp(const QStringList& args);
+  void init_rclcpp(int argc, char** argv);
 
   bool rclcpp_initialized_;
 };
