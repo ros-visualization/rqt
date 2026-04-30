@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.4 (2026-04-24)
+-------------------
+
 1.10.3 (2026-04-13)
 -------------------
 * Support Qt6 (`#339 <https://github.com/ros-visualization/rqt/issues/339>`_)

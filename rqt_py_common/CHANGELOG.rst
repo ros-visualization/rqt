@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.4 (2026-04-24)
+-------------------
+* Use qt-base-dev / libqtwidgets (`#345 <https://github.com/ros-visualization/rqt/issues/345>`_)
+* Contributors: Shane Loretz
+
 1.10.3 (2026-04-13)
 -------------------
 * Support Qt6 (`#339 <https://github.com/ros-visualization/rqt/issues/339>`_)

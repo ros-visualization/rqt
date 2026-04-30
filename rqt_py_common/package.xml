@@ -1,6 +1,6 @@
 <package format="3">
   <name>rqt_py_common</name>
-  <version>1.10.3</version>
+  <version>1.10.4</version>
   <description>
     rqt_py_common provides common functionality for rqt plugins written in Python.
     Despite no plugin is provided, this package is part of the rqt_common_plugins
@@ -25,7 +25,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <depend>qt6-base-dev</depend>
+  <depend>qt-base-dev</depend>
   <depend>rclpy</depend>
 
   <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>

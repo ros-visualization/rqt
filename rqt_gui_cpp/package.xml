@@ -1,6 +1,6 @@
 <package format="2">
   <name>rqt_gui_cpp</name>
-  <version>1.10.3</version>
+  <version>1.10.4</version>
   <description>rqt_gui_cpp enables GUI plugins to use the C++ client library for ROS.</description>
 
   <maintainer email="dharini@openrobotics.org">Dharini Dutia</maintainer>
@@ -19,7 +19,7 @@
   <depend>rclcpp</depend>
 
   <build_depend version_gte="0.3.0">qt_gui_cpp</build_depend>
-  <build_depend>qt6-base-dev</build_depend>
+  <build_depend>qt-base-dev</build_depend>
   <exec_depend version_gte="0.3.0">qt_gui_cpp</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
