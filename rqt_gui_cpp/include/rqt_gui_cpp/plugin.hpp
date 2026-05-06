@@ -70,10 +70,6 @@ public:
 
 protected:
   rclcpp::Node::SharedPtr node_;
-
-private:
-  void onInit()
-  {}
 };
 }  // namespace rqt_gui_cpp
 
