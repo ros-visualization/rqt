@@ -49,7 +49,7 @@ def is_primitive_type(type_str):
         'string',
         'bool', 'boolean',
         # deprecated in ros1:
-        'char', 'byte']
+        'byte']
     return type_str in primitive_types
 
 

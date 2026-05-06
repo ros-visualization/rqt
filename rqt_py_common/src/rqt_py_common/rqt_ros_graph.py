@@ -31,8 +31,6 @@
 #
 # Author: Isaac Saito
 
-from __future__ import division
-
 from python_qt_binding.QtCore import Qt
 
 
