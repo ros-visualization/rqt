@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.5 (2026-05-06)
+-------------------
+* Cleanup headers (`#347 <https://github.com/ros-visualization/rqt/issues/347>`_) (`#350 <https://github.com/ros-visualization/rqt/issues/350>`_)
+* Contributors: mergify[bot]
+
 1.10.4 (2026-04-24)
 -------------------
 * Use qt-base-dev / libqtwidgets (`#345 <https://github.com/ros-visualization/rqt/issues/345>`_)
