@@ -38,46 +38,6 @@ class RqtRosGraph(object):
     DELIM_GRN = '/'
 
     @staticmethod
-    def get_full_grn(model_index):
-        """
-        Create full path format of GRN.
-
-        @deprecated: Not completed.
-
-        Create full path format of GRN (Graph Resource Names, see
-        http://www.ros.org/wiki/Names). Build GRN by recursively transcending
-        parents & children of a given QModelIndex instance.
-
-        A complete example of GRN: /wide_stereo/left/image_color/compressed
-
-        Upon its very 1st call, the argument is the index where user clicks on
-        on the view object (here QTreeView is used but should work with other
-        View too. Not tested yet though). str_grn can be 0-length string.
-
-        :type model_index: QModelIndex
-        :type str_grn: str
-        :param str_grn: This could be an incomplete or a complete GRN format.
-        :rtype: str
-        """
-        children_grn_list = RqtRosGraph.get_lower_grn_dfs(model_index)
-        parent_data = model_index.data()
-        if parent_data is None:  # model_index is 1st-order node of a tree.
-            upper_grn = RqtRosGraph.get_upper_grn(model_index, '')
-            grn_list = []
-            for child_grn in children_grn_list:
-                grn_full = upper_grn + child_grn
-                grn_list.append(grn_full)
-        else:
-            grn_list = children_grn_list
-
-        # Create a string where namespace is delimited by slash.
-        grn = ''
-        for s in grn_list:
-            grn += RqtRosGraph.DELIM_GRN + s
-
-        return grn
-
-    @staticmethod
     def get_lower_grn_dfs(model_index, grn_prev=''):
         """
         Traverse all children treenodes and returns a list of "partial" GRNs.
