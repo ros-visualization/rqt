@@ -2,6 +2,13 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix: include unistd.h for getpid (`#341 <https://github.com/ros-visualization/rqt/issues/341>`_) (`#343 <https://github.com/ros-visualization/rqt/issues/343>`_)
+  (cherry picked from commit 2b896cb2f1c29ab67160399c4c659d91178ece01)
+  Co-authored-by: Daisuke Nishimatsu <42202095+wep21@users.noreply.github.com>
+* Contributors: mergify[bot]
+
 1.6.3 (2026-01-21)
 ------------------
 
