@@ -41,7 +41,8 @@ class LayoutUtil(object):
     _logger = logging.get_logger('LayoutUtil')
 
     @staticmethod
-    def alternate_color(list_widgets, colors_alter=None):
+    def alternate_color(
+            list_widgets, colors_alter=(QColorConstants.White, QColorConstants.Gray)):
         """
         Alternate the background color of the widgets.
 
@@ -56,8 +57,6 @@ class LayoutUtil(object):
 
         @author: Isaac Saito
         """
-        if colors_alter is None:
-            colors_alter = [QColorConstants.White, QColorConstants.Gray]
         colors_num = len(colors_alter)
         i_widget = 0
         for w in list_widgets:
