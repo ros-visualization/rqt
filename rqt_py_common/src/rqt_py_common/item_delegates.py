@@ -39,7 +39,7 @@ class SpinBoxDelegate(QItemDelegate):
         self._min = min_value
         self._max = max_value
         self._decimals = decimals
-        super(SpinBoxDelegate, self).__init__(*args)
+        super().__init__(*args)
 
     def createEditor(self, parent, option, index):
         editor = QDoubleSpinBox(parent)
