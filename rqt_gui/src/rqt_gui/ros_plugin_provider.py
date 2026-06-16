@@ -28,10 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-try:
-    import __builtin__
-except ImportError:
-    import builtins as __builtin__
+import builtins
 import os
 import sys
 import traceback
@@ -77,14 +74,14 @@ class RosPluginProvider(PluginProvider):
         sys.path.append(os.path.join(attributes['plugin_path'], attributes['library_path']))
 
         try:
-            module = __builtin__.__import__(
+            module = builtins.__import__(
                 attributes['module_name'], fromlist=[attributes['class_from_class_type']], level=0)
         except NotImplementedError as e:
             qCritical('RosPluginProvider.load(%s): raised an exception:\n%s' % (plugin_id, e))
             return None
         except Exception as e:
             qCritical('RosPluginProvider.load(%s) exception raised in '
-                      '__builtin__.__import__(%s, [%s]):\n%s' % (
+                      'builtins.__import__(%s, [%s]):\n%s' % (
                           plugin_id, attributes['module_name'],
                           attributes['class_from_class_type'],
                           traceback.format_exc()))

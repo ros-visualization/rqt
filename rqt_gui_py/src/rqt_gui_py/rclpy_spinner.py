@@ -38,16 +38,27 @@ class RclpySpinner(QThread):
     def __init__(self, node):
         super().__init__()
         self._node = node
+        self._executor = None
         self._abort = False
 
     def run(self):
         qDebug('Start called on RclpySpinner, spinning ros2 node')
-        executor = MultiThreadedExecutor()
-        executor.add_node(self._node)
-        while rclpy.ok() and not self._abort:
-            executor.spin_once(timeout_sec=1.0)
+        self._executor = MultiThreadedExecutor()
+        self._executor.add_node(self._node)
+        try:
+            while rclpy.ok() and not self._abort:
+                self._executor.spin_once(timeout_sec=1.0)
+        finally:
+            self._executor.remove_node(self._node)
+            self._executor = None
 
     def quit(self):  # noqa: A003
         qDebug('Quit called on RclpySpinner')
         self._abort = True
+        # Interrupt any in-flight spin_once so the run loop exits immediately
+        # rather than blocking the GUI thread (which calls wait()) until the
+        # spin_once timeout elapses.
+        executor = self._executor
+        if executor is not None:
+            executor.wake()
         super().quit()
