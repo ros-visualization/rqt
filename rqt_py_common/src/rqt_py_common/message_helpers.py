@@ -74,8 +74,9 @@ def _filter_rosidl_types(rosidl_type, interface_names):
     :returns: a list of the filtered rosidl types
     """
     if rosidl_type not in ROSIDL_FILTERS:
-        raise ValueError('Invalid rosidl_type type "{}". Needs to be one of {}'.format(
-            rosidl_type, ROSIDL_FILTERS.keys()))
+        raise ValueError(
+            f'Invalid rosidl_type type "{rosidl_type}". '
+            f'Needs to be one of {ROSIDL_FILTERS.keys()}')
 
     filter_fn = ROSIDL_FILTERS[rosidl_type]
     filtered = filter(filter_fn, interface_names)
@@ -113,7 +114,7 @@ def get_rosidl_types(package_name):
     try:
         content, _ = get_resource('rosidl_interfaces', package_name)
     except LookupError:
-        return []
+        return {}
     interface_names = content.splitlines()
     for filter_type in ROSIDL_FILTERS.keys():
         rosidl_types[filter_type] = _filter_rosidl_types(filter_type, interface_names)
@@ -139,8 +140,9 @@ def get_all_rosidl_types_of_type(rosidl_type):
     :returns: a dictionary mapping packages to the rosidl interfaces of a specific type
     """
     if rosidl_type not in ROSIDL_FILTERS:
-        raise ValueError('Invalid rosidl_type type {}. Needs to be one of {}'.format(
-            rosidl_type, ROSIDL_FILTERS.keys()))
+        raise ValueError(
+            f'Invalid rosidl_type type {rosidl_type}. '
+            f'Needs to be one of {ROSIDL_FILTERS.keys()}')
 
     all_rosidl_types = get_all_rosidl_types()
     return {
@@ -224,15 +226,15 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
         logger = logging.get_logger('_get_message_service_class_helper')
 
     if mode not in ROSIDL_FILTERS.keys():
-        logger.warn('invalid mode {}'.format(mode))
+        logger.warning(f'invalid mode {mode}')
         return None
 
     message_info = message_type.split('/')
     if len(message_info) not in (2, 3):
-        logger.error('Malformed message_type: {}'.format(message_type))
+        logger.error(f'Malformed message_type: {message_type}')
         return None
     if len(message_info) == 3 and message_info[1] != mode:
-        logger.error('Malformed {} message_type: {}'.format(mode, message_type))
+        logger.error(f'Malformed {mode} message_type: {message_type}')
         return None
 
     package = message_info[0]
@@ -247,9 +249,9 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
 
     try:
         # import the package
-        python_pkg = importlib.import_module('%s.%s' % (package, mode))
+        python_pkg = importlib.import_module(f'{package}.{mode}')
     except ImportError:
-        logger.info('Failed to import class: {} as {}.{}'.format(message_type, package, mode))
+        logger.info(f'Failed to import class: {message_type} as {package}.{mode}')
         return None
 
     try:
@@ -257,7 +259,7 @@ def _get_rosidl_class_helper(message_type, mode, logger=None):  # noqa: C901
         return class_val
 
     except AttributeError:
-        logger.info('Failed to load class: {}'.format(message_type))
+        logger.info(f'Failed to load class: {message_type}')
         return None
 
 
@@ -339,7 +341,7 @@ def get_message_text_from_class(msg_class):
     """Get a string representation of the message class."""
     msg_slot_dict = msg_class.get_fields_and_field_types()
     return ''.join(
-        ['{0} {1}\n'.format(slot_type, slot_name) for
+        [f'{slot_type} {slot_name}\n' for
             slot_name, slot_type in msg_slot_dict.items()])
 
 
@@ -348,11 +350,11 @@ def get_service_text_from_class(srv_class):
     srv_slot_dict_req = srv_class.Request.get_fields_and_field_types()
     srv_slot_dict_res = srv_class.Response.get_fields_and_field_types()
     srv_txt = [
-        '{0} {1}\n'.format(slot_type, slot_name) for
+        f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in srv_slot_dict_req.items()]
     srv_txt.extend(['---\n'])
     srv_txt.extend([
-        '{0} {1}\n'.format(slot_type, slot_name) for
+        f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in srv_slot_dict_res.items()])
     return ''.join(srv_txt)
 
@@ -363,14 +365,14 @@ def get_action_text_from_class(action_class):
     action_slot_dict_res = action_class.Result.get_fields_and_field_types()
     action_slot_dict_feedback = action_class.Feedback.get_fields_and_field_types()
     action_txt = [
-        '{0} {1}\n'.format(slot_type, slot_name) for
+        f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in action_slot_dict_goal.items()]
     action_txt.extend(['---\n'])
     action_txt.extend([
-        '{0} {1}\n'.format(slot_type, slot_name) for
+        f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in action_slot_dict_res.items()])
     action_txt.extend(['---\n'])
     action_txt.extend([
-        '{0} {1}\n'.format(slot_type, slot_name) for
+        f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in action_slot_dict_feedback.items()])
     return ''.join(action_txt)

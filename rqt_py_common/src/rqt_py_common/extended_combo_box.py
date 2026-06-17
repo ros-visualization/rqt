@@ -42,7 +42,7 @@ class ExtendedComboBox(QComboBox):
     setItems = Signal(list)
 
     def __init__(self, parent=None):
-        super(ExtendedComboBox, self).__init__(parent)
+        super().__init__(parent)
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setEditable(True)
@@ -71,7 +71,7 @@ class ExtendedComboBox(QComboBox):
 
     # on model change, update the models of the filter and completer as well
     def setModel(self, model):
-        super(ExtendedComboBox, self).setModel(model)
+        super().setModel(model)
         self.filter_model.setSourceModel(model)
         self.completer.setModel(self.filter_model)
 
@@ -79,7 +79,7 @@ class ExtendedComboBox(QComboBox):
     def setModelColumn(self, column):
         self.completer.setCompletionColumn(column)
         self.filter_model.setFilterKeyColumn(column)
-        super(ExtendedComboBox, self).setModelColumn(column)
+        super().setModelColumn(column)
 
     @Slot(list)
     def onSetItems(self, items):

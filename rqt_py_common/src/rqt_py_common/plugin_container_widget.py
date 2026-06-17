@@ -75,7 +75,7 @@ class PluginContainerWidget(QWidget):
         @param on_sysprogress_bar: If True, a progress bar will appear in the
                                    plugin's region.
         """
-        super(PluginContainerWidget, self).__init__()
+        super().__init__()
 
         self._logger = rclpy.logging.get_logger('PluginContainerWidget')
         _, package_path = get_resource('packages', 'rqt_py_common')
@@ -110,7 +110,7 @@ class PluginContainerWidget(QWidget):
 
         @type sysmsg: str
         """
-        self._logger.info('{}'.format(sysmsg))
+        self._logger.info(f'{sysmsg}')
         # self._sysmsg_widget.setPlainText(sysmsg)
         self._sysmsg_widget.append(sysmsg)
 
