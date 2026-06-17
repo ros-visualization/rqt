@@ -42,7 +42,7 @@ class Plugin(Base):
     """
 
     def __init__(self, context):
-        super(Plugin, self).__init__(context)
+        super().__init__(context)
 
     def shutdown_plugin(self):
         """

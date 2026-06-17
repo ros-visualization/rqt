@@ -57,12 +57,12 @@ class RqtRoscommUtil(object):
         @raise ValueError:
         """
         if subdir is None or subdir == '':
-            raise ValueError('Invalid package subdir = {}'.format(subdir))
+            raise ValueError(f'Invalid package subdir = {subdir}')
 
         packages_map = get_resources('packages')
         for package_name, package_path in packages_map.items():
             package_path = os.path.join(package_path, 'share', package_name, subdir)
             RqtRoscommUtil._logger.debug(
-                'package:\t{} dir:\t{}'.format(package_name, package_path))
+                f'package:\t{package_name} dir:\t{package_path}')
             if os.path.isdir(package_path):
                 yield package_name, package_path
