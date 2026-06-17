@@ -40,7 +40,7 @@ from rqt_py_common.tree_model_completer import TreeModelCompleter
 class TopicCompleter(TreeModelCompleter):
 
     def __init__(self, parent=None):
-        super(TopicCompleter, self).__init__(parent)
+        super().__init__(parent)
         self.setModel(MessageTreeModel())
 
     def splitPath(self, path):
@@ -59,12 +59,12 @@ class TopicCompleter(TreeModelCompleter):
                     subfield_topic = path.replace(topic, '')
                     # Remove backslash at the end of the topic name
                     result = [topic[1:]]
-                    result2 = super(TopicCompleter, self).splitPath(
+                    result2 = super().splitPath(
                         subfield_topic.replace('[', '/['))
                     result = result + result2
                     return result
 
-        return super(TopicCompleter, self).splitPath(path.replace('[', '/['))
+        return super().splitPath(path.replace('[', '/['))
 
     def update_topics(self, node):
         # Note: This has changed from ROS1->2 as ROS2 only allows nodes to query
@@ -80,9 +80,10 @@ class TopicCompleter(TreeModelCompleter):
                 topic_name = topic_path.strip('/')
                 message_class = get_message_class(topic_type)
                 if message_class is None:
-                    qWarning('TopicCompleter.update_topics(): '
-                             'could not get message class for topic type "%s" on topic "%s"' %
-                             (topic_type, topic_path))
+                    qWarning(
+                        'TopicCompleter.update_topics(): '
+                        f'could not get message class for topic type "{topic_type}" '
+                        f'on topic "{topic_path}"')
                     continue
                 message_instance = message_class()
                 self.model().add_message(message_instance, topic_name, topic_type, topic_path)
@@ -143,6 +144,6 @@ if __name__ == '__main__':
             mw.move(300, 0)
             mw.resize(800, 900)
             mw.show()
-            app.exec_()
+            app.exec()
     except (KeyboardInterrupt, ExternalShutdownException):
         pass

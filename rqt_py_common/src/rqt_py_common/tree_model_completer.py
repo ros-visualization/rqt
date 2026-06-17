@@ -37,7 +37,7 @@ class TreeModelCompleter(QCompleter):
     separator = '/'
 
     def __init__(self, parent=None):
-        super(TreeModelCompleter, self).__init__(parent)
+        super().__init__(parent)
 
     def splitPath(self, path):
         path = path.lstrip(self.separator)

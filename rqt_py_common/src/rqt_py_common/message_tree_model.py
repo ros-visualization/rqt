@@ -91,7 +91,7 @@ class MessageTreeModel(QStandardItemModel):
         elif type(slot) in list_types and (len(slot) > 0):
             child_slot_type = slot_type_name[:slot_type_name.find('[')]
             for index, child_slot in enumerate(slot):
-                child_slot_name = '[%d]' % index
+                child_slot_name = f'[{index}]'
                 child_slot_path = slot_path + child_slot_name
                 self._recursive_create_items(
                     row[0], child_slot, child_slot_name,
@@ -151,8 +151,8 @@ class MessageTreeModel(QStandardItemModel):
             stditem = stditem_prev
 
         MessageTreeModel._logger.debug(
-            'add_tree_node 1 name_curr={} \n\t\tname_prev={} row_index_parent={}'.format(
-                name_curr, name_prev, row_index_parent))
+            f'add_tree_node 1 name_curr={name_curr} \n\t\t'
+            f'name_prev={name_prev} row_index_parent={row_index_parent}')
 
         if (0 < len(names_on_branch)):
             MessageTreeModel._build_tree_recursive(stditem, names_on_branch)

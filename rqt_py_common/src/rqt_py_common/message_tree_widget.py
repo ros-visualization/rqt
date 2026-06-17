@@ -45,15 +45,11 @@ from python_qt_binding.QtWidgets import QHeaderView, QMenu, QTreeView
 class MessageTreeWidget(QTreeView):
 
     def __init__(self, parent=None):
-        super(MessageTreeWidget, self).__init__(parent)
+        super().__init__(parent)
         self.setDragEnabled(True)
         self.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
-        try:
-            setSectionResizeMode = self.header().setSectionResizeMode  # Qt5
-        except AttributeError:
-            setSectionResizeMode = self.header().setResizeMode  # Qt4
-        setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self.header().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.header().customContextMenuRequested.connect(
             self.handle_header_view_customContextMenuRequested)
@@ -73,7 +69,7 @@ class MessageTreeWidget(QTreeView):
         item = self.model().itemFromIndex(index)
         path = getattr(item, '_path', None)
         if path is None:
-            qWarning('MessageTreeWidget.startDrag(): no _path set on item %s' % item)
+            qWarning(f'MessageTreeWidget.startDrag(): no _path set on item {item}')
             return
 
         data = QMimeData()
@@ -117,7 +113,7 @@ class MessageTreeWidget(QTreeView):
 
         action_toggle_auto_resize = menu.addAction('Auto-Resize')
         action_toggle_auto_resize.setCheckable(True)
-        auto_resize_flag = (self.header().ResizeMode(0) ==
+        auto_resize_flag = (self.header().sectionResizeMode(0) ==
                             QHeaderView.ResizeMode.ResizeToContents)
         action_toggle_auto_resize.setChecked(auto_resize_flag)
 
@@ -131,9 +127,9 @@ class MessageTreeWidget(QTreeView):
         # evaluate user action
         if action is action_toggle_auto_resize:
             if auto_resize_flag:
-                self.header().setResizeMode(QHeaderView.Interactive)
+                self.header().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
             else:
-                self.header().setResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+                self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
         elif action is action_toggle_sorting:
             self.setSortingEnabled(not self.isSortingEnabled())

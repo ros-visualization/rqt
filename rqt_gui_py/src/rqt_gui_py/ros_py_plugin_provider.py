@@ -42,7 +42,7 @@ from rqt_gui_py.rclpy_spinner import RclpySpinner
 class RosPyPluginProvider(CompositePluginProvider):
 
     def __init__(self):
-        super(RosPyPluginProvider, self).__init__(
+        super().__init__(
             [RospkgPluginProvider('rqt_gui', 'rqt_gui_py::Plugin')])
         self.setObjectName('RosPyPluginProvider')
         self._node_initialized = False
@@ -66,16 +66,16 @@ class RosPyPluginProvider(CompositePluginProvider):
         self._init_node()
         ros_plugin_context = Ros2PluginContext(handler=plugin_context._handler, node=self._node)
 
-        return super(RosPyPluginProvider, self).load(plugin_id, ros_plugin_context)
+        return super().load(plugin_id, ros_plugin_context)
 
     def unload(self, plugin_instance):
-        return super(RosPyPluginProvider, self).unload(plugin_instance)
+        return super().unload(plugin_instance)
 
     def _init_node(self):
         # initialize node once
         if not self._node_initialized:
-            name = 'rqt_gui_py_node_%d' % os.getpid()
-            qDebug('RosPyPluginProvider._init_node() initialize ROS node "%s"' % name)
+            name = f'rqt_gui_py_node_{os.getpid()}'
+            qDebug(f'RosPyPluginProvider._init_node() initialize ROS node "{name}"')
             if not rclpy.ok():
                 rclpy.init()
             self._node = rclpy.create_node(name)

@@ -35,7 +35,7 @@ from rqt_py_common.message_tree_model import MessageTreeModel
 class TopicTreeModel(MessageTreeModel):
 
     def __init__(self, parent=None, node=None):
-        super(TopicTreeModel, self).__init__(parent)
+        super().__init__(parent)
         self.refresh(node)
 
     def refresh(self, node):

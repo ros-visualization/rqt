@@ -41,7 +41,7 @@ class RospkgPluginProvider(RosPluginProvider):
     """`RosPluginProvider` using rospkg."""
 
     def __init__(self, export_tag, base_class_type):
-        super(RospkgPluginProvider, self).__init__(export_tag, base_class_type)
+        super().__init__(export_tag, base_class_type)
         self.setObjectName('RospkgPluginProvider')
 
     def _find_plugins(self, export_tag, discovery_data):
@@ -53,8 +53,9 @@ class RospkgPluginProvider(RosPluginProvider):
 
         plugins = []
         if crawl:
-            qDebug("RospkgPluginProvider._find_plugins() crawling for plugins of type '%s'" %
-                   export_tag)
+            qDebug(
+                'RospkgPluginProvider._find_plugins() crawling for plugins of type '
+                f'{export_tag!r}')
             for package_name, package_path in get_packages_with_prefixes().items():
                 package_share_path = os.path.join(package_path, 'share', package_name)
                 package_file_path = os.path.join(
@@ -64,7 +65,7 @@ class RospkgPluginProvider(RosPluginProvider):
                     try:
                         package = parse_package(package_file_path)
                     except InvalidPackage as e:
-                        qWarning('Could not parse package file "%s":\n%s' % (package_file_path, e))
+                        qWarning(f'Could not parse package file "{package_file_path}":\n{e}')
                         continue
                     for export in package.exports:
                         if export.tagname != export_tag or 'plugin' not in export.attributes:
