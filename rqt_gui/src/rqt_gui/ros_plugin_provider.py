@@ -80,20 +80,12 @@ class RosPluginProvider(PluginProvider):
             qCritical(f'RosPluginProvider.load({plugin_id}): raised an exception:\n{e}')
             return None
         except Exception as e:
-<<<<<<< ahcorde/rolling/improvements
             module_name = attributes['module_name']
             class_from_class_type = attributes['class_from_class_type']
             qCritical(
                 f'RosPluginProvider.load({plugin_id}) exception raised in '
                 f'builtins.__import__({module_name}, '
                 f'[{class_from_class_type}]):\n{traceback.format_exc()}')
-=======
-            qCritical('RosPluginProvider.load(%s) exception raised in '
-                      'builtins.__import__(%s, [%s]):\n%s' % (
-                          plugin_id, attributes['module_name'],
-                          attributes['class_from_class_type'],
-                          traceback.format_exc()))
->>>>>>> rolling
             raise e
 
         class_ref = getattr(module, attributes['class_from_class_type'], None)
