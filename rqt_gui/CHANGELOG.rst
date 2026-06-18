@@ -1,6 +1,12 @@
 Changelog for package rqt_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.1 (2026-06-18)
+------------------
+* Use logger.warning(), f-string , super() and Qt6 fixes (`#354 <https://github.com/ros-visualization/rqt/issues/354>`_)
+* Removed Python2 references and improve executor (`#353 <https://github.com/ros-visualization/rqt/issues/353>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.0 (2026-05-06)
 ------------------
 

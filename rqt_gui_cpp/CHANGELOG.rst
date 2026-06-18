@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.1 (2026-06-18)
+------------------
+
 2.0.0 (2026-05-06)
 ------------------
 * Cleanup headers (`#347 <https://github.com/ros-visualization/rqt/issues/347>`_)

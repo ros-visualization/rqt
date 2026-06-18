@@ -2,6 +2,13 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.1 (2026-06-18)
+------------------
+* Use logger.warning(), f-string , super() and Qt6 fixes (`#354 <https://github.com/ros-visualization/rqt/issues/354>`_)
+* Removed deprecated static method get_full_grn (`#348 <https://github.com/ros-visualization/rqt/issues/348>`_)
+* Removed dead code (`#349 <https://github.com/ros-visualization/rqt/issues/349>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.0 (2026-05-06)
 ------------------
 * Cleanup headers (`#347 <https://github.com/ros-visualization/rqt/issues/347>`_)
