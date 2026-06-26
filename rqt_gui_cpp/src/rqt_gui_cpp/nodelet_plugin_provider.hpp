@@ -33,7 +33,9 @@
 #ifndef RQT_GUI_CPP__NODELET_PLUGIN_PROVIDER_HPP_
 #define RQT_GUI_CPP__NODELET_PLUGIN_PROVIDER_HPP_
 
+#include <QSet>
 #include <QThread>
+#include <atomic>
 #include <memory>
 #include <string>
 
@@ -68,7 +70,7 @@ protected:
     const QString & plugin_id, qt_gui_cpp::PluginContext * plugin_context,
     qt_gui_cpp::Plugin * plugin) override;
 
-  QMap<void *, QString> instances_;
+  QSet<void *> instances_;
 
   bool loader_initialized_;
 
@@ -83,7 +85,7 @@ public:
     explicit RosSpinThread(QObject * parent = nullptr);
     ~RosSpinThread() override;
     void run() override;
-    bool abort;
+    std::atomic<bool> abort;
     // Create an executor that will be responsible for execution of callbacks for a set of nodes.
     // With this version, all callbacks will be called from within this thread (the main one).
     rclcpp::executors::MultiThreadedExecutor exec_;
