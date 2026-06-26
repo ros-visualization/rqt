@@ -32,6 +32,8 @@
 
 #include "roscpp_plugin_provider.hpp"
 
+#include <string>
+
 #include "nodelet_plugin_provider.hpp"
 
 #include <qt_gui_cpp/plugin_provider.hpp>
