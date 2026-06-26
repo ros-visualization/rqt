@@ -30,41 +30,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RQT_GUI_CPP__PLUGIN_HPP_
-#define RQT_GUI_CPP__PLUGIN_HPP_
+#include "rqt_gui_cpp/plugin.hpp"
 
 #include <memory>
-
-#include <qt_gui_cpp/plugin.hpp>
-#include <qt_gui_cpp/plugin_context.hpp>
-#include <qt_gui_cpp/settings.hpp>
-
-#include <rclcpp/rclcpp.hpp>
 
 namespace rqt_gui_cpp
 {
 
-/**
- * The base class for C++ plugins which use the ROS client library.
- * A plugin must not call rclcpp::init() as this is performed once by the framework.
- */
-class Plugin
-  : public qt_gui_cpp::Plugin
+Plugin::Plugin() = default;
+
+void Plugin::shutdownPlugin()
+{}
+
+void Plugin::passInNode(std::shared_ptr<rclcpp::Node> node)
 {
-public:
-  Plugin();
+  node_ = node;
+}
 
-  /**
-   * Shutdown and clean up the plugin before unloading.
-   * I.e. unregister subscribers and stop timers.
-   */
-  void shutdownPlugin() override;
-
-  virtual void passInNode(std::shared_ptr<rclcpp::Node> node);
-
-protected:
-  rclcpp::Node::SharedPtr node_;
-};
 }  // namespace rqt_gui_cpp
-
-#endif  // RQT_GUI_CPP__PLUGIN_HPP_
