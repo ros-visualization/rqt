@@ -52,15 +52,13 @@ class Plugin
   : public qt_gui_cpp::Plugin
 {
 public:
-  Plugin()
-  : qt_gui_cpp::Plugin()
-  {}
+  Plugin() = default;
 
   /**
    * Shutdown and clean up the plugin before unloading.
    * I.e. unregister subscribers and stop timers.
    */
-  virtual void shutdownPlugin()
+  void shutdownPlugin() override
   {}
 
   virtual void passInNode(std::shared_ptr<rclcpp::Node> node)

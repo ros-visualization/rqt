@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(rqt_gui_cpp)
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros_core REQUIRED)
 
 if(WIN32)
   message(STATUS "rqt_gui_cpp is not yet supported on Windows. Package will not be built.")
@@ -9,11 +10,8 @@ if(WIN32)
   return()
 endif()
 
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+# The C++ standard (C++20) is provided by the
+# ament_cmake_ros_core::ament_ros_defaults interface target linked below.
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -fPIC)
@@ -59,6 +57,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  ament_cmake_ros_core::ament_ros_defaults
   pluginlib::pluginlib
   Qt${QT_VERSION_MAJOR}::Widgets
 )
