@@ -104,7 +104,7 @@ std::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(
   std::shared_ptr<rqt_gui_cpp::Plugin> instance =
     qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::create_plugin(lookup_name);
   instance->passInNode(node_);
-  instances_[&*instance] = nodelet_name.c_str();
+  instances_[instance.get()] = nodelet_name.c_str();
 
   return instance;
 }
