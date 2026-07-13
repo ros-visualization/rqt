@@ -41,6 +41,7 @@ ament_export_dependencies(
 
 add_library(${PROJECT_NAME} SHARED
   src/rqt_gui_cpp/nodelet_plugin_provider.cpp
+  src/rqt_gui_cpp/plugin.cpp
   src/rqt_gui_cpp/roscpp_plugin_provider.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
