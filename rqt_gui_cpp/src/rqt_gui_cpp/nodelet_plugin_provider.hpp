@@ -53,20 +53,20 @@ class NodeletPluginProvider
 public:
   NodeletPluginProvider(const QString & export_tag, const QString & base_class_type);
 
-  virtual ~NodeletPluginProvider();
+  ~NodeletPluginProvider() override;
 
-  virtual void unload(void * instance);
+  void unload(void * instance) override;
 
 protected:
   void init_loader();
 
-  virtual std::shared_ptr<Plugin> create_plugin(
+  std::shared_ptr<Plugin> create_plugin(
     const std::string & lookup_name,
-    qt_gui_cpp::PluginContext * plugin_context);
+    qt_gui_cpp::PluginContext * plugin_context) override;
 
-  virtual void init_plugin(
+  void init_plugin(
     const QString & plugin_id, qt_gui_cpp::PluginContext * plugin_context,
-    qt_gui_cpp::Plugin * plugin);
+    qt_gui_cpp::Plugin * plugin) override;
 
   std::shared_ptr<rqt_gui_cpp::Plugin> instance_;
 
@@ -82,9 +82,9 @@ protected:
     : public QThread
   {
 public:
-    explicit RosSpinThread(QObject * parent = 0);
-    virtual ~RosSpinThread();
-    void run();
+    explicit RosSpinThread(QObject * parent = nullptr);
+    ~RosSpinThread() override;
+    void run() override;
     bool abort;
     // Create an executor that will be responsible for execution of callbacks for a set of nodes.
     // With this version, all callbacks will be called from within this thread (the main one).
