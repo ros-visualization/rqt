@@ -68,8 +68,6 @@ protected:
     const QString & plugin_id, qt_gui_cpp::PluginContext * plugin_context,
     qt_gui_cpp::Plugin * plugin) override;
 
-  std::shared_ptr<rqt_gui_cpp::Plugin> instance_;
-
   QMap<void *, QString> instances_;
 
   bool loader_initialized_;
