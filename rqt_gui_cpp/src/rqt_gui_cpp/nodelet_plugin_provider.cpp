@@ -53,7 +53,7 @@ NodeletPluginProvider::NodeletPluginProvider(
 NodeletPluginProvider::~NodeletPluginProvider()
 {
   if (ros_spin_thread_ != nullptr) {
-    ros_spin_thread_->abort = true;
+    ros_spin_thread_->abort.store(true, std::memory_order_relaxed);
     ros_spin_thread_->exec_.remove_node(node_);
     ros_spin_thread_->wait();
     ros_spin_thread_->deleteLater();
@@ -69,6 +69,7 @@ void NodeletPluginProvider::unload(void * instance)
   }
 
   qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::unload(instance);
+  instances_.remove(instance);
 }
 
 void NodeletPluginProvider::init_loader()
@@ -95,16 +96,14 @@ void NodeletPluginProvider::init_loader()
 
 std::shared_ptr<Plugin> NodeletPluginProvider::create_plugin(
   const std::string & lookup_name,
-  qt_gui_cpp::PluginContext * plugin_context)
+  qt_gui_cpp::PluginContext * /*plugin_context*/)
 {
   init_loader();
-
-  std::string nodelet_name = std::format("{}_{}", lookup_name, plugin_context->serialNumber());
 
   std::shared_ptr<rqt_gui_cpp::Plugin> instance =
     qt_gui_cpp::RosPluginlibPluginProvider<rqt_gui_cpp::Plugin>::create_plugin(lookup_name);
   instance->passInNode(node_);
-  instances_[instance.get()] = nodelet_name.c_str();
+  instances_.insert(instance.get());
 
   return instance;
 }
@@ -135,7 +134,7 @@ NodeletPluginProvider::RosSpinThread::~RosSpinThread() = default;
 
 void NodeletPluginProvider::RosSpinThread::run()
 {
-  while (!abort) {
+  while (!abort.load(std::memory_order_relaxed)) {
     // Spin the executor
     exec_.spin_once();
   }
