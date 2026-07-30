@@ -2,6 +2,15 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.2 (2026-07-30)
+------------------
+* Added unit test for Plufin base class (`#362 <https://github.com/ros-visualization/rqt/issues/362>`_)
+* fix ROSspinThread shutdown data race and prune unloaded instances (`#361 <https://github.com/ros-visualization/rqt/issues/361>`_)
+* drop redundant instance\_ member (`#360 <https://github.com/ros-visualization/rqt/issues/360>`_)
+* Move implementation from hpp to cpp (`#359 <https://github.com/ros-visualization/rqt/issues/359>`_)
+* modernize to cpp20 (`#358 <https://github.com/ros-visualization/rqt/issues/358>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.1 (2026-06-18)
 ------------------
 
