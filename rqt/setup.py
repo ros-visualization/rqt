@@ -3,7 +3,7 @@ from setuptools import setup
 package_name = 'rqt'
 setup(
     name=package_name,
-    version='2.0.1',
+    version='2.0.2',
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
