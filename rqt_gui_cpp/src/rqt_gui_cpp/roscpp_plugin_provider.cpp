@@ -36,7 +36,7 @@
 #include <rqt_gui_cpp/plugin.h>
 
 #include <qt_gui_cpp/plugin_provider.h>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/utilities.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 
