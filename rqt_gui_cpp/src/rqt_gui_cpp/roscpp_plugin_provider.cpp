@@ -35,8 +35,15 @@
 #include "nodelet_plugin_provider.h"
 #include <rqt_gui_cpp/plugin.h>
 
+<<<<<<< HEAD
 #include <qt_gui_cpp/plugin_provider.h>
 #include <rclcpp/rclcpp.hpp>
+=======
+#include "nodelet_plugin_provider.hpp"
+
+#include <qt_gui_cpp/plugin_provider.hpp>
+#include <rclcpp/utilities.hpp>
+>>>>>>> d691387 (granular rclcpp includes (#363))
 
 #include <pluginlib/class_list_macros.hpp>
 
