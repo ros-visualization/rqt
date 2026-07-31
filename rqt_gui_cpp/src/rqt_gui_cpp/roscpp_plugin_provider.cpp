@@ -40,7 +40,7 @@
 #include <rqt_gui_cpp/plugin.hpp>
 
 #include <qt_gui_cpp/plugin_provider.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/utilities.hpp>
 
 #include <pluginlib/class_list_macros.hpp>
 
