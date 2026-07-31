@@ -39,7 +39,7 @@
 #include <qt_gui_cpp/plugin_context.hpp>
 #include <qt_gui_cpp/settings.hpp>
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/node.hpp>
 
 namespace rqt_gui_cpp
 {
