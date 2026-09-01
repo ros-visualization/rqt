@@ -44,7 +44,8 @@
 
 #include <rqt_gui_cpp/plugin.hpp>
 
-#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/executors/multi_threaded_executor.hpp>
+#include <rclcpp/node.hpp>
 
 namespace rqt_gui_cpp
 {
