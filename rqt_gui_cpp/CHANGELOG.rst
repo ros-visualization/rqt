@@ -2,6 +2,12 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.3 (2026-09-04)
+------------------
+* Removed Qt5 support (`#368 <https://github.com/ros-visualization/rqt/issues/368>`_)
+* granular rclcpp includes (`#363 <https://github.com/ros-visualization/rqt/issues/363>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.2 (2026-07-30)
 ------------------
 * Added unit test for Plufin base class (`#362 <https://github.com/ros-visualization/rqt/issues/362>`_)
