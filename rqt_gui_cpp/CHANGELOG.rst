@@ -2,8 +2,8 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.10 (2026-09-06)
+-------------------
 * granular rclcpp includes (backport `#363 <https://github.com/ros-visualization/rqt/issues/363>`_) (`#367 <https://github.com/ros-visualization/rqt/issues/367>`_)
 * fix: include unistd.h for getpid (backport `#341 <https://github.com/ros-visualization/rqt/issues/341>`_) (`#344 <https://github.com/ros-visualization/rqt/issues/344>`_)
 * Contributors: mergify[bot]
