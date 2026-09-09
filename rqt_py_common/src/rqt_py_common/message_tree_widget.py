@@ -30,15 +30,9 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from packaging.version import Version
-from python_qt_binding import QT_BINDING_VERSION
 
 from python_qt_binding.QtCore import QMimeData, QModelIndex, Qt, qWarning, Slot
-from python_qt_binding.QtGui import QDrag, QIcon
-if Version(QT_BINDING_VERSION) > Version('6.0.0'):
-    from python_qt_binding.QtGui import QAction
-else:
-    from python_qt_binding.QtWidgets import QAction
+from python_qt_binding.QtGui import QAction, QDrag, QIcon
 from python_qt_binding.QtWidgets import QHeaderView, QMenu, QTreeView
 
 

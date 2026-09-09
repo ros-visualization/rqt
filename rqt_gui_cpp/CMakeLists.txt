@@ -22,15 +22,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(pluginlib REQUIRED)
-# Avoid find_package(QT NAMES Qt6 Qt5 ...) due to CMake's default ascending path resolution
-find_package(Qt6 QUIET COMPONENTS Widgets)
-if(Qt6_FOUND)
-  set(QT_VERSION_MAJOR 6)
-else()
-  find_package(Qt5 REQUIRED COMPONENTS Widgets)
-  set(QT_VERSION_MAJOR 5)
-endif()
-set(QT_VERSION "${Qt${QT_VERSION_MAJOR}_VERSION}")
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(rclcpp REQUIRED)
 find_package(qt_gui_cpp REQUIRED)
 
@@ -60,7 +52,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PRIVATE
   ament_cmake_ros_core::ament_ros_defaults
   pluginlib::pluginlib
-  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt6::Widgets
 )
 
 if(BUILD_TESTING)
@@ -73,7 +65,7 @@ if(BUILD_TESTING)
     target_link_libraries(test_plugin
       ${PROJECT_NAME}
       rclcpp::rclcpp
-      Qt${QT_VERSION_MAJOR}::Widgets
+      Qt6::Widgets
     )
   endif()
 endif()
