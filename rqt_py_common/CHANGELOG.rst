@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2026-09-14)
+------------------
+* Removed Qt5 (`#369 <https://github.com/ros-visualization/rqt/issues/369>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.3 (2026-09-04)
 ------------------
 
