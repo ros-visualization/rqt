@@ -15,7 +15,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('lib/' + package_name, ['bin/rqt_gui'])
+        ('lib/' + package_name, ['bin/rqt']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
