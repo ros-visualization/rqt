@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_py
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.7 (2026-10-22)
+-------------------
+
 1.10.6 (2026-06-18)
 -------------------
 * Use logger.warning(), f-string , super() and Qt6 fixes (`#354 <https://github.com/ros-visualization/rqt/issues/354>`_) (`#356 <https://github.com/ros-visualization/rqt/issues/356>`_)

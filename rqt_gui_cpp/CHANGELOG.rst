@@ -2,6 +2,11 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.10.7 (2026-10-22)
+-------------------
+* granular rclcpp includes (`#363 <https://github.com/ros-visualization/rqt/issues/363>`_) (`#364 <https://github.com/ros-visualization/rqt/issues/364>`_)
+* Contributors: mergify[bot]
+
 1.10.6 (2026-06-18)
 -------------------
 
