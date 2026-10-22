@@ -2,6 +2,11 @@
 Changelog for package rqt_py_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.5 (2026-10-22)
+------------------
+* Added missing depencencies to package.xml (`#370 <https://github.com/ros-visualization/rqt/issues/370>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.4 (2026-09-14)
 ------------------
 * Removed Qt5 (`#369 <https://github.com/ros-visualization/rqt/issues/369>`_)

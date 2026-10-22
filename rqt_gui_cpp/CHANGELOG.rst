@@ -2,6 +2,9 @@
 Changelog for package rqt_gui_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.5 (2026-10-22)
+------------------
+
 2.0.4 (2026-09-14)
 ------------------
 * Removed Qt5 (`#369 <https://github.com/ros-visualization/rqt/issues/369>`_)
