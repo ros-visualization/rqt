@@ -26,6 +26,7 @@ if(BUILD_TESTING)
   rosidl_generate_interfaces(${PROJECT_NAME}
     test/msg/Val.msg
     test/msg/ArrayVal.msg
+    test/msg/Constants.msg
     test/srv/AddTwoInts.srv
     SKIP_INSTALL)
   # setup fake ament index
@@ -37,6 +38,7 @@ if(BUILD_TESTING)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ament_index/share/ament_index/resource_index/rosidl_interfaces/${PROJECT_NAME}"
     "msg/Val.msg\n"
     "msg/ArrayVal.msg\n"
+    "msg/Constants.msg\n"
     "srv/AddTwoInts.srv")
   set(PROJECT_NAME ${_PROJECT_NAME})
 
