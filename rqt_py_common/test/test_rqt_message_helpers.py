@@ -71,6 +71,57 @@ class TestMessageHelpers(unittest.TestCase):  # noqa: D101
             'int64 sum\n'
         self.assertEqual(text, expected_text)
 
+    def test_get_message_constants_from_class(self):  # noqa: D102
+        from rqt_py_common.message_helpers import get_message_constants_from_class
+        from rqt_py_common_test_interfaces.msg import Constants, Val
+        # The class and an instance of it give the same constants, in definition order
+        for msg in (Constants, Constants()):
+            constants = get_message_constants_from_class(msg)
+            self.assertEqual(
+                [(name, value) for _, name, value in constants],
+                [('INT8_CONST', -5), ('STRING_CONST', 'hello')])
+        # A message without constants
+        self.assertEqual(get_message_constants_from_class(Val), [])
+
+    def test_get_message_constants_types_from_idl(self):  # noqa: D102
+        import os
+        from unittest import mock
+
+        from rqt_py_common import message_helpers
+        import rqt_py_common_test_interfaces
+        from rqt_py_common_test_interfaces.msg import Constants
+        # The test interfaces are not installed, so the share directory is replaced by the
+        # directory where rosidl_adapter generates their IDL files in the build tree
+        build_directory = os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(rqt_py_common_test_interfaces.__file__))))
+        idl_directory = os.path.join(
+            build_directory, 'rosidl_adapter', 'rqt_py_common_test_interfaces')
+        self.assertTrue(os.path.isfile(os.path.join(idl_directory, 'msg', 'Constants.idl')))
+        message_helpers._get_constant_types.cache_clear()
+        try:
+            with mock.patch.object(
+                    message_helpers, 'get_package_share_directory', return_value=idl_directory):
+                constants = message_helpers.get_message_constants_from_class(Constants)
+        finally:
+            message_helpers._get_constant_types.cache_clear()
+        self.assertEqual(
+            constants,
+            [('int8', 'INT8_CONST', -5), ('string', 'STRING_CONST', 'hello')])
+
+    def test_get_constant_type_name(self):  # noqa: D102
+        from rosidl_parser.definition import BasicType
+        from rosidl_parser.definition import BoundedString
+        from rosidl_parser.definition import BoundedWString
+        from rosidl_parser.definition import UnboundedString
+        from rosidl_parser.definition import UnboundedWString
+        from rqt_py_common.message_helpers import _get_constant_type_name
+        self.assertEqual(_get_constant_type_name(BasicType('int8')), 'int8')
+        self.assertEqual(_get_constant_type_name(UnboundedString()), 'string')
+        self.assertEqual(_get_constant_type_name(UnboundedWString()), 'wstring')
+        # The parser bounds string constants by the length of their value
+        self.assertEqual(_get_constant_type_name(BoundedString(12)), 'string')
+        self.assertEqual(_get_constant_type_name(BoundedWString(5)), 'wstring')
+
     def test_get_all_message_types(self):  # noqa: D102
         from rqt_py_common.message_helpers import get_all_message_types
         all_msgs = get_all_message_types()

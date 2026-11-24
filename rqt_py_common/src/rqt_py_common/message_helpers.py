@@ -29,8 +29,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Author: Michael Lautman
+import functools
 import importlib
+import os
 
+from ament_index_python import get_package_share_directory
 from ament_index_python import get_resource
 from ament_index_python import get_resources
 
@@ -376,3 +379,85 @@ def get_action_text_from_class(action_class):
         f'{slot_type} {slot_name}\n' for
         slot_name, slot_type in action_slot_dict_feedback.items()])
     return ''.join(action_txt)
+
+
+def _get_constant_type_name(constant_type):
+    """Get the IDL type name of a constant, such as ``int8`` or ``string``."""
+    # Imported here so that rosidl_parser is only loaded when constants are requested
+    from rosidl_parser.definition import AbstractWString
+    from rosidl_parser.definition import BasicType
+
+    if isinstance(constant_type, BasicType):
+        return constant_type.typename
+    # The parser gives string constants a bounded type whose maximum size is the
+    # length of the value, so the bound is not part of the declared type
+    if isinstance(constant_type, AbstractWString):
+        return 'wstring'
+    return 'string'
+
+
+@functools.lru_cache(maxsize=None)
+def _get_constant_types(msg_class):
+    """
+    Get the types of the constants of a message class from its IDL file.
+
+    :param msg_class: The message class.
+    :returns: A dictionary mapping each constant name to its IDL type name. The
+        dictionary is empty if the IDL file of the interface cannot be found or parsed.
+    """
+    logger = logging.get_logger('get_message_constants_from_class')
+    # For example, 'std_msgs.msg._header' and 'Header', or 'example_interfaces.srv._add_two_ints'
+    # and 'AddTwoInts_Request', whose IDL file is 'srv/AddTwoInts.idl'.
+    module_parts = msg_class.__module__.split('.')
+    if len(module_parts) < 2:
+        return {}
+    package_name, subfolder = module_parts[0], module_parts[1]
+    interface_name = msg_class.__name__.split('_')[0]
+    try:
+        from rosidl_parser.definition import Action
+        from rosidl_parser.definition import IdlLocator
+        from rosidl_parser.definition import Message
+        from rosidl_parser.definition import Service
+        from rosidl_parser.parser import parse_idl_file
+
+        share_directory = get_package_share_directory(package_name)
+        idl_path = os.path.join(subfolder, f'{interface_name}.idl')
+        if not os.path.isfile(os.path.join(share_directory, idl_path)):
+            return {}
+        idl_file = parse_idl_file(IdlLocator(share_directory, idl_path))
+    except Exception as e:  # noqa: B902
+        logger.debug(f'Could not read the constant types of {msg_class.__name__}: {e}')
+        return {}
+
+    # Messages defined in the file, including the parts of services and actions
+    messages = list(idl_file.content.get_elements_of_type(Message))
+    for service in idl_file.content.get_elements_of_type(Service):
+        messages += [service.request_message, service.response_message]
+    for action in idl_file.content.get_elements_of_type(Action):
+        messages += [action.goal, action.result, action.feedback]
+    for message in messages:
+        if message.structure.namespaced_type.name == msg_class.__name__:
+            return {
+                constant.name: _get_constant_type_name(constant.type)
+                for constant in message.constants}
+    return {}
+
+
+def get_message_constants_from_class(msg_class):
+    """
+    Get the constants defined in a message.
+
+    :param msg_class: The message class, or an instance of it.
+    :returns: A list of ``(type, name, value)`` tuples, in the order in which the
+        constants are defined. The type is the IDL type name, such as ``int8`` or
+        ``string``, or an empty string if it cannot be determined.
+    """
+    if not isinstance(msg_class, type):
+        msg_class = type(msg_class)
+    # The generated metaclass stores the constants in a private dictionary
+    metaclass = type(msg_class)
+    constants = getattr(metaclass, f'_{metaclass.__name__.lstrip("_")}__constants', None)
+    if not constants:
+        return []
+    types = _get_constant_types(msg_class)
+    return [(types.get(name, ''), name, value) for name, value in constants.items()]

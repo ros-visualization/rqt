@@ -30,6 +30,7 @@
   <exec_depend version_gte="0.3.4">python_qt_binding</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>qt_gui</exec_depend>
+  <exec_depend>rosidl_parser</exec_depend>
 
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
