@@ -56,6 +56,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
@@ -68,6 +69,35 @@ if(BUILD_TESTING)
       Qt6::Widgets
     )
   endif()
+
+  add_library(test_plugin_ros SHARED ./test/test_plugin_ros.cpp)
+  target_link_libraries(test_plugin_ros ${PROJECT_NAME})
+
+  pluginlib_enable_plugin_testing(
+    CMAKE_TARGET_VAR mock_install_target
+    AMENT_PREFIX_PATH_VAR mock_install_path
+    PACKAGE_NAME "test_rqt_gui_cpp"
+    PACKAGE_XML "test/test_package.xml"
+    PLUGIN_CATEGORY "rqt_gui"
+    PLUGIN_DESCRIPTIONS "test/test_plugins.xml"
+    PLUGIN_LIBRARIES test_plugin_ros
+  )
+
+  # Add the mock target to ALL because the following pytest call doesn't create
+  # a target which could depend on the mock target.
+  add_custom_target(${PROJECT_NAME}_plugin_testing_setup ALL
+    DEPENDS "${mock_install_target}" test_plugin_ros
+  )
+
+  ament_add_pytest_test(${PROJECT_NAME}_test
+    test/test_rqt_gui_cpp.py
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:test_plugin_ros>"
+    APPEND_ENV AMENT_PREFIX_PATH=${mock_install_path}
+  )
+  set_tests_properties(${PROJECT_NAME}_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+    TIMEOUT 120
+  )
 endif()
 
 install(

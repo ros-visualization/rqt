@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- SPDX-FileCopyrightText: Open Robotics -->
+<package format="2">
+  <name>test_rqt_gui_py</name>
+  <version>0.0.0</version>
+  <description>
+    This tests rqt_gui_py.
+  </description>
+  <maintainer email="dharini@openrobotics.org">Dharini Dutia</maintainer>
+  <license>BSD-3-Clause</license>
+  <export>
+    <rqt_gui plugin="${prefix}/test_plugins.xml"/>
+  </export>
+</package>

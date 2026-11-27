@@ -24,8 +24,11 @@
   <exec_depend version_gte="0.3.0">qt_gui_cpp</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>pluginlib</test_depend>
+  <test_depend>rqt_gui</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

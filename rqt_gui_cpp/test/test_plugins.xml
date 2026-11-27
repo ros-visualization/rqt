@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- SPDX-FileCopyrightText: Open Robotics -->
+<library path="test_plugin_ros">
+  <class name="test_rqt_gui_cpp/test" type="test_rqt_gui_cpp::Test" base_class_type="rqt_gui_cpp::Plugin">
+    <description>This is a test plugin.</description>
+  </class>
+  <class name="test_rqt_gui_cpp/2test" type="test_rqt_gui_cpp::Te2st" base_class_type="rqt_gui_cpp::Plugin">
+    <description>This is a test2 plugin.</description>
+  </class>
+</library>

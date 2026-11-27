@@ -90,12 +90,33 @@ void RosCppPluginProvider::init_rclcpp()
     int argc = 0;
     char ** argv = nullptr;
 
+    // Read ROS CLI args passed from rqt_gui.Main
+    const auto app = QCoreApplication::instance();
+    if (app != nullptr) {
+      const auto argv_prop = app->property("__ros_init_argv");
+      if (argv_prop.isValid()) {
+        const auto q_argv = argv_prop.toStringList();
+        argc = q_argv.size();
+        if (argc > 0) {
+          argv = new char *[argc];
+          for (int i = 0; i < argc; i++) {
+            argv[i] = strdup(q_argv.at(i).toStdString().c_str());
+          }
+        }
+      }
+    }
+
     // Initialize any global resources needed by the middleware and the client library.
-    // This will also parse command line arguments one day (as of Beta 1 they are not used).
     // You must call this before using any other part of the ROS system.
     // This should be called once per process.
     rclcpp::init(argc, argv);
 
+    for (int i = 0; i < argc; i++) {
+      free(argv[i]);
+    }
+    if (argv != nullptr) {
+      delete[] argv;
+    }
 
     // Don't do this again in this process
     rclcpp_initialized_ = true;
