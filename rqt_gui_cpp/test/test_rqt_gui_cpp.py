@@ -49,6 +49,7 @@ import pytest
 from python_qt_binding.QtCore import QTimer
 from python_qt_binding.QtWidgets import QApplication, QMainWindow
 
+from qt_gui.plugin_manager import PluginManager
 from rqt_gui.main import Main
 
 TEST_PLUGIN_NAME = 'test_rqt_gui_cpp/test'
@@ -59,6 +60,37 @@ TEST_PLUGIN_SIM_TIME_PROPERTY = 'test_rqt_gui_cpp_sim_time'
 TEST2_PLUGIN_NAME = 'test_rqt_gui_cpp/2test'
 TEST2_PLUGIN_ARGV_PROPERTY = 'test_rqt_gui_cpp_argv2'
 TEST2_PLUGIN_SIM_TIME_PROPERTY = 'test_rqt_gui_cpp_sim_time2'
+
+# all PluginManager instances created in this process, see `track_plugin_managers()`
+PLUGIN_MANAGERS: list[PluginManager] = []
+
+
+def track_plugin_managers():
+    """
+    Remember all plugin managers of applications started in this process.
+
+    The plugin manager is only a local variable of `Main.main()`, and adding a plugin to an
+    already running GUI normally happens through its DBus interface. DBus is not available on
+    the buildfarm, so the tests need this reference to be able to load the plugin themselves.
+    """
+    if getattr(PluginManager.__init__, '_tracked_by_test', False):
+        return
+
+    original_init = PluginManager.__init__
+
+    def tracked_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        PLUGIN_MANAGERS.append(self)
+
+    tracked_init._tracked_by_test = True
+    PluginManager.__init__ = tracked_init
+
+
+def get_plugin_manager() -> PluginManager:
+    """Get the plugin manager of the single application running in this process."""
+    assert len(PLUGIN_MANAGERS) == 1, \
+        'Expected exactly one plugin manager, got %d' % len(PLUGIN_MANAGERS)
+    return PLUGIN_MANAGERS[0]
 
 
 def qt_wait(app: QApplication, cond, timeout: float, sleep: float = 0.01, msg: str | None = None):
@@ -80,6 +112,7 @@ class MainClass(Main):
         self.test_cb = test_cb
         self.closed_cleanly = False
         self.exc: BaseException | None = None
+        track_plugin_managers()
 
     def create_application(self, argv):
         self.app = super().create_application(argv)
@@ -171,33 +204,21 @@ def _test_cb_passes_plugin_and_ros_args(app: QApplication, main_window: QMainWin
         'use_sim_time parameter was not set to True.'
 
 
-def _insert_plugin(pid, queue, plugin, argv):
-    main = Main()
-    argv = [
-        os.path.abspath(__file__),
-        '--command-pid', str(pid),
-        '--command-start-plugin', plugin
-    ] + (argv if argv else [])
-    ret = main.main(argv=argv)
-    assert ret == 0, 'rqt_gui command returned non-zero exit code %d' % ret
-    queue.put((ret,))
-
-
 def insert_plugin(app: QApplication, plugin, check_property, argv=None):
-    pid = app.applicationPid()
+    """
+    Load the given plugin into the already running application.
 
-    ctx = mp.get_context('spawn')
-    queue = ctx.Queue()
-    proc = ctx.Process(target=_insert_plugin, args=(pid, queue, plugin, argv))
-    proc.start()
+    This calls the very same function as the DBus interface of a running rqt_gui does when it
+    receives a `--command-start-plugin` command, but it does not need DBus to be available.
 
-    qt_wait(app, lambda: proc.is_alive() is False, 10.0, sleep=0.2,
-            msg='Waiting for command to finish')
+    The `argv` are the arguments the plugin should receive, i.e. what would follow `--args` on
+    the command line of `rqt --command-start-plugin <plugin> --args <arguments>`.
+    """
+    plugin_manager = get_plugin_manager()
+    plugins = plugin_manager.find_plugins_by_name(plugin)
+    assert len(plugins) == 1, 'Plugin %s was not found or is ambiguous: %s' % (plugin, plugins)
 
-    proc.join(timeout=1)
-    assert proc.is_alive() is False, 'Command timed out'
-    ret, = queue.get_nowait()
-    assert ret == 0, 'rqt_gui command returned non-zero exit code %d' % ret
+    plugin_manager.load_plugin(next(iter(plugins)), argv=argv if argv else [])
 
     qt_wait(app, lambda: app.property(check_property) is not None, 10.0, sleep=0.2,
             msg='Waiting for dynamically loaded plugin')
@@ -229,7 +250,7 @@ def _test_cb_runtime_plugins_get_ros_params(app: QApplication, main_window: QMai
     # Test that plugin args are passed correctly and ROS args still propagate
     prefix = 'test3_'
     insert_plugin(app, TEST_PLUGIN_NAME, prefix + TEST_PLUGIN_ARGV_PROPERTY,
-                  argv=['--args', '--prefix', prefix])
+                  argv=['--prefix', prefix])
 
     assert app.property(prefix + TEST_PLUGIN_ARGV_PROPERTY) == ['--prefix', prefix], \
         'The plugin received unexpected arguments: %s' % (
