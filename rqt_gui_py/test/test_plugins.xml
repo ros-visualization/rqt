@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- SPDX-FileCopyrightText: Open Robotics -->
+<library path="test_plugin">
+  <class name="test_rqt_gui_py/_test" type="test_rqt_gui_py.test_plugin.Test" base_class_type="rqt_gui_py::Plugin">
+    <description>This is a test plugin.</description>
+    <qtgui>
+      <group>
+        <label>Test</label>
+        <icon type="theme">Test</icon>
+        <statustip>Plugins related to testing.</statustip>
+      </group>
+      <label>Test</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip>Test plugin.</statustip>
+    </qtgui>
+  </class>
+  <class name="test_rqt_gui_py/_2test" type="test_rqt_gui_py.test_plugin.Te2st" base_class_type="rqt_gui_py::Plugin">
+    <description>This is a test2 plugin.</description>
+    <qtgui>
+      <group>
+        <label>Test</label>
+        <icon type="theme">Test</icon>
+        <statustip>Plugins related to testing.</statustip>
+      </group>
+      <label>Test2</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip>Test2 plugin.</statustip>
+    </qtgui>
+  </class>
+</library>
