@@ -31,6 +31,7 @@
 import os
 
 from python_qt_binding.QtCore import qDebug, qWarning
+from python_qt_binding.QtWidgets import QApplication
 from qt_gui.composite_plugin_provider import CompositePluginProvider
 
 import rclpy
@@ -77,7 +78,14 @@ class RosPyPluginProvider(CompositePluginProvider):
             name = f'rqt_gui_py_node_{os.getpid()}'
             qDebug(f'RosPyPluginProvider._init_node() initialize ROS node "{name}"')
             if not rclpy.ok():
-                rclpy.init()
+                # Read ROS CLI args passed from rqt_gui.Main
+                argv = None
+                app = QApplication.instance()
+                if app is not None:
+                    prop = app.property('__ros_init_argv')
+                    if prop:
+                        argv = prop
+                rclpy.init(args=argv)
             self._node = rclpy.create_node(name)
             self._spinner = RclpySpinner(self._node)
             self._spinner.start()

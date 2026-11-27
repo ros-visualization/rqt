@@ -33,7 +33,7 @@ import sys
 
 from qt_gui.main import Main as Base
 from qt_gui.ros_package_helper import get_package_path
-import rclpy
+import rclpy.utilities
 
 
 class Main(Base):
@@ -42,13 +42,16 @@ class Main(Base):
         qtgui_path = get_package_path('qt_gui')
         super().__init__(
             qtgui_path, invoked_filename=filename, settings_filename=settings_filename)
+        self._ros_init_argv = None
 
     def main(self, argv=None, standalone=None, plugin_argument_provider=None):
         if argv is None:
             argv = sys.argv
+        orig_argv = list(argv)
 
-        # ignore ROS specific remapping arguments
-        argv = rclpy.utilities.remove_ros_args(args=argv)
+        argv = rclpy.utilities.remove_ros_args(argv)
+        self._ros_init_argv = orig_argv
+
         help_text = """<p><b>rqt</b> is a GUI framework that is able to load various plug-in tools
 as dockable windows. There are currently no plug-ins selected. To add plug-ins, select items from
 the <b>Plugins</b> menu.</p>
@@ -64,6 +67,9 @@ the <b>Plugins</b> menu.</p>
     def create_application(self, argv):
         from python_qt_binding.QtGui import QIcon
         app = super().create_application(argv)
+        if self._ros_init_argv is not None:
+            # Pass ROS CLI args to RQt plugins' rclpy.init() and rclcpp::init()
+            app.setProperty('__ros_init_argv', self._ros_init_argv)
         rqt_gui_path = get_package_path('rqt_gui')
         logo = os.path.join(rqt_gui_path, 'share', 'rqt_gui', 'resource', 'rqt.png')
         icon = QIcon(logo)
